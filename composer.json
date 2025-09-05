@@ -1,0 +1,110 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "laravel/vue-starter-kit",
+    "type": "project",
+    "description": "The skeleton application for the Laravel framework.",
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "bavix/laravel-wallet": "^11.4",
+        "beyondcode/laravel-vouchers": "*",
+        "cmgmyr/messenger": "^2.31",
+        "filament/filament": "~4.0",
+        "filament/spatie-laravel-media-library-plugin": "^4.0",
+        "filament/spatie-laravel-settings-plugin": "^4.0",
+        "filament/spatie-laravel-tags-plugin": "^4.0",
+        "inertiajs/inertia-laravel": "^2.0",
+        "laravel/framework": "^12.0",
+        "laravel/tinker": "^2.10.1",
+        "leandrocfe/filament-apex-charts": "^4.0@beta",
+        "malzariey/filament-daterangepicker-filter": "^4.0",
+        "opcodesio/log-viewer": "^3.19",
+        "predis/predis": "^3.2",
+        "spatie/image-optimizer": "^1.8",
+        "spatie/laravel-medialibrary": "^11.14",
+        "spatie/laravel-permission": "^6.21",
+        "spatie/laravel-schedule-monitor": "^3.10",
+        "spatie/laravel-searchable": "^1.13",
+        "spatie/laravel-settings": "^3.4",
+        "spatie/laravel-sluggable": "^3.7",
+        "spatie/laravel-tags": "^4.10",
+        "spatie/laravel-uptime-monitor": "^4.5",
+        "tightenco/ziggy": "^2.4"
+    },
+    "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.16",
+        "barryvdh/laravel-ide-helper": "^3.6",
+        "beyondcode/laravel-query-detector": "^2.1",
+        "fakerphp/faker": "^1.23",
+        "laradumps/laradumps": "^4.5",
+        "laravel/pail": "^1.2.2",
+        "laravel/pint": "^1.18",
+        "laravel/sail": "^1.41",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.6",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php artisan migrate --graceful --ansi"
+        ],
+        "dev": [
+            "Composer\\Config::disableProcessTimeout",
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
+        ],
+        "dev:ssr": [
+            "npm run build:ssr",
+            "Composer\\Config::disableProcessTimeout",
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"php artisan inertia:start-ssr\" --names=server,queue,logs,ssr --kill-others"
+        ],
+        "test": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
