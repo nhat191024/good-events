@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AuthLayout from '@/layouts/AuthLayout.vue';
-import { Form, Head } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+    import InputError from '@/components/InputError.vue';
+    import TextLink from '@/components/TextLink.vue';
+    import { Button } from '@/components/ui/button';
+    import { Input } from '@/components/ui/input';
+    import { Label } from '@/components/ui/label';
+    import AuthLayout from '@/layouts/AuthLayout.vue';
+    import { Form, Head } from '@inertiajs/vue3';
+    import { LoaderCircle } from 'lucide-vue-next';
 
-defineProps<{
-    status?: string;
-}>();
+    defineProps<{
+        status?: string;
+    }>();
 </script>
 
 <template>
     <AuthLayout title="Forgot password" description="Enter your email to receive a password reset link">
+
         <Head title="Forgot password" />
 
         <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
@@ -25,7 +26,8 @@ defineProps<{
             <Form method="post" :action="route('password.email')" v-slot="{ errors, processing }">
                 <div class="grid gap-2">
                     <Label for="email">Email address</Label>
-                    <Input id="email" type="email" name="email" autocomplete="off" autofocus placeholder="email@example.com" />
+                    <Input id="email" type="email" name="email" autocomplete="off" autofocus
+                        placeholder="email@example.com" />
                     <InputError :message="errors.email" />
                 </div>
 

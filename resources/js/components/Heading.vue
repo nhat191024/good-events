@@ -1,10 +1,10 @@
 <script setup lang="ts">
-interface Props {
-    title: string;
-    description?: string;
-}
+    interface Props {
+        title: string;
+        description?: string;
+    }
 
-defineProps<Props>();
+    defineProps<Props>();
 </script>
 
 <template>
