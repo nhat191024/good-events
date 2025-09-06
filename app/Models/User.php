@@ -49,4 +49,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    //model relationship
+
+    public function partnerProfile()
+    {
+        return $this->hasOne(PartnerProfile::class);
+    }
 }
