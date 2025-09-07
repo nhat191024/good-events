@@ -43,4 +43,9 @@ class FileProduct extends Model implements HasMedia
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
+
+    public function bills()
+    {
+        return $this->hasMany(FileProductBill::class);
+    }
 }
