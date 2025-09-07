@@ -48,6 +48,11 @@ class Category extends Model implements HasMedia
         return $this->rentProducts()->exists();
     }
 
+    public function hasFileProducts()
+    {
+        return $this->fileProducts()->exists();
+    }
+
     //model relationship
     public function parent()
     {
@@ -67,5 +72,10 @@ class Category extends Model implements HasMedia
     public function rentProducts()
     {
         return $this->hasMany(RentProduct::class);
+    }
+
+    public function fileProducts()
+    {
+        return $this->hasMany(FileProduct::class);
     }
 }
