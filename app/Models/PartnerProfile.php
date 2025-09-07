@@ -21,7 +21,6 @@ class PartnerProfile extends Model
     ];
 
     //model relationship
-
     public function user()
     {
         return $this->belongsTo(User::class);
