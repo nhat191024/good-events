@@ -50,8 +50,7 @@ class User extends Authenticatable
         ];
     }
 
-    //model relationship
-
+    //model relationships
     public function partnerProfile()
     {
         return $this->hasOne(PartnerProfile::class);
