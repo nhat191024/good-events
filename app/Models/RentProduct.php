@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Testing\Fluent\Concerns\Has;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
