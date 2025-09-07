@@ -74,4 +74,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(PartnerService::class);
     }
+
+    public function partnerBillsAsClient()
+    {
+        return $this->hasMany(PartnerBill::class, 'client_id');
+    }
+
+    public function partnerBillsAsPartner()
+    {
+        return $this->hasMany(PartnerBill::class, 'partner_id');
+    }
+
+    public function partnerBillsDetails()
+    {
+        return $this->hasMany(PartnerBillDetail::class, 'partner_id');
+    }
 }
