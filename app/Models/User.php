@@ -55,4 +55,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(PartnerProfile::class);
     }
+
+    public function partnerServices()
+    {
+        return $this->hasMany(PartnerService::class);
+    }
 }
