@@ -50,6 +50,20 @@ class User extends Authenticatable
         ];
     }
 
+    //model boot method
+    protected static function booted(): void
+    {
+        static::deleting(function ($user) {
+            $user->partnerProfile()->delete();
+            $user->partnerServices()->delete();
+        });
+
+        static::restoring(function ($user) {
+            $user->partnerProfile()->restore();
+            $user->partnerServices()->restore();
+        });
+    }
+
     //model relationships
     public function partnerProfile()
     {
