@@ -10,10 +10,13 @@ use Illuminate\Notifications\Notifiable;
 
 use Cmgmyr\Messenger\Traits\Messagable;
 
-class User extends Authenticatable
+use Bavix\Wallet\Traits\HasWallet;
+use Bavix\Wallet\Interfaces\Wallet;
+
+class User extends Authenticatable implements Wallet
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, Messagable;
+    use HasFactory, Notifiable, SoftDeletes, Messagable, HasWallet;
 
     /**
      * The attributes that are mass assignable.
