@@ -11,9 +11,12 @@ use Spatie\Sluggable\SlugOptions;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 class Category extends Model implements HasMedia
 {
-    use SoftDeletes, HasSlug, InteractsWithMedia;
+    use SoftDeletes, HasSlug, InteractsWithMedia, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -35,6 +38,16 @@ class Category extends Model implements HasMedia
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
+    }
+
+    /**
+     * Summary of getActivitylogOptions
+     * @return LogOptions
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty();
     }
 
     //model helper method

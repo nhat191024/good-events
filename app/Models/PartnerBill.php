@@ -7,8 +7,13 @@ use App\Enum\PartnerBillStatus;
 use Illuminate\Database\Eloquent\Model;
 use Cmgmyr\Messenger\Models\Thread;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 class PartnerBill extends Model
 {
+    use LogsActivity;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -41,6 +46,16 @@ class PartnerBill extends Model
         'final_total' => 'float',
         'status' => PartnerBillStatus::class,
     ];
+
+    /**
+     * Summary of getActivitylogOptions
+     * @return LogOptions
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty();
+    }
 
     //model helpers method
     public function isPaid(): bool

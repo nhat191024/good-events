@@ -17,10 +17,13 @@ use Bavix\Wallet\Interfaces\Wallet;
 
 use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
 class User extends Authenticatable implements Wallet
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanRedeemVouchers;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanRedeemVouchers, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -57,6 +60,16 @@ class User extends Authenticatable implements Wallet
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Summary of getActivitylogOptions
+     * @return LogOptions
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty();
     }
 
     //model boot method
