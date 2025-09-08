@@ -13,10 +13,12 @@ use Cmgmyr\Messenger\Traits\Messagable;
 use Bavix\Wallet\Traits\HasWallet;
 use Bavix\Wallet\Interfaces\Wallet;
 
+use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
+
 class User extends Authenticatable implements Wallet
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, Messagable, HasWallet;
+    use HasFactory, Notifiable, SoftDeletes, Messagable, HasWallet, CanRedeemVouchers;
 
     /**
      * The attributes that are mass assignable.
