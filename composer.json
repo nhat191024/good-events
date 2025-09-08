@@ -25,6 +25,7 @@
         "opcodesio/log-viewer": "^3.19",
         "predis/predis": "^3.2",
         "spatie/image-optimizer": "^1.8",
+        "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-medialibrary": "^11.14",
         "spatie/laravel-permission": "^6.21",
         "spatie/laravel-schedule-monitor": "^3.10",
