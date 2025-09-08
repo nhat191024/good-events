@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 
+use Spatie\Permission\Traits\HasRoles;
+
 use Cmgmyr\Messenger\Traits\Messagable;
 
 use Bavix\Wallet\Traits\HasWallet;
@@ -18,7 +20,7 @@ use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
 class User extends Authenticatable implements Wallet
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, Messagable, HasWallet, CanRedeemVouchers;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanRedeemVouchers;
 
     /**
      * The attributes that are mass assignable.
