@@ -24,7 +24,8 @@ return new class extends Migration
             $table->foreignId('partner_id')->nullable()->constrained('users')->restrictOnDelete();
             $table->text('note')->nullable();
             $table->string('status');
-            $table->foreignId('thread_id')->nullable()->constrained('threads')->restrictOnDelete();
+            $table->unsignedInteger('thread_id')->nullable();
+            $table->foreign('thread_id')->references('id')->on('threads')->restrictOnDelete();
             $table->timestamps();
         });
     }
