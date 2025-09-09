@@ -6,6 +6,8 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+use App\Enum\Role;
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -15,13 +17,14 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
         $this->call([
             RoleSeeder::class,
+        ]);
+
+        // Create admin user with 'admin' role using factory state
+        $admin = User::factory()->withRole(Role::ADMIN)->create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
         ]);
     }
 }
