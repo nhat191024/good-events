@@ -8,6 +8,32 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $partner_name
+ * @property string $identity_card_number
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property-read int|null $activities_count
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereIdentityCardNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile wherePartnerName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile withoutTrashed()
+ * @mixin \Eloquent
+ */
 class PartnerProfile extends Model
 {
     use SoftDeletes, LogsActivity;

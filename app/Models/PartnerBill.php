@@ -10,6 +10,49 @@ use Cmgmyr\Messenger\Models\Thread;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+/**
+ * @property int $id
+ * @property string $code
+ * @property string $address
+ * @property string $phone
+ * @property \Illuminate\Support\Carbon|null $date
+ * @property \Illuminate\Support\Carbon|null $start_time
+ * @property \Illuminate\Support\Carbon|null $end_time
+ * @property float|null $final_total
+ * @property int|null $client_id
+ * @property int|null $partner_id
+ * @property string|null $note
+ * @property PartnerBillStatus $status
+ * @property int|null $thread_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property-read int|null $activities_count
+ * @property-read \App\Models\User|null $client
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $details
+ * @property-read int|null $details_count
+ * @property-read \App\Models\User|null $partner
+ * @property-read Thread|null $thread
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereEndTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereFinalTotal($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill wherePartnerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereStartTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereThreadId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class PartnerBill extends Model
 {
     use LogsActivity;

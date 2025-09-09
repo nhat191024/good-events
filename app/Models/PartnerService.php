@@ -10,6 +10,38 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+/**
+ * @property int $id
+ * @property int $category_id
+ * @property int $user_id
+ * @property int $location_id
+ * @property string $status
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property-read int|null $activities_count
+ * @property-read \App\Models\PartnerCategory $category
+ * @property-read \App\Models\Location $location
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerMedia> $media
+ * @property-read int|null $media_count
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereLocationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService withoutTrashed()
+ * @mixin \Eloquent
+ */
 class PartnerService extends Model
 {
     use SoftDeletes, LogsActivity;
