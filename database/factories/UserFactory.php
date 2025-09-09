@@ -57,4 +57,17 @@ class UserFactory extends Factory
             $user->assignRole($role);
         });
     }
+
+    /**
+     * Create a partner user.
+     */
+    public function createPartner(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->partnerProfile()->create([
+                'partner_name' => fake()->name(),
+                'identity_card_number' => fake()->unique()->numerify('###########'),
+            ]);
+        });
+    }
 }
