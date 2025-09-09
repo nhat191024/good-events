@@ -16,6 +16,7 @@ class UserForm
                 FileUpload::make('avatar')
                     ->label(__('admin\user.fields.label.avatar'))
                     ->avatar()
+                    ->directory('uploads/avatars')
                     ->columnSpanFull()
                     ->required(),
                 TextInput::make('name')
