@@ -20,7 +20,12 @@ use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class User extends Authenticatable implements Wallet
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+
+use App\Enum\Role;
+
+class User extends Authenticatable implements Wallet, FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanRedeemVouchers, LogsActivity;
@@ -72,9 +77,46 @@ class User extends Authenticatable implements Wallet
             ->logOnlyDirty();
     }
 
+    /**
+     * Determine if the user can access the Filament admin panel.
+     * @param \Filament\Panel $panel
+     * @return bool
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($panel->getId() === 'admin' && $this->hasRole(Role::ADMIN)) {
+            return true;
+        } else if ($panel->getId() === 'partner' && $this->hasRole(Role::PARTNER)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get the URL of the user's avatar for Filament.
+     * @return string|null
+     */
+    public function getFilamentAvatarUrl(): ?string
+    {
+        if ($this->avatar) {
+            return asset($this->avatar);
+        }
+
+        return null;
+    }
+
+
     //model boot method
     protected static function booted(): void
     {
+        parent::boot();
+        static::creating(function ($user) {
+            if (empty($user->avatar)) {
+                $name = urlencode($user->name);
+                $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
+            }
+        });
+
         static::deleting(function ($user) {
             $user->partnerProfile()->delete();
             $user->partnerServices()->delete();
