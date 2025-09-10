@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 use App\Models\User;
+use App\Models\Location;
 
 use App\Enum\Role;
 
@@ -63,10 +64,12 @@ class UserFactory extends Factory
      */
     public function createPartner(): static
     {
-        return $this->afterCreating(function (User $user) {
+        $locationIds = Location::pluck('id')->toArray();
+        return $this->afterCreating(function (User $user) use ($locationIds) {
             $user->partnerProfile()->create([
                 'partner_name' => fake()->name(),
                 'identity_card_number' => fake()->unique()->numerify('###########'),
+                'location_id' => fake()->randomElement($locationIds),
             ]);
         });
     }
