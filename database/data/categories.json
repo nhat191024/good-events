@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Quay chụp",
+        "description": "Thợ quay chụp"
+    },
+    {
+        "name": "Photographer",
+        "description": "Thợ chụp ảnh"
+    },
+    {
+        "name": "Mascot",
+        "description": "Thợ tạo hình"
+    },
+    {
+        "name": "Trình diễn sân khấu",
+        "description": "Thợ trình diễn sân khấu"
+    },
+    {
+        "name": "Trình diễn dân gian",
+        "description": "Thợ trình diễn dân gian"
+    },
+    {
+        "name": "Nghệ nhân truyền thống",
+        "description": "Nghệ nhân biểu "
+    }
+]
