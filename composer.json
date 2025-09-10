@@ -21,6 +21,7 @@
         "malzariey/filament-daterangepicker-filter": "^4.0",
         "opcodesio/log-viewer": "^3.19",
         "predis/predis": "^3.2",
+        "pusher/pusher-php-server": "^7.2",
         "spatie/image-optimizer": "^1.8",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-medialibrary": "^11.14",
