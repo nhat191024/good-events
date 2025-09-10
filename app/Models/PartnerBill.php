@@ -21,6 +21,7 @@ use Spatie\Activitylog\LogOptions;
  * @property float|null $final_total
  * @property int|null $client_id
  * @property int|null $partner_id
+ * @property int|null $category_id
  * @property string|null $note
  * @property PartnerBillStatus $status
  * @property int|null $thread_id
@@ -32,12 +33,14 @@ use Spatie\Activitylog\LogOptions;
  * @property-read \App\Models\User|null $client
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $details
  * @property-read int|null $details_count
+ * @property-read \App\Models\Event|null $event
  * @property-read \App\Models\User|null $partner
  * @property-read Thread|null $thread
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereClientId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereCreatedAt($value)
@@ -71,8 +74,10 @@ class PartnerBill extends Model
         'start_time',
         'end_time',
         'final_total',
+        'event_id',
         'client_id',
         'partner_id',
+        'category_id',
         'note',
         'status',
         'thread_id',
@@ -121,6 +126,11 @@ class PartnerBill extends Model
     public function details()
     {
         return $this->hasMany(PartnerBillDetail::class);
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
     }
 
     public function client()
