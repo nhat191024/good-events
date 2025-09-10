@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             LocationSeeder::class,
             AdminSeeder::class,
             PartnerSeeder::class,
+            ClientSeeder::class,
         ]);
     }
 }
