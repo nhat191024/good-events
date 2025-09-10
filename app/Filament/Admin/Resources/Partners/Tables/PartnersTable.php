@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Partners\Tables;
+namespace App\Filament\Admin\Resources\Partners\Tables;
 
 use App\Models\User;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\Partners\Pages;
+namespace App\Filament\Admin\Resources\Partners\Pages;
 
-use App\Filament\Resources\Partners\PartnerResource;
+use App\Filament\Admin\Resources\Partners\PartnerResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;

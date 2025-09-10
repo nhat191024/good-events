@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\Partners\Pages;
+namespace App\Filament\Admin\Resources\Partners\Pages;
 
-use App\Filament\Resources\Partners\PartnerResource;
+use App\Filament\Admin\Resources\Partners\PartnerResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 

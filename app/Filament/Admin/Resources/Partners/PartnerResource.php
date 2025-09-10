@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Filament\Resources\Partners;
+namespace App\Filament\Admin\Resources\Partners;
 
 use App\Models\User;
 
 use BackedEnum;
 
-use App\Filament\Resources\Partners\Pages\CreatePartner;
-use App\Filament\Resources\Partners\Pages\EditPartner;
-use App\Filament\Resources\Partners\Pages\ListPartners;
-use App\Filament\Resources\Partners\Schemas\PartnerForm;
-use App\Filament\Resources\Partners\Tables\PartnersTable;
+use App\Filament\Admin\Resources\Partners\Pages\CreatePartner;
+use App\Filament\Admin\Resources\Partners\Pages\EditPartner;
+use App\Filament\Admin\Resources\Partners\Pages\ListPartners;
+use App\Filament\Admin\Resources\Partners\Schemas\PartnerForm;
+use App\Filament\Admin\Resources\Partners\Tables\PartnersTable;
 
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
