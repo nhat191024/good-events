@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\Users;
+namespace App\Filament\Admin\Resources\Users;
 
 use App\Models\User;
 
 use BackedEnum;
+use UnitEnum;
 
-use App\Filament\Resources\Users\Pages\CreateUser;
-use App\Filament\Resources\Users\Pages\EditUser;
-use App\Filament\Resources\Users\Pages\ListUsers;
-use App\Filament\Resources\Users\Schemas\UserForm;
-use App\Filament\Resources\Users\Tables\UsersTable;
+use App\Filament\Admin\Resources\Users\Pages\CreateUser;
+use App\Filament\Admin\Resources\Users\Pages\EditUser;
+use App\Filament\Admin\Resources\Users\Pages\ListUsers;
+use App\Filament\Admin\Resources\Users\Schemas\UserForm;
+use App\Filament\Admin\Resources\Users\Tables\UsersTable;
 
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -27,6 +28,11 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin\user.user');
+    }
 
     public static function getModelLabel(): string
     {
