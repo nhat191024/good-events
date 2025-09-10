@@ -22,17 +22,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use App\Enum\Role;
+use App\Enum\FilamentNavigationGroup;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
-
-    public static function getNavigationLabel(): string
-    {
-        return __('admin\user.user');
-    }
+    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::USER_MANAGEMENT;
 
     public static function getModelLabel(): string
     {
@@ -52,7 +49,10 @@ class UserResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->role(Role::CLIENT);
+            ->with('roles')
+            ->whereHas('roles', function ($query) {
+                $query->where('name', Role::CLIENT);
+            });
     }
 
     public static function getRelations(): array
