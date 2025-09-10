@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Partners;
 use App\Models\User;
 
 use BackedEnum;
+use UnitEnum;
 
 use App\Filament\Admin\Resources\Partners\Pages\CreatePartner;
 use App\Filament\Admin\Resources\Partners\Pages\EditPartner;
@@ -21,12 +22,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use App\Enum\Role;
+use App\Enum\FilamentNavigationGroup;
 
 class PartnerResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
+    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::USER_MANAGEMENT;
 
     public static function getModelLabel(): string
     {
