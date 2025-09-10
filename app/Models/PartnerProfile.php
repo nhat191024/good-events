@@ -18,6 +18,7 @@ use Spatie\Activitylog\LogOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
+ * @property-read \App\Models\Location|null $location
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newQuery()
@@ -47,6 +48,7 @@ class PartnerProfile extends Model
         'user_id',
         'partner_name',
         'identity_card_number',
+        'location_id',
     ];
 
     /**
@@ -64,5 +66,10 @@ class PartnerProfile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
     }
 }

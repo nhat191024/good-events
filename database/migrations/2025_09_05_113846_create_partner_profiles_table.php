@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('partner_name');
             $table->string('identity_card_number');
+            $table->foreignId('location_id')->constrained()->restrictOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });
