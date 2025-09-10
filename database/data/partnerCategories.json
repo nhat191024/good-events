@@ -1,0 +1,37 @@
+[
+    {
+        "name": "Chú hề đa năng",
+        "category_id": 7,
+        "min_price": 500000,
+        "max_price": 2000000,
+        "description": "Chú hề đa năng"
+    },
+    {
+        "name": "Chú hề hoạt náo",
+        "category_id": 7,
+        "min_price": 500000,
+        "max_price": 2000000,
+        "description": "Chú hề hoạt náo"
+    },
+    {
+        "name": "Chú hề vặn bóng",
+        "category_id": 7,
+        "min_price": 500000,
+        "max_price": 2000000,
+        "description": "Chú hề vặn bóng"
+    },
+    {
+        "name": "Chú hề siêu diễn",
+        "category_id": 7,
+        "min_price": 500000,
+        "max_price": 2000000,
+        "description": "Chú hề siêu diễn"
+    },
+    {
+        "name": "MC đám cưới",
+        "category_id": 8,
+        "min_price": 500000,
+        "max_price": 2000000,
+        "description": "MC đám cưới"
+    }
+]
