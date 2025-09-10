@@ -22,7 +22,6 @@ use Spatie\Activitylog\LogOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\PartnerCategory $category
- * @property-read \App\Models\Location $location
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerMedia> $media
  * @property-read int|null $media_count
  * @property-read \App\Models\User $user
@@ -54,7 +53,6 @@ class PartnerService extends Model
     protected $fillable = [
         'category_id',
         'user_id',
-        'location_id',
         'status',
     ];
 
@@ -93,11 +91,6 @@ class PartnerService extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function location()
-    {
-        return $this->belongsTo(Location::class, 'location_id');
     }
 
     public function media()

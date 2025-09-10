@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained()->restrictOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('location_id')->constrained()->restrictOnDelete();
             $table->string('status');
             $table->softDeletes();
             $table->timestamps();
