@@ -20,6 +20,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use App\Enum\Role;
+
 class PartnerResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -44,8 +46,10 @@ class PartnerResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->whereHas('partnerProfile')
-            ->with('partnerProfile');
+            ->with('partnerProfile', 'roles')
+            ->whereHas('roles', function ($query) {
+                $query->where('name', Role::PARTNER);
+            });
     }
 
     public static function getRelations(): array
