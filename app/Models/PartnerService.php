@@ -14,7 +14,6 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property int $category_id
  * @property int $user_id
- * @property int $location_id
  * @property string $status
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -33,7 +32,6 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereLocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereUserId($value)
