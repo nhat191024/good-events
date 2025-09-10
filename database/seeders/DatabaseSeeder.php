@@ -17,17 +17,18 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $this->call([
-            RoleSeeder::class,
-            CategorySeeder::class,
-            PartnerCategorySeeder::class,
-            PartnerSeeder::class,
-        ]);
-
         // Create admin user with 'admin' role using factory state
         User::factory()->withRole(Role::ADMIN)->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
+        ]);
+
+        $this->call([
+            RoleSeeder::class,
+            CategorySeeder::class,
+            PartnerCategorySeeder::class,
+            LocationSeeder::class,
+            PartnerSeeder::class,
         ]);
     }
 }
