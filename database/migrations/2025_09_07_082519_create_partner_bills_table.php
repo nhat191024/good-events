@@ -22,6 +22,7 @@ return new class extends Migration
             $table->double('final_total')->nullable();
             $table->foreignId('client_id')->nullable()->constrained('users')->restrictOnDelete();
             $table->foreignId('partner_id')->nullable()->constrained('users')->restrictOnDelete();
+            $table->foreignId('category_id')->nullable()->constrained('partner_categories')->restrictOnDelete();
             $table->text('note')->nullable();
             $table->string('status');
             $table->unsignedInteger('thread_id')->nullable();

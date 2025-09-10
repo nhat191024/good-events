@@ -28,6 +28,7 @@ use Spatie\Activitylog\LogOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
+ * @property-read \App\Models\PartnerCategory|null $category
  * @property-read \App\Models\User|null $client
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $details
  * @property-read int|null $details_count
@@ -130,6 +131,11 @@ class PartnerBill extends Model
     public function partner()
     {
         return $this->belongsTo(User::class, 'partner_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(PartnerCategory::class, 'category_id');
     }
 
     public function thread()
