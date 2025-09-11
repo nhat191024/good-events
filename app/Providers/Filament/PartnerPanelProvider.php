@@ -26,7 +26,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-
 class PartnerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -43,6 +42,8 @@ class PartnerPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
             ->discoverPages(in: app_path('Filament/Partner/Pages'), for: 'App\Filament\Partner\Pages')
             ->discoverWidgets(in: app_path('Filament/Partner/Widgets'), for: 'App\Filament\Partner\Widgets')
+
+            ->viteTheme('resources/css/filament/partner/theme.css')
 
             ->pages([
                 Dashboard::class,
