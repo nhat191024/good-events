@@ -16,13 +16,6 @@ class PartnerSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->withRole(Role::PARTNER)
-            ->createPartner()
-            ->create([
-                'name' => 'Partner User',
-                'email' => 'partner@example.com',
-            ]);
-
         User::factory()
             ->withRole(Role::PARTNER)
             ->count(10)

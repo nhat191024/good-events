@@ -16,12 +16,6 @@ class ClientSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->withRole(Role::CLIENT)
-            ->create([
-                'name' => 'Client User',
-                'email' => 'client@example.com',
-            ]);
-
         User::factory()
             ->withRole(Role::CLIENT)
             ->count(10)
