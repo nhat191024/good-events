@@ -20,6 +20,7 @@ return new class extends Migration
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->double('final_total')->nullable();
+            $table->foreignId('event_id')->nullable()->constrained('events')->restrictOnDelete();
             $table->foreignId('client_id')->nullable()->constrained('users')->restrictOnDelete();
             $table->foreignId('partner_id')->nullable()->constrained('users')->restrictOnDelete();
             $table->foreignId('category_id')->nullable()->constrained('partner_categories')->restrictOnDelete();
