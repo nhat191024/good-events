@@ -8,8 +8,10 @@ use Illuminate\Support\Str;
 
 use App\Models\User;
 use App\Models\Location;
+use App\Models\Category;
 
 use App\Enum\Role;
+use App\Enum\PartnerServiceStatus;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -65,12 +67,26 @@ class UserFactory extends Factory
     public function createPartner(): static
     {
         $locationIds = Location::pluck('id')->toArray();
-        return $this->afterCreating(function (User $user) use ($locationIds) {
+        $categoryIds = Category::pluck('id')->toArray();
+        return $this->afterCreating(function (User $user) use ($locationIds, $categoryIds) {
             $user->partnerProfile()->create([
                 'partner_name' => fake()->name(),
                 'identity_card_number' => fake()->unique()->numerify('###########'),
                 'location_id' => fake()->randomElement($locationIds),
             ]);
+
+            $usedCategoryIds = [];
+            $services = collect(['Service A', 'Service B'])->map(function ($service) use ($categoryIds, &$usedCategoryIds) {
+                $availableIds = array_diff($categoryIds, $usedCategoryIds);
+                $categoryId = fake()->randomElement($availableIds);
+                $usedCategoryIds[] = $categoryId;
+                return [
+                    'category_id' => $categoryId,
+                    'status' => PartnerServiceStatus::APPROVED,
+                ];
+            })->toArray();
+
+            $user->partnerServices()->createMany($services);
         });
     }
 }
