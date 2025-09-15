@@ -2,18 +2,27 @@
 
 namespace App\Filament\Partner\Pages;
 
-use App\Enum\PartnerBillStatus;
-use App\Models\PartnerBill;
 use App\Models\User;
+use App\Models\PartnerBill;
+use App\Enum\PartnerBillStatus;
+
 use BackedEnum;
+use UnitEnum;
+
 use Filament\Pages\Page;
+use Filament\Support\Icons\Heroicon;
+
 use Illuminate\Contracts\Support\Htmlable;
+
+use App\Enum\FilamentNavigationGroup;
 
 class RealtimePartnerBill extends Page
 {
     protected string $view = 'filament.partner.pages.realtime-partner-bill';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-queue-list';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::QueueList;
+    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::BILLING;
+
 
     // Livewire listeners for auto-update
     protected $listeners = [
@@ -86,12 +95,12 @@ class RealtimePartnerBill extends Page
         // Apply search filter
         if (! empty($this->searchQuery)) {
             $query->where(function ($q) {
-                $q->where('code', 'like', '%'.$this->searchQuery.'%')
+                $q->where('code', 'like', '%' . $this->searchQuery . '%')
                     ->orWhereHas('client', function ($clientQuery) {
-                        $clientQuery->where('name', 'like', '%'.$this->searchQuery.'%');
+                        $clientQuery->where('name', 'like', '%' . $this->searchQuery . '%');
                     })
                     ->orWhereHas('event', function ($eventQuery) {
-                        $eventQuery->where('name', 'like', '%'.$this->searchQuery.'%');
+                        $eventQuery->where('name', 'like', '%' . $this->searchQuery . '%');
                     });
             });
         }
@@ -104,7 +113,7 @@ class RealtimePartnerBill extends Page
         $this->lastUpdated = now()->format('H:i:s');
 
         // Debug log
-        logger('Partner Bills loaded: '.count($this->partnerBills).' bills found for categories: '.implode(', ', $this->categoryIds));
+        logger('Partner Bills loaded: ' . count($this->partnerBills) . ' bills found for categories: ' . implode(', ', $this->categoryIds));
     }
 
     public function refreshBills(): void
@@ -154,13 +163,13 @@ class RealtimePartnerBill extends Page
     // Livewire updated methods for automatic filtering
     public function updatedDateFilter(): void
     {
-        logger('Date filter updated: '.$this->dateFilter);
+        logger('Date filter updated: ' . $this->dateFilter);
         $this->loadPartnerBills();
     }
 
     public function updatedSearchQuery(): void
     {
-        logger('Search query updated: '.$this->searchQuery);
+        logger('Search query updated: ' . $this->searchQuery);
         $this->loadPartnerBills();
     }
 }
