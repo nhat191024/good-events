@@ -4,7 +4,6 @@ namespace App\Filament\Partner\Pages;
 
 use App\Models\User;
 use App\Models\PartnerBill;
-use App\Models\PartnerCategory;
 use App\Enum\PartnerBillStatus;
 
 use BackedEnum;
@@ -15,11 +14,15 @@ use Filament\Support\Icons\Heroicon;
 
 use Illuminate\Contracts\Support\Htmlable;
 
+use App\Enum\FilamentNavigationGroup;
+
 class RealtimePartnerBill extends Page
 {
     protected string $view = 'filament.partner.pages.realtime-partner-bill';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::QueueList;
+    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::BILLING;
+
 
     // Livewire listeners for auto-update
     protected $listeners = [
@@ -42,14 +45,10 @@ class RealtimePartnerBill extends Page
 
     public $categoryIds = [];
 
-    public $availableCategories = [];
-
     public $lastUpdated;
 
     // Filter properties (removed statusFilter - only show pending orders)
     public $dateFilter = 'all';
-
-    public $categoryFilter = 'all';
 
     public $searchQuery = '';
 
@@ -66,25 +65,12 @@ class RealtimePartnerBill extends Page
         if (! $user || ! $user->partnerServices()->exists()) {
             $this->partnerBills = [];
             $this->categoryIds = [];
-            $this->availableCategories = [];
 
             return;
         }
 
-        // Get category_id from partner services and load available categories in one go
-        $partnerServices = $user->partnerServices()->with('category')->get();
-        $this->categoryIds = $partnerServices->pluck('category_id')->toArray();
-
-        // Build available categories from the already loaded data
-        $this->availableCategories = $partnerServices
-            ->filter(fn($service) => $service->category !== null)
-            ->map(fn($service) => [
-                'id' => $service->category->id,
-                'name' => $service->category->name
-            ])
-            ->unique('id')
-            ->values()
-            ->toArray();
+        // Fix: Get category_id from partner services, not the service id
+        $this->categoryIds = $user->partnerServices()->pluck('category_id')->toArray();
 
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
             ->with(['client', 'event', 'category'])
@@ -104,11 +90,6 @@ class RealtimePartnerBill extends Page
                         ->whereYear('created_at', now()->year);
                     break;
             }
-        }
-
-        // Apply category filter
-        if ($this->categoryFilter !== 'all') {
-            $query->where('category_id', $this->categoryFilter);
         }
 
         // Apply search filter
@@ -138,7 +119,9 @@ class RealtimePartnerBill extends Page
     public function refreshBills(): void
     {
         $this->loadPartnerBills();
-    }    // Auto refresh method - called every 30 seconds
+    }
+
+    // Auto refresh method - called every 30 seconds
     public function autoRefresh(): void
     {
         $this->loadPartnerBills();
@@ -147,7 +130,6 @@ class RealtimePartnerBill extends Page
     public function clearFilters(): void
     {
         $this->dateFilter = 'all';
-        $this->categoryFilter = 'all';
         $this->searchQuery = '';
         $this->loadPartnerBills();
     }
@@ -182,12 +164,6 @@ class RealtimePartnerBill extends Page
     public function updatedDateFilter(): void
     {
         logger('Date filter updated: ' . $this->dateFilter);
-        $this->loadPartnerBills();
-    }
-
-    public function updatedCategoryFilter(): void
-    {
-        logger('Category filter updated: ' . $this->categoryFilter);
         $this->loadPartnerBills();
     }
 
