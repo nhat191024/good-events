@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'bill' => 'Đơn đặt',
+
     'new_bill' => 'Đơn đặt mới',
     'new_bill_description' => 'Xem các đơn đặt mới trong thời gian thực',
     'last_updated' => 'Cập nhật lần cuối',
@@ -33,4 +35,11 @@ return [
     'end_time' => 'Thời gian kết thúc',
     'phone' => 'Số điện thoại',
     'pending_orders' => 'Đơn hàng đang chờ duyệt',
+    'final_total' => 'Tổng cuối cùng',
+    'category' => 'Danh mục',
+
+    'status' => 'Trạng thái',
+    'status_pending' => 'Chờ xử lý',
+    'status_paid' => 'Đã thanh toán',
+    'status_cancelled' => 'Đã hủy',
 ];

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'title' => 'Orders',
+
     'new_bill' => 'New Orders',
     'new_bill_description' => 'View new orders in real-time',
     'last_updated' => 'Last updated',
@@ -33,4 +35,11 @@ return [
     'end_time' => 'End Time',
     'phone' => 'Phone Number',
     'pending_orders' => 'Pending Orders',
+    'final_total' => 'Final Total',
+    'category' => 'Category',
+
+    'status' => 'Status',
+    'status_pending' => 'Pending',
+    'status_paid' => 'Paid',
+    'status_cancelled' => 'Cancelled',
 ];
