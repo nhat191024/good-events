@@ -20,14 +20,11 @@ use Filament\Tables\Table;
 
 use Illuminate\Database\Eloquent\Builder;
 
-use App\Enum\FilamentNavigationGroup;
-
 class PartnerBillResource extends Resource
 {
     protected static ?string $model = PartnerBill::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CurrencyDollar;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::BILLING;
 
     public static function getModelLabel(): string
     {

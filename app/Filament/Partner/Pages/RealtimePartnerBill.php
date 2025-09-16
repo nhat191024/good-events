@@ -14,15 +14,11 @@ use Filament\Support\Icons\Heroicon;
 
 use Illuminate\Contracts\Support\Htmlable;
 
-use App\Enum\FilamentNavigationGroup;
-
 class RealtimePartnerBill extends Page
 {
     protected string $view = 'filament.partner.pages.realtime-partner-bill';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::QueueList;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::BILLING;
-
 
     // Livewire listeners for auto-update
     protected $listeners = [
