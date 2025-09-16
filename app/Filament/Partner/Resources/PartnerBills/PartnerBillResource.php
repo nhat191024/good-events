@@ -45,6 +45,7 @@ class PartnerBillResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('partner_id', auth()->id())
+            ->where('status', 'pending')
             ->with(['client', 'category', 'event']);
     }
 
