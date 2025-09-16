@@ -29,6 +29,11 @@
         "vue-tsc": "^2.2.12"
     },
     "dependencies": {
+        "@fullcalendar/core": "^6.1.19",
+        "@fullcalendar/daygrid": "^6.1.19",
+        "@fullcalendar/interaction": "^6.1.19",
+        "@fullcalendar/list": "^6.1.19",
+        "@fullcalendar/timegrid": "^6.1.19",
         "@inertiajs/core": "^2.1.5",
         "@inertiajs/vue3": "^2.1.5",
         "@laravel/echo-vue": "^2.2.0",
