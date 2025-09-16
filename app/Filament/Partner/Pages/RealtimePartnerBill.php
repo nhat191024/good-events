@@ -18,7 +18,7 @@ class RealtimePartnerBill extends Page
 {
     protected string $view = 'filament.partner.pages.realtime-partner-bill';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::QueueList;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
 
     // Livewire listeners for auto-update
     protected $listeners = [
