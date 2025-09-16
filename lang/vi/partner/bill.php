@@ -1,21 +1,21 @@
 <?php
 
 return [
-    'bill' => 'Đơn đặt',
+    'bill' => 'Show của tôi',
 
-    'new_bill' => 'Đơn đặt mới',
-    'new_bill_description' => 'Xem các đơn đặt mới trong thời gian thực',
+    'new_bill' => 'Nhận show',
+    'new_bill_description' => 'Xem các show mới trong thời gian thực',
     'last_updated' => 'Cập nhật lần cuối',
     'refresh' => 'Làm mới',
-    'recent_partner_bills' => 'Đơn đặt hàng gần đây',
-    'no_bills_found' => 'Không tìm thấy đơn hàng',
-    'no_bills_description' => 'Không có đơn đặt hàng nào được tìm thấy cho danh mục của bạn. Các đơn mới sẽ xuất hiện tự động ở đây.',
-    'bill_code' => 'Mã đơn',
+    'recent_partner_bills' => 'Show gần đây',
+    'no_bills_found' => 'Không tìm thấy show',
+    'no_bills_description' => 'Không có show nào được tìm thấy cho danh mục của bạn. Các show mới sẽ xuất hiện tự động ở đây.',
+    'bill_code' => 'Mã show',
     'client' => 'Khách hàng',
     'event' => 'Sự kiện',
     'date' => 'Ngày',
     'address' => 'Địa chỉ',
-    'accept_order' => 'Nhận đơn',
+    'accept_order' => 'Nhận show',
     'view_details' => 'Xem chi tiết',
     'filter_status' => 'Lọc theo trạng thái',
     'all_status' => 'Tất cả trạng thái',
@@ -34,7 +34,7 @@ return [
     'start_time' => 'Thời gian bắt đầu',
     'end_time' => 'Thời gian kết thúc',
     'phone' => 'Số điện thoại',
-    'pending_orders' => 'Đơn hàng đang chờ duyệt',
+    'pending_orders' => 'Show đang chờ duyệt',
     'final_total' => 'Tổng cuối cùng',
     'category' => 'Danh mục',
 
