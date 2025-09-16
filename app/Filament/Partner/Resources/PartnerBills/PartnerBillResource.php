@@ -24,7 +24,7 @@ class PartnerBillResource extends Resource
 {
     protected static ?string $model = PartnerBill::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::CurrencyDollar;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDateRange;
 
     public static function getModelLabel(): string
     {
