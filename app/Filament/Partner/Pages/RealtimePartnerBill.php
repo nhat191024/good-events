@@ -15,8 +15,6 @@ use Filament\Support\Icons\Heroicon;
 
 use Illuminate\Contracts\Support\Htmlable;
 
-use App\Enum\FilamentNavigationGroup;
-
 class RealtimePartnerBill extends Page
 {
     protected string $view = 'filament.partner.pages.realtime-partner-bill';
