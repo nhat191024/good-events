@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'title' => 'My Orders',
+    'bill' => 'My shows',
+    'bill_history' => 'Show History',
 
     'new_bill' => 'Take shows',
     'new_bill_description' => 'View new shows in real-time',
