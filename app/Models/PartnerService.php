@@ -57,6 +57,17 @@ class PartnerService extends Model
     ];
 
     /**
+     * The model's validation rules.
+     *
+     * @var array<string, mixed>
+     */
+    public static array $rules = [
+        'category_id' => 'required|exists:partner_categories,id',
+        'user_id' => 'required|exists:users,id',
+        'status' => 'required|string',
+    ];
+
+    /**
      * Summary of getActivitylogOptions
      * @return LogOptions
      */
