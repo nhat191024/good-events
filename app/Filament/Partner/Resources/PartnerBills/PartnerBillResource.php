@@ -60,7 +60,7 @@ class PartnerBillResource extends Resource
     {
         return [
             'index' => ListPartnerBills::route('/'),
-            'create' => CreatePartnerBill::route('/create'),
+            // 'create' => CreatePartnerBill::route('/create'),
             // 'edit' => EditPartnerBill::route('/{record}/edit'),
         ];
     }
