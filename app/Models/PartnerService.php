@@ -114,7 +114,7 @@ class PartnerService extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function media()
+    public function serviceMedia()
     {
         return $this->hasMany(PartnerMedia::class, 'partner_service_id');
     }
