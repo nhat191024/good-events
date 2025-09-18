@@ -21,6 +21,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 
 use App\Enum\Role;
@@ -99,7 +100,7 @@ use App\Enum\Role;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements Wallet, FilamentUser
+class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanRedeemVouchers, LogsActivity;
