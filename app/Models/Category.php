@@ -34,8 +34,6 @@ use Spatie\Activitylog\LogOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
  * @property-read Category|null $parent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerCategory> $partnerCategories
- * @property-read int|null $partner_categories_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RentProduct> $rentProducts
  * @property-read int|null $rent_products_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category newModelQuery()
@@ -91,11 +89,6 @@ class Category extends Model implements HasMedia
     }
 
     //model helper method
-    public function hasPartnerCategories()
-    {
-        return $this->partnerCategories()->exists();
-    }
-
     public function hasRentProducts()
     {
         return $this->rentProducts()->exists();
@@ -120,11 +113,6 @@ class Category extends Model implements HasMedia
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
-    }
-
-    public function partnerCategories()
-    {
-        return $this->hasMany(PartnerCategory::class);
     }
 
     public function rentProducts()
