@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('partner_services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->restrictOnDelete();
+            $table->foreignId('category_id')->constrained('partner_categories')->restrictOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('status');
             $table->softDeletes();
