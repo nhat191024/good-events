@@ -17,7 +17,7 @@ class PartnerServiceForm
             ->components([
                 Select::make('category_id')
                     ->label('Danh mục dịch vụ')
-                    ->relationship('category', 'name')
+                    ->relationship('category', 'name', fn($query) => $query->whereNull('parent_id'))
                     ->required()
                     ->searchable()
                     ->preload()
