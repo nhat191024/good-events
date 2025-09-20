@@ -1,0 +1,43 @@
+# Ignore vendor directory (will be installed inside container)
+vendor/
+
+# Ignore node_modules (will be installed inside container)
+node_modules/
+
+# Ignore storage files (will be mounted)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Ignore bootstrap cache (will be mounted)
+bootstrap/cache/*
+
+# Ignore environment files
+.env.local
+.env.*.local
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore development files
+.vscode/
+.idea/
+*.log
+
+# Ignore Docker files themselves
+dockerfile
+docker-compose.yml
+.dockerignore
+
+# Ignore documentation
+README.md
+docs/
+
+# Ignore tests (will be mounted separately)
+tests/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
