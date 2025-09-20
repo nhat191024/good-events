@@ -34,8 +34,6 @@ services:
             - ./package-lock.json:/var/www/html/package-lock.json
             - ./vite.config.ts:/var/www/html/vite.config.ts
             - ./tsconfig.json:/var/www/html/tsconfig.json
-            - ./tailwind.config.js:/var/www/html/tailwind.config.js
-            - ./postcss.config.js:/var/www/html/postcss.config.js
             - ./phpunit.xml:/var/www/html/phpunit.xml
 
             # Mount bootstrap directory
