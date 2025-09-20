@@ -1,35 +1,91 @@
 [
     {
+        "name": "Quay chụp",
+        "parent_id": null,
+        "min_price": null,
+        "max_price": null,
+        "description": "Thợ quay chụp"
+    },
+    {
+        "name": "Photographer",
+        "parent_id": null,
+        "min_price": null,
+        "max_price": null,
+        "description": "Thợ chụp ảnh"
+    },
+    {
+        "name": "Mascot",
+        "parent_id": null,
+        "min_price": null,
+        "max_price": null,
+        "description": "Thợ tạo hình"
+    },
+    {
+        "name": "Trình diễn sân khấu",
+        "parent_id": null,
+        "min_price": null,
+        "max_price": null,
+        "description": "Thợ trình diễn sân khấu"
+    },
+    {
+        "name": "Trình diễn dân gian",
+        "parent_id": null,
+        "min_price": null,
+        "max_price": null,
+        "description": "Thợ trình diễn dân gian"
+    },
+    {
+        "name": "Nghệ nhân truyền thống",
+        "parent_id": null,
+        "min_price": null,
+        "max_price": null,
+        "description": "Nghệ nhân biểu "
+    },
+    {
+        "name": "Chú hề",
+        "parent_id": null,
+        "min_price": null,
+        "max_price": null,
+        "description": "chú hề"
+    },
+    {
+        "name": "MC",
+        "parent_id": null,
+        "min_price": null,
+        "max_price": null,
+        "description": "MC"
+    },
+    {
         "name": "Chú hề đa năng",
-        "category_id": 7,
+        "parent_id": 7,
         "min_price": 500000,
         "max_price": 2000000,
         "description": "Chú hề đa năng"
     },
     {
         "name": "Chú hề hoạt náo",
-        "category_id": 7,
+        "parent_id": 7,
         "min_price": 500000,
         "max_price": 2000000,
         "description": "Chú hề hoạt náo"
     },
     {
         "name": "Chú hề vặn bóng",
-        "category_id": 7,
+        "parent_id": 7,
         "min_price": 500000,
         "max_price": 2000000,
         "description": "Chú hề vặn bóng"
     },
     {
         "name": "Chú hề siêu diễn",
-        "category_id": 7,
+        "parent_id": 7,
         "min_price": 500000,
         "max_price": 2000000,
         "description": "Chú hề siêu diễn"
     },
     {
         "name": "MC đám cưới",
-        "category_id": 8,
+        "parent_id": 8,
         "min_price": 500000,
         "max_price": 2000000,
         "description": "MC đám cưới"

@@ -19,6 +19,7 @@ use Spatie\Activitylog\LogOptions;
  * @property \Illuminate\Support\Carbon|null $start_time
  * @property \Illuminate\Support\Carbon|null $end_time
  * @property float|null $final_total
+ * @property int|null $event_id
  * @property int|null $client_id
  * @property int|null $partner_id
  * @property int|null $category_id
@@ -46,6 +47,7 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereEndTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereEventId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereFinalTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereNote($value)

@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 use App\Models\User;
 use App\Models\Location;
-use App\Models\Category;
+use App\Models\PartnerCategory;
 
 use App\Enum\Role;
 use App\Enum\PartnerServiceStatus;
@@ -67,7 +67,7 @@ class UserFactory extends Factory
     public function createPartner(): static
     {
         $locationIds = Location::pluck('id')->toArray();
-        $categoryIds = Category::pluck('id')->toArray();
+        $categoryIds = PartnerCategory::whereNull('parent_id')->pluck('id')->toArray();
         return $this->afterCreating(function (User $user) use ($locationIds, $categoryIds) {
             $user->partnerProfile()->create([
                 'partner_name' => fake()->name(),
