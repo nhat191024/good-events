@@ -26,6 +26,9 @@ php artisan view:cache
 #run migrations
 php artisan migrate --force
 
+#run npm build
+npm run build
+
 # Set proper permissions
 echo "Setting permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
