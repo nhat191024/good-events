@@ -31,19 +31,19 @@ import { Search, MapPin } from 'lucide-vue-next';
             </div>
             
             <!-- Search Bar -->
-            <div class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-lg shadow-lg p-4">
+            <div class="max-w-5xl mx-auto">
+                <div class="bg-white rounded-lg shadow-lg p-2">
                     <div class="flex gap-4">
                         <div class="flex-1 relative">
                             <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                             <Input 
                                 placeholder="Tìm dối tác"
-                                class="pl-10 border-0 focus:ring-0"
+                                class="pl-10 border-0 "
                             />
                         </div>
                         <div class="flex items-center gap-2">
                             <MapPin class="text-gray-400 w-5 h-5" />
-                            <select class="border-0 focus:ring-0 text-gray-600">
+                            <select class="border-none focus:ring-0 text-gray-600">
                                 <option>Toàn Quốc</option>
                                 <option>Hà Nội</option>
                                 <option>TP.HCM</option>
