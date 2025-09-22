@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import Header from '@/components/home/Header.vue';
-import HeroBanner from '@/components/home/HeroBanner.vue';
-import CategoryIcons from '@/components/home/CategoryIcons.vue';
-import CategorySection from '@/components/home/CategorySection.vue';
-import Footer from '@/components/home/Footer.vue';
+import Header from './partials/Header.vue';
+import HeroBanner from './partials/HeroBanner.vue';
+import CategoryIcons from './partials/CategoryIcons.vue';
+import CategorySection from './partials/CategorySection.vue';
+import Footer from './partials/Footer.vue';
 
 interface Category {
     id: number;
