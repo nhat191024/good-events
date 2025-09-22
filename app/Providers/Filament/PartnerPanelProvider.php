@@ -17,6 +17,9 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 
+use Filament\Actions\Action;
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
@@ -30,6 +33,10 @@ class PartnerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $user = Auth::user();
+        $balance = $user ? $user->balance : 0;
+        $balanceLabel = __('global.balance') . ': ' . number_format($balance, 0) . ' ' . __('global.currency');
+
         return $panel
             ->id('partner')
             ->path('partner')
@@ -38,6 +45,14 @@ class PartnerPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->maxContentWidth(Width::Full)
+
+            ->userMenuItems([
+                'profile' => fn(Action $action) => $action->url(route('filament.partner.pages.profile-settings')),
+                Action::make('balance')
+                    ->label($balanceLabel)
+                    ->disabled(true)
+                    ->icon('heroicon-o-currency-dollar'),
+            ])
 
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
             ->discoverPages(in: app_path('Filament/Partner/Pages'), for: 'App\Filament\Partner\Pages')
