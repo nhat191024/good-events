@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import Header from './partials/Header.vue';
@@ -32,6 +33,20 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const search = ref('');
+
+const filteredPartnerCategories = computed(() => {
+  if (!search.value.trim()) return props.partnerCategories;
+  const result: { [key: number]: PartnerCategory[] } = {};
+  for (const catId in props.partnerCategories) {
+    const arr = props.partnerCategories[catId].filter(pc =>
+      pc.name.toLowerCase().includes(search.value.trim().toLowerCase())
+    );
+    if (arr.length) result[catId] = arr;
+  }
+  return result;
+});
 </script>
 
 <template>
@@ -43,7 +58,15 @@ const props = defineProps<Props>();
         <main>
             <HeroBanner />
             <CategoryIcons :categories="rootCategories" />
-            
+            <!-- Search bar -->
+            <div class="container mx-auto px-4 mt-4 mb-2">
+              <input
+                v-model="search"
+                type="text"
+                placeholder="Tìm kiếm đối tác..."
+                class="w-full border rounded-lg px-4 py-2 text-base focus:ring-2 focus:ring-[#ED3B50]"
+              />
+            </div>
             <!-- Partner Categories Sections -->
             <div class="container mx-auto px-4 py-8 space-y-12">
                 <!-- Loop through event categories and display partner categories for each -->
@@ -51,7 +74,7 @@ const props = defineProps<Props>();
                     v-for="eventCategory in eventCategories" 
                     :key="eventCategory.id"
                     :category-name="eventCategory.name"
-                    :partner-categories="partnerCategories[eventCategory.id] || []"
+                    :partner-categories="filteredPartnerCategories[eventCategory.id] || []"
                 />
             </div>
             
