@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->foreignId('category_id')->constrained('categories')->restrictOnDelete();
-            $table->double('min_price');
-            $table->double('max_price');
+            $table->foreignId('parent_id')->nullable()->constrained('partner_categories')->nullOnDelete();
+            $table->double('min_price')->nullable();
+            $table->double('max_price')->nullable();
             $table->text('description')->nullable();
             $table->softDeletes();
             $table->timestamps();
