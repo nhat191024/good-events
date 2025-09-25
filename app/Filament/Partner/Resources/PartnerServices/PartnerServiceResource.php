@@ -30,7 +30,7 @@ class PartnerServiceResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('partner\service.your_services');
+        return __('partner/service.your_services');
     }
 
     public static function form(Schema $schema): Schema

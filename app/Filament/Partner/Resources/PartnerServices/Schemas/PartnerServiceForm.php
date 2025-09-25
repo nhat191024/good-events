@@ -16,7 +16,7 @@ class PartnerServiceForm
         return $schema
             ->components([
                 Select::make('category_id')
-                    ->label('Danh mục dịch vụ')
+                    ->label(__('partner/service.label.service_list'))
                     ->relationship('category', 'name', fn($query) => $query->whereNull('parent_id'))
                     ->required()
                     ->searchable()
@@ -29,35 +29,35 @@ class PartnerServiceForm
                         }
                     ])
                     ->validationMessages([
-                        'unique' => 'Bạn đã đăng ký dịch vụ cho danh mục này rồi. Vui lòng chọn danh mục khác.',
+                        'unique' => __('partner/service.helper.service_unique'),
                     ]),
 
                 Repeater::make('serviceMedia')
-                    ->label('Video giới thiệu dịch vụ')
+                    ->label(__('partner/service.label.service_media'))
                     ->relationship()
                     ->disabled(fn($operation) => $operation === 'edit')
                     ->schema([
                         TextInput::make('name')
-                            ->label('Tên video')
+                            ->label(__('partner/service.label.video_name'))
                             ->required()
-                            ->placeholder('VD: Video giới thiệu dịch vụ chụp ảnh cưới'),
+                            ->placeholder(__('partner/service.placeholder.video_name')),
                         TextInput::make('url')
-                            ->label('Link video')
+                            ->label(__('partner/service.label.video_url'))
                             ->url()
                             ->required()
-                            ->placeholder('https://youtube.com/watch?v=...'),
+                            ->placeholder(__('partner/service.placeholder.video_url')),
                         Textarea::make('description')
-                            ->label('Mô tả')
-                            ->placeholder('Mô tả ngắn về video này')
+                            ->label(__('partner/service.label.video_description'))
+                            ->placeholder(__('partner/service.placeholder.video_description'))
                             ->rows(2),
                     ])
                     ->collapsible()
-                    ->itemLabel(fn(array $state): ?string => $state['name'] ?? 'Video chưa có tên')
-                    ->addActionLabel('Thêm video')
+                    ->itemLabel(fn(array $state): ?string => $state['name'] ?? __('partner/service.video_no_name'))
+                    ->addActionLabel(__('partner/service.button.add_video'))
                     ->reorderableWithButtons()
                     ->cloneable()
                     ->columnSpanFull()
-                    ->helperText('Thêm các video giới thiệu dịch vụ của bạn để admin duyệt. Chỉ có thể thêm khi tạo mới.'),
+                    ->helperText(__('partner/service.helper.service_media')),
 
             ]);
     }

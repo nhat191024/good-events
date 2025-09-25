@@ -24,14 +24,14 @@ class PartnerServicesTable
         return $table
             ->columns([
                 TextColumn::make('category.name')
-                    ->label(__('partner\service.label.category'))
+                    ->label(__('partner/service.label.category'))
                     ->sortable(),
                 TextColumn::make('serviceMedia')
-                    ->label('Video giới thiệu')
+                    ->label(__('partner/service.label.videos'))
                     ->formatStateUsing(function ($record) {
                         $count = $record->serviceMedia()->count();
                         if ($count === 0) {
-                            return 'Chưa có video';
+                            return __('partner/service.no_video');
                         }
                         return "{$count} video";
                     })
@@ -53,7 +53,7 @@ class PartnerServicesTable
                     ->searchable(false)
                     ->sortable(false),
                 TextColumn::make('status')
-                    ->label(__('partner\service.label.status'))
+                    ->label(__('partner/service.label.status'))
                     ->badge()
                     ->formatStateUsing(fn($state) => $state->label())
                     ->colors([
@@ -63,17 +63,17 @@ class PartnerServicesTable
                     ])
                     ->searchable(),
                 TextColumn::make('deleted_at')
-                    ->label(__('partner\service.label.deleted_at'))
+                    ->label(__('partner/service.label.deleted_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->label(__('partner\service.label.created_at'))
+                    ->label(__('partner/service.label.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label(__('partner\service.label.updated_at'))
+                    ->label(__('partner/service.label.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

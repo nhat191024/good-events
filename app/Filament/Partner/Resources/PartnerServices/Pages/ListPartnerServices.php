@@ -14,7 +14,7 @@ class ListPartnerServices extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label(__('partner\service.button.add_service')),
+                ->label(__('partner/service.button.add_service')),
         ];
     }
 }
