@@ -18,16 +18,16 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property string $name
  * @property string $slug
- * @property int $category_id
- * @property float $min_price
- * @property float $max_price
+ * @property int|null $parent_id
+ * @property float|null $min_price
+ * @property float|null $max_price
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \App\Models\Category $category
+ * @property-read \App\Models\Category|null $category
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerService> $partnerServices
@@ -36,7 +36,6 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereDescription($value)
@@ -44,6 +43,7 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereMaxPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereMinPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereParentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withTrashed(bool $withTrashed = true)
