@@ -27,5 +27,22 @@ class Location extends Model
      */
     protected $fillable = [
         'name',
+        'type',
+        'code',
+        'codename',
+        'short_codename',
+        'parent_id',
+        'phone_code',
     ];
+
+    //model relationships
+    public function province()
+    {
+        return $this->belongsTo(Location::class, 'parent_id');
+    }
+
+    public function wards()
+    {
+        return $this->hasMany(Location::class, 'parent_id');
+    }
 }
