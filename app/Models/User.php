@@ -17,6 +17,8 @@ use Bavix\Wallet\Interfaces\Wallet;
 
 use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
 
+use Codebyray\ReviewRateable\Traits\ReviewRateable;
+
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -62,6 +64,8 @@ use App\Enum\Role;
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $receivedTransfers
  * @property-read int|null $received_transfers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $reviews
+ * @property-read int|null $reviews_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read int|null $roles_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Thread> $threads
@@ -102,7 +106,7 @@ use App\Enum\Role;
 class User extends Authenticatable implements Wallet, FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanRedeemVouchers, LogsActivity;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanRedeemVouchers, ReviewRateable, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
