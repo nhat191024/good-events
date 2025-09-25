@@ -21,40 +21,40 @@ class PartnerBillHistoriesTable
                 TextColumn::make('code')
                     ->searchable(),
                 TextColumn::make('client.name')
-                    ->label(__('partner\bill.client'))
+                    ->label(__('partner/bill.client'))
                     ->searchable(),
                 TextColumn::make('category.name')
-                    ->label(__('partner\bill.category'))
+                    ->label(__('partner/bill.category'))
                     ->searchable(),
                 TextColumn::make('event.name')
-                    ->label(__('partner\bill.event'))
+                    ->label(__('partner/bill.event'))
                     ->searchable(),
                 TextColumn::make('date')
-                    ->label(__('partner\bill.date'))
+                    ->label(__('partner/bill.date'))
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('start_time')
-                    ->label(__('partner\bill.start_time'))
+                    ->label(__('partner/bill.start_time'))
                     ->badge()
                     ->color('success')
                     ->time(),
                 TextColumn::make('end_time')
-                    ->label(__('partner\bill.end_time'))
+                    ->label(__('partner/bill.end_time'))
                     ->badge()
                     ->color('danger')
                     ->time(),
                 TextColumn::make('phone')
-                    ->label(__('partner\bill.phone'))
+                    ->label(__('partner/bill.phone'))
                     ->searchable(),
                 TextColumn::make('address')
-                    ->label(__('partner\bill.address'))
+                    ->label(__('partner/bill.address'))
                     ->searchable(),
                 TextColumn::make('final_total')
-                    ->label(__('partner\bill.final_total'))
+                    ->label(__('partner/bill.final_total'))
                     ->numeric()
                     ->formatStateUsing(fn($state) => number_format($state) . ' VND'),
                 TextColumn::make('status')
-                    ->label(__('partner\bill.status'))
+                    ->label(__('partner/bill.status'))
                     ->badge()
                     ->formatStateUsing(fn($state) => $state->label())
                     ->colors([

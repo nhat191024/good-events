@@ -29,7 +29,7 @@ class PartnerBillHistoryResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('partner\bill.bill_history');
+        return __('partner/bill.bill_history');
     }
 
     public static function form(Schema $schema): Schema
