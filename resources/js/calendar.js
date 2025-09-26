@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
             }
         });
-
         if (response.ok) {
             const data = await response.json();
             localeData = data.translations;
@@ -71,11 +70,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         displayEventTime: true,
         eventDisplay: 'block',
         locale: currentLocale === 'vi' ? 'vi' : 'en',
-        firstDayOfWeek: 1,
         headerToolbar: {
-            left: 'prev,next today',
+            left: 'prev,next',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            right: 'today'
+        },
+        footerToolbar: {
+            left: '',
+            center: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+            right: ''
         },
         buttonText: {
             today: __('btn_today'),
@@ -106,17 +109,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 console.error('Error loading calendar events:', error);
                 alert(__('loading_error'));
             },
-            success: function (data) {
-                console.log('Calendar events data:', data);
-                if (data.length > 0) {
-                    console.log('First event details:', {
-                        title: data[0].title,
-                        start: data[0].start,
-                        end: data[0].end,
-                        raw_data: data[0].extendedProps
-                    });
-                }
-            }
         },
         eventDidMount: function (info) {
             const props = info.event.extendedProps;
@@ -132,27 +124,96 @@ document.addEventListener('DOMContentLoaded', async function () {
             }) : '';
 
             info.el.title = `${props.code} - ${props.client}
-${__('event_time')}: ${startTime} - ${endTime}
-${__('event_address')}: ${props.address}
-${__('event_status')}: ${props.status}`;
-
-            // Debug: Log event timing when mounted
-            console.log('Event mounted:', {
+            ${__('event_time')}: ${startTime} - ${endTime}
+            ${__('event_address')}: ${props.address}
+            ${__('event_status')}: ${props.status}`;
+        },
+        eventClick: function (info) {
+            console.log('Event clicked:', {
                 title: info.event.title,
                 start: info.event.start,
                 end: info.event.end,
                 allDay: info.event.allDay,
-                raw_date: props.raw_date,
-                raw_start_time: props.raw_start_time,
-                raw_end_time: props.raw_end_time
+                raw_date: info.event.extendedProps.raw_date,
+                raw_start_time: info.event.extendedProps.raw_start_time,
+                raw_end_time: info.event.extendedProps.raw_end_time
             });
-        },
-        loading: function (isLoading) {
-            if (isLoading) {
-                console.log(__('loading_events'));
-            } else {
-                console.log(__('events_loaded'));
-            }
+            showEventModal(info.event);
+        }
+    });
+
+    // Modal functions
+    function showEventModal(event) {
+        const modal = document.getElementById('eventModal');
+        const props = event.extendedProps;
+
+        // Populate modal with event data
+        document.getElementById('modalEventTitle').textContent = event.title;
+        document.getElementById('modalEventCode').textContent = props.code || __('no_info');
+        document.getElementById('modalEventClient').textContent = props.client || __('no_info');
+        document.getElementById('modalEventCategory').textContent = props.category || __('not_classified');
+        document.getElementById('modalEventAddress').textContent = props.address || __('no_address');
+        document.getElementById('modalEventPhone').textContent = props.phone || __('no_phone');
+        document.getElementById('modalEventTotal').textContent = props.total ? new Intl.NumberFormat(currentLocale === 'vi' ? 'vi-VN' : 'en-US', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(props.total) : __('not_determined');
+
+        // Format time display
+        const startTime = event.start ? event.start.toLocaleTimeString(currentLocale === 'vi' ? 'vi-VN' : 'en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        }) : '';
+        const endTime = event.end ? event.end.toLocaleTimeString(currentLocale === 'vi' ? 'vi-VN' : 'en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        }) : '';
+        const eventDate = event.start ? event.start.toLocaleDateString(currentLocale === 'vi' ? 'vi-VN' : 'en-US') : '';
+
+        document.getElementById('modalEventTime').textContent = `${eventDate} ${startTime} - ${endTime}`;
+        document.getElementById('modalEventStatus').textContent = props.status || __('not_determined');
+        document.getElementById('modalEventNote').textContent = props.note || __('no_note');
+
+        // Set status badge color
+        const statusBadge = document.getElementById('modalEventStatus');
+        statusBadge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(props.status_raw)}`;
+
+        // Show modal
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideEventModal() {
+        const modal = document.getElementById('eventModal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    function getStatusBadgeClass(status) {
+        switch (status) {
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+            case 'paid':
+                return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+            case 'cancelled':
+                return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+            default:
+                return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+        }
+    }
+
+    // Event listeners for modal
+    document.addEventListener('click', function (e) {
+        if (e.target.id === 'eventModal' || e.target.classList.contains('modal-close')) {
+            hideEventModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            hideEventModal();
         }
     });
 
