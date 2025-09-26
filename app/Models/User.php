@@ -26,6 +26,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
 use App\Enum\Role;
+use App\Enum\StatisticType;
 
 /**
  * @property int $id
@@ -183,7 +184,6 @@ class User extends Authenticatable implements Wallet, FilamentUser
         return null;
     }
 
-
     //model boot method
     protected static function booted(): void
     {
@@ -207,6 +207,11 @@ class User extends Authenticatable implements Wallet, FilamentUser
     }
 
     //model relationships
+    public function statistics()
+    {
+        return $this->hasMany(Statistical::class, 'user_id');
+    }
+
     public function partnerProfile()
     {
         return $this->hasOne(PartnerProfile::class);

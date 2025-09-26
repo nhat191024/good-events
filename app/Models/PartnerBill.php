@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\PartnerBillStatus;
+use App\Enum\StatisticType;
 
 use Illuminate\Database\Eloquent\Model;
 use Cmgmyr\Messenger\Models\Thread;
@@ -106,6 +107,100 @@ class PartnerBill extends Model
     {
         return LogOptions::defaults()
             ->logOnlyDirty();
+    }
+
+    //model boot method
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($partnerBill) {
+            $partnerBill->code = 'PB' . date('Ymd') . rand(1000, 9999);
+        });
+
+        static::created(function ($partnerBill) {
+            $partnerId = $partnerBill->partner_id;
+            $clientId = $partnerBill->client_id;
+
+            //update number of customer statistic for partner
+            $existingStat = Statistical::where('user_id', $partnerId)
+                ->where('metrics_name', StatisticType::NUMBER_CUSTOMER->value)
+                ->first();
+
+            if ($existingStat) {
+                $existingStat->metrics_value = (int)$existingStat->metrics_value + 1;
+                $existingStat->save();
+            }
+
+            //update orders placed statistic for both partner and client
+            foreach ([$partnerId, $clientId] as $userId) {
+                $existingClientStat = Statistical::where('user_id', $userId)
+                    ->where('metrics_name', StatisticType::ORDERS_PLACED->value)
+                    ->first();
+
+                if ($existingClientStat) {
+                    $existingClientStat->metrics_value = (int)$existingClientStat->metrics_value + 1;
+                    $existingClientStat->save();
+                }
+            }
+        });
+
+        static::updated(function ($partnerBill) {
+            if ($partnerBill->isDirty('status') && $partnerBill->status === PartnerBillStatus::PAID->value) {
+                $partnerId = $partnerBill->partner_id;
+                $clientId = $partnerBill->client_id;
+                $finalTotal = $partnerBill->final_total;
+
+                //update total spent statistic for client
+                $existingClientStat = Statistical::where('user_id', $clientId)
+                    ->where('metrics_name', StatisticType::TOTAL_SPENT)
+                    ->first();
+
+                if ($existingClientStat) {
+                    $existingClientStat->metrics_value = (float)$existingClientStat->metrics_value + (float)$finalTotal;
+                    $existingClientStat->save();
+                }
+
+                //update completed orders statistic for both partner and client
+                foreach ([$partnerId, $clientId] as $userId) {
+                    $existingCompletedOrdersStat = Statistical::where('user_id', $userId)
+                        ->where('metrics_name', StatisticType::COMPLETED_ORDERS->value)
+                        ->first();
+
+                    if ($existingCompletedOrdersStat) {
+                        $existingCompletedOrdersStat->metrics_value = (int)$existingCompletedOrdersStat->metrics_value + 1;
+                        $existingCompletedOrdersStat->save();
+                    }
+                }
+            } else if ($partnerBill->isDirty('status') && $partnerBill->status === PartnerBillStatus::CANCELLED->value) {
+                $partnerId = $partnerBill->partner_id;
+                $clientId = $partnerBill->client_id;
+
+                //update cancelled orders percentage statistic for both partner and client
+                foreach ([$partnerId, $clientId] as $userId) {
+                    $totalOrdersStat = Statistical::where('user_id', $userId)
+                        ->where('metrics_name', StatisticType::ORDERS_PLACED->value)
+                        ->first()
+                        ->metrics_value;
+
+                    $completedOderStat = Statistical::where('user_id', $userId)
+                        ->where('metrics_name', StatisticType::COMPLETED_ORDERS->value)
+                        ->first()
+                        ->metrics_value;
+
+                    $existingCancelledOrdersStat = Statistical::where('user_id', $userId)
+                        ->where('metrics_name', StatisticType::CANCELLED_ORDERS_PERCENTAGE->value)
+                        ->first();
+
+                    if ($existingCancelledOrdersStat) {
+                        $cancelledPercentage = $totalOrdersStat > 0 ? round((($totalOrdersStat - $completedOderStat) / $totalOrdersStat) * 100, 2) : 0;
+
+                        $existingCancelledOrdersStat->metrics_value = $cancelledPercentage;
+                        $existingCancelledOrdersStat->save();
+                    }
+                }
+            }
+        });
     }
 
     //model helpers method
