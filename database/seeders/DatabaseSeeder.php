@@ -26,6 +26,16 @@ class DatabaseSeeder extends Seeder
             $this->command->info('Location table already has data. Skipping location sync.');
         }
 
+        if (env('APP_ENV') === 'production') {
+            $this->command->info('Production environment detected. Skipping seeders that may affect production data.');
+            $this->call([
+                RoleSeeder::class,
+                AdminSeeder::class,
+            ]);
+            return;
+        }
+
+        //seeders for non-production environment
         $this->call([
             RoleSeeder::class,
             // CategorySeeder::class,
@@ -33,7 +43,6 @@ class DatabaseSeeder extends Seeder
             // LocationSeeder::class,
             EventSeeder::class,
             TestAccountSeeder::class,
-            AdminSeeder::class,
             PartnerSeeder::class,
             ClientSeeder::class,
         ]);
