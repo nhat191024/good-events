@@ -8,6 +8,7 @@ use Filament\Tables\Columns\TextColumn;
 
 // use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 
 // use Filament\Actions\BulkActionGroup;
 // use Filament\Actions\DeleteBulkAction;
@@ -26,37 +27,46 @@ class PartnerBillsTable
                     ->searchable(),
                 TextColumn::make('client.name')
                     ->label(__('partner/bill.client'))
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('category.name')
                     ->label(__('partner/bill.category'))
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('event.name')
                     ->label(__('partner/bill.event'))
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('date')
                     ->label(__('partner/bill.date'))
                     ->date('d/m/Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('start_time')
                     ->label(__('partner/bill.start_time'))
                     ->badge()
                     ->color('success')
-                    ->time(),
+                    ->time()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('end_time')
                     ->label(__('partner/bill.end_time'))
                     ->badge()
                     ->color('danger')
-                    ->time(),
+                    ->time()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('phone')
                     ->label(__('partner/bill.phone'))
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('address')
                     ->label(__('partner/bill.address'))
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('final_total')
                     ->label(__('partner/bill.final_total'))
                     ->numeric()
-                    ->formatStateUsing(fn($state) => number_format($state) . ' VND'),
+                    ->formatStateUsing(fn($state) => number_format($state) . ' VND')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')
                     ->label(__('partner/bill.status'))
                     ->badge()
@@ -66,7 +76,8 @@ class PartnerBillsTable
                         'success' => PartnerBillStatus::PAID,
                         'danger' => PartnerBillStatus::CANCELLED,
                     ])
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -79,7 +90,11 @@ class PartnerBillsTable
             ->filters([
                 //
             ])
+            ->reorderableColumns()
+            ->deferColumnManager(false)
             ->recordActions([
+                ViewAction::make()
+                    ->label('Xem chi tiết'),
                 // EditAction::make(),
             ])
             ->toolbarActions([
