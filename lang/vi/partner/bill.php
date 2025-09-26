@@ -43,4 +43,27 @@ return [
     'status_pending' => 'Chờ xử lý',
     'status_paid' => 'Đã thanh toán',
     'status_cancelled' => 'Đã hủy',
+
+    // View page sections
+    'basic_information' => 'Thông tin cơ bản',
+    'contact_information' => 'Thông tin liên hệ',
+    'time_information' => 'Thông tin thời gian',
+    'payment_information' => 'Thông tin thanh toán',
+    'notes' => 'Ghi chú',
+    'system_information' => 'Thông tin hệ thống',
+
+    // View page fields
+    'order_code' => 'Mã đơn hàng',
+    'customer' => 'Khách hàng',
+    'service_category' => 'Danh mục dịch vụ',
+    'event_name' => 'Sự kiện',
+    'organization_date' => 'Ngày tổ chức',
+    'start_time_label' => 'Giờ bắt đầu',
+    'end_time_label' => 'Giờ kết thúc',
+    'total_amount_label' => 'Tổng tiền',
+    'note_label' => 'Ghi chú',
+    'no_note' => 'Không có ghi chú',
+    'not_determined' => 'Chưa xác định',
+    'created_date' => 'Ngày tạo',
+    'last_updated_at' => 'Cập nhật lần cuối',
 ];

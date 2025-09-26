@@ -43,4 +43,27 @@ return [
     'status_pending' => 'Pending',
     'status_paid' => 'Paid',
     'status_cancelled' => 'Cancelled',
+
+    // View page sections
+    'basic_information' => 'Basic Information',
+    'contact_information' => 'Contact Information',
+    'time_information' => 'Time Information',
+    'payment_information' => 'Payment Information',
+    'notes' => 'Notes',
+    'system_information' => 'System Information',
+
+    // View page fields
+    'order_code' => 'Order Code',
+    'customer' => 'Customer',
+    'service_category' => 'Service Category',
+    'event_name' => 'Event Name',
+    'organization_date' => 'Organization Date',
+    'start_time_label' => 'Start Time',
+    'end_time_label' => 'End Time',
+    'total_amount_label' => 'Total Amount',
+    'note_label' => 'Note',
+    'no_note' => 'No notes',
+    'not_determined' => 'Not determined',
+    'created_date' => 'Created Date',
+    'last_updated_at' => 'Last Updated',
 ];
