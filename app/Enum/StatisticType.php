@@ -7,6 +7,7 @@ enum StatisticType: string
     // Define different types of statistics for only partners
     case NUMBER_CUSTOMER = 'number_customer';
     case SATISFACTION_RATE = 'satisfaction_rate';
+    case REVENUE_GENERATED = 'revenue_generated';
 
         // Define different types of statistics for only clients
     case TOTAL_SPENT = 'total_spent';
@@ -19,7 +20,7 @@ enum StatisticType: string
     public function audience(): string
     {
         return match ($this) {
-            self::NUMBER_CUSTOMER, self::SATISFACTION_RATE => ROLE::PARTNER->value,
+            self::NUMBER_CUSTOMER, self::SATISFACTION_RATE, self::REVENUE_GENERATED => ROLE::PARTNER->value,
             self::TOTAL_SPENT => ROLE::CLIENT->value,
             self::ORDERS_PLACED, self::COMPLETED_ORDERS, self::CANCELLED_ORDERS_PERCENTAGE => 'both',
         };
