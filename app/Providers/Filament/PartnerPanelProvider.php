@@ -12,6 +12,11 @@ use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 
+use App\Filament\Partner\Widgets\PartnerStatisticsWidget;
+use App\Filament\Partner\Widgets\PartnerRevenueChart;
+use App\Filament\Partner\Widgets\PartnerTopServicesWidget;
+
+
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -65,6 +70,9 @@ class PartnerPanelProvider extends PanelProvider
             ])
 
             ->widgets([
+                PartnerStatisticsWidget::class,
+                PartnerRevenueChart::class,
+                PartnerTopServicesWidget::class,
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
