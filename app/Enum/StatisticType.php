@@ -17,4 +17,27 @@ enum StatisticType: string
         // Define different types of statistics for both partners and clients
     case COMPLETED_ORDERS = 'completed_orders';
     case CANCELLED_ORDERS_PERCENTAGE = 'cancelled_orders_percentage';
+
+    public function audience(): string
+    {
+        return match ($this) {
+            self::NUMBER_CUSTOMER, self::YEAR_OF_EXPERIENCE, self::SATISFACTION_RATE => ROLE::PARTNER,
+            self::TOTAL_SPENT, self::ORDERS_PLACED, self::MEMBER_SINCE => ROLE::CLIENT,
+            self::COMPLETED_ORDERS, self::CANCELLED_ORDERS_PERCENTAGE => 'both',
+        };
+    }
+
+    /**
+     * Get all enum cases for a specific audience.
+     *
+     * @param string $audience
+     * @return list<self>
+     */
+    public static function forAudience(Role $audience): array
+    {
+        return array_values(array_filter(
+            self::cases(),
+            static fn(self $case): bool => $case->audience() === $audience
+        ));
+    }
 }
