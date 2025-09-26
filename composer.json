@@ -10,6 +10,7 @@
         "bavix/laravel-wallet": "^11.4",
         "beyondcode/laravel-vouchers": "*",
         "cmgmyr/messenger": "^2.31",
+        "codebyray/laravel-review-rateable": "^2.1",
         "filament/filament": "~4.0",
         "filament/spatie-laravel-media-library-plugin": "^4.0",
         "filament/spatie-laravel-settings-plugin": "^4.0",

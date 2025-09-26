@@ -14,6 +14,12 @@ return new class extends Migration
         Schema::create('locations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('code');
+            $table->string('codename');
+            $table->string('short_codename')->nullable();
+            $table->string('type');
+            $table->string('phone_code')->nullable();
+            $table->foreignId('parent_id')->nullable()->constrained('locations')->nullOnDelete();
             $table->timestamps();
         });
     }
