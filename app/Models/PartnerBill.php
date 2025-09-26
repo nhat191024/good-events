@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\PartnerBillStatus;
 use App\Enum\StatisticType;
+use App\Services\PartnerWidgetCacheService;
 
 use Illuminate\Database\Eloquent\Model;
 use Cmgmyr\Messenger\Models\Thread;
@@ -143,6 +144,9 @@ class PartnerBill extends Model
                     $existingClientStat->save();
                 }
             }
+
+            // Clear widget caches
+            PartnerWidgetCacheService::clearPartnerCaches($partnerId);
         });
 
         static::updated(function ($partnerBill) {
@@ -199,6 +203,11 @@ class PartnerBill extends Model
                         $existingCancelledOrdersStat->save();
                     }
                 }
+            }
+
+            // Clear widget caches when bill is updated
+            if ($partnerBill->partner_id) {
+                PartnerWidgetCacheService::clearPartnerCaches($partnerBill->partner_id);
             }
         });
     }
