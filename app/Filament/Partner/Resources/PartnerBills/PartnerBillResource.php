@@ -10,7 +10,9 @@ use UnitEnum;
 use App\Filament\Partner\Resources\PartnerBills\Pages\CreatePartnerBill;
 use App\Filament\Partner\Resources\PartnerBills\Pages\EditPartnerBill;
 use App\Filament\Partner\Resources\PartnerBills\Pages\ListPartnerBills;
+use App\Filament\Partner\Resources\PartnerBills\Pages\ViewPartnerBill;
 use App\Filament\Partner\Resources\PartnerBills\Schemas\PartnerBillForm;
+use App\Filament\Partner\Resources\PartnerBills\Schemas\PartnerBillInfolist;
 use App\Filament\Partner\Resources\PartnerBills\Tables\PartnerBillsTable;
 
 use Filament\Resources\Resource;
@@ -41,6 +43,11 @@ class PartnerBillResource extends Resource
         return PartnerBillsTable::configure($table);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return PartnerBillInfolist::configure($schema);
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -60,6 +67,7 @@ class PartnerBillResource extends Resource
     {
         return [
             'index' => ListPartnerBills::route('/'),
+            'view' => ViewPartnerBill::route('/{record}'),
             // 'create' => CreatePartnerBill::route('/create'),
             // 'edit' => EditPartnerBill::route('/{record}/edit'),
         ];
