@@ -183,7 +183,6 @@ class User extends Authenticatable implements Wallet, FilamentUser
         return null;
     }
 
-
     //model boot method
     protected static function booted(): void
     {
