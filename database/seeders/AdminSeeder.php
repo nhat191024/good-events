@@ -16,6 +16,9 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        User::factory()->withRole(Role::ADMIN)->create([
+            'name' => 'Admin User',
+            'email' => 'admin@gmail.com',
+        ]);
     }
 }
