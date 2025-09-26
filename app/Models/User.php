@@ -26,6 +26,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
 use App\Enum\Role;
+use App\Enum\StatisticType;
 
 /**
  * @property int $id
@@ -191,6 +192,32 @@ class User extends Authenticatable implements Wallet, FilamentUser
             if (empty($user->avatar)) {
                 $name = urlencode($user->name);
                 $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
+            }
+        });
+
+        static::created(function ($user) {
+            $role = $user->roles()->first();
+
+            if ($role === Role::PARTNER) {
+                //create default statistics for partner
+                foreach (StatisticType::forAudience(Role::PARTNER) as $statistic) {
+                    Statistical::create([
+                        'user_id' => $user->id,
+                        'metrics_name' => $statistic->value,
+                        'metrics_value' => 0,
+                        'metadata' => json_encode([]),
+                    ]);
+                }
+            } else if ($role === Role::CLIENT) {
+                //create default statistics for client
+                foreach (StatisticType::forAudience(Role::CLIENT) as $statistic) {
+                    Statistical::create([
+                        'user_id' => $user->id,
+                        'metrics_name' => $statistic->value,
+                        'metrics_value' => 0,
+                        'metadata' => json_encode([]),
+                    ]);
+                }
             }
         });
 
