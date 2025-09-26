@@ -207,6 +207,11 @@ class User extends Authenticatable implements Wallet, FilamentUser
     }
 
     //model relationships
+    public function statistics()
+    {
+        return $this->hasMany(Statistical::class, 'user_id');
+    }
+
     public function partnerProfile()
     {
         return $this->hasOne(PartnerProfile::class);
