@@ -42,4 +42,7 @@ return [
     'loading_events' => 'Đang tải dữ liệu lịch...',
     'events_loaded' => 'Dữ liệu lịch đã được tải thành công',
     'loading_error' => 'Không thể tải dữ liệu lịch. Vui lòng thử lại.',
+
+    // Modal actions
+    'close_button' => 'Đóng',
 ];

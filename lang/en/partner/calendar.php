@@ -42,4 +42,7 @@ return [
     'loading_events' => 'Loading calendar events...',
     'events_loaded' => 'Calendar events loaded successfully',
     'loading_error' => 'Unable to load calendar data. Please try again.',
+
+    // Modal actions
+    'close_button' => 'Close',
 ];
