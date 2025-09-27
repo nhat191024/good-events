@@ -60,6 +60,7 @@ class PartnerPanelProvider extends PanelProvider
             ])
 
             ->databaseNotifications()
+            ->databaseNotificationsPolling(interval: 30)
 
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
             ->discoverPages(in: app_path('Filament/Partner/Pages'), for: 'App\Filament\Partner\Pages')
