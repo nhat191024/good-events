@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enum\PartnerBillStatus;
 use App\Enum\StatisticType;
+
 use App\Services\PartnerWidgetCacheService;
+use App\Services\PartnerBillMailService;
 
 use Illuminate\Database\Eloquent\Model;
 use Cmgmyr\Messenger\Models\Thread;
@@ -176,6 +178,9 @@ class PartnerBill extends Model
                         $existingCompletedOrdersStat->save();
                     }
                 }
+
+                $mailService = new PartnerBillMailService();
+                $mailService->sendOrderConfirmedNotification($partnerBill);
             } else if ($partnerBill->isDirty('status') && $partnerBill->status === PartnerBillStatus::CANCELLED->value) {
                 $partnerId = $partnerBill->partner_id;
                 $clientId = $partnerBill->client_id;
