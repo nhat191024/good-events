@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-
+use Inertia\Inertia;
+use Vite;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -19,6 +21,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Inertia::share([
+            'flash' => function () {
+                return [
+                    'success' => session('success'),
+                    'error'   => session('error'),
+                ];
+            },
+        ]);
     }
 }
