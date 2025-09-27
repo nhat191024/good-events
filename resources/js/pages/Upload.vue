@@ -159,7 +159,7 @@ function onPhotosChange(e: Event) {
 }
 
 function submit() {
-    form.post('/partner-categories', {
+    form.post('/test/partner-categories', {
         onSuccess: () => {
             form.reset();
             imagePreview.value = null;
@@ -200,7 +200,7 @@ async function confirmDelete(mediaId: number) {
     const token = tokenMeta?.getAttribute('content') ?? '';
 
     try {
-        const res = await fetch(`/media/${mediaId}`, {
+        const res = await fetch(`/test/media/${mediaId}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': token,

@@ -236,13 +236,4 @@ class User extends Authenticatable implements Wallet, FilamentUser
     {
         return $this->hasMany(PartnerBillDetail::class, 'partner_id');
     }
-
-    /**
-     * Reviews authored by this user (as the reviewer/author)
-     * Uses the ReviewRateable package's Review model, keyed by user_id
-     */
-    public function authoredReviews()
-    {
-        return $this->hasMany(\Codebyray\ReviewRateable\Models\Review::class, 'user_id');
-    }
 }

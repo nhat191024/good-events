@@ -6,7 +6,7 @@ use App\Http\Controllers\PartnerCategory\PartnerCategoryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home-page');
 
 // Trang “Danh mục cha”: slug là slug của category KHÔNG có parent_id
 Route::get('/categories/{slug}', [CategoryController::class, 'showParent'])

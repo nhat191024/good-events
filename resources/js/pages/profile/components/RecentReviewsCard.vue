@@ -21,11 +21,13 @@ const props = defineProps<{ items: Array<{ id:number; subject_name:string; depar
       </div>
 
       <!-- Stars -->
-    <div class="mt-1 flex">
-      <span v-for="n in 5" :key="n" class="text-yellow-400">
-        {{ n <= (it.overall ?? 0) ? '★' : '☆' }}
-      </span>
-    </div>
+      <div class="mt-1 flex">
+        <template v-for="n in 5">
+          <span :key="n" class="text-yellow-400">
+            {{ n <= (it.overall ?? 0) ? '★' : '☆' }}
+          </span>
+        </template>
+      </div>
 
       <p class="mt-1 text-gray-700">{{ it.review }}</p>
     </div>
