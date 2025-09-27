@@ -59,6 +59,8 @@ class PartnerPanelProvider extends PanelProvider
                     ->icon('heroicon-o-currency-dollar'),
             ])
 
+            ->databaseNotifications()
+
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
             ->discoverPages(in: app_path('Filament/Partner/Pages'), for: 'App\Filament\Partner\Pages')
             ->discoverWidgets(in: app_path('Filament/Partner/Widgets'), for: 'App\Filament\Partner\Widgets')
