@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     supervisor \
     procps \
+    curl \
+    unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install zip pdo_mysql gd bcmath intl pcntl exif \
     && apt-get clean \
@@ -23,39 +25,41 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+# Enable Apache modules
+RUN a2enmod rewrite headers
 
+# Copy Apache configuration
 COPY 000-default-redirect.conf /etc/apache2/sites-available/000-default.conf
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-# Copy composer files first for better caching
+# Copy and install PHP dependencies
 COPY composer.json composer.lock ./
-
-# Copy and install dependencies
-COPY composer.json composer.lock package.json ./
-# RUN composer install --no-dev --optimize-autoloader --no-scripts
+# RUN composer install --optimize-autoloader --no-scripts --no-dev
 RUN composer install --optimize-autoloader --no-scripts
+
+# Copy and install Node dependencies
+COPY package.json package-lock.json* ./
 RUN npm install
+
+# Copy supervisor configuration
+COPY supervisor-laravel.conf /etc/supervisor/conf.d/laravel.conf
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Create necessary directories for mounted volumes
+# Create necessary directories
 RUN mkdir -p /var/www/html/storage/logs \
-    && mkdir -p /var/www/html/storage/framework/cache \
-    && mkdir -p /var/www/html/storage/framework/sessions \
-    && mkdir -p /var/www/html/storage/framework/views \
-    && mkdir -p /var/www/html/bootstrap/cache
+    /var/www/html/storage/framework/cache \
+    /var/www/html/storage/framework/sessions \
+    /var/www/html/storage/framework/views \
+    /var/www/html/bootstrap/cache \
+    /var/log/supervisor
 
-# Set proper permissions for Apache
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+# Set proper ownership
+RUN chown -R www-data:www-data /var/www/html
 
-# Expose port 80
 EXPOSE 80
 
-# Use entrypoint script
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
