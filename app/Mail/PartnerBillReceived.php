@@ -22,7 +22,7 @@ class PartnerBillReceived extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      */
-    public function __construct(PartnerBill $partnerBill, string $recipientType, string $locale = null)
+    public function __construct(PartnerBill $partnerBill, string $recipientType, ?string $locale = null)
     {
         $this->partnerBill = $partnerBill;
         $this->recipientType = $recipientType;
