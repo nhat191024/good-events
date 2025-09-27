@@ -27,3 +27,4 @@ yarn-error.log
 .fuse_hidden*
 .dev-kit
 docker-compose-local.yml
+pnpm-workspace.yaml
