@@ -14,3 +14,4 @@ Route::get('dashboard', function () {
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
 require __DIR__.'/home.php';
+require __DIR__.'/client-profile.php';
