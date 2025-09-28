@@ -19,7 +19,7 @@
     const parentPartnerCategorySlug = partnerCategory.slug as string
 
     // TODO: this should be changed to partnerCategory's image (currently not available)
-    const headerImageSrc = "https://framerusercontent.com/images/IDBlVR9F6tbH9i8opwaJiutM.png?scale-down-to=512&width=1024&height=1024"
+    // const headerImageSrc = "https://framerusercontent.com/images/IDBlVR9F6tbH9i8opwaJiutM.png?scale-down-to=512&width=1024&height=1024"
     const title = `Trong lĩnh vực \'${partnerCategory.name}\', bạn muốn thuê đối tác cụ thể nào dưới đây?`
     const subtitle = 'Chọn loại dịch vụ quay chụp phù hợp với nhu cầu'
 
@@ -38,7 +38,7 @@
 <template>
     <!-- layout -->
     <ClientAppHeaderLayout>
-        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="headerImageSrc">
+        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="getFirstImg(partnerCategory.media)">
             <!-- search bar -->
             <div class="w-full relative">
                 <LargeSearchBar v-model="searchKeyword" :placeholder="'Tìm cụ thể đối tác...'" />
