@@ -50,7 +50,7 @@ class QuickBookingController extends Controller
      */
     public function choosePartnerCategory(string $partner_category_slug)
     {
-        $partnerCategory = PartnerCategory::where("slug", $partner_category_slug)->first();
+        $partnerCategory = PartnerCategory::where("slug", $partner_category_slug)->with("media")->first();
 
         if (!$partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);

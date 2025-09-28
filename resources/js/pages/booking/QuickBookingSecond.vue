@@ -10,6 +10,7 @@
     import CardGrid from './layout/CardGrid.vue';
     import { createSearchFilter } from '@/lib/search-filter';
     import { computed, ref } from 'vue';
+    import { getFirstImg } from './helper';
 
     const pageProps = usePage().props
     const partnerChildrenList = computed(() => pageProps.partnerChildrenList as PartnerCategory[])
@@ -50,7 +51,7 @@
             <!-- grid list -->
             <CardGrid>
                 <Link v-for="item in filteredPartnerChildrenList" :href="route('quick-booking.fill-info',{partner_child_category_slug: item.slug, partner_category_slug: parentPartnerCategorySlug})">
-                    <CardItem :title="item.name" :description="item.description" :card-img-src="cardImgDemo"/>
+                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getFirstImg(item.media)"/>
                 </Link>
             </CardGrid>
         </SelectPartnerHeader>
