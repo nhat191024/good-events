@@ -15,7 +15,7 @@
     import Button from '@/components/ui/button/Button.vue'
     import { reactive, ref, watch } from 'vue';
     import { showLoading, hideLoading } from '@/composables/useLoading'
-import { getFirstImg } from './helper';
+    import { getFirstImg } from './helper';
 
     const pageProps = usePage().props
     // parent
@@ -36,7 +36,6 @@ import { getFirstImg } from './helper';
     const lastProvinceProcessed = ref<string | null>(null)
 
     watch(() => location.provinceId, async (provinceId, old) => {
-
         if (!provinceId) {
             wardList.value = []
             lastProvinceProcessed.value = null
@@ -63,7 +62,6 @@ import { getFirstImg } from './helper';
             if (!res.ok) throw new Error(`http ${res.status}`)
             const data = await res.json()
             wardList.value = data.map((w: Ward) => ({ name: w.name, value: String(w.id) }))
-            console.log(`fetched wards from province id: ${provinceId}: ${wardList.value.length} records`);
         } catch (err) {
             wardsError.value = 'không tải được danh sách phường/xã'
             console.error(err)
