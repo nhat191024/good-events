@@ -23,6 +23,7 @@
         "leandrocfe/filament-apex-charts": "^4.0@beta",
         "malzariey/filament-daterangepicker-filter": "^4.0",
         "opcodesio/log-viewer": "^3.19",
+        "payos/payos": "^1.0",
         "predis/predis": "^3.2",
         "pusher/pusher-php-server": "^7.2",
         "spatie/image-optimizer": "^1.8",
