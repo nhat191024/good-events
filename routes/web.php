@@ -1,9 +1,15 @@
 <?php
 
-use App\Filament\Partner\Pages\CalendarPage;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 use App\Models\PartnerBill;
+
+use Inertia\Inertia;
+
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\PaymentController;
+
+use App\Filament\Partner\Pages\CalendarPage;
+
 use App\Mail\PartnerBillReceived;
 use App\Mail\PartnerBillConfirmed;
 use App\Mail\PartnerBillReminder;
@@ -20,6 +26,8 @@ Route::get('dashboard', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/api/calendar/events', [CalendarPage::class, 'getEvents'])->name('calendar.events');
     Route::get('/api/calendar/locale', [CalendarPage::class, 'getLocaleData'])->name('calendar.locale');
+
+    Route::get('/payment/result', [PaymentController::class, 'result'])->name('payment.result');
 });
 
 // Language switcher for testing
