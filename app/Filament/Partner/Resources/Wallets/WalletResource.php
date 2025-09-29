@@ -44,7 +44,8 @@ class WalletResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('payable_id', auth()->id());
+            ->where('payable_id', auth()->id())
+            ->where('confirmed', 1);
     }
 
     public static function getRelations(): array
