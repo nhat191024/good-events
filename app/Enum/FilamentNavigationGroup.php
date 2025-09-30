@@ -12,7 +12,7 @@ enum FilamentNavigationGroup implements HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::USER_MANAGEMENT => __('admin\sidebar.user_management'),
+            self::USER_MANAGEMENT => __('admin.sidebar.user_management'),
         };
     }
 }
