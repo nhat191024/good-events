@@ -9,6 +9,7 @@
         "php": "^8.2",
         "bavix/laravel-wallet": "^11.4",
         "beyondcode/laravel-vouchers": "*",
+        "bezhansalleh/filament-language-switch": "^4.0",
         "cmgmyr/messenger": "^2.31",
         "codebyray/laravel-review-rateable": "^2.1",
         "filament/filament": "~4.0",
