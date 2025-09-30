@@ -33,7 +33,7 @@ class UserResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('admin\user.user');
+        return __('admin.user.user');
     }
 
     public static function form(Schema $schema): Schema
