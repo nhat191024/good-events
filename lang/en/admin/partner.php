@@ -2,26 +2,20 @@
 return [
     'partner' => 'Partner',
 
-    'fields' => [
-        'label' => [
-            'name' => 'Name',
-            'partner_name' => 'Partner Nickname',
-            'avatar' => 'Avatar',
-            'email' => 'Email Address',
-            'country_code' => 'Country Code',
-            'phone' => 'Phone Number',
-            'identity_card_number' => 'ID Card Number',
-            'password' => 'Password',
-            'email_verified_at' => 'Email Verified At',
-        ],
+    'fields.label.name' => 'Name',
+    'fields.label.partner_name' => 'Partner Nickname',
+    'fields.label.avatar' => 'Avatar',
+    'fields.label.email' => 'Email Address',
+    'fields.label.country_code' => 'Country Code',
+    'fields.label.phone' => 'Phone Number',
+    'fields.label.identity_card_number' => 'ID Card Number',
+    'fields.label.password' => 'Password',
+    'fields.label.email_verified_at' => 'Email Verified At',
 
-        'placeholder' => [
-            'name' => 'Enter name',
-            'partner_name' => 'Enter partner nickname',
-            'email' => 'Enter email address',
-            'country_code' => 'Enter country code',
-            'phone' => 'Enter phone number',
-            'password' => 'Enter password',
-        ],
-    ]
+    'fields.placeholder.name' => 'Enter name',
+    'fields.placeholder.partner_name' => 'Enter partner nickname',
+    'fields.placeholder.email' => 'Enter email address',
+    'fields.placeholder.country_code' => 'Enter country code',
+    'fields.placeholder.phone' => 'Enter phone number',
+    'fields.placeholder.password' => 'Enter password',
 ];
