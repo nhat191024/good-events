@@ -33,7 +33,7 @@ class PartnerResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('admin\partner.partner');
+        return __('admin/partner.partner');
     }
 
     public static function form(Schema $schema): Schema
