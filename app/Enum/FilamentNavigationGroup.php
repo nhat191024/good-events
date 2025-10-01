@@ -6,10 +6,10 @@ use Filament\Support\Contracts\HasLabel;
 
 enum FilamentNavigationGroup implements HasLabel
 {
+    case CATEGORIES;
     case USER_MANAGEMENT;
     case BILLING;
     case SETTINGS;
-    case CATEGORIES;
 
     public function getLabel(): string
     {
