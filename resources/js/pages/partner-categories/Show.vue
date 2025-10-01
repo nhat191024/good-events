@@ -44,9 +44,7 @@ const placeholderImg = computed(() =>
 
 const breadcrumbs = computed(() => {
   return [
-    { label: 'Sự kiện', href: '/' },
-    { label: 'Danh mục', href: props.parent ? `/categories/${props.parent.slug}` : undefined },
-    { label: props.parent?.name ?? '', href: props.parent ? `/categories/${props.parent.slug}` : undefined },
+    { label: 'Sự kiện', href: '/home' },
     { label: props.category?.name ?? '', href: undefined },
     { label: 'Chi tiết', href: undefined },
   ].filter(b => b.label);
@@ -54,7 +52,7 @@ const breadcrumbs = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[oklch(70.4%_0.04_256.788)]">
+  <div class="min-h-screen bg-white">
     <!-- Breadcrumb (compact) -->
     <div class="mx-4 my-1 px-2 py-1.5 rounded-l bg-white">
       <nav class="text-xs md:text-[13px] text-gray-500">
@@ -74,7 +72,7 @@ const breadcrumbs = computed(() => {
 
     <!-- Hero (compact spacing) -->
     <section class="mx-auto px-4 py-3 md:py-2">
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 border rounded-2xl p-3 md:p-4 bg-white">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 border rounded-2xl p-3 md:p-4 bg-white shadow-md">
         <!-- Left image + thumbs -->
         <div class="md:col-span-4">
           <div class="aspect-square w-full rounded-2xl bg-gray-50 ring-1 ring-gray-200 overflow-hidden flex items-center justify-center">
@@ -86,7 +84,7 @@ const breadcrumbs = computed(() => {
         </div>
 
         <!-- Right info -->
-        <div class="md:col-span-8 flex flex-col gap-1">
+        <div class="md:col-span-8 flex flex-col gap-1 p-3">
           <div class="flex items-start justify-between gap-2">
             <div>
               <h1 class="text-xl md:text-2xl font-semibold text-gray-900">{{ props.item.name }}</h1>
@@ -137,7 +135,7 @@ const breadcrumbs = computed(() => {
 
     <!-- Mô tả -->
     <section class="mx-auto px-4 mt-1 md:mt-2">
-      <div class="border rounded-2xl p-3 md:p-4 bg-white">
+      <div class="border rounded-2xl p-3 md:p-4 bg-white shadow-md">
         <h2 class="font-semibold mb-2">Mô tả chi tiết</h2>
         <p class="text-gray-700 whitespace-pre-line">
           {{ props.item.description || 'Chưa có mô tả.' }}
@@ -147,7 +145,7 @@ const breadcrumbs = computed(() => {
 
     <!-- Thông tin chi tiết -->
     <section class="mx-auto px-4 mt-1 md:mt-4">
-      <div class="border rounded-2xl p-3 md:p-4 bg-white">
+      <div class="border rounded-2xl p-3 md:p-4 bg-white shadow-md">
         <h2 class="font-semibold mb-3">Thông tin chi tiết</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           <div>
@@ -184,7 +182,7 @@ const breadcrumbs = computed(() => {
             :href="route('partner-categories.show', r.slug)"
             class="group"
           >
-            <div class="aspect-square w-full rounded-2xl bg-gray-50 ring-1 ring-gray-200 overflow-hidden flex items-center justify-center">
+            <div class="aspect-square w-full rounded-2xl bg-gray-50 ring-1 ring-gray-200 overflow-hidden flex items-center justify-center shadow-md">
               <img :src="r.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=ED3B50&color=ffffff&size=256`"
                    :alt="r.name" class="w-2/3 h-2/3 object-contain" />
             </div>

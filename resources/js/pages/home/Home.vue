@@ -4,31 +4,13 @@ import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import Header from './partials/Header.vue';
 import HeroBanner from './partials/HeroBanner.vue';
-import CategoryIcons from './partials/CategoryIcons.vue';
+import PartnerCategoryIcons from './partials/PartnerCategoryIcons.vue';
 import CategorySection from './partials/CategorySection.vue';
 import Footer from './partials/Footer.vue';
-
-interface Category {
-    id: number;
-    name: string;
-    slug: string;
-    parent_id: number | null;
-    description: string | null;
-}
-
-interface PartnerCategory {
-    id: number;
-    name: string;
-    slug: string;
-    category_id: number;
-    min_price: number;
-    max_price: number;
-    description: string | null;
-}
+import { PartnerCategory } from '@/types/database';
 
 interface Props {
-    rootCategories: Category[];
-    eventCategories: Category[];
+    eventCategories: PartnerCategory[];
     partnerCategories: { [key: number]: PartnerCategory[] };
 }
 
@@ -51,35 +33,26 @@ const filteredPartnerCategories = computed(() => {
 
 <template>
     <Head title="Trang chủ - Sukientot" />
-    
+
     <div class="min-h-screen bg-white">
         <Header />
-        
+
         <main>
-            <HeroBanner />
-            <CategoryIcons :categories="rootCategories" />
-            <!-- Search bar -->
-            <div class="container mx-auto px-4 mt-4 mb-2">
-              <input
-                v-model="search"
-                type="text"
-                placeholder="Tìm kiếm đối tác..."
-                class="w-full border rounded-lg px-4 py-2 text-base focus:ring-2 focus:ring-[#ED3B50]"
-              />
-            </div>
+            <HeroBanner v-model="search" />
+            <PartnerCategoryIcons/>
             <!-- Partner Categories Sections -->
             <div class="container mx-auto px-4 py-8 space-y-12">
                 <!-- Loop through event categories and display partner categories for each -->
-                <CategorySection 
-                    v-for="eventCategory in eventCategories" 
+                <CategorySection
+                    v-for="eventCategory in eventCategories"
                     :key="eventCategory.id"
                     :category-name="eventCategory.name"
                     :partner-categories="filteredPartnerCategories[eventCategory.id] || []"
                 />
             </div>
-            
+
         </main>
-        
+
         <Footer/>
     </div>
 </template>

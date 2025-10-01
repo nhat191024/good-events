@@ -12,8 +12,8 @@
         </div>
         <!-- Placeholder image -->
         <div class="aspect-square bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
-          <img 
-            :src="`/placeholder.svg?height=200&width=200&query=${encodeURIComponent(partnerCategory.name)}`"
+          <img
+            :src="partnerCategory.image || `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(partnerCategory.name)}`"
             :alt="partnerCategory.name"
             class="w-full h-full object-cover"
           />
@@ -29,7 +29,7 @@
         </p>
         <!-- Price range -->
         <div class="text-red-500 font-semibold text-sm">
-          {{ formatPrice(partnerCategory.min_price) }} - {{ formatPrice(partnerCategory.max_price) }}
+          {{ formatPrice(partnerCategory.min_price || 0) }} - {{ formatPrice(partnerCategory.max_price || 0) }}
         </div>
       </div>
     </div>
@@ -38,19 +38,10 @@
 
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-
-interface PartnerCategory {
-  id: number;
-  name: string;
-  slug: string;
-  category_id: number;
-  min_price: number;
-  max_price: number;
-  description: string | null;
-}
+import { PartnerCategory } from '@/types/database';
 
 interface Props {
-  partnerCategory: PartnerCategory;
+  partnerCategory: PartnerCategory & { image?: string | null };
 }
 
 const props = defineProps<Props>();

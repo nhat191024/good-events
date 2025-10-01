@@ -13,7 +13,6 @@ Route::get('/categories/{slug}', [CategoryController::class, 'showParent'])
     ->where('slug', '[A-Za-z0-9-]+')
     ->name('categories.parent');
 
-    
 Route::get('/partner-categories/{slug}', [PartnerCategoryController::class, 'show'])
     ->where('slug', '[A-Za-z0-9-]+')
     ->name('partner-categories.show');

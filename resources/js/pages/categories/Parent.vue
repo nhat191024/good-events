@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 import SearchBar from './partials/SearchBar.vue';
 import SubcategoryBlock from './partials/SubcategoryBlock.vue';
 
@@ -39,13 +38,22 @@ const props = defineProps<Props>();
 const placeholderAvatar = (text: string) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(text)}&background=ED3B50&color=ffffff&rounded=true&size=128`;
 
-const onSearch = (q: string) => {
-  router.get(
-    route('categories.parent', props.parent.slug),
-    { q },
-    { preserveState: true, replace: true }
-  );
-};
+// Local client-side search state
+const q = ref(props.filters?.q ?? '');
+
+// Filter children and their partner categories by name
+const filteredChildren = computed(() => {
+  const term = q.value.trim().toLowerCase();
+  if (!term) return props.children;
+  return props.children
+    .map((child) => ({
+      ...child,
+      partner_categories: child.partner_categories.filter((pc) =>
+        pc.name.toLowerCase().includes(term)
+      ),
+    }))
+    .filter((child) => child.partner_categories.length > 0);
+});
 
 
 </script>
@@ -54,7 +62,7 @@ const onSearch = (q: string) => {
   <div class="">
     <!-- Top bar: tiêu đề + ô tìm kiếm -->
     <div class="bg-gray-100 rounded-5 mx-auto my-4 px-2 py-2 ">
-      <SearchBar :model-value="filters.q" @update:model-value="onSearch" />
+      <SearchBar v-model="q" />
     </div>
 
     <!-- Nội dung: lặp các danh mục con -->
@@ -63,7 +71,7 @@ const onSearch = (q: string) => {
 
       <div class="space-y-10">
         <SubcategoryBlock
-          v-for="child in children"
+          v-for="child in filteredChildren"
           :key="child.id"
           :title="child.name"
           :items="child.partner_categories.map(pc => ({
@@ -77,3 +85,4 @@ const onSearch = (q: string) => {
     </div>
   </div>
 </template>
+

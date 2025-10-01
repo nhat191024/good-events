@@ -17,31 +17,42 @@ class HomeController extends Controller
     public function index(): Response
     {
         // Get root categories (parent_id is null)
-        $rootCategories = Category::whereNull('parent_id')
-            ->orderBy('name')
-            ->get();
+        // $rootCategories = PartnerCategory::whereNull('parent_id')
+        //     ->orderBy('name')
+        //     ->get();
 
         // Get event categories (children of "Sự kiện" category)
-        $eventCategory = Category::where('slug', 'su-kien')->first();
-        $eventCategories = [];
+        // $eventCategory =
+        $eventCategories = PartnerCategory::whereNull('parent_id')->orderBy("name")->get();
         $partnerCategories = [];
 
-        if ($eventCategory) {
-            $eventCategories = Category::where('parent_id', $eventCategory->id)
-                ->orderBy('name')
-                ->get();
+        if ($eventCategories->count() > 0) {
+            // $eventCategories = PartnerCategory::where('parent_id', $eventCategory->id)
+            //     ->orderBy('name')
+            //     ->get();
 
             // Get partner categories for each event category
             foreach ($eventCategories as $category) {
-                $partnerCategories[$category->id] = PartnerCategory::where('category_id', $category->id)
+                $partnerCategories[$category->id] = PartnerCategory::where('parent_id', $category->id)
                     ->orderBy('min_price')
-                    ->limit(8) // Limit for performance
-                    ->get();
+                    ->limit(8)
+                    ->get()
+                    ->map(function ($pc) {
+                        return [
+                            'id' => $pc->id,
+                            'name' => $pc->name,
+                            'slug' => $pc->slug,
+                            'description' => $pc->description,
+                            'min_price' => $pc->min_price,
+                            'max_price' => $pc->max_price,
+                            'image' => optional($pc->getFirstMedia('images'))->getFullUrl(),
+                        ];
+                    });
             }
         }
-
+        // dd( $partnerCategories, $eventCategories);
         return Inertia::render('home/Home', [
-            'rootCategories' => $rootCategories,
+            // 'rootCategories' => $rootCategories,
             'eventCategories' => $eventCategories,
             'partnerCategories' => $partnerCategories,
         ]);

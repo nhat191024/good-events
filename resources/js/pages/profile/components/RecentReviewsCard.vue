@@ -22,8 +22,8 @@ const props = defineProps<{ items: Array<{ id:number; subject_name:string; depar
 
       <!-- Stars -->
       <div class="mt-1 flex">
-        <template v-for="n in 5">
-          <span :key="n" class="text-yellow-400">
+        <template v-for="n in 5" :key="n">
+          <span class="text-yellow-400">
             {{ n <= (it.overall ?? 0) ? '★' : '☆' }}
           </span>
         </template>
