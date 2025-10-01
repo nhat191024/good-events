@@ -16,7 +16,6 @@ use App\Filament\Partner\Widgets\PartnerStatisticsWidget;
 use App\Filament\Partner\Widgets\PartnerRevenueChart;
 use App\Filament\Partner\Widgets\PartnerTopServicesWidget;
 
-
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
