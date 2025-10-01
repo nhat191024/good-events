@@ -85,7 +85,12 @@ class PartnerServicesTable
             ])
             ->recordActions([
                 EditAction::make()
-                    ->label(__('global.edit')),
+                    ->label(__('global.edit'))
+                    ->disabled(fn($record) => !in_array($record->status, [PartnerServiceStatus::PENDING, PartnerServiceStatus::REJECTED]))
+                    ->mutateDataUsing(function (array $data): array {
+                        $data['user_id'] = auth()->id();
+                        return $data;
+                    }),
                 DeleteAction::make()
                     ->label(__('global.hidden')),
                 RestoreAction::make()
