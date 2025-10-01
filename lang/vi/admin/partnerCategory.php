@@ -12,7 +12,7 @@ return [
     'create_partner_category' => 'Tạo danh mục đối tác',
     'edit_partner_category_with_name' => 'Chỉnh sửa :name',
 
-    'cannot_hidden_partner_category_has_services' => 'Không thể ẩn danh mục có có dịch vụ đối tác',
+    'cannot_hidden_partner_category_has_services' => 'Không thể ẩn danh mục có có đối tác',
     'cannot_hidden_category_has_services' => 'Không thể ẩn danh mục có có dịch vụ',
 
     'fields' => [

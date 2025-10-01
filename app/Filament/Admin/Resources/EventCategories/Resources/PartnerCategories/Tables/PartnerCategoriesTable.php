@@ -64,7 +64,7 @@ class PartnerCategoriesTable
                     ->label(__('global.hidden'))
                     ->visible(fn($record): bool => $record->deleted_at === null)
                     ->disabled(fn($record): bool => (bool) $record->partner_services_exists)
-                    ->tooltip(fn($record): ?string => $record->partner_services_exists ? __('admin/partnerCategory.cannot_hidden_category_has_services') : null),
+                    ->tooltip(fn($record): ?string => $record->partner_services_exists ? __('admin/partnerCategory.cannot_hidden_partner_category_has_services') : null),
                 RestoreAction::make()
                     ->visible(fn($record): bool => $record->deleted_at !== null)
             ])
