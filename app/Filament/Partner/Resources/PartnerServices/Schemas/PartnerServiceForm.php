@@ -17,7 +17,7 @@ class PartnerServiceForm
             ->components([
                 Select::make('category_id')
                     ->label(__('partner/service.label.service_list'))
-                    ->relationship('category', 'name', fn($query) => $query->whereNull('parent_id'))
+                    ->relationship('category', 'name', fn($query) => $query->whereNotNull('parent_id'))
                     ->required()
                     ->searchable()
                     ->preload()
@@ -49,7 +49,8 @@ class PartnerServiceForm
                         Textarea::make('description')
                             ->label(__('partner/service.label.video_description'))
                             ->placeholder(__('partner/service.placeholder.video_description'))
-                            ->rows(2),
+                            ->rows(2)
+                            ->required(),
                     ])
                     ->collapsible()
                     ->itemLabel(fn(array $state): ?string => $state['name'] ?? __('partner/service.video_no_name'))
