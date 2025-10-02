@@ -9,6 +9,7 @@ enum FilamentNavigationGroup implements HasLabel
     case CATEGORIES;
     case USER_MANAGEMENT;
     case BILLING;
+    case SYSTEM;
     case SETTINGS;
 
     public function getLabel(): string
@@ -18,6 +19,7 @@ enum FilamentNavigationGroup implements HasLabel
             self::BILLING => __('admin/sidebar.billing'),
             self::SETTINGS => __('admin/sidebar.settings'),
             self::CATEGORIES => __('admin/sidebar.categories'),
+            self::SYSTEM => __('admin/sidebar.system'),
         };
     }
 }
