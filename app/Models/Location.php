@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property int $id
@@ -32,6 +33,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Location extends Model
 {
+    use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
