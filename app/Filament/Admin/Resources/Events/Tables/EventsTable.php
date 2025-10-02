@@ -8,6 +8,8 @@ use Filament\Tables\Filters\TrashedFilter;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 
 use Filament\Actions\BulkActionGroup;
 // use Filament\Actions\DeleteBulkAction;
@@ -47,7 +49,13 @@ class EventsTable
                 DeleteAction::make()
                     ->label(__('global.hidden'))
                     ->disabled(fn($record) => $record->bills_exists)
-                    ->tooltip(fn($record) => $record->bills_exists ? __('admin/event.cannot_delete_has_bills') : null)
+                    ->tooltip(fn($record) => $record->bills_exists ? __('admin/event.cannot_delete_has_bills') : null),
+                ForceDeleteAction::make()
+                    ->label(__('global.delete'))
+                    ->disabled(fn($record) => $record->bills_exists)
+                    ->tooltip(fn($record) => $record->bills_exists ? __('admin/event.cannot_delete_has_bills') : null),
+                RestoreAction::make()
+                    ->label(__('global.show')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
