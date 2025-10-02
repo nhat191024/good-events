@@ -4,4 +4,5 @@ return [
     'billing' => 'Quản lý đơn hàng',
     'settings' => 'Cài đặt',
     'categories' => 'Danh mục',
+    'system' => 'Hệ thống',
 ];
