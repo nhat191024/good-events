@@ -66,8 +66,8 @@ class CityResource extends Resource
     {
         return [
             'index' => ListCities::route('/'),
-            'create' => CreateCity::route('/create'),
-            'edit' => EditCity::route('/{record}/edit'),
+            // 'create' => CreateCity::route('/create'),
+            // 'edit' => EditCity::route('/{record}/edit'),
             'wards' => ManageWard::route('/{record}/wards'),
         ];
     }
