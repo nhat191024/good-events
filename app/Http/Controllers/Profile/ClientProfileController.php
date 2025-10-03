@@ -82,7 +82,7 @@ class ClientProfileController extends Controller
             ];
         });
 
-        return Inertia::render('profile/Client', $payload);
+        return Inertia::render('profile/client/Client', $payload);
     }
 
     private function calcCancelPct(User $user): string
