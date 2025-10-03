@@ -59,14 +59,14 @@
           <!-- Pill: Đặt show nhanh -->
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-full bg-[#ED3B50] px-5 py-2 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] transition"
+            class="inline-flex items-center gap-2 rounded-full bg-[#ED3B50] px-4 sm:px-5 py-2 h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
                     stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M15.5 10.5v3m-1.5-1.5h3" stroke="white" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            <span>Đặt show nhanh</span>
+            <span class="hidden sm:inline">Đặt show nhanh</span>
           </button>
 
           <!-- Account button group: tròn user + chevron nhỏ (giống ảnh) -->
