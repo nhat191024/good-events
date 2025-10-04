@@ -43,6 +43,42 @@
             </div>
         </form>
 
+        <!-- form thêm media cho category đã tồn tại -->
+        <section class="mb-10 border-t pt-6 mt-8">
+            <h2 class="text-lg mb-3">Thêm ảnh vào Category đã có</h2>
+            <form @submit.prevent="submitExisting" class="space-y-4">
+                <div>
+                    <label class="block text-sm mb-1">Chọn category</label>
+                    <select v-model="existingForm.categoryId" class="w-full border border-gray-400 rounded px-2 py-1">
+                        <option disabled value="">-- chọn --</option>
+                        <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-1">Ảnh đơn (single)</label>
+                    <input type="file" accept="image/*" @change="onExistingImageChange" class="w-full border border-gray-400 rounded px-2 py-1" />
+                    <div v-if="existingImagePreview" class="mt-2">
+                        <img :src="existingImagePreview" alt="preview" class="w-32 h-20 object-cover rounded" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-1">Ảnh nhiều (multiple)</label>
+                    <input type="file" multiple accept="image/*" @change="onExistingPhotosChange" class="w-full border border-gray-400 rounded px-2 py-1" />
+                    <div class="mt-2 flex gap-2 flex-wrap">
+                        <img v-for="(p, i) in existingPhotosPreview" :key="i" :src="p" class="w-20 h-16 object-cover rounded" />
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded" :disabled="existingSubmitting">
+                        {{ existingSubmitting ? 'Đang tải...' : 'Thêm ảnh' }}
+                    </button>
+                </div>
+            </form>
+        </section>
+
         <!-- table hiển thị categories + media -->
         <section>
             <h2 class="text-lg mb-3">Danh sách categories và media đã upload</h2>
@@ -146,6 +182,81 @@ function onImageChange(e: Event) {
     }
 }
 
+// --------------- Existing category upload ---------------
+const existingForm = ref<{ categoryId: string | number | ''; image: File | null; photos: File[] }>({
+    categoryId: '',
+    image: null,
+    photos: [],
+});
+const existingImagePreview = ref<string | null>(null);
+const existingPhotosPreview = ref<string[]>([]);
+const existingSubmitting = ref(false);
+
+function onExistingImageChange(e: Event) {
+    const files = (e.target as HTMLInputElement).files;
+    if (files && files.length > 0) {
+        existingForm.value.image = files[0];
+        existingImagePreview.value = URL.createObjectURL(files[0]);
+    } else {
+        existingForm.value.image = null;
+        existingImagePreview.value = null;
+    }
+}
+
+function onExistingPhotosChange(e: Event) {
+    const files = (e.target as HTMLInputElement).files;
+    if (!files) {
+        existingForm.value.photos = [];
+        existingPhotosPreview.value = [];
+        return;
+    }
+    const arr = Array.from(files);
+    existingForm.value.photos = arr;
+    existingPhotosPreview.value = arr.map(f => URL.createObjectURL(f));
+}
+
+async function submitExisting() {
+    if (!existingForm.value.categoryId) {
+        alert('Vui lòng chọn category');
+        return;
+    }
+    existingSubmitting.value = true;
+    try {
+        const fd = new FormData();
+        if (existingForm.value.image) fd.append('image', existingForm.value.image, existingForm.value.image.name);
+        for (const f of existingForm.value.photos) fd.append('photos[]', f, f.name);
+
+        const tokenMeta = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null;
+        const token = tokenMeta?.getAttribute('content') ?? '';
+
+        const res = await fetch(`/test/partner-categories/${existingForm.value.categoryId}/media`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: fd,
+            credentials: 'same-origin',
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.message || res.statusText);
+        }
+
+        // reset and refresh props
+        existingForm.value = { categoryId: '', image: null, photos: [] };
+        existingImagePreview.value = null;
+        existingPhotosPreview.value = [];
+        window.location.reload();
+    } catch (e:any) {
+        alert('Upload thất bại: ' + (e.message || 'Unknown error'));
+    } finally {
+        existingSubmitting.value = false;
+    }
+}
+
 function onPhotosChange(e: Event) {
     const files = (e.target as HTMLInputElement).files;
     if (!files) {
@@ -159,7 +270,7 @@ function onPhotosChange(e: Event) {
 }
 
 function submit() {
-    form.post('/partner-categories', {
+    form.post('/test/partner-categories', {
         onSuccess: () => {
             form.reset();
             imagePreview.value = null;
@@ -200,7 +311,7 @@ async function confirmDelete(mediaId: number) {
     const token = tokenMeta?.getAttribute('content') ?? '';
 
     try {
-        const res = await fetch(`/media/${mediaId}`, {
+        const res = await fetch(`/test/media/${mediaId}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': token,
