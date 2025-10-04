@@ -126,14 +126,6 @@ class TestPartnerCategoryController extends Controller
                 return back()->withErrors(['photos' => 'upload failed: ' . $e->getMessage()]);
             }
 
-            // nếu request ajax / expects json, trả json để frontend cập nhật UI mà ko reload
-            if ($request->wantsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'media' => $addedMedia,
-                ]);
-            }
-
             // nếu dùng Inertia và redirect mà muốn truyền media mới để render ngay
             // nhớ: Inertia sẽ kèm flash session, hoặc bạn có thể Inertia::render lại page với props cập nhật
             return redirect()->back()->with('success', 'uploaded')->with('added_media', $addedMedia);

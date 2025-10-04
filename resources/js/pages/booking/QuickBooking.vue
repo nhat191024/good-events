@@ -8,15 +8,13 @@
     import CardGrid from '@/pages/booking/layout/CardGrid.vue';
     import { computed, ref } from 'vue';
     import { createSearchFilter } from '@/lib/search-filter'
+    import { getFirstImg } from './helper';
 
     const title: string = 'Bạn đang cần kiểu đối tác nào cho sự kiện?'
     const subtitle: string = 'Chọn loại dịch vụ phù hợp với nhu cầu của bạn'
 
     const pageProps = usePage().props
     const partnerCategories = computed(() => pageProps.partnerCategories as PartnerCategoryType[])
-
-    // TODO: test img, needs to change later
-    const cardImgDemo = "https://framerusercontent.com/images/IDBlVR9F6tbH9i8opwaJiutM.png?scale-down-to=512&width=1024&height=1024"
 
     const searchKeyword = ref('')
     const searchColumns = ['name', 'slug', 'description']
@@ -39,7 +37,7 @@
             <CardGrid>
                 <Link v-for="item in filteredPartnerCategories"
                     :href="route('quick-booking.choose-partner-category', { partner_category_slug: item.slug })">
-                    <CardItem :title="item.name" :description="item.description" :card-img-src="cardImgDemo" />
+                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getFirstImg(item.media)" />
                 </Link>
             </CardGrid>
         </SelectPartnerHeader>

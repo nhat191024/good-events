@@ -15,6 +15,7 @@
     import Button from '@/components/ui/button/Button.vue'
     import { reactive, ref, watch } from 'vue';
     import { showLoading, hideLoading } from '@/composables/useLoading'
+    import { getFirstImg } from './helper';
 
     const pageProps = usePage().props
     // parent
@@ -35,8 +36,6 @@
     const lastProvinceProcessed = ref<string | null>(null)
 
     watch(() => location.provinceId, async (provinceId, old) => {
-        console.log('watch fired, new=', provinceId, 'old=', old)
-
         if (!provinceId) {
             wardList.value = []
             lastProvinceProcessed.value = null
@@ -44,7 +43,6 @@
         }
 
         if (lastProvinceProcessed.value === provinceId) {
-            console.warn('same provinceId repeated, ignoring')
             return
         }
         lastProvinceProcessed.value = provinceId
@@ -64,7 +62,6 @@
             if (!res.ok) throw new Error(`http ${res.status}`)
             const data = await res.json()
             wardList.value = data.map((w: Ward) => ({ name: w.name, value: String(w.id) }))
-            console.log(`fetched wards from province id: ${provinceId}: ${wardList.value.length} records`);
         } catch (err) {
             wardsError.value = 'không tải được danh sách phường/xã'
             console.error(err)
@@ -73,9 +70,9 @@
         }
     })
 
-    const headerImageSrc = "https://framerusercontent.com/images/IDBlVR9F6tbH9i8opwaJiutM.png?scale-down-to=512&width=1024&height=1024"
+    const headerImageSrc = getFirstImg(partnerChildrenCategory.media)
     const title = 'Điền thông tin thuê chi tiết'
-    const subtitle = `Bạn đã chọn đối tác ${partnerCategory.name} - Cụ thể là ${partnerChildrenCategory.name} - hãy điền đầy đủ thông tin dưới đây nhé`
+    const subtitle = `Bạn đã chọn đối tác '${partnerCategory.name}' - Cụ thể là '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin dưới đây nhé`
 
     const form = useForm<{
         order_date: Date | null
@@ -188,8 +185,7 @@
 
                 <FormGroupLayout v-if="form.ward_id !== null" class="p-0 m-0 h-min">
                     <FormItemLayout :for-id="'event-order-location-detail'" :label="'Địa chỉ chi tiết'" :error="form.errors.location_detail">
-                        <Input placeholder="Số nhà, đường..." :id="'event-order-location-detail'" v-model="form.location_detail"
-                            class="text-black" />
+                        <Input placeholder="Số nhà, đường..." :id="'event-order-location-detail'" v-model="form.location_detail" class="text-black" />
                     </FormItemLayout>
                 </FormGroupLayout>
 
@@ -197,7 +193,7 @@
                     <div class="w-3/4 md:w-1/2">
                         <Button type="button" @click="onGoBack" :variant="'outlineWhite'" :size="'lg'" :class="'w-full cursor-pointer'">Chọn lại loại đối tác</Button>
                     </div>
-                    <Button type="submit" :variant="'secondary'" :size="'lg'" :class="'w-3/4 md:w-1/2 font-extrabold'">
+                    <Button type="submit" :variant="'secondary'" :size="'lg'" :class="'w-3/4 md:w-1/2 font-extrabold text-white'">
                         Đặt show ngay
                     </Button>
                 </FormGroupLayout>

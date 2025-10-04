@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { computed } from 'vue'
+    import { computed, ref } from 'vue'
 
     type RespSize = number | { base: number; sm?: number; md?: number; lg?: number }
 
@@ -55,6 +55,11 @@
     })
 
     const fitClass = computed(() => (props.fit === 'cover' ? 'object-cover' : 'object-contain'))
+
+    const hasError = ref(false);
+    function onError () {
+        hasError.value = true;
+    }
 </script>
 
 <template>
@@ -62,7 +67,7 @@
         :class="[shapeClass, outerBgClass, bordered ? borderClass : '', props.class]" :style="outerStyle">
         <div class="overflow-hidden flex items-center justify-center" :class="[shapeClass, innerBgClass]"
             :style="innerStyle">
-            <img v-if="src" :src="src" :alt="alt || 'media'" class="w-full h-full select-none pointer-events-none"
+            <img v-if="src && !hasError" @error.once="onError" :src="src" :alt="alt || 'media'" class="w-full h-full select-none pointer-events-none"
                 :class="[fitClass, shapeClass]" draggable="false" />
             <div v-else class="flex items-center justify-center w-full h-full">
                 <slot />

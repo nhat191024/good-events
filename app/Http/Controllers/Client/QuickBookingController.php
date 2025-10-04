@@ -35,8 +35,9 @@ class QuickBookingController extends Controller
      */
     public function chooseCategory(Request $request)
     {
-        $partnerCategories = PartnerCategory::where('parent_id', '=', null)->get();
-        dd($partnerCategories[0]->getMedia());
+        $partnerCategories = PartnerCategory::where('parent_id', '=', null)
+            ->with("media")
+            ->get();
         return Inertia::render("booking/QuickBooking", [
             "partnerCategories" => $partnerCategories
         ]);
@@ -49,13 +50,13 @@ class QuickBookingController extends Controller
      */
     public function choosePartnerCategory(string $partner_category_slug)
     {
-        $partnerCategory = PartnerCategory::where("slug", $partner_category_slug)->first();
+        $partnerCategory = PartnerCategory::where("slug", $partner_category_slug)->with("media")->first();
 
         if (!$partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);
         }
 
-        $partnerChildrenList = $partnerCategory->children()->get();
+        $partnerChildrenList = $partnerCategory->children()->with("media")->get();
 
         if ($partnerChildrenList->count() == 0) {
             return $this->quickBookingService->goBackWithError(self::PARENT_HAS_NO_CHILD);
@@ -89,7 +90,7 @@ class QuickBookingController extends Controller
         }
 
         // ensure the category is in fact that parent's child - and not other parent's child
-        $searchItem = $partnerChildrenListQuery->where('slug', $partner_child_category_slug)->first();
+        $searchItem = $partnerChildrenListQuery->where('slug', $partner_child_category_slug)->with("media")->first();
         if (! $searchItem) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_CHILD_INVALID);
         }
@@ -137,10 +138,10 @@ class QuickBookingController extends Controller
 
         $user = Auth::user();
         $address = $locationDetail . ', ' . $wardItem->name . ', ' . $provinceItem->name;
-        $phone = $user->phone;
-        $clientId = $user->id;
-        // $phone = '098776543';
-        // $clientId = 1;
+        // $phone = $user->phone;
+        // $clientId = $user->id;
+        $phone = '098776543';
+        $clientId = 1;
 
         $newBill = PartnerBill::create([
             'code' => 'PB' . rand(10000, 999999),
