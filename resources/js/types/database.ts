@@ -107,7 +107,7 @@ export interface Metrics {
     total_ratings: string
 }
 
-export interface Review {
+// export interface Review {
 
-}
+// }
 
