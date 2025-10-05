@@ -58,7 +58,7 @@ export interface PartnerCategory {
     deleted_at: string | null
     created_at: string
     updated_at: string
-    media? : Media[]
+    media?: Media[]
 }
 
 export interface PartnerBill {
@@ -95,3 +95,19 @@ export interface Province {
     id: number,
     name: string
 }
+
+export interface Metrics {
+    number_customer: string
+    satisfaction_rate: string
+    orders_placed: string
+    completed_orders: string
+    cancelled_orders_percentage: string
+    total_spent: string
+    average_stars: string
+    total_ratings: string
+}
+
+// export interface Review {
+
+// }
+

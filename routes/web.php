@@ -22,5 +22,6 @@ require __DIR__.'/client-profile.php';
 
 require __DIR__.'/client/test-partner.php';
 require __DIR__.'/client/quick-booking.php';
-require __DIR__.'/client/order.php';
+require __DIR__.'/client/order-history.php';
 require __DIR__.'/client/chat.php';
+require __DIR__.'/client/test-partner.php';

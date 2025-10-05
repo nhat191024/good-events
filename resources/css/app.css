@@ -63,23 +63,23 @@
 
     /* primary colors */
     --color-primary-900: #611010;
-    --color-primary-800: #991F1F;
-    --color-primary-700: #C71E32;
-    --color-primary-600: #EF233C;
-    --color-primary-500: #ED3B50;
-    --color-primary-400: #DB4444;
-    --color-primary-300: #F07171;
-    --color-primary-200: #F28F8F;
-    --color-primary-100: #FFC4C4;
-    --color-primary-50:  #FFC4C47D;
-    --color-primary-10:  #EC489914;
+    --color-primary-800: #991f1f;
+    --color-primary-700: #c71e32;
+    --color-primary-600: #ef233c;
+    --color-primary-500: #ed3b50;
+    --color-primary-400: #db4444;
+    --color-primary-300: #f07171;
+    --color-primary-200: #f28f8f;
+    --color-primary-100: #ffc4c4;
+    --color-primary-50: #ffc4c47d;
+    --color-primary-10: #ec489914;
 
     /* text colors */
     --color-primary-text: black;
     --color-secondary-text: #646464;
 
     /* background */
-    --color-background-framer: #F4F4F4;
+    --color-background-framer: #f4f4f4;
 }
 
 /*
@@ -106,6 +106,13 @@
         --font-sans:
             'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     }
+    .scrollbar-hide {
+        -ms-overflow-style: none; /* IE & Edge */
+        scrollbar-width: none; /* Firefox */
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
 }
 
 :root {
@@ -119,10 +126,10 @@
     --primary-foreground: hsl(0 0% 98%);
     --secondary: hsl(0 0% 92.1%);
     --secondary-foreground: hsl(0 0% 9%); */
-    --primary: #ED3B50;
+    --primary: #ed3b50;
     --primary-foreground: black;
     --secondary-foreground: #646464;
-    --background: #F4F4F4;
+    --background: #f4f4f4;
     --muted: hsl(0 0% 96.1%);
     --muted-foreground: hsl(0 0% 45.1%);
     --accent: hsl(0 0% 96.1%);

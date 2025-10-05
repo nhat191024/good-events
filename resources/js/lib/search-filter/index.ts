@@ -2,7 +2,7 @@
 //? how to use the search filter helper
 //* const searchKeyword = ref('')
 //* const partnerCategories = computed(() => pageProps.partnerCategories as PartnerCategoryType[])
-//* const searchColumns = ['name', 'slug', 'description', 'min_price', 'max_price']
+//* const searchColumns = ['name', 'slug', 'category.name', 'category.parent.name']
 //* const filteredPartnerCategories = computed(() => {
 //*     const filter = createSearchFilter(searchColumns, searchKeyword.value)
 //*     return partnerCategories.value.filter(filter)
@@ -21,7 +21,7 @@ export function normText(input?: unknown): string {
 }
 
 export function getNested(obj: any, path: string) {
-    return path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj)
+    return path.split('.').reduce((o, k) => (o && typeof o === 'object' ? o[k] : undefined), obj)
 }
 
 export function tokenize(q?: string): string[] {
@@ -34,11 +34,17 @@ export function buildHaystack(item: any, keys: string[]) {
     const parts: string[] = []
     for (const k of keys) {
         const v = getNested(item, k)
-        if (Array.isArray(v)) parts.push(v.join(' '))
-        else if (v != null) parts.push(String(v))
+        if (Array.isArray(v)) {
+            parts.push(
+                v.map(x => (typeof x === 'object' ? JSON.stringify(x) : String(x))).join(' ')
+            )
+        } else if (v != null) {
+            parts.push(String(v))
+        }
     }
     return normText(parts.join(' '))
 }
+
 
 export function matchTokens(haystack: string, tokens: string[], mode: MatchMode = 'AND') {
     if (tokens.length === 0) return true
