@@ -4,8 +4,10 @@ namespace App\Filament\Partner\Pages;
 
 use App\Models\User;
 use App\Models\PartnerBill;
-use App\Models\PartnerCategory;
+use App\Models\PartnerBillDetail;
+
 use App\Enum\PartnerBillStatus;
+use App\Enum\PartnerBillDetailStatus;
 
 use BackedEnum;
 use UnitEnum;
@@ -46,12 +48,20 @@ class RealtimePartnerBill extends Page
 
     public $lastUpdated;
 
-    // Filter properties (removed statusFilter - only show pending orders)
     public $dateFilter = 'all';
 
     public $categoryFilter = 'all';
 
     public $searchQuery = '';
+
+    // Modal properties
+    public $showAcceptModal = false;
+
+    public $selectedBillId = null;
+
+    public $selectedBillCode = '';
+
+    public $priceInput = '';
 
     public function mount(): void
     {
@@ -88,7 +98,10 @@ class RealtimePartnerBill extends Page
 
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
             ->with(['client', 'event', 'category'])
-            ->where('status', PartnerBillStatus::PENDING); // Only show pending orders
+            ->where('status', PartnerBillStatus::PENDING) // Only show pending orders
+            ->whereDoesntHave('details', function ($query) {
+                $query->where('partner_id', $this->partnerId);
+            }); // Exclude bills already accepted by this partner
 
         // Apply date filter
         if ($this->dateFilter !== 'all') {
@@ -152,15 +165,49 @@ class RealtimePartnerBill extends Page
         $this->loadPartnerBills();
     }
 
-    public function acceptOrder($billId): void
+    public function openAcceptModal($billId): void
     {
+        $bill = PartnerBill::find($billId);
+        if ($bill && $bill->status === PartnerBillStatus::PENDING) {
+            $this->selectedBillId = $billId;
+            $this->selectedBillCode = $bill->code;
+            $this->priceInput = '';
+            $this->showAcceptModal = true;
+        }
+    }
+
+    public function closeAcceptModal(): void
+    {
+        $this->showAcceptModal = false;
+        $this->selectedBillId = null;
+        $this->selectedBillCode = '';
+        $this->priceInput = '';
+        $this->resetErrorBag();
+    }
+
+    public function acceptOrder(): void
+    {
+        $this->validate([
+            'priceInput' => ['required', 'numeric', 'min:1'],
+        ], [
+            'priceInput.required' => __('partner/bill.price_required'),
+            'priceInput.numeric' => __('partner/bill.price_numeric'),
+            'priceInput.min' => __('partner/bill.price_min'),
+        ]);
+
         try {
-            $bill = PartnerBill::find($billId);
+            $bill = PartnerBill::find($this->selectedBillId);
             if ($bill && $bill->status === PartnerBillStatus::PENDING) {
-                // Here you would implement your order acceptance logic
-                // For now, just update status or create a partner bill detail
+
+                PartnerBillDetail::create([
+                    'partner_bill_id' => $bill->id,
+                    'partner_id' => $this->partnerId,
+                    'total' => $this->priceInput,
+                    'status' => PartnerBillDetailStatus::NEW,
+                ]);
 
                 session()->flash('success', __('partner/bill.order_accepted'));
+                $this->closeAcceptModal();
                 $this->loadPartnerBills();
             }
         } catch (\Exception $e) {
