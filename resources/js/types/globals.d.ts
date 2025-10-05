@@ -1,4 +1,6 @@
 import { AppPageProps } from '@/types/index';
+import type { Page as InertiaPage, PageProps as InertiaPageProps, Router } from '@inertiajs/core'
+import type { createHeadManager } from '@inertiajs/vue3'
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -14,7 +16,7 @@ declare module 'vite/client' {
 }
 
 declare module '@inertiajs/core' {
-    interface PageProps extends InertiaPageProps, AppPageProps {}
+    interface PageProps extends InertiaPageProps, AppPageProps { }
 }
 
 declare module 'vue' {
@@ -24,3 +26,21 @@ declare module 'vue' {
         $headManager: ReturnType<typeof createHeadManager>;
     }
 }
+
+declare global {
+    type Paginated<T> = {
+        data: T[]
+        meta: {
+            current_page: number
+            last_page: number
+            per_page: number
+            total: number
+            [k: string]: unknown
+        }
+        links?: {
+            next: string
+        }
+    }
+}
+
+export { }
