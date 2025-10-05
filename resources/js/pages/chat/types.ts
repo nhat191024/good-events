@@ -1,4 +1,3 @@
-// simple types cho feature chat
 export interface ChatUser {
     id: string
     name: string
