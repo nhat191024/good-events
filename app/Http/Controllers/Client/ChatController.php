@@ -19,12 +19,11 @@ use Inertia\Inertia;
  */
 class ChatController extends Controller
 {
-    // private $quickBookingService = null;
+    // private $chatService = null;
     //? error messages
     public function index(Request $request)
     {
         return Inertia::render('chat/ChatPage');
-        // resources/js/pages/orders/OrderManagementDashboard.vue
     }
 
 }
