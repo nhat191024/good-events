@@ -66,4 +66,15 @@ return [
     'not_determined' => 'Chưa xác định',
     'created_date' => 'Ngày tạo',
     'last_updated_at' => 'Cập nhật lần cuối',
+
+    // Modal translations
+    'enter_price' => 'Nhập giá tiền',
+    'enter_price_for_order' => 'Vui lòng nhập giá tiền cho đơn hàng',
+    'price_label' => 'Giá tiền',
+    'confirm_accept' => 'Xác nhận nhận show',
+    'cancel' => 'Hủy',
+    'price_required' => 'Vui lòng nhập giá tiền',
+    'price_numeric' => 'Giá tiền phải là số',
+    'price_min' => 'Giá tiền phải lớn hơn 0',
+    'formatted_price' => 'Số tiền đã định dạng',
 ];

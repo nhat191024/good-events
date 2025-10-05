@@ -66,4 +66,15 @@ return [
     'not_determined' => 'Not determined',
     'created_date' => 'Created Date',
     'last_updated_at' => 'Last Updated',
+
+    // Modal translations
+    'enter_price' => 'Enter Price',
+    'enter_price_for_order' => 'Please enter the price for order',
+    'price_label' => 'Price',
+    'confirm_accept' => 'Confirm Accept Show',
+    'cancel' => 'Cancel',
+    'price_required' => 'Please enter the price',
+    'price_numeric' => 'Price must be a number',
+    'price_min' => 'Price must be greater than 0',
+    'formatted_price' => 'Formatted price',
 ];
