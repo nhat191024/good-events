@@ -42,7 +42,7 @@ function onCancel() {
                     </div>
 
                     <DialogClose as-child>
-                        <button aria-label="Close" class="h-8 w-8 rounded-full hover:bg-gray-100">
+                        <button aria-label="Close" class="h-8 w-8 rounded-full hover:bg-gray-100 justify-items-center">
                             <Icon name="x" />
                         </button>
                     </DialogClose>
