@@ -27,6 +27,7 @@ php artisan view:cache
 php artisan migrate --force
 
 #run npm build
+echo "building assets..."
 npm run build
 
 # Set proper permissions
@@ -36,5 +37,5 @@ chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 echo "Laravel application setup completed!"
 
-# Start Apache
-exec apache2-foreground
+# Start Supervisord
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/laravel.conf

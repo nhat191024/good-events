@@ -153,7 +153,7 @@ class PartnerBill extends Model
 
                 //update total spent statistic for client
                 $existingClientStat = Statistical::where('user_id', $clientId)
-                    ->where('metrics_name', StatisticType::TOTAL_SPENT)
+                    ->where('metrics_name', StatisticType::TOTAL_SPENT->value)
                     ->first();
 
                 if ($existingClientStat) {
