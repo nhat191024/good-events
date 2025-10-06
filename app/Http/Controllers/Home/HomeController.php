@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
@@ -32,12 +33,13 @@ class HomeController extends Controller
             //     ->get();
 
             // Get partner categories for each event category
+            $expireAt = now()->addMinutes(5);
             foreach ($eventCategories as $category) {
                 $partnerCategories[$category->id] = PartnerCategory::where('parent_id', $category->id)
                     ->orderBy('min_price')
                     ->limit(8)
                     ->get()
-                    ->map(function ($pc) {
+                    ->map(function ($pc) use ($expireAt) {
                         return [
                             'id' => $pc->id,
                             'name' => $pc->name,
@@ -45,7 +47,7 @@ class HomeController extends Controller
                             'description' => $pc->description,
                             'min_price' => $pc->min_price,
                             'max_price' => $pc->max_price,
-                            'image' => optional($pc->getFirstMedia('images'))->getFullUrl(),
+                            'image' => $pc->getFirstTemporaryUrl($expireAt, 'images')
                         ];
                     });
             }
