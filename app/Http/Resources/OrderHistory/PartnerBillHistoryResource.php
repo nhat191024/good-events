@@ -50,7 +50,6 @@ class PartnerBillHistoryResource extends JsonResource
                 return [
                     "id" => $cat->id,
                     "name" => $cat->name,
-                    // "image" => $cat->getFirstTemporaryUrl($expireAt, 'images'),
                     'statistics' => $this->when(
                         $cat->relationLoaded('statistics') && $cat->statistics,
                         fn() => $cat->statistics
