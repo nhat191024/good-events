@@ -15,7 +15,7 @@ class EditEventCategory extends EditRecord
         return [
             DeleteAction::make()
                 ->label(__('global.hidden'))
-                ->disabled(fn($record): bool => $record->children_exists),
+                ->disabled(fn($record): bool => $record->children()->exists()),
         ];
     }
 
