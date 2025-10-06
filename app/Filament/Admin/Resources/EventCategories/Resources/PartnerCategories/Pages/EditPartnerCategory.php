@@ -21,7 +21,7 @@ class EditPartnerCategory extends EditRecord
         return [
             DeleteAction::make()
                 ->label(__('global.hidden'))
-                ->disabled(fn($record): bool => $record->partner_services_exists),
+                ->disabled(fn($record): bool => $record->partnerServices()->exists()),
             RestoreAction::make(),
         ];
     }

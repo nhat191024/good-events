@@ -2,9 +2,11 @@
 
 namespace App\Filament\Admin\Resources\EventCategories\Resources\PartnerCategories\Schemas;
 
+use Filament\Schemas\Schema;
+
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Schemas\Schema;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class PartnerCategoryForm
 {
@@ -27,6 +29,12 @@ class PartnerCategoryForm
                     ->label(__('admin/partnerCategory.fields.max_price'))
                     ->numeric()
                     ->required(),
+                SpatieMediaLibraryFileUpload::make('images')
+                    ->label(__('admin/partnerCategory.fields.image'))
+                    ->collection('images')
+                    ->image()
+                    ->maxFiles(1)
+                    ->columnSpanFull(),
                 Textarea::make('description')
                     ->label(__('admin/partnerCategory.fields.description'))
                     ->columnSpanFull(),
