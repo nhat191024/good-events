@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { usePage, Link } from '@inertiajs/vue3';
+    import { usePage, Link, Head } from '@inertiajs/vue3';
     import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
     import SelectPartnerHeader from '@/pages/booking/layout/Header.vue'
     import LargeSearchBar from '@/components/LargeSearchBar.vue'
@@ -8,7 +8,7 @@
     import CardGrid from '@/pages/booking/layout/CardGrid.vue';
     import { computed, ref } from 'vue';
     import { createSearchFilter } from '@/lib/search-filter'
-    import { getFirstImg } from './helper';
+    import { getImg } from './helper';
 
     const title: string = 'Bạn đang cần kiểu đối tác nào cho sự kiện?'
     const subtitle: string = 'Chọn loại dịch vụ phù hợp với nhu cầu của bạn'
@@ -26,6 +26,7 @@
 
 <!-- quick booking page STEP 1-->
 <template>
+    <Head title="Đặt show nhanh" />
     <!-- layout -->
     <ClientAppHeaderLayout :show-banner-background=true :background-class-names="'bg-white'">
         <SelectPartnerHeader :title="title" :subtitle="subtitle" :icon-name="'partyPopper'">
@@ -37,7 +38,7 @@
             <CardGrid>
                 <Link v-for="item in filteredPartnerCategories"
                     :href="route('quick-booking.choose-partner-category', { partner_category_slug: item.slug })">
-                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getFirstImg(item.media)" />
+                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getImg(item.media)" />
                 </Link>
             </CardGrid>
         </SelectPartnerHeader>
