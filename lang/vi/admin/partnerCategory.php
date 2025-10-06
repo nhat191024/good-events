@@ -16,6 +16,7 @@ return [
     'cannot_hidden_category_has_services' => 'Không thể ẩn danh mục có có dịch vụ',
 
     'fields' => [
+        'image' => 'Hình ảnh',
         'name' => 'Tên',
         'slug' => 'Slug',
         'min_price' => 'Giá thấp nhất',

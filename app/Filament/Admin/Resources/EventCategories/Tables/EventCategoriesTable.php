@@ -8,6 +8,8 @@ use App\Models\PartnerCategory;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Filters\TrashedFilter;
 
 use Filament\Actions\Action;
@@ -26,6 +28,12 @@ class EventCategoriesTable
     {
         return $table
             ->columns([
+                SpatieMediaLibraryImageColumn::make('media')
+                    ->label(__('admin/partnerCategory.fields.image'))
+                    ->collection('images')
+                    ->circular()
+                    ->imageSize(60)
+                    ->conversion('thumb'),
                 TextColumn::make('name')
                     ->label(__('admin/partnerCategory.fields.name'))
                     ->searchable(),

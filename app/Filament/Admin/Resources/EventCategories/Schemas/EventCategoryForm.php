@@ -6,6 +6,7 @@ use Filament\Schemas\Schema;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class EventCategoryForm
 {
@@ -20,6 +21,12 @@ class EventCategoryForm
                     ->label(__('admin/partnerCategory.fields.slug'))
                     ->placeholder(__('admin/partnerCategory.placeholders.slug'))
                     ->disabled(),
+                SpatieMediaLibraryFileUpload::make('images')
+                    ->label(__('admin/partnerCategory.fields.image'))
+                    ->collection('images')
+                    ->image()
+                    ->maxFiles(1)
+                    ->columnSpanFull(),
                 Textarea::make('description')
                     ->label(__('admin/partnerCategory.fields.description'))
                     ->columnSpanFull(),
