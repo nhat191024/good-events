@@ -17,7 +17,7 @@ require __DIR__.'/auth.php';
 
 require __DIR__.'/home.php';
 
-// require __DIR__.'/partner-profile.php';
+require __DIR__.'/partner-profile.php';
 require __DIR__.'/client-profile.php';
 
 require __DIR__.'/client/test-partner.php';
