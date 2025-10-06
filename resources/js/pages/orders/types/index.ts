@@ -1,0 +1,85 @@
+import { Event, Media, Metrics } from '@/types/database'
+
+export interface ClientOrderDetail {
+    id: number
+    total: number | null
+    status: OrderDetailStatus
+    created_at: string
+    partner?: Partner | null
+}
+
+export interface ClientOrder {
+    id: number
+    code: string
+    address: string
+    date: string
+    start_time: string
+    end_time: string
+    final_total: number | null
+    note: string
+    status: OrderStatus
+    created_at: string
+    category: Category
+    event: Pick<Event, 'name'>
+    partners: { count: number }
+}
+
+export interface ClientOrderHistory {
+    id: number
+    code: string
+    address: string
+    date: string
+    start_time: string
+    end_time: string
+    final_total: number | null
+    note: string
+    status: OrderStatus
+    created_at: string
+    category: Category
+    event: Pick<Event, 'name'>
+    partner: Partner
+}
+
+export type OrderStatus = 'pending' | 'paid' | 'cancelled' | string
+export type OrderDetailStatus = 'new' | 'closed' | string
+
+export interface Category {
+    id: number
+    name: string
+    parent: ParentCategory
+    media: Pick<Media, 'file_name' | 'original_url' | 'mime_type'>[]
+}
+
+export interface ParentCategory {
+    id: number
+    name: string
+}
+
+export interface PartnerProfile {
+    id: number
+    partner_name: string
+}
+
+// or, this is actually User table in the backend
+export interface Partner {
+    id: number
+    name: string
+    avatar: string
+    partner_profile?: PartnerProfile
+    statistics: Pick<Metrics,
+    | 'total_ratings'
+    | 'average_stars'
+    // | 'some_metric'
+    // | 'some_metric'
+
+    // add more metrics here before modifying on the vue components
+    >
+}
+
+export type OrderDetailsPayload =
+    | { billId: number; items: ClientOrderDetail[]; version?: number }
+    | { billId: number; items: { data: ClientOrderDetail[] }; version?: number }
+    | null
+
+export type ClientOrderHistoryPayload = { data: ClientOrderHistory[]; meta?: any; links?: any }
+export type ClientOrderPayload = { data: ClientOrder[]; meta?: any; links?: any }

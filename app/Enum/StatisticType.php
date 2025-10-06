@@ -19,8 +19,8 @@ enum StatisticType: string
     public function audience(): string
     {
         return match ($this) {
-            self::NUMBER_CUSTOMER, self::SATISFACTION_RATE => ROLE::PARTNER->value,
-            self::TOTAL_SPENT => ROLE::CLIENT->value,
+            self::NUMBER_CUSTOMER, self::SATISFACTION_RATE => Role::PARTNER->value,
+            self::TOTAL_SPENT => Role::CLIENT->value,
             self::ORDERS_PLACED, self::COMPLETED_ORDERS, self::CANCELLED_ORDERS_PERCENTAGE => 'both',
         };
     }

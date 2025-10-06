@@ -21,5 +21,11 @@ yarn-error.log
 /.idea
 /.nova
 /.vscode
+/.pnpm-store
 /.zed
-"laradumps.yaml" 
+"laradumps.yaml"
+.fuse_hidden*
+.dev-kit
+docker-compose-local.yml
+pnpm-workspace.yaml
+/worktrees/
