@@ -37,7 +37,7 @@ class OrderController extends Controller
         $userId = $request->user()?->id ?? $request->ip();
         $lock = Cache::lock("orders:index:{$userId}", 2);
         if (! $lock->get()) {
-            return response()->json(['message' => 'slow down'], 429);
+            abort(429, 'Too many requests');
         }
 
         try {
