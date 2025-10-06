@@ -45,6 +45,10 @@ class DatabaseSeeder extends Seeder
             TestAccountSeeder::class,
             PartnerSeeder::class,
             ClientSeeder::class,
+            // New comprehensive data seeders (order matters)
+            StatisticalSeeder::class,
+            PartnerBillSeeder::class,
+            ReviewSeeder::class,
         ]);
     }
 }

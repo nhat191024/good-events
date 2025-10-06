@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+
+use Inertia\Inertia;
+use Vite;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,5 +29,14 @@ class AppServiceProvider extends ServiceProvider
             $switch
                 ->locales(['vi', 'en']); // also accepts a closure
         });
+      
+        Inertia::share([
+            'flash' => function () {
+                return [
+                    'success' => session('success'),
+                    'error'   => session('error'),
+                ];
+            },
+        ]);
     }
 }
