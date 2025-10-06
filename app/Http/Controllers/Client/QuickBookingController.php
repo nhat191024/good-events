@@ -24,7 +24,8 @@ class QuickBookingController extends Controller
     public const CATEGORY_NOT_FOUND = 'Không tìm thấy danh mục bạn vừa chọn.';
     public const CATEGORY_CHILD_INVALID = 'Cây danh mục không khớp, vui lòng chọn lại.';
     public const PARENT_HAS_NO_CHILD = 'Danh mục đang bảo trì, hãy thử danh mục khác hoặc liên hệ quản trị viên!';
-    public function __construct() {
+    public function __construct()
+    {
         $this->quickBookingService = app(QuickBookingService::class);
     }
 
@@ -96,7 +97,7 @@ class QuickBookingController extends Controller
         }
 
         $events = Event::all();
-        $provinces = Location::whereNull('parent_id')->select(['id','name'])->orderBy('name')->get();
+        $provinces = Location::whereNull('parent_id')->select(['id', 'name'])->orderBy('name')->get();
 
         return Inertia::render('booking/QuickBookingDetail', [
             'partnerCategory' => $partnerCategory,
@@ -123,17 +124,17 @@ class QuickBookingController extends Controller
         $note = $request->input("note");
         $categoryId = $request->input("category_id");
 
-        $provinceItem = Location::find( $provinceId );
+        $provinceItem = Location::find($provinceId);
 
         // ensure the category IS not parent
-        if (PartnerCategory::where("id","=",$categoryId)->where("parent_id","=",null)->exists()) {
+        if (PartnerCategory::where("id", "=", $categoryId)->where("parent_id", "=", null)->exists()) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_CHILD_INVALID);
         }
 
         // ensure correct location parent-children tree
-        $wardItem = $provinceItem->wards()->find( $wardId );
+        $wardItem = $provinceItem->wards()->find($wardId);
         if (!$wardItem) {
-            return back()->withErrors(['ward_id' => 'Vui lòng chọn đúng phường/xã của tỉnh '. $provinceItem->name .'.']);
+            return back()->withErrors(['ward_id' => 'Vui lòng chọn đúng phường/xã của tỉnh ' . $provinceItem->name . '.']);
         }
 
         $user = Auth::user();
@@ -157,10 +158,11 @@ class QuickBookingController extends Controller
             'status' => PartnerBillStatus::PENDING,
         ]);
 
-        return redirect()->route('quick-booking.finish',['bill_id'=> $newBill->code]);
+        return redirect()->route('quick-booking.finish', ['bill_id' => $newBill->code]);
     }
 
-    public function finishedBooking(string $billCode) {;
+    public function finishedBooking(string $billCode)
+    {;
         $newBill = PartnerBill::where('code', $billCode)->first();
         // dd($newBill);
         if (!$newBill) {
