@@ -21,35 +21,36 @@ class PartnerCategoryController extends Controller
             ->where('id', '!=', $item->id)
             ->latest('updated_at')
             ->take(8)
-            ->get(['id','name','slug','min_price','max_price']);
+            ->get(['id', 'name', 'slug', 'min_price', 'max_price']);
 
-        $category = $item->parent;               // danh mục cha
+        $category = $item->parent;
+        $expireAt = now()->addMinutes(5);
 
         return Inertia::render('partner-categories/Show', [
             'item' => [
-                'id'          => $item->id,
-                'name'        => $item->name,
-                'slug'        => $item->slug,
-                'min_price'   => $item->min_price,
-                'max_price'   => $item->max_price,
+                'id' => $item->id,
+                'name' => $item->name,
+                'slug' => $item->slug,
+                'min_price' => $item->min_price,
+                'max_price' => $item->max_price,
                 'description' => $item->description,
                 'updated_human' => $item->updated_at?->diffForHumans(),
                 // Ảnh từ media library nếu có
-                'image'       => optional($item->getFirstMedia('images'))->getFullUrl(),
+                'image' => $item->getFirstTemporaryUrl($expireAt, 'images')
             ],
             'category' => $category ? [
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
             ] : null,
-            'related' => $related->map(function ($r) {
+            'related' => $related->map(function ($r) use ($expireAt) {
                 return [
-                    'id'        => $r->id,
-                    'name'      => $r->name,
-                    'slug'      => $r->slug,
+                    'id' => $r->id,
+                    'name' => $r->name,
+                    'slug' => $r->slug,
                     'min_price' => $r->min_price,
                     'max_price' => $r->max_price,
-                    'image'     => optional($r->getFirstMedia('images'))->getFullUrl(),
+                    'image' => $r->getFirstTemporaryUrl($expireAt, 'images')
                 ];
             }),
         ]);
