@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getImg } from '@/pages/booking/helper';
 import { Star } from 'lucide-vue-next';
 
 </script>
@@ -9,8 +10,8 @@ import { Star } from 'lucide-vue-next';
             <!-- mobile back button sẽ nằm ở panel ngoài -->
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-3">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-N6bXWGpqHNsPVGHrAI0LSdfJrOgsFT.png"
-                        alt="Traditional Vietnamese scholar" class="w-12 h-12 object-contain" />
+                    <img :src="getImg('')"
+                        alt="Traditional Vietnamese scholar" class="w-12 h-12 object-contain rounded-full" />
                 </div>
                 <h3 class="text-xl font-bold text-foreground mb-1">Xem chi tiết</h3>
                 <p class="text-sm text-muted-foreground">Hãy chọn một đơn bất kỳ để xem chi tiết
