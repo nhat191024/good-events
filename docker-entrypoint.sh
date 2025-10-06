@@ -26,6 +26,9 @@ php artisan view:cache
 #run migrations
 php artisan migrate --force
 
+#run storage link
+php artisan storage:link
+
 #run npm build
 echo "building assets..."
 npm run build
