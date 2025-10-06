@@ -33,7 +33,7 @@ class ManagePartnerCategory extends ManageRelatedRecords
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn($query) => $query->withExists('partnerServices')->withTrashed())
+            ->modifyQueryUsing(fn($query) => $query->with('media')->withExists('partnerServices')->withTrashed())
             ->headerActions([
                 CreateAction::make()
                     ->label(__('admin/partnerCategory.create_partner_category')),
