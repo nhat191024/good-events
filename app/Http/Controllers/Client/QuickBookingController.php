@@ -157,9 +157,17 @@ class QuickBookingController extends Controller
             'status' => PartnerBillStatus::PENDING,
         ]);
 
+        return redirect()->route('quick-booking.finish',['bill_id'=> $newBill->code]);
+    }
+
+    public function finishedBooking(string $billCode) {;
+        $newBill = PartnerBill::where('code', $billCode)->first();
+        // dd($newBill);
+        if (!$newBill) {
+            return redirect()->route('home');
+        }
         return Inertia::render("booking/Finished", [
             'partnerBill' => $newBill
         ]);
     }
-
 }

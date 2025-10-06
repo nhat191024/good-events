@@ -27,7 +27,7 @@
 <!-- quick booking page STEP 1-->
 <template>
     <!-- layout -->
-    <ClientAppHeaderLayout>
+    <ClientAppHeaderLayout :show-banner-background=true :background-class-names="'bg-white'">
         <SelectPartnerHeader :title="title" :subtitle="subtitle" :icon-name="'partyPopper'">
             <!-- search bar -->
             <div class="w-full relative">

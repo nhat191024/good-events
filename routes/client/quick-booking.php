@@ -28,6 +28,11 @@ use Illuminate\Support\Facades\Route;
                 '/hoan-thanh',
                 [QuickBookingController::class, 'saveBookingInfo']
             )->name('save-info');
+
+            Route::get(
+                '/hoan-thanh/{bill_code}',
+                [QuickBookingController::class, 'finishedBooking']
+            )->name('finish');
         }
     );
 // });

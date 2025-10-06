@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import SearchBar from './partials/SearchBar.vue';
 import SubcategoryBlock from './partials/SubcategoryBlock.vue';
+import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
 interface PartnerCategory {
   id: number;
@@ -59,9 +60,9 @@ const filteredChildren = computed(() => {
 </script>
 
 <template>
-  <div class="">
+  <ClientHeaderLayout>
     <!-- Top bar: tiêu đề + ô tìm kiếm -->
-    <div class="bg-gray-100 rounded-5 mx-auto my-4 px-2 py-2 ">
+    <div class="bg-gray-100 rounded-5 mx-auto my-4 px-2 py-2 w-full md:w-[80%] ">
       <SearchBar v-model="q" />
     </div>
 
@@ -83,6 +84,6 @@ const filteredChildren = computed(() => {
         />
       </div>
     </div>
-  </div>
+  </ClientHeaderLayout>
 </template>
 

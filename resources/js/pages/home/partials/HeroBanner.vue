@@ -7,12 +7,11 @@ const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();
 </script>
 
 <template>
-    <section class="relative">
+    <section class="relative w-full">
         <!-- Gradient Background -->
-        <div
-            class="absolute inset-0 z-0"
-            style="background: linear-gradient(180deg, var(--token-3d956cea-dbc1-4944-ad45-eefce4d545dc, #f28f8f) 0%, var(--token-3d956cea-dbc1-4944-ad45-eefce4d545dc, rgb(242, 143, 143)) 51.50151983037725%, rgba(242, 143, 143, 0) 100%);"
-        ></div>
+        <div class="absolute inset-0 z-0"
+            style="background: linear-gradient(180deg, var(--token-3d956cea-dbc1-4944-ad45-eefce4d545dc, #f28f8f) 0%, var(--token-3d956cea-dbc1-4944-ad45-eefce4d545dc, rgb(242, 143, 143)) 51.50151983037725%, rgba(242, 143, 143, 0) 100%);">
+        </div>
 
         <div class="relative z-10 container mx-auto px-4 py-16">
             <div class="text-center mb-8">
@@ -24,22 +23,15 @@ const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();
             <!-- Hero Image/Video -->
             <div class="mb-8 flex justify-center">
                 <div class="w-full max-w-4xl h-64 bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img
-                        src="/images/banner-image.png"
-                        alt="Hero Banner"
-                        class="w-full h-full object-cover"
-                    />
+                    <img src="/images/banner-image.png" alt="Hero Banner" class="w-full h-full object-cover" />
                 </div>
             </div>
 
             <!-- Search Bar (reused) -->
             <div class="max-w-5xl mx-auto">
-                <SearchBar
-                  :model-value="props.modelValue ?? ''"
-                  @update:model-value="(v:string) => emit('update:modelValue', v)"
-                />
+                <SearchBar :show-search-btn="false" :model-value="props.modelValue ?? ''"
+                    @update:model-value="(v: string) => emit('update:modelValue', v)" />
             </div>
         </div>
     </section>
 </template>
-

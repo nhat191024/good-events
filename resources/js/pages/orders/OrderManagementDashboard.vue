@@ -12,7 +12,6 @@ import {
     Partner,
 } from './types'
 import RatingDialog from './components/RatingDialog.vue'
-import Header from './layout/Header.vue'
 import {
     parseNextPage,
     stripPagingFromUrl,
@@ -22,6 +21,7 @@ import Loading from '@/components/Loading.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import { confirm } from '@/composables/useConfirm'
 import { hideLoading, showLoading } from '@/composables/useLoading'
+import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 
 const activeTab = ref<'current' | 'history'>('current')
 
@@ -385,7 +385,7 @@ let pollInterval: number | undefined
 
 onMounted(() => {
     initOrders()
-    pollInterval = window.setInterval(pollForUpdates, 34_000)
+    pollInterval = window.setInterval(pollForUpdates, 64_000)
 })
 
 onBeforeUnmount(() => {
@@ -396,45 +396,42 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="flex pt-[73px] h-[98vh] bg-background w-full">
-        <Header />
+    <ClientHeaderLayout :show-footer="false">
+        <div class="flex h-[90vh] bg-background w-full overflow-visible">
+            <div :class="[showMobileDetail ? 'hidden md:block' : 'block', 'w-full md:w-auto']">
+                <Sidebar
+                    :orderList="currentOrders"
+                    :history-loading="loadingForSidebar"
+                    :order-loading="loadingForSidebar"
+                    :orderHistory="historyItems"
+                    v-model:activeTab="activeTab"
+                    @select="handleSelect"
+                    @load-history-more="loadMoreHistory"
+                    @reload="reloadHistory"
+                    @load-orders-more="loadMoreOrders"
+                    @reload-orders="refreshCurrentOrders"
+                />
+            </div>
 
-        <div :class="[showMobileDetail ? 'hidden md:block' : 'block', 'w-full md:w-auto']">
-            <Sidebar
-                :orderList="currentOrders"
-                :history-loading="loadingForSidebar"
-                :order-loading="loadingForSidebar"
-                :orderHistory="historyItems"
-                v-model:activeTab="activeTab"
-                @select="handleSelect"
-                @load-history-more="loadMoreHistory"
-                @reload="reloadHistory"
-                @load-orders-more="loadMoreOrders"
-                @reload-orders="refreshCurrentOrders"
+            <div :class="[showMobileDetail ? 'block' : 'hidden md:block']" class="flex-1">
+                <OrderDetailPanel
+                    @reload-detail="refreshDetails"
+                    :mode="selectedMode"
+                    :order="selectedOrder"
+                    :applicants="applicants"
+                    @back="showMobileDetail = false"
+                    @rate="openRating"
+                    @cancel-order="handleCancelOrder"
+                    @confirm-choose-partner="handleConfirmChoosePartner"
+                />
+            </div>
+
+            <RatingDialog
+                v-model:showRatingDialog="showRatingDialog"
+                v-model:rating="rating"
+                v-model:comment="comment"
+                @submit="submitRating"
             />
         </div>
-
-        <div :class="[showMobileDetail ? 'block' : 'hidden md:block']" class="flex-1">
-            <OrderDetailPanel
-                @reload-detail="refreshDetails"
-                :mode="selectedMode"
-                :order="selectedOrder"
-                :applicants="applicants"
-                @back="showMobileDetail = false"
-                @rate="openRating"
-                @cancel-order="handleCancelOrder"
-                @confirm-choose-partner="handleConfirmChoosePartner"
-            />
-        </div>
-
-        <RatingDialog
-            v-model:showRatingDialog="showRatingDialog"
-            v-model:rating="rating"
-            v-model:comment="comment"
-            @submit="submitRating"
-        />
-    </div>
-
-    <ConfirmModal />
-    <Loading />
+    </ClientHeaderLayout>
 </template>

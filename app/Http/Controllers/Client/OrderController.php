@@ -34,11 +34,12 @@ class OrderController extends Controller
     // todo: only get this user's bills, temporary disabled for better testing
     public function index(Request $request)
     {
-        $userId = $request->user()?->id ?? $request->ip();
-        $lock = Cache::lock("orders:index:{$userId}", 2);
-        if (! $lock->get()) {
-            return response()->json(['message' => 'slow down'], 429);
-        }
+        // $userId = $request->user()?->id ?? $request->ip();
+        // $lock = Cache::lock("orders:index:{$userId}", 10);
+        // if (! $lock->get()) {
+        //     // too many requests will be delayed
+        //     return response('', 204);
+        // }
 
         try {
             //code...
@@ -52,7 +53,7 @@ class OrderController extends Controller
         } catch (\Throwable $th) {
             return redirect()->route('home');
         } finally {
-            $lock->release();
+            // $lock->release();
         }
     }
 
