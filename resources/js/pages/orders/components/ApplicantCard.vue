@@ -2,6 +2,7 @@
 import { Award, Star, MapPin, Clock } from 'lucide-vue-next'
 import { ClientOrderDetail, Partner } from '../types';
 import { formatPrice } from '@/lib/helper';
+import { router } from '@inertiajs/core';
 
 const props = withDefaults(defineProps<ClientOrderDetail & {
     showButtons?: boolean
@@ -13,6 +14,16 @@ console.log('appliant ', props);
 const emit = defineEmits<{
     (e: 'confirm-choose-partner', partner: Partner | null | undefined) : void
 }>()
+
+function goToPartnerProfile(){
+    console.log(JSON.stringify(props));
+    console.log(props.partner);
+
+    if ( !props.partner ) return
+    const partner = props.partner
+    router.get(route('profile.partner.show', { user: partner.id }))
+
+}
 </script>
 
 <template>
@@ -90,7 +101,7 @@ const emit = defineEmits<{
                             class="hidden cursor-pointer h-10 rounded-md text-muted-foreground  hover:text-foreground md:px-6 px-2 text-md md:text-md">
                             Chat
                         </button>
-                        <button
+                        <button @click="goToPartnerProfile()"
                             class="cursor-pointer h-10 rounded-md border border-primary-700 text-primary-700 text-sm md:text-md bg-transparent md:px-6 px-3 hover:bg-primary/5">
                             Hồ sơ
                         </button>
