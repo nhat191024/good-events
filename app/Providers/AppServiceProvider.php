@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
             $switch
                 ->locales(['vi', 'en']); // also accepts a closure
         });
-      
+
         Inertia::share([
             'flash' => function () {
                 return [
@@ -38,5 +38,9 @@ class AppServiceProvider extends ServiceProvider
                 ];
             },
         ]);
+
+        if ($this->app->environment('production') || $this->app->environment('testing')) {
+            URL::forceScheme('https');
+        }
     }
 }
