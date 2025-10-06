@@ -23,7 +23,7 @@ class PartnersTable
         return $table
             ->columns([
                 TextColumn::make('avatar')
-                    ->label(__('admin\partner.fields.label.avatar'))
+                    ->label(__('admin/partner.fields.label.avatar'))
                     ->formatStateUsing(function ($state, User $record) {
                         if ($record->avatar) {
                             $url = asset($record->avatar);
@@ -33,40 +33,40 @@ class PartnersTable
                     })
                     ->html(),
                 TextColumn::make('name')
-                    ->label(__('admin\partner.fields.label.name'))
+                    ->label(__('admin/partner.fields.label.name'))
                     ->searchable(),
                 TextColumn::make('partnerProfile.partner_name')
-                    ->label(__('admin\partner.fields.label.partner_name'))
+                    ->label(__('admin/partner.fields.label.partner_name'))
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label(__('admin\partner.fields.label.email'))
+                    ->label(__('admin/partner.fields.label.email'))
                     ->searchable(),
                 TextColumn::make('country_code')
-                    ->label(__('admin\partner.fields.label.country_code'))
+                    ->label(__('admin/partner.fields.label.country_code'))
                     ->searchable(),
                 TextColumn::make('phone')
-                    ->label(__('admin\partner.fields.label.phone'))
+                    ->label(__('admin/partner.fields.label.phone'))
                     ->searchable(),
                 TextColumn::make('partnerProfile.identity_card_number')
-                    ->label(__('admin\partner.fields.label.identity_card_number'))
+                    ->label(__('admin/partner.fields.label.identity_card_number'))
                     ->searchable(),
                 TextColumn::make('email_verified_at')
-                    ->label(__('admin\partner.fields.label.email_verified_at'))
+                    ->label(__('admin/partner.fields.label.email_verified_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->label(__('admin\action.delete_at'))
+                    ->label(__('admin/partner.fields.label.deleted_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->label(__('admin\action.created_at'))
+                    ->label(__('admin/partner.fields.label.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label(__('admin\action.updated_at'))
+                    ->label(__('admin/partner.fields.label.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

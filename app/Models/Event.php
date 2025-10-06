@@ -49,4 +49,10 @@ class Event extends Model
         return LogOptions::defaults()
             ->logOnlyDirty();
     }
+
+    //model relationships
+    public function bills()
+    {
+        return $this->hasMany(PartnerBill::class);
+    }
 }

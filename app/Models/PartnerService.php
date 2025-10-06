@@ -57,6 +57,29 @@ class PartnerService extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => PartnerServiceStatus::class,
+        ];
+    }
+
+    /**
+     * The model's validation rules.
+     *
+     * @var array<string, mixed>
+     */
+    public static array $rules = [
+        'category_id' => 'required|exists:partner_categories,id',
+        'user_id' => 'required|exists:users,id',
+        'status' => 'required|string|in:pending,approved,rejected',
+    ];
+
+    /**
      * Summary of getActivitylogOptions
      * @return LogOptions
      */
@@ -93,7 +116,7 @@ class PartnerService extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function media()
+    public function serviceMedia()
     {
         return $this->hasMany(PartnerMedia::class, 'partner_service_id');
     }

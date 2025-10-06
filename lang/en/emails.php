@@ -1,0 +1,125 @@
+<?php
+
+return [
+    'partner_bill_received' => [
+        'title' => 'Service Order Notification',
+        'subject' => 'Order Received - :code',
+        'greeting_client' => 'Dear :name,',
+        'greeting_partner' => 'Dear Partner :name,',
+        'message_client' => 'Thank you for your order! We have received your service booking request and our partner will review it shortly.',
+        'message_partner' => 'You have received a new service booking request. Please review the details below and respond to the client.',
+        'bill_details' => 'Order Details',
+        'order_code' => 'Order Code',
+        'event_name' => 'Event',
+        'client_name' => 'Client',
+        'partner_name' => 'Partner',
+        'category' => 'Category',
+        'event_date' => 'Event Date',
+        'event_time' => 'Event Time',
+        'location' => 'Location',
+        'phone' => 'Phone',
+        'total_amount' => 'Total Amount',
+        'status' => 'Status',
+        'note' => 'Note',
+        'next_steps_client' => 'What happens next?',
+        'next_steps_partner' => 'What to do next?',
+        'next_steps_list_client' => [
+            'Our partner will review your request within 24 hours',
+            'You will receive a confirmation email once approved',
+            'You can contact the partner directly for any questions'
+        ],
+        'next_steps_list_partner' => [
+            'Review the order details carefully',
+            'Contact the client if you need clarification',
+            'Confirm or decline the order in your dashboard'
+        ],
+        'contact_support' => 'If you have any questions, please contact our support team.',
+        'thanks' => 'Thank you for choosing our platform!',
+        'footer_text' => 'This is an automated email. Please do not reply directly to this message.',
+        'status_pending' => 'Pending Review',
+        'cta_view_order' => 'View Order Details',
+    ],
+
+    'partner_bill_confirmed' => [
+        'title' => 'Service Booking Confirmed',
+        'subject' => 'Order Confirmed - :code',
+        'greeting_client' => 'Great news, :name!',
+        'greeting_partner' => 'Dear Partner :name,',
+        'message_client' => 'Your service booking has been confirmed! The partner has accepted your request and payment has been processed.',
+        'message_partner' => 'You have successfully confirmed the order. Payment has been processed and the client has been notified.',
+        'success_banner' => '🎉 Order Confirmed Successfully!',
+        'bill_details' => 'Confirmed Order Details',
+        'payment_info' => 'Payment Information',
+        'payment_status' => 'Payment Status',
+        'payment_method' => 'Payment Method',
+        'transaction_id' => 'Transaction ID',
+        'paid_amount' => 'Paid Amount',
+        'preparation_client' => 'Event Preparation',
+        'preparation_partner' => 'Service Delivery',
+        'preparation_list_client' => [
+            'Prepare the venue as discussed',
+            'Ensure all requirements are ready',
+            'Be available for partner contact',
+            'Review final details before event date'
+        ],
+        'preparation_list_partner' => [
+            'Prepare all necessary equipment',
+            'Confirm logistics and timeline',
+            'Contact client for final coordination',
+            'Arrive at venue on time'
+        ],
+        'contact_info' => 'Contact Information',
+        'contact_partner' => 'Contact Partner',
+        'contact_client' => 'Contact Client',
+        'event_reminder' => 'You will receive a reminder email 2 hours before the event.',
+        'thanks_client' => 'Thank you for trusting us with your special event!',
+        'thanks_partner' => 'Thank you for providing excellent service to our clients!',
+        'cta_prepare' => 'Start Preparation',
+        'status_paid' => 'Paid & Confirmed',
+    ],
+
+    'partner_bill_reminder' => [
+        'title' => 'Event Reminder',
+        'subject' => 'Event Reminder - Starting in 2 hours - :code',
+        'greeting_client' => 'Hi :name,',
+        'greeting_partner' => 'Hi Partner :name,',
+        'urgent_reminder' => '⏰ Your event is starting soon!',
+        'message_client' => 'This is a friendly reminder that your event is starting in approximately 2 hours. Please make sure everything is ready!',
+        'message_partner' => 'This is a reminder that you have a service delivery starting in approximately 2 hours. Please prepare for your service.',
+        'time_remaining' => 'Time Remaining: Approximately 2 hours',
+        'event_details' => 'Event Details',
+        'checklist_client' => 'Final Checklist for Client',
+        'checklist_partner' => 'Final Checklist for Partner',
+        'checklist_items_client' => [
+            'Venue is prepared and accessible',
+            'All necessary items are ready',
+            'Contact information is available',
+            'Payment has been confirmed'
+        ],
+        'checklist_items_partner' => [
+            'All equipment is packed and ready',
+            'Transportation is arranged',
+            'Client contact information is saved',
+            'Service timeline is confirmed'
+        ],
+        'contact_info' => 'Important Contact Information',
+        'emergency_contact' => 'For urgent matters, please contact:',
+        'final_notes' => 'Final Notes',
+        'good_luck' => 'We wish you a successful and memorable event!',
+        'support_available' => 'Our support team is available if you need any assistance.',
+        'cta_get_ready' => 'Get Ready Now',
+    ],
+
+    'common' => [
+        'dear' => 'Dear',
+        'hello' => 'Hello',
+        'regards' => 'Best regards',
+        'team_name' => 'SukiEntot Team',
+        'company_name' => 'SukiEntot',
+        'support_email' => 'support@sukientot.com',
+        'website' => 'https://sukientot.com',
+        'unsubscribe' => 'Unsubscribe from these emails',
+        'privacy_policy' => 'Privacy Policy',
+        'terms_of_service' => 'Terms of Service',
+    ]
+];

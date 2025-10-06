@@ -22,7 +22,7 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('avatar')
-                    ->label(__('admin\user.fields.label.avatar'))
+                    ->label(__('admin/user.fields.label.avatar'))
                     ->formatStateUsing(function ($state, User $record) {
                         if ($record->avatar) {
                             $url = asset($record->avatar);
@@ -32,34 +32,34 @@ class UsersTable
                     })
                     ->html(),
                 TextColumn::make('name')
-                    ->label(__('admin\user.fields.label.name'))
+                    ->label(__('admin/user.fields.label.name'))
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label(__('admin\user.fields.label.email'))
+                    ->label(__('admin/user.fields.label.email'))
                     ->searchable(),
                 TextColumn::make('country_code')
-                    ->label(__('admin\user.fields.label.country_code'))
+                    ->label(__('admin/user.fields.label.country_code'))
                     ->searchable(),
                 TextColumn::make('phone')
-                    ->label(__('admin\user.fields.label.phone'))
+                    ->label(__('admin/user.fields.label.phone'))
                     ->searchable(),
                 TextColumn::make('email_verified_at')
-                    ->label(__('admin\user.fields.label.email_verified_at'))
+                    ->label(__('admin/user.fields.label.email_verified_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->label(__('admin\action.delete_at'))
+                    ->label(__('admin/action.delete_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->label(__('admin\action.created_at'))
+                    ->label(__('admin/action.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label(__('admin\action.updated_at'))
+                    ->label(__('admin/action.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

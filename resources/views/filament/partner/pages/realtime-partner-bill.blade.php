@@ -75,7 +75,7 @@
                 </div>
 
                 <!-- Filters Section - Stack on mobile -->
-                <div class="mt-4 space-y-3 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0 lg:grid-cols-3">
+                <div class="mt-4 space-y-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0 lg:grid-cols-4">
                     <!-- Search -->
                     <div class="relative sm:col-span-2 lg:col-span-1">
                         <input class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" type="text" placeholder="Tìm kiếm theo mã đơn, khách hàng..."
@@ -97,6 +97,22 @@
                             <option value="this_month">{{ __('partner/bill.this_month') }}</option>
                         </select>
                         <div class="absolute right-8 top-2" wire:loading wire:target="dateFilter">
+                            <svg class="h-4 w-4 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="relative">
+                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" wire:model.live="categoryFilter">
+                            <option value="all">Tất cả danh mục</option>
+                            @foreach ($availableCategories as $category)
+                                <option value="{{ $category['id'] }}">{{ $category['name'] }}</option>
+                            @endforeach
+                        </select>
+                        <div class="absolute right-8 top-2" wire:loading wire:target="categoryFilter">
                             <svg class="h-4 w-4 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -162,6 +178,13 @@
                                         </div>
                                     </div>
                                     <div class="flex items-start gap-2">
+                                        <x-heroicon-m-tag class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                                        <div>
+                                            <span class="font-medium text-gray-600 dark:text-gray-400">Danh mục:</span>
+                                            <span class="ml-1 text-gray-900 dark:text-white">{{ $bill['category']['name'] ?? 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-2">
                                         <x-heroicon-m-calendar-days class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                                         <div>
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.event') }}:</span>
@@ -216,7 +239,7 @@
                                 <!-- Action button for mobile -->
                                 <div class="mt-4">
                                     <button class="inline-flex w-full items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                                        wire:click="acceptOrder({{ $bill['id'] }})">
+                                        wire:click="openAcceptModal({{ $bill['id'] }})">
                                         <x-heroicon-m-check class="mr-2 h-4 w-4" />
                                         {{ __('partner/bill.accept_order') }}
                                     </button>
@@ -235,11 +258,16 @@
                                     </div>
 
                                     <!-- Details Grid for desktop -->
-                                    <div class="grid grid-cols-1 gap-3 text-sm xl:grid-cols-4">
+                                    <div class="grid grid-cols-1 gap-3 text-sm xl:grid-cols-5">
                                         <div class="flex items-center gap-2">
                                             <x-heroicon-m-user class="h-4 w-4 text-gray-400" />
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.client') }}:</span>
                                             <span class="text-gray-900 dark:text-white">{{ $bill['client']['name'] ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <x-heroicon-m-tag class="h-4 w-4 text-gray-400" />
+                                            <span class="font-medium text-gray-600 dark:text-gray-400">Danh mục:</span>
+                                            <span class="text-gray-900 dark:text-white">{{ $bill['category']['name'] ?? 'N/A' }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <x-heroicon-m-calendar-days class="h-4 w-4 text-gray-400" />
@@ -305,7 +333,7 @@
 
                                     <!-- Actions for desktop -->
                                     <div class="flex gap-2">
-                                        <button class="inline-flex items-center rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" wire:click="acceptOrder({{ $bill['id'] }})">
+                                        <button class="inline-flex items-center rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" wire:click="openAcceptModal({{ $bill['id'] }})">
                                             <x-heroicon-m-check class="mr-1 h-3 w-3" />
                                             {{ __('partner/bill.accept_order') }}
                                         </button>
@@ -318,4 +346,73 @@
             @endif
         </div>
     </div>
+
+    <!-- Accept Order Modal -->
+    @if ($showAcceptModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+
+                <!-- Center modal -->
+                <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+
+                <!-- Modal panel -->
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle dark:bg-gray-800">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 dark:bg-gray-800">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10 dark:bg-green-900/20">
+                                <x-heroicon-m-currency-dollar class="h-6 w-6 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div class="mt-3 w-full text-center sm:ml-4 sm:mt-0 sm:text-left">
+                                <h3 id="modal-title" class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
+                                    {{ __('partner/bill.enter_price') }}
+                                </h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ __('partner/bill.enter_price_for_order') }} <strong>#{{ $selectedBillCode }}</strong>
+                                    </p>
+                                </div>
+
+                                <!-- Price Input -->
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="price">
+                                        {{ __('partner/bill.price_label') }} <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative mt-2">
+                                        <input id="price"
+                                            class="@error('priceInput') border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-red-500 dark:border-red-600 dark:bg-red-900/20 dark:text-red-400 dark:placeholder:text-red-400/60 @else border-gray-300 bg-white focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-green-500 dark:focus:ring-green-500 @enderror block w-full rounded-lg border py-3 pl-10 pr-16 text-base transition-colors duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2"
+                                            type="number" wire:model.live="priceInput" placeholder="Nhập số tiền..." min="0" step="1000">
+                                    </div>
+                                    @error('priceInput')
+                                        <div class="mt-2 flex items-start gap-1.5">
+                                            <x-heroicon-m-exclamation-circle class="mt-0.5 h-4 w-4 flex-shrink-0 text-red-500" />
+                                            <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                        </div>
+                                    @enderror
+                                    @if ($priceInput && !$errors->has('priceInput'))
+                                        <div class="mt-3 rounded-md bg-green-50 px-3 py-2 dark:bg-green-900/20">
+                                            <div class="flex items-center gap-2">
+                                                <x-heroicon-m-check-circle class="h-5 w-5 text-green-500" />
+                                                <p class="text-sm font-medium text-green-800 dark:text-green-300">
+                                                    {{ __('partner/bill.formatted_price') }}: <span class="font-bold">{{ number_format($priceInput, 0, ',', '.') }} VNĐ</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 dark:bg-gray-900/20">
+                        <button class="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto" type="button" wire:click="acceptOrder">
+                            {{ __('partner/bill.confirm_accept') }}
+                        </button>
+                        <button class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600" type="button"
+                            wire:click="closeAcceptModal">
+                            {{ __('partner/bill.cancel') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </x-filament-panels::page>

@@ -2,18 +2,26 @@
 
 namespace App\Filament\Partner\Pages;
 
-use App\Enum\PartnerBillStatus;
-use App\Models\PartnerBill;
 use App\Models\User;
+use App\Models\PartnerBill;
+use App\Models\PartnerBillDetail;
+
+use App\Enum\PartnerBillStatus;
+use App\Enum\PartnerBillDetailStatus;
+
 use BackedEnum;
+use UnitEnum;
+
 use Filament\Pages\Page;
+use Filament\Support\Icons\Heroicon;
+
 use Illuminate\Contracts\Support\Htmlable;
 
 class RealtimePartnerBill extends Page
 {
     protected string $view = 'filament.partner.pages.realtime-partner-bill';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-queue-list';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
 
     // Livewire listeners for auto-update
     protected $listeners = [
@@ -36,12 +44,24 @@ class RealtimePartnerBill extends Page
 
     public $categoryIds = [];
 
+    public $availableCategories = [];
+
     public $lastUpdated;
 
-    // Filter properties (removed statusFilter - only show pending orders)
     public $dateFilter = 'all';
 
+    public $categoryFilter = 'all';
+
     public $searchQuery = '';
+
+    // Modal properties
+    public $showAcceptModal = false;
+
+    public $selectedBillId = null;
+
+    public $selectedBillCode = '';
+
+    public $priceInput = '';
 
     public function mount(): void
     {
@@ -56,16 +76,32 @@ class RealtimePartnerBill extends Page
         if (! $user || ! $user->partnerServices()->exists()) {
             $this->partnerBills = [];
             $this->categoryIds = [];
+            $this->availableCategories = [];
 
             return;
         }
 
-        // Fix: Get category_id from partner services, not the service id
-        $this->categoryIds = $user->partnerServices()->pluck('category_id')->toArray();
+        // Get category_id from partner services and load available categories in one go
+        $partnerServices = $user->partnerServices()->with('category')->get();
+        $this->categoryIds = $partnerServices->pluck('category_id')->toArray();
+
+        // Build available categories from the already loaded data
+        $this->availableCategories = $partnerServices
+            ->filter(fn($service) => $service->category !== null)
+            ->map(fn($service) => [
+                'id' => $service->category->id,
+                'name' => $service->category->name
+            ])
+            ->unique('id')
+            ->values()
+            ->toArray();
 
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
             ->with(['client', 'event', 'category'])
-            ->where('status', PartnerBillStatus::PENDING); // Only show pending orders
+            ->where('status', PartnerBillStatus::PENDING) // Only show pending orders
+            ->whereDoesntHave('details', function ($query) {
+                $query->where('partner_id', $this->partnerId);
+            }); // Exclude bills already accepted by this partner
 
         // Apply date filter
         if ($this->dateFilter !== 'all') {
@@ -83,15 +119,20 @@ class RealtimePartnerBill extends Page
             }
         }
 
+        // Apply category filter
+        if ($this->categoryFilter !== 'all') {
+            $query->where('category_id', $this->categoryFilter);
+        }
+
         // Apply search filter
         if (! empty($this->searchQuery)) {
             $query->where(function ($q) {
-                $q->where('code', 'like', '%'.$this->searchQuery.'%')
+                $q->where('code', 'like', '%' . $this->searchQuery . '%')
                     ->orWhereHas('client', function ($clientQuery) {
-                        $clientQuery->where('name', 'like', '%'.$this->searchQuery.'%');
+                        $clientQuery->where('name', 'like', '%' . $this->searchQuery . '%');
                     })
                     ->orWhereHas('event', function ($eventQuery) {
-                        $eventQuery->where('name', 'like', '%'.$this->searchQuery.'%');
+                        $eventQuery->where('name', 'like', '%' . $this->searchQuery . '%');
                     });
             });
         }
@@ -104,15 +145,13 @@ class RealtimePartnerBill extends Page
         $this->lastUpdated = now()->format('H:i:s');
 
         // Debug log
-        logger('Partner Bills loaded: '.count($this->partnerBills).' bills found for categories: '.implode(', ', $this->categoryIds));
+        logger('Partner Bills loaded: ' . count($this->partnerBills) . ' bills found for categories: ' . implode(', ', $this->categoryIds));
     }
 
     public function refreshBills(): void
     {
         $this->loadPartnerBills();
-    }
-
-    // Auto refresh method - called every 30 seconds
+    }    // Auto refresh method - called every 30 seconds
     public function autoRefresh(): void
     {
         $this->loadPartnerBills();
@@ -121,19 +160,54 @@ class RealtimePartnerBill extends Page
     public function clearFilters(): void
     {
         $this->dateFilter = 'all';
+        $this->categoryFilter = 'all';
         $this->searchQuery = '';
         $this->loadPartnerBills();
     }
 
-    public function acceptOrder($billId): void
+    public function openAcceptModal($billId): void
     {
+        $bill = PartnerBill::find($billId);
+        if ($bill && $bill->status === PartnerBillStatus::PENDING) {
+            $this->selectedBillId = $billId;
+            $this->selectedBillCode = $bill->code;
+            $this->priceInput = '';
+            $this->showAcceptModal = true;
+        }
+    }
+
+    public function closeAcceptModal(): void
+    {
+        $this->showAcceptModal = false;
+        $this->selectedBillId = null;
+        $this->selectedBillCode = '';
+        $this->priceInput = '';
+        $this->resetErrorBag();
+    }
+
+    public function acceptOrder(): void
+    {
+        $this->validate([
+            'priceInput' => ['required', 'numeric', 'min:1'],
+        ], [
+            'priceInput.required' => __('partner/bill.price_required'),
+            'priceInput.numeric' => __('partner/bill.price_numeric'),
+            'priceInput.min' => __('partner/bill.price_min'),
+        ]);
+
         try {
-            $bill = PartnerBill::find($billId);
+            $bill = PartnerBill::find($this->selectedBillId);
             if ($bill && $bill->status === PartnerBillStatus::PENDING) {
-                // Here you would implement your order acceptance logic
-                // For now, just update status or create a partner bill detail
+
+                PartnerBillDetail::create([
+                    'partner_bill_id' => $bill->id,
+                    'partner_id' => $this->partnerId,
+                    'total' => $this->priceInput,
+                    'status' => PartnerBillDetailStatus::NEW,
+                ]);
 
                 session()->flash('success', __('partner/bill.order_accepted'));
+                $this->closeAcceptModal();
                 $this->loadPartnerBills();
             }
         } catch (\Exception $e) {
@@ -154,13 +228,19 @@ class RealtimePartnerBill extends Page
     // Livewire updated methods for automatic filtering
     public function updatedDateFilter(): void
     {
-        logger('Date filter updated: '.$this->dateFilter);
+        logger('Date filter updated: ' . $this->dateFilter);
+        $this->loadPartnerBills();
+    }
+
+    public function updatedCategoryFilter(): void
+    {
+        logger('Category filter updated: ' . $this->categoryFilter);
         $this->loadPartnerBills();
     }
 
     public function updatedSearchQuery(): void
     {
-        logger('Search query updated: '.$this->searchQuery);
+        logger('Search query updated: ' . $this->searchQuery);
         $this->loadPartnerBills();
     }
 }

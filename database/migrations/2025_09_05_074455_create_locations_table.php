@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('type');
             $table->string('phone_code')->nullable();
             $table->foreignId('parent_id')->nullable()->constrained('locations')->nullOnDelete();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

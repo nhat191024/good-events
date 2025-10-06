@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('status');
             $table->softDeletes();
             $table->timestamps();
+
+            $table->unique(['user_id', 'category_id'], 'unique_user_category');
         });
     }
 

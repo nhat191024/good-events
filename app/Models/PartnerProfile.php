@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+use BeyondCode\Vouchers\Traits\HasVouchers;
+
 /**
  * @property int $id
  * @property int $user_id
@@ -39,7 +41,7 @@ use Spatie\Activitylog\LogOptions;
  */
 class PartnerProfile extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use SoftDeletes, LogsActivity, HasVouchers;
 
     /**
      * The attributes that are mass assignable.
