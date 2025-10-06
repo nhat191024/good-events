@@ -71,6 +71,7 @@ class EventCategoryResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
+            ->with(['media'])
             ->withExists('children')
             ->whereNull('parent_id')
             ->withTrashed();
