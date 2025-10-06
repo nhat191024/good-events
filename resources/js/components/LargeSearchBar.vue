@@ -7,11 +7,13 @@
     interface Props {
         modelValue?: string;
         placeholder?: string;
+        showSearchBtn?: boolean
     }
 
     const props = withDefaults(defineProps<Props>(), {
         modelValue: '',
-        placeholder: 'Tìm kiếm...'
+        placeholder: 'Tìm kiếm...',
+        showSearchBtn: true
     });
 
     const emit = defineEmits<{
@@ -60,7 +62,7 @@
                         @keyup.enter="handleSearch"
                     />
                 </div>
-                <div class="flex h-[40px] md:w-[20%] w-[30%]">
+                <div class="flex h-[40px] md:w-[20%] w-[30%]" v-if="showSearchBtn">
                     <Button
                         type="submit"
                         variant="default"
