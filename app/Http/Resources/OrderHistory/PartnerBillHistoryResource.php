@@ -10,6 +10,8 @@ class PartnerBillHistoryResource extends JsonResource
 {
     public function toArray(Request $request)
     {
+        $expireAt = now()->addMinutes(5);
+
         return [
             "id" => $this->id,
             "code" => $this->code,
@@ -21,15 +23,17 @@ class PartnerBillHistoryResource extends JsonResource
             "note" => $this->note,
             "status" => $this->status,
             "created_at" => $this->created_at,
-            "category" => $this->whenLoaded('category', function () {
+            "category" => $this->whenLoaded('category', function () use ($expireAt) {
                 $cat = $this->category;
                 return [
                     'id' => $cat->id,
                     'name' => $cat->name,
+                    'image' => $cat->getFirstTemporaryUrl($expireAt, 'images'),
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,
                         fn() => [
                             'name' => $cat->parent->name,
+                            'image' => $cat->parent->getFirstTemporaryUrl($expireAt, 'images'),
                         ]
                     ),
                 ];
@@ -41,15 +45,15 @@ class PartnerBillHistoryResource extends JsonResource
                     "name" => $cat->name
                 ];
             }),
-            "partner" => $this->whenLoaded("partner", function () {
+            "partner" => $this->whenLoaded("partner", function () use ($expireAt) {
                 $cat = $this->partner;
                 return [
                     "id" => $cat->id,
-                    "name" => $cat->name, //statistics
+                    "name" => $cat->name,
+                    // "image" => $cat->getFirstTemporaryUrl($expireAt, 'images'),
                     'statistics' => $this->when(
                         $cat->relationLoaded('statistics') && $cat->statistics,
                         fn() => $cat->statistics
-                            //* need to add more, missing a few
                             ->whereIn('metrics_name', [
                                 'average_stars',
                                 'total_ratings'
