@@ -81,7 +81,7 @@ withDefaults(defineProps<Props>(), {
                     </Link>
 
                     <!-- Account button group: tròn user + chevron nhỏ (giống ảnh) -->
-                    <div class="flex items-center gap-0 bg-[#ED3B50] rounded-full px-2.5 py-0.5 hover:bg-[#d93a4a]">
+                    <Link :href="route('client-orders.dashboard')" class="flex items-center gap-0 bg-[#ED3B50] rounded-full px-2.5 py-0.5 hover:bg-[#d93a4a]">
                         <button type="button" aria-label="Tài khoản"
                             class="h-9 w-9 rounded-full  text-white grid place-items-center shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] transition">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -97,7 +97,7 @@ withDefaults(defineProps<Props>(), {
                             </svg>
                         </div>
 
-                    </div>
+                    </Link>
                 </div>
             </div>
         </div>
