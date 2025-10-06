@@ -34,17 +34,8 @@ class OrderController extends Controller
     // todo: only get this user's bills, temporary disabled for better testing
     public function index(Request $request)
     {
-        // $userId = $request->user()?->id ?? $request->ip();
-        // $lock = Cache::lock("orders:index:{$userId}", 10);
-        // if (! $lock->get()) {
-        //     // too many requests will be delayed
-        //     return response('', 204);
-        // }
-
         try {
-            //code...
             return Inertia::render('orders/OrderManagementDashboard', [
-                // 'orderList' => PartnerBillResource::collection($bills),
                 'orderList' => Inertia::lazy(fn() => $this->getOrderList($request)),
                 'orderListDetails' => Inertia::lazy(fn() => $this->getPartnerBillDetails($request)),
                 'orderHistoryList' => Inertia::lazy(fn() => $this->getOrderHistoryList($request)),
@@ -52,8 +43,6 @@ class OrderController extends Controller
             ]);
         } catch (\Throwable $th) {
             return redirect()->route('home');
-        } finally {
-            // $lock->release();
         }
     }
 
@@ -62,12 +51,15 @@ class OrderController extends Controller
         $orderId = (int) $request->query('single_order');
         if (!$orderId) return null;
 
-        // Fetch the order regardless of status
         $order = PartnerBill::query()
             ->where('id', $orderId)
             // ->where('client_id', $request->user()->id)
-            // ->with(['partner:id,name,avatar', 'partner.partnerProfile'])
-            ->with('category', 'category.parent', 'event', 'details')
+            ->with([
+                'category.media',
+                'category.parent.media',
+                'event',
+                'details'
+            ])
             ->first();
 
         return $order ? new PartnerBillResource($order) : null;
@@ -78,11 +70,14 @@ class OrderController extends Controller
         $billId = (int) $request->query('active');
         if (!$billId) return null;
 
-        // chọn cột gọn, eager partner cho resource
         $details = PartnerBillDetail::query()
             // ->where('user_id', $request->user()->id)
             ->where('partner_bill_id', $billId)
-            ->with(['partner:id,name,avatar', 'partner.statistics', 'partner.partnerProfile'])
+            ->with([
+                'partner:id,name,avatar',
+                'partner.statistics',
+                'partner.partnerProfile'
+            ])
             ->select(['id', 'partner_bill_id', 'partner_id', 'total', 'status', 'updated_at'])
             ->orderByDesc('id')
             ->get();
@@ -104,9 +99,15 @@ class OrderController extends Controller
 
         $bills = PartnerBill::query()
             // ->where('user_id', $request->user()->id)
-            ->with('category', 'category.parent', 'event', 'partner', 'partner.statistics', 'partner.partnerProfile')
+            ->with([
+                'category.media',
+                'category.parent.media',
+                'event',
+                'partner.statistics',
+                'partner.partnerProfile'
+            ])
             ->where('status', '!=', PartnerBillStatus::PENDING)
-            ->orderByDesc('id') // ổn định thứ tự, tránh drift
+            ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'history_page', $page);
 
         return PartnerBillHistoryResource::collection($bills);
@@ -117,8 +118,13 @@ class OrderController extends Controller
         $page = max(1, (int) $request->query('page', 1));
 
         $bills = PartnerBill::query()
-            ->with('category', 'category.parent', 'event', 'details')
-            ->where('status', '=', PartnerBillStatus::PENDING) // dùng '=' cho an toàn sql
+            ->with([
+                'category.media',
+                'category.parent.media',
+                'event',
+                'details'
+            ])
+            ->where('status', '=', PartnerBillStatus::PENDING)
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
@@ -128,10 +134,7 @@ class OrderController extends Controller
     public function cancelOrder(CancelOrderRequest $request)
     {
         $bill_id = $request->input('order_id');
-
         $bill = PartnerBill::findOrFail($bill_id);
-        // dd('cancel order', $bill);
-
         $bill->status = PartnerBillStatus::CANCELLED;
         $bill->save();
     }
@@ -148,6 +151,5 @@ class OrderController extends Controller
         $billDetail->status = PartnerBillDetailStatus::CLOSED;
         $billDetail->save();
         $bill->save();
-        // dd('confirm choose partner', $billDetail);
     }
 }
