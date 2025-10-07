@@ -19,34 +19,6 @@ export interface Location {
     updated_at: string;
 }
 
-export interface Media {
-    id: number
-    model_type: string
-    model_id: number
-    uuid: string
-    collection_name: string
-    name: string
-    file_name: string
-    mime_type: string
-    disk: string
-    conversions_disk: string
-    size: number
-    manipulations: any[]
-    custom_properties: {
-        caption: string | null
-        sort_order: number
-        uploaded_by: string | null
-        original_name: string
-    }
-    generated_conversions: any[]
-    responsive_images: any[]
-    order_column: number
-    original_url: string
-    preview_url: string
-    created_at: string | null
-    updated_at: string | null
-}
-
 export interface PartnerCategory {
     id: number
     name: string
@@ -58,7 +30,7 @@ export interface PartnerCategory {
     deleted_at: string | null
     created_at: string
     updated_at: string
-    media?: Media[]
+    media?: string
 }
 
 export interface PartnerBill {

@@ -10,8 +10,9 @@ class PartnerWidgetCacheService
     /**
      * Clear all partner widget caches when data changes
      */
-    public static function clearPartnerCaches(int $partnerId): void
+    public static function clearPartnerCaches(int | null $partnerId): void
     {
+        if (!$partnerId) return;
         // Clear revenue chart cache
         $revenueKey = 'partner_revenue_chart_' . $partnerId . '_' . Carbon::now()->format('Y-m-d-H');
         Cache::forget($revenueKey);

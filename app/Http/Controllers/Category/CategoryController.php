@@ -29,7 +29,14 @@ class CategoryController extends Controller
                         $q->where('name', 'like', "%{$search}%");
                     }
                     $q->orderBy('name');
-                }])
+                }])->with([
+                    'media',
+                    'children' => function ($query) {
+                        $query->orderBy('min_price')
+                            ->limit(8)
+                            ->with('media');
+                    }
+                ])
                 ->whereNull('parent_id')
                 ->orderBy('name')
                 ->get();
@@ -51,7 +58,7 @@ class CategoryController extends Controller
                                 'min_price' => $pc->min_price,
                                 'max_price' => $pc->max_price,
                                 // Ảnh lấy từ media library (collection 'images') nếu có
-                                'image' => optional($pc->getFirstMedia('images'))->getFullUrl(),
+                                'image' => $pc->getFirstTemporaryUrl(now()->addMinutes(5), 'images'),
                             ];
                         }),
                     ];

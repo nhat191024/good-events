@@ -36,9 +36,27 @@ class QuickBookingController extends Controller
      */
     public function chooseCategory(Request $request)
     {
+        $expireAt = now()->addMinutes(5);
+
         $partnerCategories = PartnerCategory::where('parent_id', '=', null)
             ->with("media")
-            ->get();
+            ->get()
+            ->map(function ($category) use ($expireAt) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'parent_id' => $category->parent_id,
+                    'min_price' => $category->min_price,
+                    'max_price' => $category->max_price,
+                    'description' => $category->description,
+                    'deleted_at' => $category->deleted_at,
+                    'created_at' => $category->created_at,
+                    'updated_at' => $category->updated_at,
+                    'media' => $category->getFirstTemporaryUrl($expireAt, 'images')
+                ];
+            });
+
         return Inertia::render("booking/QuickBooking", [
             "partnerCategories" => $partnerCategories
         ]);
@@ -51,22 +69,56 @@ class QuickBookingController extends Controller
      */
     public function choosePartnerCategory(string $partner_category_slug)
     {
-        $partnerCategory = PartnerCategory::where("slug", $partner_category_slug)->with("media")->first();
+        $expireAt = now()->addMinutes(5);
+
+        $partnerCategory = PartnerCategory::where("slug", $partner_category_slug)
+            ->with([
+                'media',
+                'children.media'
+            ])
+            ->first();
 
         if (!$partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);
         }
 
-        $partnerChildrenList = $partnerCategory->children()->with("media")->get();
-
-        if ($partnerChildrenList->count() == 0) {
+        if ($partnerCategory->children->count() == 0) {
             return $this->quickBookingService->goBackWithError(self::PARENT_HAS_NO_CHILD);
         }
-        // dd($category_slug, !$partnerCategory, $partnerCategory, $partnerChildrenList);
+
+        $transformedParentCategory = [
+            'id' => $partnerCategory->id,
+            'name' => $partnerCategory->name,
+            'slug' => $partnerCategory->slug,
+            'parent_id' => $partnerCategory->parent_id,
+            'min_price' => $partnerCategory->min_price,
+            'max_price' => $partnerCategory->max_price,
+            'description' => $partnerCategory->description,
+            'deleted_at' => $partnerCategory->deleted_at,
+            'created_at' => $partnerCategory->created_at,
+            'updated_at' => $partnerCategory->updated_at,
+            'media' => $partnerCategory->getFirstTemporaryUrl($expireAt, 'images')
+        ];
+
+        $transformedChildrenList = $partnerCategory->children->map(function ($child) use ($expireAt) {
+            return [
+                'id' => $child->id,
+                'name' => $child->name,
+                'slug' => $child->slug,
+                'parent_id' => $child->parent_id,
+                'min_price' => $child->min_price,
+                'max_price' => $child->max_price,
+                'description' => $child->description,
+                'deleted_at' => $child->deleted_at,
+                'created_at' => $child->created_at,
+                'updated_at' => $child->updated_at,
+                'media' => $child->getFirstTemporaryUrl($expireAt, 'images')
+            ];
+        });
 
         return Inertia::render("booking/QuickBookingSecond", [
-            "partnerChildrenList" => $partnerChildrenList,
-            "partnerCategory" => $partnerCategory,
+            "partnerChildrenList" => $transformedChildrenList,
+            "partnerCategory" => $transformedParentCategory,
         ]);
     }
 
@@ -78,30 +130,69 @@ class QuickBookingController extends Controller
      */
     public function fillOrderInfo(string $partner_category_slug, string $partner_child_category_slug)
     {
-        $partnerCategory = PartnerCategory::where("slug", $partner_category_slug)->first();
+        $expireAt = now()->addMinutes(5);
+
+        $partnerCategory = PartnerCategory::where("slug", $partner_category_slug)
+            ->with(['media', 'children.media'])
+            ->first();
 
         if (!$partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);
         }
 
-        $partnerChildrenListQuery = $partnerCategory->children();
-
-        if ($partnerChildrenListQuery->get()->count() == 0) {
+        if ($partnerCategory->children->count() == 0) {
             return $this->quickBookingService->goBackWithError(self::PARENT_HAS_NO_CHILD);
         }
 
-        // ensure the category is in fact that parent's child - and not other parent's child
-        $searchItem = $partnerChildrenListQuery->where('slug', $partner_child_category_slug)->with("media")->first();
-        if (! $searchItem) {
+        $searchItem = $partnerCategory->children->firstWhere('slug', $partner_child_category_slug);
+
+        if (!$searchItem) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_CHILD_INVALID);
         }
 
-        $events = Event::all();
+        $events = Event::all()->map(function ($event) use ($expireAt) {
+            return [
+                'id' => $event->id,
+                'name' => $event->name,
+                'deleted_at' => $event->deleted_at,
+                'created_at' => $event->created_at,
+                'updated_at' => $event->updated_at,
+            ];
+        });
+
         $provinces = Location::whereNull('parent_id')->select(['id', 'name'])->orderBy('name')->get();
 
+        $transformedParentCategory = [
+            'id' => $partnerCategory->id,
+            'name' => $partnerCategory->name,
+            'slug' => $partnerCategory->slug,
+            'parent_id' => $partnerCategory->parent_id,
+            'min_price' => $partnerCategory->min_price,
+            'max_price' => $partnerCategory->max_price,
+            'description' => $partnerCategory->description,
+            'deleted_at' => $partnerCategory->deleted_at,
+            'created_at' => $partnerCategory->created_at,
+            'updated_at' => $partnerCategory->updated_at,
+            'media' => $partnerCategory->getFirstTemporaryUrl($expireAt, 'images')
+        ];
+
+        $transformedChildCategory = [
+            'id' => $searchItem->id,
+            'name' => $searchItem->name,
+            'slug' => $searchItem->slug,
+            'parent_id' => $searchItem->parent_id,
+            'min_price' => $searchItem->min_price,
+            'max_price' => $searchItem->max_price,
+            'description' => $searchItem->description,
+            'deleted_at' => $searchItem->deleted_at,
+            'created_at' => $searchItem->created_at,
+            'updated_at' => $searchItem->updated_at,
+            'media' => $searchItem->getFirstTemporaryUrl($expireAt, 'images')
+        ];
+
         return Inertia::render('booking/QuickBookingDetail', [
-            'partnerCategory' => $partnerCategory,
-            'partnerChildrenCategory' => $searchItem,
+            'partnerCategory' => $transformedParentCategory,
+            'partnerChildrenCategory' => $transformedChildCategory,
             'eventList' => $events,
             'provinces' => $provinces,
         ]);
@@ -126,12 +217,10 @@ class QuickBookingController extends Controller
 
         $provinceItem = Location::find($provinceId);
 
-        // ensure the category IS not parent
         if (PartnerCategory::where("id", "=", $categoryId)->where("parent_id", "=", null)->exists()) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_CHILD_INVALID);
         }
 
-        // ensure correct location parent-children tree
         $wardItem = $provinceItem->wards()->find($wardId);
         if (!$wardItem) {
             return back()->withErrors(['ward_id' => 'Vui lòng chọn đúng phường/xã của tỉnh ' . $provinceItem->name . '.']);
@@ -141,7 +230,7 @@ class QuickBookingController extends Controller
         $address = $locationDetail . ', ' . $wardItem->name . ', ' . $provinceItem->name;
         // $phone = $user->phone;
         // $clientId = $user->id;
-        $phone = '098776543';
+        $phone = '0987765431';
         $clientId = 1;
 
         $newBill = PartnerBill::create([
@@ -158,13 +247,14 @@ class QuickBookingController extends Controller
             'status' => PartnerBillStatus::PENDING,
         ]);
 
-        return redirect()->route('quick-booking.finish', ['bill_id' => $newBill->code]);
+        $newBill->save();
+
+        return redirect()->route('quick-booking.finish', ['bill_code' => $newBill->code]);
     }
 
     public function finishedBooking(string $billCode)
-    {;
+    {
         $newBill = PartnerBill::where('code', $billCode)->first();
-        // dd($newBill);
         if (!$newBill) {
             return redirect()->route('home');
         }

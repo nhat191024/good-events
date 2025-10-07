@@ -8,6 +8,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin \App\Models\PartnerBill */
 class PartnerBillResource extends JsonResource {
     public function toArray(Request $request) {
+        $expireAt = now()->addMinutes(5);
+
         return [
             "id"=> $this->id,
             "code"=> $this->code,
@@ -19,29 +21,20 @@ class PartnerBillResource extends JsonResource {
             "note"=> $this->note,
             "status"=> $this->status,
             "created_at"=> $this->created_at,
-            "category" => $this->whenLoaded('category', function() {
+            "category" => $this->whenLoaded('category', function() use ($expireAt) {
                 $cat = $this->category;
                 return [
                     'id' => $cat->id,
                     'name' => $cat->name,
+                    'image' => $cat->getFirstTemporaryUrl($expireAt, 'images'),
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,
                         fn () => [
                             'id' => $cat->parent->id,
                             'name' => $cat->parent->name,
+                            'image' => $cat->parent->getFirstTemporaryUrl($expireAt, 'images'),
                         ]
                     ),
-                    'media' => $cat->getMedia('images')->map(function ($m) {
-                        return [
-                            'id' => $m->id,
-                            'file_name' => $m->file_name,
-                            'mime_type' => $m->mime_type,
-                            'url' => $m->getFullUrl(),
-                            // 'name' => $m->name,
-                            // 'size' => $m->size,
-                            // 'created_at' => optional($m->created_at)->toDateTimeString(),
-                        ];
-                    })->values(),
                 ];
             }),
             "event" => $this->whenLoaded("event", function () {
@@ -58,5 +51,4 @@ class PartnerBillResource extends JsonResource {
             }),
         ];
     }
-    //
 }

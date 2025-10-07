@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { getFirstImg } from '@/pages/booking/helper';
-import { ClientOrderHistory, OrderStatus } from '../types';
+import { getImg } from '@/pages/booking/helper';
+import { ClientOrderHistory } from '../types';
 import { statusBadge } from '../helper';
 import { formatDate, formatPrice, formatTime } from '@/lib/helper';
 import { Star } from 'lucide-vue-next';
-
-// note: card cho lịch sử đơn
-
-// type OrderStatus = 'active' | 'confirmed' | 'expired' | 'completed' | 'cancelled' | 'pending'
 
 const orders = withDefaults(defineProps<ClientOrderHistory>(), {
 })
@@ -20,7 +16,7 @@ console.log('order hjsito9ry card ', orders);
         <div class="p-4">
             <div class="flex items-start gap-3">
                 <div class="h-10 w-10 rounded-full overflow-hidden bg-muted grid place-items-center">
-                    <img :src="getFirstImg(orders.category.media)" alt="org" class="h-full w-full object-cover" />
+                    <img :src="getImg(orders.category?.image)" alt="org" class="h-full w-full object-cover" />
                 </div>
                 <div class="flex-1 min-w-0">
                     <h3 class="font-semibold text-card-foreground text-sm mb-1">{{ orders.category?.name ?? '' }}</h3>
@@ -47,7 +43,6 @@ console.log('order hjsito9ry card ', orders);
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-medium text-primary">{{ formatPrice(orders.final_total ?? 0) }}
                             ₫</span>
-                        <!-- <div class="h-4 w-4 bg-muted rounded" /> -->
                         <span class="text-xs px-2 py-0.5 rounded" :class="statusBadge(orders.status).cls">{{
                             statusBadge(orders.status).text }}</span>
                     </div>

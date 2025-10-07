@@ -3,6 +3,7 @@ import { Award, Star, MapPin, Clock } from 'lucide-vue-next'
 import { ClientOrderDetail, Partner } from '../types';
 import { formatPrice } from '@/lib/helper';
 import { router } from '@inertiajs/core';
+import { getImg } from '@/pages/booking/helper';
 
 const props = withDefaults(defineProps<ClientOrderDetail & {
     showButtons?: boolean
@@ -37,7 +38,7 @@ function goToPartnerProfile(){
                         <div class="flex-shrink-0">
                             <div
                                 class="h-15 md:h-20 w-15 md:w-20 rounded-full overflow-hidden ring-2 ring-primary/20 grid place-items-center bg-muted">
-                                <img :src="props.partner?.avatar || '/placeholder.svg'" :alt="props.partner?.name"
+                                <img :src="getImg(props.partner?.avatar)"  @error="(e:any) => e.target.src = getImg(undefined)" :alt="props.partner?.name"
                                     class="h-full w-full object-cover" />
                             </div>
                         </div>

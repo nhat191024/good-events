@@ -6,6 +6,7 @@ import IntroCard from './components/IntroCard.vue'
 import RecentOrdersCard from './components/RecentOrdersCard.vue'
 import RecentReviewsCard from './components/RecentReviewsCard.vue'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
+import { Head } from '@inertiajs/vue3'
 
 interface UserInfo {
     id: number
@@ -55,6 +56,7 @@ const props = defineProps<Props>()
 </script>
 
 <template>
+    <Head :title="'Hồ sơ - '+ user.name"/>
     <ClientHeaderLayout>
         <div class="w-full min-h-screen bg-gray-50">
             <!-- Banner with gradient and user header -->

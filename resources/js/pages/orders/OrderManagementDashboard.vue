@@ -2,7 +2,7 @@
 import Sidebar from './layout/Sidebar.vue'
 import OrderDetailPanel from './components/OrderDetailPanel.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { router, useForm } from '@inertiajs/vue3'
+import { Head, router, useForm } from '@inertiajs/vue3'
 import {
     ClientOrder,
     ClientOrderDetail,
@@ -10,6 +10,7 @@ import {
     ClientOrderHistoryPayload,
     OrderDetailsPayload,
     Partner,
+    SingleClientOrderPayload,
 } from './types'
 import RatingDialog from './components/RatingDialog.vue'
 import {
@@ -60,10 +61,8 @@ function fetchSingleOrder(orderId: number) {
         preserveState: true,
         preserveScroll: true,
         onSuccess: (pageResp) => {
-            const response = pageResp.props.singleOrder
+            const response = pageResp.props.singleOrder as SingleClientOrderPayload
             const order = (response?.data || response) as ClientOrder
-
-            console.log('single fetch', JSON.stringify(response))
 
             if (order && selectedOrder.value?.id === orderId) {
                 selectedOrder.value = order
@@ -396,6 +395,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+    <Head title="Đơn hàng của tôi" />
     <ClientHeaderLayout :show-footer="false">
         <div class="flex h-[90vh] bg-background w-full overflow-visible">
             <div :class="[showMobileDetail ? 'hidden md:block' : 'block', 'w-full md:w-auto']">

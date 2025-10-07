@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { usePage, Link } from '@inertiajs/vue3';
+    import { usePage, Link, Head } from '@inertiajs/vue3';
     import ClientAppHeaderLayout from  '@/layouts/app/ClientHeaderLayout.vue'
     import SelectPartnerHeader from  '@/pages/booking/layout/Header.vue'
     import LargeSearchBar from '@/components/LargeSearchBar.vue'
@@ -10,7 +10,7 @@
     import CardGrid from './layout/CardGrid.vue';
     import { createSearchFilter } from '@/lib/search-filter';
     import { computed, ref } from 'vue';
-    import { getFirstImg } from './helper';
+    import { getImg } from './helper';
 
     const pageProps = usePage().props
     const partnerChildrenList = computed(() => pageProps.partnerChildrenList as PartnerCategory[])
@@ -34,9 +34,10 @@
 
 <!-- quick booking page STEP 2 -->
 <template>
+    <Head title="Đặt show nhanh - Điền thông tin" />
     <!-- layout -->
     <ClientAppHeaderLayout>
-        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="getFirstImg(partnerCategory.media)">
+        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="getImg(partnerCategory.media)">
             <!-- search bar -->
             <div class="w-full relative">
                 <LargeSearchBar v-model="searchKeyword" :placeholder="'Tìm cụ thể đối tác...'" />
@@ -49,7 +50,7 @@
             <!-- grid list -->
             <CardGrid>
                 <Link v-for="item in filteredPartnerChildrenList" :href="route('quick-booking.fill-info',{partner_child_category_slug: item.slug, partner_category_slug: parentPartnerCategorySlug})">
-                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getFirstImg(item.media)"/>
+                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getImg(item.media)"/>
                 </Link>
             </CardGrid>
         </SelectPartnerHeader>

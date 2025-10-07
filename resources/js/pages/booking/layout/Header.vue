@@ -33,7 +33,7 @@
             class="flex-col items-center bg-white shadow-md flex h-min max-w-[1200px] relative md:pt-6 pt-3 pb-[40px] md:px-[20px] px-2 w-full md:w-[87%] md:rounded-lg gap-[16px]">
 
             <!-- big icon -->
-            <RoundMedia :src="headerImgSrc" :size="{ base: 100, sm: 120, md: 140 }"  shape="circle" innerBgClass="bg-white" outerBgClass="bg-white" :bordered="false">
+            <RoundMedia :src="headerImgSrc" :fit="'cover'" :size="{ base: 100, sm: 120, md: 140 }"  shape="circle" innerBgClass="bg-white" outerBgClass="bg-white" :bordered="false">
                 <!-- fallback to icon -->
                 <div
                     class="border border-primary-100 bg-[#FFE6E6] rounded-full items-center flex flex-row gap-[10px] md:h-[120px] h-[80px] md:w-[120px] w-[80px] relative p-0 place-content-center">

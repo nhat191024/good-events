@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getImg } from '@/pages/booking/helper';
 import { Link } from '@inertiajs/vue3';
 
 interface Props { }
@@ -43,11 +44,11 @@ const getIconForCategory = (slug: string) => {
 
 const getImageForCategory = (slug: string) => {
     const category = categories.find(c => c.slug === slug);
-    return category?.image || '';
+    return getImg(category?.image);
 };
 </script>
 <template>
-    <section class="w-full py-8 bg-white">
+    <section class="w-full md:py-4 py-0 bg-white">
         <div class="container mx-auto px-4">
             <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16">
                 <Link v-for="category in categories" :key="category.id" :href="`/categories/${category.slug}`"
@@ -55,7 +56,7 @@ const getImageForCategory = (slug: string) => {
                 <div
                     class="w-16 h-16 md:w-15 md:h-15 bg-white ring-1 ring-gray-200 rounded-full flex items-center justify-center overflow-hidden mb-3">
                     <img :src="getImageForCategory(category.slug)" :alt="category.name"
-                        class="w-12 h-12 object-contain" />
+                        class="w-12 h-12 object-contain rounded-full" />
                 </div>
                 <span
                     class="text-sm md:text-base text-gray-700 font-medium text-center group-hover:text-red-600 transition-colors">

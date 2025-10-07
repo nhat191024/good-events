@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { useForm, usePage } from '@inertiajs/vue3';
+    import { Head, useForm, usePage } from '@inertiajs/vue3';
     import { route } from 'ziggy-js';
     import { toISODate } from '../../lib/helper';
     import { PartnerCategory, Event, Ward, Province, WardTypeSelectBox } from '@/types/database';
@@ -15,7 +15,7 @@
     import Button from '@/components/ui/button/Button.vue'
     import { reactive, ref, watch } from 'vue';
     import { showLoading, hideLoading } from '@/composables/useLoading'
-    import { getFirstImg } from './helper';
+    import { getImg } from './helper';
 
     const pageProps = usePage().props
     // parent
@@ -70,7 +70,7 @@
         }
     })
 
-    const headerImageSrc = getFirstImg(partnerChildrenCategory.media)
+    const headerImageSrc = getImg(partnerChildrenCategory.media)
     const title = 'Điền thông tin thuê chi tiết'
     const subtitle = `Bạn đã chọn đối tác '${partnerCategory.name}' - Cụ thể là '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin dưới đây nhé`
 
@@ -138,12 +138,13 @@
 
 <!-- quick booking page FINAL step -->
 <template>
+    <Head title="Đặt show nhanh - Chọn đối tác" />
     <!-- layout -->
     <ClientAppHeaderLayout>
         <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="headerImageSrc">
             <!-- form here -->
             <form @submit.prevent="submit" :action="route('quick-booking.save-info')"
-                class="bg-primary-10 will-change-transform rounded md:rounded-lg flex flex-col items-center max-w-[800px] gap-[20px] w-full md:w-[86%] h-min p-3 md:p-7 relative">
+                class="bg-gray-50 will-change-transform rounded md:rounded-lg flex flex-col items-center max-w-[800px] gap-[20px] w-full md:w-[86%] h-min p-3 md:p-7 relative">
                 <FormGroupLayout>
                     <FormItemLayout :for-id="'select-start-time'" :label="'Thời gian bắt đầu'" :error="form.errors.start_time">
                         <TimePickerSingle v-model="form.start_time" :id="'select-start-time'" />
