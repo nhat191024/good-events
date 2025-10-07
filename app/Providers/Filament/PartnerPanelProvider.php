@@ -75,8 +75,6 @@ class PartnerPanelProvider extends PanelProvider
                 PartnerStatisticsWidget::class,
                 PartnerRevenueChart::class,
                 PartnerTopServicesWidget::class,
-                AccountWidget::class,
-                FilamentInfoWidget::class,
             ])
 
             ->middleware([
