@@ -38,11 +38,11 @@ const visibleItems = computed(() => (showAll.value ? props.items : props.items.s
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold text-rose-600">Đơn hàng gần đây</h3>
             <!-- <button class="text-sm text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Xem thêm
-      </button> -->
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Xem thêm
+            </button> -->
         </div>
 
         <div class="space-y-3">
