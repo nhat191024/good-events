@@ -152,7 +152,7 @@ class PartnerBill extends Model
         });
 
         static::updated(function ($partnerBill) {
-            if ($partnerBill->isDirty('status') && $partnerBill->status === PartnerBillStatus::PAID->value) {
+            if ($partnerBill->isDirty('status') && $partnerBill->status === PartnerBillStatus::COMPLETED->value) {
                 $partnerId = $partnerBill->partner_id;
                 $clientId = $partnerBill->client_id;
                 $finalTotal = $partnerBill->final_total;
@@ -220,7 +220,7 @@ class PartnerBill extends Model
     //model helpers method
     public function isPaid(): bool
     {
-        return $this->status === PartnerBillStatus::PAID;
+        return $this->status === PartnerBillStatus::COMPLETED;
     }
 
     public function isCancelled(): bool
