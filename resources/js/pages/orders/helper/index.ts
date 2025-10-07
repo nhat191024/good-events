@@ -44,7 +44,7 @@ export function debounce<T extends (...args: any[]) => void>(
 }
 
 export function statusBadge(status: OrderStatus) {
-    console.log('status: ',status);
+    // console.log('status: ',status);
 
     switch (status) {
         case 'pending':
