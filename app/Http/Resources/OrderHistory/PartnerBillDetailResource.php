@@ -13,6 +13,7 @@ class PartnerBillDetailResource extends JsonResource {
             "total"=> $this->total,
             "status"=> $this->status,
             "created_at"=> $this->created_at,
+            "updated_at"=> $this->updated_at,
             "partner" => $this->whenLoaded('partner', function() {
                 $part = $this->partner;
                 return [
