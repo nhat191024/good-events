@@ -47,6 +47,7 @@ class StatisticalSeeder extends Seeder
                             StatisticType::ORDERS_PLACED => 0,
                             StatisticType::COMPLETED_ORDERS => 0,
                             StatisticType::CANCELLED_ORDERS_PERCENTAGE => 0,
+                            StatisticType::REVENUE_GENERATED => 0,
                         },
                         'metadata' => null,
                     ]

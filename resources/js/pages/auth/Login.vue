@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import AuthBase from '@/layouts/AuthLayout.vue';
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
 
 defineProps<{
@@ -17,56 +16,62 @@ defineProps<{
 </script>
 
 <template>
-    <ClientHeaderLayout>
-        <AuthBase title="Đăng nhập" description="Đăng nhập hoặc đăng ký để tiếp tục">
+    <AuthBase title="Đăng nhập" description="Đăng nhập hoặc đăng ký để tiếp tục">
 
-            <Head title="Log in" />
+        <Head title="Log in" />
 
-            <div v-if="status" class="mb-4 text-sm font-medium text-center text-green-600">
-                {{ status }}
+        <div v-if="status" class="mb-4 text-sm font-medium text-center text-green-600">
+            {{ status }}
+        </div>
+
+        <Form method="post" :action="route('login')" :reset-on-success="['password']" v-slot="{ errors, processing }"
+            class="flex flex-col gap-6">
+            <div class="grid gap-6">
+                <div class="grid gap-2">
+                    <Label for="email">Email hoặc SĐT</Label>
+                    <Input id="email" type="email" name="email" required autofocus :tabindex="1" autocomplete="email"
+                        placeholder="email@example.com, 097654321" />
+                    <InputError :message="errors.email" />
+                </div>
+
+                <div class="grid gap-2">
+                    <div class="flex items-center justify-between">
+                        <Label for="password">Mật khẩu</Label>
+                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm"
+                            :tabindex="5">
+                            Quên mật khẩu?
+                        </TextLink>
+                    </div>
+                    <Input id="password" type="password" name="password" required :tabindex="2"
+                        autocomplete="current-password" placeholder="Password" />
+                    <InputError :message="errors.password" />
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <Label for="remember" class="flex items-center space-x-3">
+                        <Checkbox id="remember" name="remember" :tabindex="3" />
+                        <span>Ghi nhớ đăng nhập</span>
+                    </Label>
+                </div>
+
+                <Button type="submit" class="w-full mt-4 font-bold text-white hover:bg-primary-700 active:bg-primary-800 cursor-pointer" :tabindex="4" :disabled="processing">
+                    <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
+                    Đăng nhập
+                </Button>
             </div>
 
-            <Form method="post" :action="route('login')" :reset-on-success="['password']"
-                v-slot="{ errors, processing }" class="flex flex-col gap-6">
-                <div class="grid gap-6">
-                    <div class="grid gap-2">
-                        <Label for="email">Email hoặc SĐT</Label>
-                        <Input id="email" type="email" name="email" required autofocus :tabindex="1"
-                            autocomplete="email" placeholder="email@example.com, 097654321" />
-                        <InputError :message="errors.email" />
-                    </div>
-
-                    <div class="grid gap-2">
-                        <div class="flex items-center justify-between">
-                            <Label for="password">Mật khẩu</Label>
-                            <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm"
-                                :tabindex="5">
-                                Quên mật khẩu?
-                            </TextLink>
-                        </div>
-                        <Input id="password" type="password" name="password" required :tabindex="2"
-                            autocomplete="current-password" placeholder="Password" />
-                        <InputError :message="errors.password" />
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <Label for="remember" class="flex items-center space-x-3">
-                            <Checkbox id="remember" name="remember" :tabindex="3" />
-                            <span>Ghi nhớ đăng nhập</span>
-                        </Label>
-                    </div>
-
-                    <Button type="submit" class="w-full mt-4 font-bold text-white" :tabindex="4" :disabled="processing">
-                        <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
-                        Đăng nhập
-                    </Button>
-                </div>
-
-                <div class="text-sm text-center text-muted-foreground">
-                    Chưa có tài khoản?
-                    <TextLink :href="route('register')" :tabindex="5">Đăng ký</TextLink>
-                </div>
-            </Form>
-        </AuthBase>
-    </ClientHeaderLayout>
+            <div class="text-sm text-center text-muted-foreground">
+                Chưa có tài khoản?
+                <TextLink :href="route('register')" :tabindex="5">Đăng ký</TextLink>
+            </div>
+            <hr>
+            <div class="text-sm text-center text-muted-foreground">
+                Hoặc, bạn đang tìm việc?
+            </div>
+            <Button type="button" class="p-0 w-full mb-4 font-bold text-white bg-green-700 hover:bg-green-800 active:bg-green-900" :tabindex="4" :disabled="processing">
+                <!-- <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" /> -->
+                <Link :href="route('partner.register')" class="w-full h-full p-2">Đăng ký đối tác</Link>
+            </Button>
+        </Form>
+    </AuthBase>
 </template>
