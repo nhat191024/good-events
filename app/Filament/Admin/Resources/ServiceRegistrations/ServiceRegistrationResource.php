@@ -55,7 +55,8 @@ class ServiceRegistrationResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['user', 'category', 'serviceMedia']);
+            ->with(['user', 'category', 'serviceMedia'])
+            ->orderBy('created_at', 'desc');
     }
 
     public static function getPages(): array
