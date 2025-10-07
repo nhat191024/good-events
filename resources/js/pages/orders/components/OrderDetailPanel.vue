@@ -77,7 +77,7 @@ const reloadOrderDetails = debounce(() => {
                         <div v-if="props.applicants.length > 0" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
                         </div>
-                        <ApplicantCard :show-buttons="true" v-for="a in props.applicants" :key="a.id" v-bind="a" @confirm-choose-partner="emit('confirm-choose-partner',$event)"/>
+                        <ApplicantCard :show-buttons="props.order?.status != 'confirmed'" v-for="a in props.applicants" :key="a.id" v-bind="a" @confirm-choose-partner="emit('confirm-choose-partner',$event)"/>
                     </div>
                 </div>
                 <div v-else class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-5">
