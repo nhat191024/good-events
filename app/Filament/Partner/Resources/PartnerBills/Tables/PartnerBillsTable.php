@@ -73,7 +73,7 @@ class PartnerBillsTable
                     ->formatStateUsing(fn($state) => $state->label())
                     ->colors([
                         'primary' => PartnerBillStatus::PENDING,
-                        'success' => PartnerBillStatus::PAID,
+                        'success' => PartnerBillStatus::COMPLETED,
                         'danger' => PartnerBillStatus::CANCELLED,
                     ])
                     ->searchable()
