@@ -82,7 +82,7 @@ class RealtimePartnerBill extends Page
         }
 
         // Get category_id from partner services and load available categories in one go
-        $partnerServices = $user->partnerServices()->with('category')->get();
+        $partnerServices = $user->partnerServices()->with('category')->where('status', 'approved')->get();
         $this->categoryIds = $partnerServices->pluck('category_id')->toArray();
 
         // Build available categories from the already loaded data
