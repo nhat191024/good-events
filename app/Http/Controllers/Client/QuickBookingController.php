@@ -228,10 +228,10 @@ class QuickBookingController extends Controller
 
         $user = Auth::user();
         $address = $locationDetail . ', ' . $wardItem->name . ', ' . $provinceItem->name;
-        // $phone = $user->phone;
-        // $clientId = $user->id;
-        $phone = '0987765431';
-        $clientId = 1;
+        $phone = $user->phone;
+        $clientId = $user->id;
+        // $phone = '0987765431';
+        // $clientId = 1;
 
         $newBill = PartnerBill::create([
             'code' => 'PB' . rand(10000, 999999),
