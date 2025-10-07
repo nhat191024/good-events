@@ -52,11 +52,16 @@ class PartnerBillResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('partner_id', auth()->id())
             ->whereIn('status', [
                 PartnerBillStatus::PENDING,
                 PartnerBillStatus::CONFIRMED,
             ])
+            ->whereHas(
+                'details',
+                function (Builder $query) {
+                    $query->where('partner_id', auth()->id());
+                }
+            )
             ->with(['client', 'category', 'event']);
     }
 
