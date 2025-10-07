@@ -32,7 +32,7 @@ const filteredPartnerCategories = computed(() => {
 
 <template>
 
-    <Head title="Trang chủ - Sukientot" />
+    <Head class="font-lexend" title="Trang chủ - Sukientot" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
 
