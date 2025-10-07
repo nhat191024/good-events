@@ -6,6 +6,7 @@ import { computed } from 'vue';
 import { formatDate, formatTimeRange } from '@/lib/helper';
 import { Input } from '@/components/ui/input';
 import { getImg } from '@/pages/booking/helper';
+import { router } from '@inertiajs/core';
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
@@ -28,6 +29,10 @@ const getCurrentTitle = computed(() => {
 const emit = defineEmits<{
     (e: 'cancel-order'): void
 }>()
+
+function goToChat(){
+    router.get(route('chat.dashboard'));
+}
 
 </script>
 
@@ -120,8 +125,8 @@ const emit = defineEmits<{
                 <!-- actions -->
                 <div
                     class="flex gap-3 bg-white fixed bottom-1 md:bottom-3 w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
-                    <button v-if="props.mode === 'current'" disabled
-                        class="h-10 rounded-md bg-gray-500 text-white flex-1">Chat ngay</button>
+                    <button v-if="props.mode === 'current'" @click="goToChat()"
+                        class="h-10 rounded-md bg-primary-500 text-white flex-1">Chat ngay</button>
 
                     <button v-if="props.mode === 'current'" @click="emit('cancel-order')"
                         class="h-10 rounded-md border border-destructive text-destructive bg-transparent flex-1 hover:bg-destructive/5">
