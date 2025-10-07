@@ -1,4 +1,4 @@
-import { Event, Media, Metrics } from '@/types/database'
+import { Event, Metrics } from '@/types/database'
 
 export interface ClientOrderDetail {
     id: number
@@ -47,7 +47,8 @@ export interface Category {
     id: number
     name: string
     parent: ParentCategory
-    media: Pick<Media, 'file_name' | 'original_url' | 'mime_type'>[]
+    image?: string
+    // media: Pick<Media, 'file_name' | 'original_url' | 'mime_type'>[]
 }
 
 export interface ParentCategory {
@@ -83,3 +84,4 @@ export type OrderDetailsPayload =
 
 export type ClientOrderHistoryPayload = { data: ClientOrderHistory[]; meta?: any; links?: any }
 export type ClientOrderPayload = { data: ClientOrder[]; meta?: any; links?: any }
+export type SingleClientOrderPayload = { data: ClientOrder; meta?: any; links?: any }
