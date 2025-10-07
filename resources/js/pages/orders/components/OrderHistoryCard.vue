@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getImg } from '@/pages/booking/helper';
-import { ClientOrderHistory, OrderStatus } from '../types';
+import { ClientOrderHistory } from '../types';
 import { statusBadge } from '../helper';
 import { formatDate, formatPrice, formatTime } from '@/lib/helper';
 import { Star } from 'lucide-vue-next';
