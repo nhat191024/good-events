@@ -5,6 +5,7 @@ export interface ClientOrderDetail {
     total: number | null
     status: OrderDetailStatus
     created_at: string
+    updated_at: string
     partner?: Partner | null
 }
 
@@ -19,6 +20,7 @@ export interface ClientOrder {
     note: string
     status: OrderStatus
     created_at: string
+    updated_at: string
     category: Category
     event: Pick<Event, 'name'>
     partners: { count: number }
@@ -35,12 +37,13 @@ export interface ClientOrderHistory {
     note: string
     status: OrderStatus
     created_at: string
+    updated_at: string
     category: Category
     event: Pick<Event, 'name'>
     partner: Partner
 }
 
-export type OrderStatus = 'pending' | 'paid' | 'cancelled' | string
+export type OrderStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'expired' | string
 export type OrderDetailStatus = 'new' | 'closed' | string
 
 export interface Category {
@@ -48,7 +51,6 @@ export interface Category {
     name: string
     parent: ParentCategory
     image?: string
-    // media: Pick<Media, 'file_name' | 'original_url' | 'mime_type'>[]
 }
 
 export interface ParentCategory {
