@@ -44,11 +44,13 @@ export function debounce<T extends (...args: any[]) => void>(
 }
 
 export function statusBadge(status: OrderStatus) {
+    console.log('status: ',status);
+
     switch (status) {
         case 'pending':
-            return { text: 'Đang chờ', cls: 'bg-green-100 text-green-800 border border-green-200' }
-        case 'paid':
-            return { text: 'Hoàn Thành', cls: 'bg-blue-100 text-blue-800 border border-blue-200' }
+            return { text: 'Đang chờ', cls: 'bg-yellow-100 text-yellow-800 border border-yellow-200' }
+        case 'confirmed':
+            return { text: 'Đã chốt', cls: 'bg-blue-100 text-blue-800 border border-blue-200' }
         case 'expired':
             return { text: 'Hết hạn', cls: 'bg-orange-100 text-orange-800 border border-orange-200' }
         case 'completed':
@@ -56,7 +58,7 @@ export function statusBadge(status: OrderStatus) {
         case 'cancelled':
             return { text: 'Đã hủy', cls: 'bg-red-100 text-red-800 border border-red-200' }
         default:
-            return { text: 'Chờ duyệt', cls: 'bg-muted text-foreground border border-border' }
+            return { text: 'Không rõ', cls: 'bg-muted text-foreground border border-border' }
     }
 }
 
