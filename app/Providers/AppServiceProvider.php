@@ -39,8 +39,8 @@ class AppServiceProvider extends ServiceProvider
             },
         ]);
 
-        if ($this->app->environment('production') || $this->app->environment('testing')) {
-            URL::forceScheme('https');
-        }
+        // if ($this->app->environment('production') || $this->app->environment('testing')) {
+        //     URL::forceScheme('https');
+        // }
     }
 }
