@@ -53,7 +53,7 @@ class OrderController extends Controller
 
         $order = PartnerBill::query()
             ->where('id', $orderId)
-            // ->where('client_id', $request->user()->id)
+            ->where('client_id', $request->user()->id)
             ->with([
                 'category.media',
                 'category.parent.media',
@@ -71,7 +71,6 @@ class OrderController extends Controller
         if (!$billId) return null;
 
         $details = PartnerBillDetail::query()
-            // ->where('user_id', $request->user()->id)
             ->where('partner_bill_id', $billId)
             ->with([
                 'partner:id,name,avatar',
@@ -98,7 +97,7 @@ class OrderController extends Controller
         $page = max(1, (int) $request->query('history_page', 1));
 
         $bills = PartnerBill::query()
-            // ->where('user_id', $request->user()->id)
+            ->where('client_id', $request->user()->id)
             ->with([
                 'category.media',
                 'category.parent.media',
@@ -123,7 +122,7 @@ class OrderController extends Controller
                 'category.parent.media',
                 'event',
                 'details'
-            ])
+            ])->where('client_id', $request->user()->id)
             ->where('status', '=', PartnerBillStatus::PENDING)
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
