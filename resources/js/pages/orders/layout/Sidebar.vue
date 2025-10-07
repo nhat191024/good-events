@@ -30,16 +30,16 @@ const kw = ref('')
 const sortBy = ref<'newest' | 'oldest' | 'most-applicants' | 'highest-budget' | 'lowest-budget'>('newest')
 const sortByHistory = ref<'newest' | 'oldest' | 'highest-budget' | 'lowest-budget'>('newest')
 
-const statusFilter = ref<string[]>(['pending', 'paid', 'cancelled'])
+const statusFilter = ref<string[]>(['pending', 'confirmed', 'cancelled', 'completed', 'expired'])
 const locationsFilter = ref<string[]>([])
 
 function sortOrders(list: ClientOrder[]) {
     const klone = [...list]
     switch (sortBy.value) {
         case 'newest':
-            return klone.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+            return klone.sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))
         case 'oldest':
-            return klone.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at))
+            return klone.sort((a, b) => Date.parse(a.updated_at) - Date.parse(b.updated_at))
         case 'most-applicants':
             return klone.sort((a, b) => (b.partners.count || 0) - (a.partners.count || 0))
         case 'highest-budget':
@@ -55,9 +55,9 @@ function sortHistoryOrders(list: ClientOrderHistory[]) {
     const klone = [...list]
     switch (sortByHistory.value) {
         case 'newest':
-            return klone.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+            return klone.sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))
         case 'oldest':
-            return klone.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at))
+            return klone.sort((a, b) => Date.parse(a.updated_at) - Date.parse(b.updated_at))
         case 'highest-budget':
             return klone.sort((a, b) => (b.final_total || 0) - (a.final_total || 0))
         case 'lowest-budget':
@@ -205,8 +205,8 @@ const emit = defineEmits<{
                             <!-- <label class="text-xs text-muted-foreground">Sắp xếp theo</label> -->
                             <select v-model="sortBy"
                                 class="w-full h-9 rounded-md bg-white border border-gray-200 px-3 text-sm">
-                                <option value="newest">Mới nhất</option>
-                                <option value="oldest">Cũ nhất</option>
+                                <option value="newest">Gần đây</option>
+                                <option value="oldest">Cũ hơn</option>
                                 <option v-if="activeTab == 'current'" value="most-applicants">Nhiều ứng viên nhất
                                 </option>
                                 <option value="highest-budget">Ngân sách cao nhất</option>
@@ -222,7 +222,7 @@ const emit = defineEmits<{
                                     Đang chờ
                                 </label>
                                 <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" class="size-4" value="paid" v-model="statusFilter">
+                                    <input type="checkbox" class="size-4" value="confirmed" v-model="statusFilter">
                                     Đã chốt
                                 </label>
                             </div>
@@ -277,20 +277,24 @@ const emit = defineEmits<{
 
                         <select v-model="sortByHistory"
                             class="w-full h-9 rounded-md bg-white border border-gray-200 px-3 text-sm">
-                            <option value="newest">Mới nhất</option>
-                            <option value="oldest">Cũ nhất</option>
+                            <option value="newest">Gần đây</option>
+                            <option value="oldest">Cũ hơn</option>
                             <option value="highest-budget">Ngân sách cao nhất</option>
                             <option value="lowest-budget">Ngân sách thấp nhất</option>
                         </select>
 
                         <div class="flex flex-row space-x-4">
                             <label class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" class="size-4" value="paid" v-model="statusFilter" />
+                                <input type="checkbox" class="size-4" value="completed" v-model="statusFilter" />
                                 Hoàn thành
                             </label>
                             <label class="flex items-center gap-2 text-sm">
                                 <input type="checkbox" class="size-4" value="cancelled" v-model="statusFilter" />
                                 Đã hủy
+                            </label>
+                            <label class="flex items-center gap-2 text-sm">
+                                <input type="checkbox" class="size-4" value="expired" v-model="statusFilter" />
+                                Hết hạn
                             </label>
                         </div>
                     </div>
