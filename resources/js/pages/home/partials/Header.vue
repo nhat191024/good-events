@@ -20,7 +20,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <header :class="`${backgroundClassNames || ''}`">
-        <div class="sm:px-6 lg:px-8">
+        <div class="sm:px-6 lg:px-8 mx-auto max-w-7xl">
             <div class="flex items-center justify-between h-16">
                 <!-- LEFT: hamburger + logo -->
                 <div class="flex items-center gap-3">
@@ -39,7 +39,7 @@ withDefaults(defineProps<Props>(), {
                     <img src="/images/logo.png" alt="Sukientot"
                         class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
                     <span
-                        class="text-base sm:text-lg font-extrabold tracking-tight text-black uppercase">SUKIENTOT.COM</span>
+                        class="text-base sm:text-lg font-bold tracking-tight text-black uppercase">SUKIENTOT.COM</span>
                     </Link>
                 </div>
 
@@ -52,7 +52,7 @@ withDefaults(defineProps<Props>(), {
                                 d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
                                 fill="currentColor" />
                         </svg>
-                        <span>Dành cho nhân sự</span>
+                        <span class="font-lexend">Trang Đối tác</span>
                     </a>
                 </div>
 
