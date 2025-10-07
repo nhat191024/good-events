@@ -15,9 +15,8 @@
 
 <template>
     <div class="flex flex-col h-screen bg-background bg-white">
-        <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
-
-            <div class="flex flex-1 overflow-hidden">
+        <ClientAppHeaderLayout>
+            <div class="flex flex-1 overflow-hidden w-full">
                 <!-- sidebar -->
                 <div :class="sidebarClass">
                     <ChatSidebar :selected-chat-id="selectedChatId" @select="(id) => (selectedChatId = id)"
@@ -38,7 +37,6 @@
                     </div>
                 </div>
             </div>
-
         </ClientAppHeaderLayout>
     </div>
 </template>

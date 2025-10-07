@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 //! commented out for development only, users have to be logged in to access these routes
-// Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::prefix("don-hang-cua-toi")->name('client-orders.')->group(function () {
         Route::get(
             '/',
@@ -33,4 +33,4 @@ use Inertia\Inertia;
             [OrderController::class, 'submitReview']
         )->name('submit-review');
     });
-// });
+});

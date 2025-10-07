@@ -133,7 +133,7 @@ class PartnerBillMailService
         $tomorrow = Carbon::now()->addDay();
         $dayAfterTomorrow = Carbon::now()->addDays(2);
 
-        return PartnerBill::where('status', \App\Enum\PartnerBillStatus::PAID)
+        return PartnerBill::where('status', \App\Enum\PartnerBillStatus::COMPLETED)
             ->whereBetween('date', [$tomorrow->startOfDay(), $dayAfterTomorrow->startOfDay()])
             ->with(['client', 'partner', 'event', 'category'])
             ->get();

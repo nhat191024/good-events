@@ -3,6 +3,7 @@
 namespace App\Filament\Partner\Resources\PartnerBills;
 
 use App\Models\PartnerBill;
+use App\Enum\PartnerBillStatus;
 
 use BackedEnum;
 use UnitEnum;
@@ -52,7 +53,10 @@ class PartnerBillResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('partner_id', auth()->id())
-            ->where('status', 'pending')
+            ->whereIn('status', [
+                PartnerBillStatus::PENDING,
+                PartnerBillStatus::CONFIRMED,
+            ])
             ->with(['client', 'category', 'event']);
     }
 

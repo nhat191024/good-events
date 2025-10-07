@@ -53,7 +53,7 @@ class OrderController extends Controller
 
         $order = PartnerBill::query()
             ->where('id', $orderId)
-            // ->where('client_id', $request->user()->id)
+            ->where('client_id', $request->user()->id)
             ->with([
                 'category.media',
                 'category.parent.media',
@@ -71,7 +71,6 @@ class OrderController extends Controller
         if (!$billId) return null;
 
         $details = PartnerBillDetail::query()
-            // ->where('user_id', $request->user()->id)
             ->where('partner_bill_id', $billId)
             ->with([
                 'partner:id,name,avatar',
@@ -98,7 +97,7 @@ class OrderController extends Controller
         $page = max(1, (int) $request->query('history_page', 1));
 
         $bills = PartnerBill::query()
-            // ->where('user_id', $request->user()->id)
+            ->where('client_id', $request->user()->id)
             ->with([
                 'category.media',
                 'category.parent.media',
@@ -106,7 +105,11 @@ class OrderController extends Controller
                 'partner.statistics',
                 'partner.partnerProfile'
             ])
-            ->where('status', '!=', PartnerBillStatus::PENDING)
+            ->whereIn('status', [
+                PartnerBillStatus::COMPLETED,
+                PartnerBillStatus::EXPIRED,
+                PartnerBillStatus::CANCELLED,
+            ])
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'history_page', $page);
 
@@ -123,8 +126,11 @@ class OrderController extends Controller
                 'category.parent.media',
                 'event',
                 'details'
+            ])->where('client_id', $request->user()->id)
+            ->whereIn('status', [
+                PartnerBillStatus::PENDING,
+                PartnerBillStatus::CONFIRMED,
             ])
-            ->where('status', '=', PartnerBillStatus::PENDING)
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
@@ -148,6 +154,7 @@ class OrderController extends Controller
         $billDetail = PartnerBill::findOrFail($bill_id)->details()->where('partner_id', $user_id)->first();
         $bill = PartnerBill::findOrFail($bill_id);
         $bill->partner_id = $billDetail->partner_id;
+        $bill->status = PartnerBillStatus::CONFIRMED;
         $billDetail->status = PartnerBillDetailStatus::CLOSED;
         $billDetail->save();
         $bill->save();

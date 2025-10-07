@@ -118,7 +118,8 @@ class CalendarPage extends Page
     {
         return match ($status->value) {
             'pending' => '#f59e0b', // amber
-            'paid' => '#10b981',    // emerald
+            'completed' => '#10b981',    // emerald
+            'confirmed' => '#FFC000',    // yellow
             'cancelled' => '#ef4444', // red
             default => '#6b7280'    // gray
         };
@@ -131,8 +132,10 @@ class CalendarPage extends Page
     {
         return match ($status->value) {
             'pending' => __('partner/calendar.status_pending'),
-            'paid' => __('partner/calendar.status_paid'),
+            'completed' => __('partner/calendar.status_completed'),
+            'confirmed' => __('partner/calendar.status_confirmed'),
             'cancelled' => __('partner/calendar.status_cancelled'),
+            'expired' => __('partner/calendar.status_expired'),
             default => __('partner/calendar.status_unknown')
         };
     }

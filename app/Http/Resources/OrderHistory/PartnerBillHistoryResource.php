@@ -10,7 +10,7 @@ class PartnerBillHistoryResource extends JsonResource
 {
     public function toArray(Request $request)
     {
-        $expireAt = now()->addMinutes(5);
+        $expireAt = now()->addMinutes(60*24);
 
         return [
             "id" => $this->id,
@@ -23,6 +23,7 @@ class PartnerBillHistoryResource extends JsonResource
             "note" => $this->note,
             "status" => $this->status,
             "created_at" => $this->created_at,
+            "updated_at" => $this->updated_at,
             "category" => $this->whenLoaded('category', function () use ($expireAt) {
                 $cat = $this->category;
                 return [

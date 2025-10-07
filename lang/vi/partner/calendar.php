@@ -14,7 +14,8 @@ return [
 
     // Status labels
     'status_pending' => 'Đang chờ',
-    'status_paid' => 'Đã thanh toán',
+    'status_completed' => 'Đã hoàn thành',
+    'status_confirmed' => 'Đã chốt',
     'status_cancelled' => 'Đã hủy',
     'status_unknown' => 'Không xác định',
 

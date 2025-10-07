@@ -26,7 +26,9 @@ class PartnerBillInfolist
                                     ->formatStateUsing(fn($state) => $state->label())
                                     ->colors([
                                         'primary' => PartnerBillStatus::PENDING,
-                                        'success' => PartnerBillStatus::PAID,
+                                        'success' => PartnerBillStatus::COMPLETED,
+                                        'warning' => PartnerBillStatus::CONFIRMED,
+                                        'danger' => PartnerBillStatus::EXPIRED,
                                         'danger' => PartnerBillStatus::CANCELLED,
                                     ]),
                             ]),

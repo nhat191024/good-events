@@ -41,7 +41,9 @@ return [
 
     'status' => 'Trạng thái',
     'status_pending' => 'Chờ xử lý',
-    'status_paid' => 'Đã thanh toán',
+    'status_confirmed' => 'Đã chốt',
+    'status_completed' => 'Đã hoàn thành',
+    'status_expired' => 'Đã hết hạn',
     'status_cancelled' => 'Đã hủy',
 
     // View page sections

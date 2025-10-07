@@ -72,7 +72,7 @@ class PartnerBillsTable
                     ->color(fn($state) => match ($state) {
                         PartnerBillStatus::PENDING => 'warning',
                         PartnerBillStatus::CANCELLED => 'danger',
-                        PartnerBillStatus::PAID => 'success',
+                        PartnerBillStatus::COMPLETED => 'success',
                         default => 'secondary',
                     })
                     ->badge(),
