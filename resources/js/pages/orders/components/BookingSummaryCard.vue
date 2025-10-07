@@ -7,6 +7,7 @@ import { formatDate, formatTimeRange } from '@/lib/helper';
 import { Input } from '@/components/ui/input';
 import { getImg } from '@/pages/booking/helper';
 import { router } from '@inertiajs/core';
+import { statusBadge } from '../helper';
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
@@ -31,6 +32,7 @@ const emit = defineEmits<{
 }>()
 
 function goToChat(){
+    if (props.order?.status !== 'confirmed') return
     router.get(route('chat.dashboard'));
 }
 
@@ -43,24 +45,16 @@ function goToChat(){
             <div class="text-center mb-3 md:mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-3">
                     <img :src="getImg(props.order?.category.image)"
-                        alt="Traditional Vietnamese scholar" class="w-12 h-12 object-contain rounded-full" />
+                        alt="Traditional Vietnamese scholar" class="w-[95%] h-full object-cover rounded-full border" />
                 </div>
                 <h3 class="text-xl font-bold text-foreground mb-1" v-text="getCurrentTitle"></h3>
                 <div v-if="props.order?.status"
                     class="inline-flex items-center justify-center px-3 py-1 mb-2 rounded-full text-xs font-medium"
-                    :class="{
-                        'bg-yellow-100 text-yellow-800 border border-yellow-200': props.order.status === 'pending',
-                        'bg-blue-100 text-blue-800 border border-blue-200': props.order.status === 'paid',
-                        'bg-red-100 text-red-800 border border-red-200': props.order.status === 'cancelled',
-                        'bg-gray-100 text-gray-700 border border-gray-200': !['pending', 'paid', 'cancelled'].includes(props.order.status)
-                    }">
-                    <span v-if="props.order.status === 'pending'">Đang chờ xử lý</span>
-                    <span v-else-if="props.order.status === 'paid'">Đã hoàn thành</span>
-                    <span v-else-if="props.order.status === 'cancelled'">Đã hủy</span>
-                    <span v-else>{{ props.order.status }}</span>
+                    :class="statusBadge(props.order?.status).cls">
+                    <span>{{ statusBadge(props.order?.status).text }}</span>
                 </div>
-                <p class="text-sm text-muted-foreground">Bạn đã chọn đối tác '{{ props.order?.category?.parent?.name ??
-                    '' }} - {{ props.order?.category?.name ?? '' }}'
+                <p class="text-sm text-muted-foreground">
+                    Bạn đã chọn đối tác '{{ props.order?.category?.parent?.name ?? '' }} - {{ props.order?.category?.name ?? '' }}'
                 </p>
             </div>
 
@@ -78,8 +72,9 @@ function goToChat(){
                         <Clock class="h-5 w-5 text-muted-foreground" />
                         <div>
                             <div class="text-xs text-muted-foreground">Thời gian</div>
-                            <div class="text-sm md:text-md font-medium">{{ formatTimeRange(props.order?.start_time ??
-                                '', props.order?.end_time ?? '')}}</div>
+                            <div class="text-sm md:text-md font-medium">
+                                {{ formatTimeRange(props.order?.start_time ?? '', props.order?.end_time ?? '')}}
+                                </div>
                         </div>
                     </div>
 
@@ -103,8 +98,9 @@ function goToChat(){
                 <div class="space-y-3 mb-8">
                     <div>
                         <div class="text-xs text-muted-foreground mb-2">Ghi chú đặc biệt</div>
-                        <span class="text-sm px-3 py-1 rounded border border-border">{{ props.order?.note ?? 'Không'
-                            }}</span>
+                        <span class="text-sm px-3 py-1 rounded border border-border">
+                            {{ props.order?.note ?? 'Không' }}
+                        </span>
                     </div>
                     <div v-if="props.mode === 'current'">
                         <div class="text-xs text-muted-foreground mb-2">Mã Voucher giảm giá (Áp dụng vào giá của ứng
@@ -125,11 +121,12 @@ function goToChat(){
                 <!-- actions -->
                 <div
                     class="flex gap-3 bg-white fixed bottom-1 md:bottom-3 w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
-                    <button v-if="props.mode === 'current'" @click="goToChat()"
-                        class="h-10 rounded-md bg-primary-500 text-white flex-1">Chat ngay</button>
+                    <button v-if="(props.mode === 'current')" @click="goToChat()"
+                        :class="(props.order?.status == 'confirmed') ? 'bg-primary-500 cursor-pointer': 'bg-gray-500 cursor-not-allowed'"
+                        class="h-10 rounded-md text-white flex-1">Chat ngay</button>
 
-                    <button v-if="props.mode === 'current'" @click="emit('cancel-order')"
-                        class="h-10 rounded-md border border-destructive text-destructive bg-transparent flex-1 hover:bg-destructive/5">
+                    <button v-if="(props.mode === 'current')" @click="emit('cancel-order')"
+                        class="h-10 cursor-pointer rounded-md border border-destructive text-destructive bg-transparent flex-1 hover:bg-destructive/5">
                         Hủy đơn
                     </button>
                 </div>
