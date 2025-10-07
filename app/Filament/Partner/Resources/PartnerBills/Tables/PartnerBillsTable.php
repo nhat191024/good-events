@@ -27,8 +27,7 @@ class PartnerBillsTable
                     ->searchable(),
                 TextColumn::make('client.name')
                     ->label(__('partner/bill.client'))
-                    ->searchable()
-                    ->toggleable(),
+                    ->searchable(),
                 TextColumn::make('category.name')
                     ->label(__('partner/bill.category'))
                     ->searchable()
@@ -40,14 +39,12 @@ class PartnerBillsTable
                 TextColumn::make('date')
                     ->label(__('partner/bill.date'))
                     ->date('d/m/Y')
-                    ->sortable()
-                    ->toggleable(),
+                    ->sortable(),
                 TextColumn::make('start_time')
                     ->label(__('partner/bill.start_time'))
                     ->badge()
                     ->color('success')
-                    ->time()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->time(),
                 TextColumn::make('end_time')
                     ->label(__('partner/bill.end_time'))
                     ->badge()
