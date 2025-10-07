@@ -5,6 +5,7 @@ import PartnerServiceCard from './components/PartnerServiceCard.vue'
 import PartnerIntroCard from './components/PartnerIntroCard.vue'
 import PartnerReviewsCard from './components/PartnerReviewsCard.vue'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
+import { Head } from '@inertiajs/vue3'
 
 interface UserInfo {
     id: number; name: string; avatar_url: string; location: string | null;
@@ -26,6 +27,7 @@ const props = defineProps<Props>();
 </script>
 
 <template>
+    <Head :title="'Hồ sơ đối tác - '+ user.name"/>
     <ClientHeaderLayout>
         <div class="min-h-screen w-full bg-gray-50">
             <!-- Banner (match client profile spacing) -->
