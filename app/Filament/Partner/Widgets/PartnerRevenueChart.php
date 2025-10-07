@@ -40,7 +40,7 @@ class PartnerRevenueChart extends ChartWidget
 
             // Lấy tất cả dữ liệu doanh thu trong 12 tháng bằng 1 query duy nhất
             $revenueData = PartnerBill::where('partner_id', $user->id)
-                ->where('status', PartnerBillStatus::PAID)
+                ->where('status', PartnerBillStatus::COMPLETED)
                 ->where('created_at', '>=', $startDate)
                 ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(final_total) as total_revenue')
                 ->groupBy('year', 'month')
