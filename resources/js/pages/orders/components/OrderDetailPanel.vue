@@ -71,8 +71,8 @@ const reloadOrderDetails = debounce(() => {
             </div>
 
             <template v-if="order">
-                <div v-if="props.mode === 'current'" class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-5">
-                    <div class="grid gap-2 md:gap-6">
+                <div v-if="props.mode === 'current'" class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-3">
+                    <div class="grid gap-2 md:gap-3">
                         <p v-text="description" class="text-secondary text-sm md:text-md"></p>
                         <div v-if="props.applicants.length > 0" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
@@ -81,7 +81,7 @@ const reloadOrderDetails = debounce(() => {
                     </div>
                 </div>
                 <div v-else class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-5">
-                    <div class="grid gap-2 md:gap-6">
+                    <div class="grid gap-2 md:gap-3">
                         <p v-text="description" class="text-secondary text-sm md:text-md"></p>
                         <div v-if="bookedPartner" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
