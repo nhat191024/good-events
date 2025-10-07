@@ -110,6 +110,5 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
         return Inertia::location(route('filament.partner.auth.login'));
-
     }
 }
