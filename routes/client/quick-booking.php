@@ -4,7 +4,7 @@ use App\Http\Controllers\Client\QuickBookingController;
 use Illuminate\Support\Facades\Route;
 
 //! commented out for development only, users have to be logged in to access these routes
-// Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
     Route::prefix("dat-show")->name('quick-booking.')->group(
         function () {
             Route::get(
@@ -35,4 +35,4 @@ use Illuminate\Support\Facades\Route;
             )->name('finish');
         }
     );
-// });
+});
