@@ -1,7 +1,7 @@
 <!-- resources/js/pages/partner-categories/Show.vue -->
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
 interface Item {
@@ -56,6 +56,7 @@ const breadcrumbs = computed(() => {
 </script>
 
 <template>
+    <Head :title="(props.item.name)+(' - Sự kiện - ')+(props.category?.name ?? '')" />
     <ClientHeaderLayout>
         <div class="min-h-screen bg-white">
             <!-- Breadcrumb (compact) -->
@@ -83,7 +84,7 @@ const breadcrumbs = computed(() => {
                         <div
                             class="aspect-square w-full rounded-2xl bg-gray-50 ring-1 ring-gray-200 overflow-hidden flex items-center justify-center">
                             <img :src="props.item.image || placeholderImg" :alt="props.item.name"
-                                class="w-3/4 h-3/4 object-contain" />
+                                class="w-full h-full object-cover" />
                         </div>
                         <div class="mt-2 flex items-center gap-2">
                             <div v-for="n in 5" :key="n" class="w-10 h-10 rounded-md bg-gray-100 ring-1 ring-gray-200">
@@ -193,7 +194,7 @@ const breadcrumbs = computed(() => {
                         <div
                             class="aspect-square w-full rounded-2xl bg-gray-50 ring-1 ring-gray-200 overflow-hidden flex items-center justify-center shadow-md">
                             <img :src="r.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=ED3B50&color=ffffff&size=256`"
-                                :alt="r.name" class="w-2/3 h-2/3 object-contain" />
+                                :alt="r.name" class="w-full h-full object-cover" />
                         </div>
                         <div class="mt-2 text-sm font-medium text-gray-900 group-hover:text-[#ED3B50] line-clamp-1">{{
                             r.name }}
