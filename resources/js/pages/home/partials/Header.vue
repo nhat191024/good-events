@@ -8,7 +8,7 @@ interface Props {
 }
 
 const page = usePage()
-const user = page.props.auth.user
+const user = page.props.auth?.user
 
 withDefaults(defineProps<Props>(), {
     // showBannerBackground: () => true,
