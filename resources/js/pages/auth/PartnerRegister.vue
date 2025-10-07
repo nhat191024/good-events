@@ -165,7 +165,7 @@ function submit() {
                 <FormGroupLayout>
                     <FormItemLayout :for-id="'event-order-location-province'" :label="'Tỉnh thành'">
                         <SelectBox :id="'event-order-location-province'" v-model="location.provinceId"
-                            :options="provinceList" placeholder="Chọn Tỉnh thành..." />
+                            :options="provinceList" placeholder="Chọn Khu vực hoạt động của bạn..." />
                     </FormItemLayout>
                 </FormGroupLayout>
 
