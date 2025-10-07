@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '@/components/Icon.vue';
 import { debounce } from '@/pages/orders/helper';
 import { ref, watch, onMounted } from 'vue';
 
@@ -27,11 +28,11 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="bg-white rounded-xl w-full px-2 md:p-4">
+    <div class="bg-white rounded-xl w-full max-w-6xl px-2 md:px-4 py-2">
         <div class="flex items-stretch gap-2">
             <div class="flex-1 min-w-0 flex items-center gap-2 px-3 md:px-4">
-                <span aria-hidden="true">🔍</span>
-                <input v-model="q" type="text" placeholder="Tìm sản phẩm…"
+                <Icon :name="'search'"/>
+                <input v-model="q" type="text" placeholder="Tìm kiếm..."
                     class="bg-transparent flex-1 min-w-0 py-1 outline-none placeholder:text-gray-400" />
             </div>
             <button v-if="showSearchBtn"
