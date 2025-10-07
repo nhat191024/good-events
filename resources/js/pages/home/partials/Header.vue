@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
+import DropdownMenu from './DropdownMenu.vue';
+import HamburgerMenu from './HamburgerMenu.vue';
 
 interface Props {
     // showBannerBackground?: boolean;
@@ -16,6 +18,12 @@ withDefaults(defineProps<Props>(), {
     backgroundClassNames: () => 'bg-white', // default color
 });
 
+const menuItems = [
+    { name: 'Chú hề', slug: 'home', route: null },
+    { name: 'MC', slug: 'about', route: null },
+    { name: 'Liên hệ', slug: 'contact', route: null }
+];
+
 </script>
 
 <template>
@@ -25,14 +33,7 @@ withDefaults(defineProps<Props>(), {
                 <!-- LEFT: hamburger + logo -->
                 <div class="flex items-center gap-3">
                     <!-- Hamburger (tròn trắng, đổ bóng nhẹ) -->
-                    <Link :href="route('client-orders.dashboard')" aria-label="Mở menu"
-                        class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md hover:shadow transition">
-                        <span class="sr-only">Menu</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" />
-                        </svg>
-                    </Link>
+                    <HamburgerMenu :menu-items="menuItems" />
 
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center gap-2">
@@ -83,24 +84,7 @@ withDefaults(defineProps<Props>(), {
                     <span class="hidden sm:inline">Đặt show nhanh</span>
                     </Link>
 
-                    <!-- Account button group: tròn user + chevron nhỏ (giống ảnh) -->
-                    <Link :href="route('profile.client.show', {user: user?.id ?? 1})" class="flex items-center gap-0 bg-[#ED3B50] rounded-full px-2.5 py-0.5 hover:bg-[#d93a4a]">
-                        <button type="button" aria-label="Tài khoản"
-                            class="h-9 w-9 rounded-full  text-white grid place-items-center shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] transition">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                <path
-                                    d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
-                                    fill="currentColor" />
-                            </svg>
-                        </button>
-                        <div>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                        </div>
-
-                    </Link>
+                    <DropdownMenu />
                 </div>
             </div>
         </div>
