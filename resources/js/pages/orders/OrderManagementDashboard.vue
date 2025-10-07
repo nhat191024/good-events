@@ -384,7 +384,10 @@ let pollInterval: number | undefined
 
 onMounted(() => {
     initOrders()
-    pollInterval = window.setInterval(pollForUpdates, 64_000)
+    pollInterval = window.setInterval(()=>{
+        pollForUpdates()
+        refreshDetails(selectedOrder.value?.id ?? undefined)
+    }, 64_000)
 })
 
 onBeforeUnmount(() => {
