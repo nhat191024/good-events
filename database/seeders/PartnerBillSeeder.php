@@ -77,7 +77,7 @@ class PartnerBillSeeder extends Seeder
             // decide outcome: 50% paid, 20% cancelled, 30% stay pending
             $roll = rand(1, 100);
             if ($roll <= 50) {
-                $bill->update(['status' => PartnerBillStatus::PAID->value]);
+                $bill->update(['status' => PartnerBillStatus::COMPLETED->value]);
             } elseif ($roll <= 70) {
                 $bill->update(['status' => PartnerBillStatus::CANCELLED->value]);
             }
