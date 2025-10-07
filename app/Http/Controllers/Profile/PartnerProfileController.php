@@ -13,7 +13,7 @@ class PartnerProfileController extends Controller
     {
         $key = "profile:partner:{$user->id}";
 
-        $payload = Cache::remember($key, now()->addMinutes(10), function () use ($user) {
+        $payload = Cache::remember($key, now()->addMinutes(60*24), function () use ($user) {
             // --- Stats ---
             $stats = $user->statistics()->get()->keyBy('metrics_name');
             return [
