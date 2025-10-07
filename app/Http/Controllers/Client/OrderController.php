@@ -105,7 +105,11 @@ class OrderController extends Controller
                 'partner.statistics',
                 'partner.partnerProfile'
             ])
-            ->where('status', '!=', PartnerBillStatus::PENDING)
+            ->whereIn('status', [
+                PartnerBillStatus::COMPLETED,
+                PartnerBillStatus::EXPIRED,
+                PartnerBillStatus::CANCELLED,
+            ])
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'history_page', $page);
 
@@ -123,7 +127,10 @@ class OrderController extends Controller
                 'event',
                 'details'
             ])->where('client_id', $request->user()->id)
-            ->where('status', '=', PartnerBillStatus::PENDING)
+            ->whereIn('status', [
+                PartnerBillStatus::PENDING,
+                PartnerBillStatus::CONFIRMED,
+            ])
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
@@ -147,6 +154,7 @@ class OrderController extends Controller
         $billDetail = PartnerBill::findOrFail($bill_id)->details()->where('partner_id', $user_id)->first();
         $bill = PartnerBill::findOrFail($bill_id);
         $bill->partner_id = $billDetail->partner_id;
+        $bill->status = PartnerBillStatus::CONFIRMED;
         $billDetail->status = PartnerBillDetailStatus::CLOSED;
         $billDetail->save();
         $bill->save();
