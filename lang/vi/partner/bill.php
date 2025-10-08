@@ -79,4 +79,11 @@ return [
     'price_numeric' => 'Giá tiền phải là số',
     'price_min' => 'Giá tiền phải lớn hơn 0',
     'formatted_price' => 'Số tiền đã định dạng',
+
+    // Complete order translations
+    'complete_order' => 'Hoàn thành đơn',
+    'complete_order_confirm_title' => 'Xác nhận hoàn thành đơn hàng',
+    'complete_order_confirm_description' => 'Bạn có chắc chắn muốn đánh dấu đơn hàng này là đã hoàn thành? Hành động này không thể hoàn tác.',
+    'confirm_complete' => 'Xác nhận hoàn thành',
+    'order_completed_success' => 'Đơn hàng đã được hoàn thành thành công',
 ];
