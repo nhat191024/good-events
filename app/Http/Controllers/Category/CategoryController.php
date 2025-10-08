@@ -70,7 +70,7 @@ class CategoryController extends Controller
 
             return Inertia::render('categories/Parent', $payload);
         } else {
-            dd("Slug này chưa tích hợp");
+            // dd("Slug này chưa tích hợp");
         }
     }
 }

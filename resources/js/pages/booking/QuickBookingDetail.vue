@@ -18,6 +18,19 @@
     import { getImg } from './helper';
 
     const pageProps = usePage().props
+
+    type PartnerBillForm = {
+        order_date: Date | null
+        start_time: string
+        end_time: string
+        province_id: string | null
+        ward_id: string | null
+        event_id: string | null
+        category_id: number | null
+        location_detail: string | number | undefined
+        note: string
+    }
+
     // parent
     const partnerCategory = pageProps.partnerCategory as PartnerCategory
     const partnerChildrenCategory = pageProps.partnerChildrenCategory as PartnerCategory
@@ -25,6 +38,20 @@
     const provinceListProp = pageProps.provinces as Province[]
     const eventList = [{ name: 'DS nội dung sự kiện', children: eventListProp.map(event => ({ name: event.name, value: String(event.id) })) }]
     const provinceList = [{ name: 'Chọn tỉnh thành', children: provinceListProp.map(province => ({ name: province.name, value: String(province.id) })) }]
+
+    const LS_KEY = `quick-booking:partner-form:ls`
+
+    const initial : PartnerBillForm = JSON.parse(localStorage.getItem(LS_KEY) || 'null') ?? {
+        order_date: null,
+        start_time: '',
+        end_time: '',
+        province_id: null,
+        ward_id: null,
+        event_id: null,
+        category_id: null,
+        location_detail: '',
+        note: '',
+    }
 
     const location = reactive({
         provinceId: null as string | null,
@@ -74,27 +101,15 @@
     const title = 'Điền thông tin thuê chi tiết'
     const subtitle = `Bạn đã chọn đối tác '${partnerCategory.name}' - Cụ thể là '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin dưới đây nhé`
 
-    const form = useForm<{
-        order_date: Date | null
-        start_time: string
-        end_time: string
-        province_id: string | null
-        ward_id: string | null
-        event_id: string | null
-        category_id: number | null
-        location_detail: string | number | undefined
-        note: string
-    }>({
-        order_date: null,
-        start_time: '',
-        end_time: '',
-        province_id: null,
-        ward_id: null,
-        location_detail: '',
-        note: '',
-        event_id: null,
-        category_id: null,
-    })
+    const form = useForm<PartnerBillForm>(initial)
+
+    watch(() => form.data(), (val) => {
+        try {
+            localStorage.setItem(LS_KEY, JSON.stringify(val))
+        } catch (e) {
+            console.error('cannot write ls', e)
+        }
+    }, { deep: true })
 
     function submit() {
         form.transform(() => ({
@@ -114,6 +129,7 @@
                 showLoading({ title: 'Đang tải', message: 'Đợi xíu nhé' })
             },
             onSuccess: () => {
+                clearStorage()
                 form.reset()
             },
             onFinish: () => {
@@ -125,7 +141,7 @@
     async function onGoBack() {
         const ok = await confirm({
             title: 'Chọn lại kiểu đối tác?',
-            message: 'Bạn có chắc muốn chọn lại? Thông tin đã nhập sẽ không được lưu.',
+            message: 'Thông tin đã nhập <b>sẽ được lưu lại</b>!',
             okText: 'Đồng ý!',
             cancelText: 'Không, tôi ổn'
         })
@@ -133,6 +149,11 @@
         if (ok) {
             window.history.back()
         }
+    }
+
+    function clearStorage() {
+        localStorage.removeItem(LS_KEY)
+        form.reset('order_date','start_time','end_time','province_id','ward_id','event_id','category_id','location_detail','note')
     }
 </script>
 

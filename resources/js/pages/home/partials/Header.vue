@@ -28,45 +28,28 @@ const menuItems = [
 
 <template>
     <header :class="`${backgroundClassNames || ''}`">
-        <div class="sm:px-6 lg:px-8 mx-auto max-w-7xl">
-            <div class="flex items-center justify-between h-16">
-                <!-- LEFT: hamburger + logo -->
+        <div class="sm:px-4 lg:px-8 mx-auto">
+            <div class="flex items-center justify-between h-16 pl-3 pr-3">
                 <div class="flex items-center gap-3">
-                    <!-- Hamburger (tròn trắng, đổ bóng nhẹ) -->
-                    <HamburgerMenu :menu-items="menuItems" />
+                    <!-- <HamburgerMenu :menu-items="menuItems" /> -->
 
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center gap-2">
                     <img src="/images/logo.png" alt="Sukientot"
                         class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
                     <span
-                        class="text-base sm:text-lg font-bold tracking-tight text-black uppercase">SUKIENTOT.COM</span>
+                        class="font-bold tracking-tight text-black uppercase text-sm md:text-md">SUKIENTOT.COM</span>
                     </Link>
                 </div>
 
-                <div>
-                    <!-- Dành cho nhân sự (icon + text đậm) -->
-                    <a :href="route('filament.partner.pages.dashboard')"
-                        class="hidden lg:flex items-center gap-2 text-black font-semibold">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="opacity-90">
-                            <path
-                                d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
-                                fill="currentColor" />
-                        </svg>
-                        <span class="font-lexend">Trang Đối tác</span>
-                    </a>
-                </div>
-
-                <!-- CENTER: “Dành cho nhân sự” + nav -->
                 <div class="hidden md:flex items-center gap-8">
-
 
                     <!-- Nav items (đậm, hover không đổi kích thước) -->
                     <nav class="flex items-center gap-6">
                         <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Sự Kiện</Link>
                         <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Vật Tư</Link>
                         <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
-                        <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Khách sạn</Link>
+                        <Link :href="'#'" class="font-semibold text-black hover:text-black/80 hidden md:block">Khách sạn</Link>
                     </nav>
                 </div>
 

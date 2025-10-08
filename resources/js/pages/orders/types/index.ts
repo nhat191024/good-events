@@ -49,6 +49,8 @@ export type OrderDetailStatus = 'new' | 'closed' | string
 export interface Category {
     id: number
     name: string
+    max_price: number
+    min_price: number
     parent: ParentCategory
     image?: string
 }

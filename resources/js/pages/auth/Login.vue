@@ -64,6 +64,10 @@ defineProps<{
                 Chưa có tài khoản?
                 <TextLink :href="route('register')" :tabindex="5">Đăng ký</TextLink>
             </div>
+            <div class="text-sm text-center text-muted-foreground">
+                Bạn là đối tác?
+                <a href="/partner/login" class="underline text-gray-800 underline-offset-4"> Đăng nhập đối tác </a>
+            </div>
             <hr>
             <div class="text-sm text-center text-muted-foreground">
                 Hoặc, bạn đang tìm việc?
