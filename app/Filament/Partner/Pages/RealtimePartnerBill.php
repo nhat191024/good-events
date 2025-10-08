@@ -63,6 +63,11 @@ class RealtimePartnerBill extends Page
 
     public $priceInput = '';
 
+    // Client detail modal properties
+    public $showClientModal = false;
+
+    public $selectedClient = null;
+
     public function mount(): void
     {
         $this->partnerId = auth()->id();
@@ -81,23 +86,35 @@ class RealtimePartnerBill extends Page
             return;
         }
 
-        // Get category_id from partner services and load available categories in one go
-        $partnerServices = $user->partnerServices()->with('category')->where('status', 'approved')->get();
-        $this->categoryIds = $partnerServices->pluck('category_id')->toArray();
+        // Get category_id from partner services - load categories only once for both purposes
+        $partnerServices = $user->partnerServices()
+            ->select('id', 'category_id', 'status')
+            ->where('status', 'approved')
+            ->with('category:id,name')
+            ->get();
 
-        // Build available categories from the already loaded data
-        $this->availableCategories = $partnerServices
+        $this->categoryIds = $partnerServices->pluck('category_id')->unique()->toArray();
+
+        // Build available categories from the already loaded data and cache them
+        $categoriesMap = $partnerServices
             ->filter(fn($service) => $service->category !== null)
-            ->map(fn($service) => [
-                'id' => $service->category->id,
-                'name' => $service->category->name
+            ->pluck('category', 'category.id')
+            ->unique('id');
+
+        $this->availableCategories = $categoriesMap
+            ->map(fn($category) => [
+                'id' => $category->id,
+                'name' => $category->name
             ])
-            ->unique('id')
             ->values()
             ->toArray();
 
+        // Query partner bills WITHOUT eager loading category (we'll attach manually)
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
-            ->with(['client', 'event', 'category'])
+            ->with([
+                'client:id,name,email,avatar',
+                'event:id,name'
+            ])
             ->where('status', PartnerBillStatus::PENDING) // Only show pending orders
             ->whereDoesntHave('details', function ($query) {
                 $query->where('partner_id', $this->partnerId);
@@ -137,11 +154,19 @@ class RealtimePartnerBill extends Page
             });
         }
 
-        $this->partnerBills = $query->latest()
+        // Get bills and manually attach cached categories to avoid duplicate queries
+        $bills = $query->latest()
             ->limit(20)
-            ->get()
-            ->toArray();
+            ->get();
 
+        // Manually attach categories from cache
+        $bills->each(function ($bill) use ($categoriesMap) {
+            if (isset($categoriesMap[$bill->category_id])) {
+                $bill->setRelation('category', $categoriesMap[$bill->category_id]);
+            }
+        });
+
+        $this->partnerBills = $bills->toArray();
         $this->lastUpdated = now()->format('H:i:s');
 
         // Debug log
@@ -223,6 +248,24 @@ class RealtimePartnerBill extends Page
         // Alternative: You could store the bill ID and show details in a modal
         // $this->selectedBillId = $billId;
         // $this->showDetailsModal = true;
+    }
+
+    public function openClientModal($clientId): void
+    {
+        $client = User::with(['statistics'])
+            ->find($clientId);
+
+
+        if ($client) {
+            $this->selectedClient = $client->toArray();
+            $this->showClientModal = true;
+        }
+    }
+
+    public function closeClientModal(): void
+    {
+        $this->showClientModal = false;
+        $this->selectedClient = null;
     }
 
     // Livewire updated methods for automatic filtering

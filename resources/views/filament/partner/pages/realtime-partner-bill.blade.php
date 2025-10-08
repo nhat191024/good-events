@@ -174,7 +174,9 @@
                                         <x-heroicon-m-user class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                                         <div>
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.client') }}:</span>
-                                            <span class="ml-1 text-gray-900 dark:text-white">{{ $bill['client']['name'] ?? 'N/A' }}</span>
+                                            <button class="ml-1 text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300" type="button" wire:click="openClientModal({{ $bill['client']['id'] ?? 0 }})">
+                                                {{ $bill['client']['name'] ?? 'N/A' }}
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="flex items-start gap-2">
@@ -255,7 +257,9 @@
                                         <div class="flex items-center gap-2">
                                             <x-heroicon-m-user class="h-4 w-4 text-gray-400" />
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.client') }}:</span>
-                                            <span class="text-gray-900 dark:text-white">{{ $bill['client']['name'] ?? 'N/A' }}</span>
+                                            <button class="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300" type="button" wire:click="openClientModal({{ $bill['client']['id'] ?? 0 }})">
+                                                {{ $bill['client']['name'] ?? 'N/A' }}
+                                            </button>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <x-heroicon-m-tag class="h-4 w-4 text-gray-400" />
@@ -337,14 +341,17 @@
 
     <!-- Accept Order Modal -->
     @if ($showAcceptModal)
-        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" x-data="{ show: false }" x-init="$nextTick(() => show = true)" x-show="show" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
             <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
 
                 <!-- Center modal -->
                 <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
 
                 <!-- Modal panel -->
-                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle dark:bg-gray-800">
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle dark:bg-gray-800" x-show="show" x-transition:enter="ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" @click.away="$wire.closeAcceptModal()">
                     <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 dark:bg-gray-800">
                         <div class="sm:flex sm:items-start">
                             <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10 dark:bg-green-900/20">
@@ -397,6 +404,149 @@
                         <button class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600" type="button"
                             wire:click="closeAcceptModal">
                             {{ __('partner/bill.cancel') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Client Detail Modal -->
+    @if ($showClientModal && $selectedClient)
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="client-modal-title" role="dialog" aria-modal="true" x-data="{ show: false }" x-init="$nextTick(() => show = true)" x-show="show" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                <!-- Center modal -->
+                <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+
+                <!-- Modal panel -->
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:align-middle dark:bg-gray-800" x-show="show" x-transition:enter="ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" @click.away="$wire.closeClientModal()">
+                    <!-- Header -->
+                    <div class="border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-700/50">
+                        <div class="flex items-center justify-between">
+                            <h3 id="client-modal-title" class="text-lg font-semibold text-gray-900 dark:text-white">
+                                <x-heroicon-m-user class="mr-2 inline-block h-5 w-5 text-blue-500" />
+                                Thông tin khách hàng
+                            </h3>
+                            <button class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:hover:text-gray-300" type="button" wire:click="closeClientModal">
+                                <x-heroicon-m-x-mark class="h-6 w-6" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="px-6 py-6">
+                        <div class="space-y-6">
+                            <!-- Avatar and Name -->
+                            <div class="flex items-center gap-4">
+                                @if (!empty($selectedClient['avatar']))
+                                    <img class="h-20 w-20 rounded-full object-cover ring-4 ring-gray-200 dark:ring-gray-700" src="{{ $selectedClient['avatar'] }}" alt="{{ $selectedClient['name'] }}">
+                                @else
+                                    <div class="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 ring-4 ring-gray-200 dark:bg-blue-900/20 dark:ring-gray-700">
+                                        <x-heroicon-m-user class="h-10 w-10 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                @endif
+                                <div>
+                                    <h4 class="text-xl font-bold text-gray-900 dark:text-white">{{ $selectedClient['name'] }}</h4>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Khách hàng</p>
+                                </div>
+                            </div>
+
+                            <!-- Statistics -->
+                            @php
+                                $statistics = collect($selectedClient['statistics'] ?? []);
+                                $totalSpent = $statistics->firstWhere('metrics_name', 'total_spent')['metrics_value'] ?? 0;
+                                $ordersPlaced = $statistics->firstWhere('metrics_name', 'orders_placed')['metrics_value'] ?? 0;
+                                $completedOrders = $statistics->firstWhere('metrics_name', 'completed_orders')['metrics_value'] ?? 0;
+                                $cancelledPercentage = $statistics->firstWhere('metrics_name', 'cancelled_orders_percentage')['metrics_value'] ?? 0;
+                            @endphp
+
+                            <div>
+                                <h5 class="mb-3 flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
+                                    <x-heroicon-m-chart-bar class="h-5 w-5 text-blue-500" />
+                                    Thống kê hoạt động
+                                </h5>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                                        <div class="flex items-center gap-2">
+                                            <x-heroicon-m-shopping-bag class="h-5 w-5 text-blue-500" />
+                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tổng đơn hàng</p>
+                                        </div>
+                                        <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+                                            {{ $ordersPlaced }}
+                                        </p>
+                                    </div>
+                                    <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                                        <div class="flex items-center gap-2">
+                                            <x-heroicon-m-check-circle class="h-5 w-5 text-green-500" />
+                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Đã hoàn thành</p>
+                                        </div>
+                                        <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+                                            {{ $completedOrders }}
+                                        </p>
+                                    </div>
+                                    <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                                        <div class="flex items-center gap-2">
+                                            <x-heroicon-m-currency-dollar class="h-5 w-5 text-yellow-500" />
+                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tổng chi tiêu</p>
+                                        </div>
+                                        <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+                                            {{ number_format($totalSpent, 0, ',', '.') }} ₫
+                                        </p>
+                                    </div>
+                                    <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                                        <div class="flex items-center gap-2">
+                                            <x-heroicon-m-x-circle class="h-5 w-5 text-red-500" />
+                                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tỷ lệ hủy</p>
+                                        </div>
+                                        <p class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
+                                            {{ $cancelledPercentage }}%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Account Info -->
+                            <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                                <h5 class="mb-3 flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
+                                    <x-heroicon-m-user-circle class="h-5 w-5 text-blue-500" />
+                                    Thông tin tài khoản
+                                </h5>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-500 dark:text-gray-400">Ngày tham gia:</span>
+                                        <span class="font-medium text-gray-900 dark:text-white">
+                                            {{ \Carbon\Carbon::parse($selectedClient['created_at'])->format('d/m/Y') }}
+                                        </span>
+                                    </div>
+                                    @if (!empty($selectedClient['email_verified_at']))
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-500 dark:text-gray-400">Trạng thái email:</span>
+                                            <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                                                <x-heroicon-m-check-circle class="mr-1 h-3 w-3" />
+                                                Đã xác thực
+                                            </span>
+                                        </div>
+                                    @else
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-500 dark:text-gray-400">Trạng thái email:</span>
+                                            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
+                                                <x-heroicon-m-exclamation-circle class="mr-1 h-3 w-3" />
+                                                Chưa xác thực
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="bg-gray-50 px-6 py-4 dark:bg-gray-900/20">
+                        <button class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto" type="button" wire:click="closeClientModal">
+                            Đóng
                         </button>
                     </div>
                 </div>
