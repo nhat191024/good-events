@@ -65,6 +65,26 @@ const handleLogout = () => {
                     Hồ sơ cá nhân
                     </Link>
 
+                    <Link :href="route('client-orders.dashboard')"
+                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <!-- icon shopping bag -->
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5 8h14l-1.5 12.5A2 2 0 0115.5 23h-7a2 2 0 01-1.99-2.5L5 8zm3 0V6a4 4 0 018 0v2" />
+                    </svg>
+                    Đơn hàng của tôi
+                    </Link>
+
+                    <Link :href="route('chat.dashboard')"
+                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <!-- icon message bubble -->
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 10h8m-8 4h5m1 8a9 9 0 100-18 9 9 0 00-9 9c0 1.657.403 3.214 1.122 4.583L3 21l4.417-1.122A8.963 8.963 0 0012 22z" />
+                    </svg>
+                    Nhắn tin
+                    </Link>
+
                     <Link :href="route('home')"
                         class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
                     <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,6 +116,7 @@ const handleLogout = () => {
                     Đăng xuất
                     </Link>
                 </div>
+
                 <div v-else class="py-1">
                     <Link :href="route('login')"
                         class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">

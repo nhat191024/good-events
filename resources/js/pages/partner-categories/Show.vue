@@ -58,7 +58,7 @@ const breadcrumbs = computed(() => {
 <template>
     <Head :title="(props.item.name)+(' - Sự kiện - ')+(props.category?.name ?? '')" />
     <ClientHeaderLayout>
-        <div class="min-h-screen bg-white">
+        <div class="min-h-screen max-w-7xl w-full bg-white">
             <!-- Breadcrumb (compact) -->
             <div class="mx-4 my-1 px-2 py-1.5 rounded-l bg-white">
                 <nav class="text-xs md:text-[13px] text-gray-500">
@@ -86,10 +86,10 @@ const breadcrumbs = computed(() => {
                             <img :src="props.item.image || placeholderImg" :alt="props.item.name"
                                 class="w-full h-full object-cover" />
                         </div>
-                        <div class="mt-2 flex items-center gap-2">
+                        <!-- <div class="mt-2 flex items-center gap-2">
                             <div v-for="n in 5" :key="n" class="w-10 h-10 rounded-md bg-gray-100 ring-1 ring-gray-200">
                             </div>
-                        </div>
+                        </div> -->
                     </div>
 
                     <!-- Right info -->
@@ -118,7 +118,7 @@ const breadcrumbs = computed(() => {
                                     <circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor"
                                         stroke-width="1.6" />
                                 </svg>
-                                <span>Địa chỉ chi tiết ở đây</span>
+                                <span>Đối tác ở gần bạn</span>
                             </li>
                             <li class="flex items-center gap-2">
                                 <svg viewBox="0 0 24 24" class="w-4 h-4">
@@ -126,7 +126,7 @@ const breadcrumbs = computed(() => {
                                         stroke-width="1.6" />
                                     <path d="M12 7v6l4 2" fill="none" stroke="currentColor" stroke-width="1.6" />
                                 </svg>
-                                <span>Cập nhật {{ props.item.updated_human || 'gần đây' }}</span>
+                                <span>Luôn đúng giờ</span>
                             </li>
                         </ul>
 
@@ -138,8 +138,8 @@ const breadcrumbs = computed(() => {
                             Thuê ngay
                             </Link>
                             <Link :href="'#'"
-                                class="col-span-1 w-full h-14 inline-flex items-center justify-center rounded-xl border-2 border-black bg-gray-50 text-[17px] font-medium hover:bg-gray-100">
-                            Liên hệ
+                                class="col-span-1 w-full h-14 inline-flex items-center justify-center rounded-xl border-2 border-gray-300 bg-gray-50 text-[17px] font-medium hover:bg-gray-100">
+                            Hỗ trợ
                             </Link>
                         </div>
                     </div>
@@ -147,7 +147,7 @@ const breadcrumbs = computed(() => {
             </section>
 
             <!-- Mô tả -->
-            <section class="mx-auto px-4 mt-1 md:mt-2">
+            <section class="mx-auto px-4 mt-1 md:mt-2 mb-3">
                 <div class="border rounded-2xl p-3 md:p-4 bg-white shadow-md">
                     <h2 class="font-semibold mb-2">Mô tả chi tiết</h2>
                     <p class="text-gray-700 whitespace-pre-line">
@@ -157,7 +157,7 @@ const breadcrumbs = computed(() => {
             </section>
 
             <!-- Thông tin chi tiết -->
-            <section class="mx-auto px-4 mt-1 md:mt-4">
+            <section class="hidden mx-auto px-4 mt-1 md:mt-4 mb-3">
                 <div class="border rounded-2xl p-3 md:p-4 bg-white shadow-md">
                     <h2 class="font-semibold mb-3">Thông tin chi tiết</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
@@ -182,7 +182,7 @@ const breadcrumbs = computed(() => {
             </section>
 
             <!-- Liên quan -->
-            <section class="mx-auto px-4 mt-1 md:mt-4 pb-8">
+            <section v-if="false" class="mx-auto px-4 mt-1 md:mt-4 pb-8">
                 <div class="bg-white min-h-[50rem]">
                     <div class="flex items-center justify-between p-2 bg-white">
                         <h2 class="font-semibold">Liên quan</h2>

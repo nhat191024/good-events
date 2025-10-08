@@ -27,6 +27,8 @@ class PartnerBillResource extends JsonResource {
                 return [
                     'id' => $cat->id,
                     'name' => $cat->name,
+                    'max_price' => $cat->max_price,
+                    'min_price' => $cat->min_price,
                     'image' => $cat->getFirstTemporaryUrl($expireAt, 'images'),
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,

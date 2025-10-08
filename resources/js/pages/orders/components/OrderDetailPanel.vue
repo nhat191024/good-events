@@ -8,6 +8,7 @@ import BookingSummaryCardEmpty from './BookingSummaryCardEmpty.vue';
 import { computed, ref } from 'vue';
 import ReloadButton from './ReloadButton.vue';
 import { debounce } from '../helper';
+import { cn } from '@/lib/utils';
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
@@ -47,7 +48,9 @@ const reloadOrderDetails = debounce(() => {
     }, 10000)
 }, 5000)
 
-// todo: add periodically reload for this detail only here
+const classIfBookedPartnerFound = computed(()=>{
+    return (bookedPartner && props.mode === 'current') ? 'hidden' : '';
+});
 </script>
 
 <template>
@@ -62,7 +65,7 @@ const reloadOrderDetails = debounce(() => {
                 </button>
             </div>
 
-            <div class="mx-3 mb-3 flex">
+            <div class="mx-3 mb-4 flex">
                 <h2 class="font-lexend text-2xl font-bold text-foreground mb-0 mr-1">
                     Chi tiết đơn hàng {{ props.order ? ' - ' + props.order.code : '' }}
                 </h2>
@@ -71,8 +74,8 @@ const reloadOrderDetails = debounce(() => {
             </div>
 
             <template v-if="order">
-                <div v-if="props.mode === 'current'" class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-5">
-                    <div class="grid gap-2 md:gap-6">
+                <div v-if="props.mode === 'current'" :class="cn('border-2 border-primary/20 rounded-xl bg-card p-3 md:p-3', classIfBookedPartnerFound)">
+                    <div class="grid gap-2 md:gap-3">
                         <p v-text="description" class="text-secondary text-sm md:text-md"></p>
                         <div v-if="props.applicants.length > 0" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
@@ -81,7 +84,7 @@ const reloadOrderDetails = debounce(() => {
                     </div>
                 </div>
                 <div v-else class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-5">
-                    <div class="grid gap-2 md:gap-6">
+                    <div class="grid gap-2 md:gap-3">
                         <p v-text="description" class="text-secondary text-sm md:text-md"></p>
                         <div v-if="bookedPartner" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
@@ -90,7 +93,7 @@ const reloadOrderDetails = debounce(() => {
                         <!-- rating button chỉ hiện ở history + completed -->
                         <!-- <div class="bg-white fixed bottom-1 md:bottom-3 w-[90%] md:w-[45%] lg:w-[55%] justify-self-center"> -->
                             <button v-if="bookedPartner && props.mode === 'history'"
-                                class="z-10 fixed bottom-1 md:bottom-3 w-[90%] md:w-[45%] lg:w-[55%] justify-self-center h-10 rounded-md border border-yellow-700 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 flex-1 inline-flex items-center justify-center gap-2"
+                                class="z-10 fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center h-10 rounded-md border border-yellow-700 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 flex-1 inline-flex items-center justify-center gap-2"
                                 @click="emit('rate')">
                                 <Star class="h-4 w-4 text-white stroke-yellow-800 fill-white" />
                                 <span class="font-bold text-yellow-950">Đánh giá</span>
@@ -98,7 +101,7 @@ const reloadOrderDetails = debounce(() => {
                         <!-- </div> -->
                     </div>
                 </div>
-                <BookingSummaryCard :mode="props.mode" :order="props.order" class="mt-6" @cancel-order="emit('cancel-order')" />
+                <BookingSummaryCard :mode="props.mode" :booked-partner="bookedPartner" :order="props.order" class="mt-6" @cancel-order="emit('cancel-order')" />
 
             </template>
             <template v-else>

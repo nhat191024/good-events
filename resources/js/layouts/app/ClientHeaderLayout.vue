@@ -6,6 +6,7 @@ import Loading from '@/components/Loading.vue';
 import type { BreadcrumbItemType } from '@/types';
 import Footer from '@/pages/home/partials/Footer.vue';
 import { Head } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
 
 interface Props {
     showBannerBackground?: boolean;
@@ -19,6 +20,10 @@ withDefaults(defineProps<Props>(), {
     showFooter: () => true,
     breadcrumbs: () => [],
 });
+
+onMounted(() => {
+    document.documentElement.classList.remove('dark')
+})
 
 </script>
 

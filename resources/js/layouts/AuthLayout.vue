@@ -1,13 +1,26 @@
 <script setup lang="ts">
-    import AuthLayout from '@/layouts/auth/AuthSimpleLayout.vue';
+import AuthLayout from '@/layouts/auth/AuthSimpleLayout.vue';
+import { router } from '@inertiajs/core';
+import { ArrowLeft } from 'lucide-vue-next';
 
-    defineProps<{
-        title?: string;
-        description?: string;
-    }>();
+defineProps<{
+    title?: string;
+    description?: string;
+}>();
+
+function goHome(){
+    router.get(route('home'))
+}
 </script>
 
 <template>
+    <div class="mb-3 fixed left-3 top-1 pt-2">
+        <button @click="goHome()"
+            class="inline-flex items-center gap-2 text-sm px-3 h-9 rounded-xl border border-border bg-white/30 backdrop-blur-md shadow-sm">
+            <ArrowLeft class="h-4 w-4" />
+            Quay lại trang chủ
+        </button>
+    </div>
     <AuthLayout :title="title" :description="description">
         <slot />
     </AuthLayout>
