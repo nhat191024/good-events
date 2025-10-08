@@ -147,7 +147,7 @@ const breadcrumbs = computed(() => {
             </section>
 
             <!-- Mô tả -->
-            <section class="mx-auto px-4 mt-1 md:mt-2">
+            <section class="mx-auto px-4 mt-1 md:mt-2 mb-3">
                 <div class="border rounded-2xl p-3 md:p-4 bg-white shadow-md">
                     <h2 class="font-semibold mb-2">Mô tả chi tiết</h2>
                     <p class="text-gray-700 whitespace-pre-line">
@@ -157,7 +157,7 @@ const breadcrumbs = computed(() => {
             </section>
 
             <!-- Thông tin chi tiết -->
-            <section class="mx-auto px-4 mt-1 md:mt-4 mb-3">
+            <section class="hidden mx-auto px-4 mt-1 md:mt-4 mb-3">
                 <div class="border rounded-2xl p-3 md:p-4 bg-white shadow-md">
                     <h2 class="font-semibold mb-3">Thông tin chi tiết</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
