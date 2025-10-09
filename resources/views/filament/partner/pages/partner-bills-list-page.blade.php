@@ -162,7 +162,7 @@
                                             {{ __('partner/bill.your_price') }}
                                         </span>
                                         <span class="text-primary-600 dark:text-primary-400 text-lg font-bold">
-                                            {{ number_format($partnerDetail->price ?? 0, 0, ',', '.') }} ₫
+                                            {{ number_format($partnerDetail->total ?? 0, 0, ',', '.') }} ₫
                                         </span>
                                     </div>
                                     @if ($partnerDetail->status)
