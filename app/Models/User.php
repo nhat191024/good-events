@@ -179,7 +179,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar
     public function getFilamentAvatarUrl(): ?string
     {
         if ($this->avatar) {
-            return asset($this->avatar);
+            return asset('storage/' . $this->avatar);
         }
 
         return null;
