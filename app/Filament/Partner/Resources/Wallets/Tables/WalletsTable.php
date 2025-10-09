@@ -26,7 +26,7 @@ class WalletsTable
                     ->formatStateUsing(fn($state) => TransactionType::from($state)->label())
                     ->colors([
                         'success' => TransactionType::DEPOSIT,
-                        'danger' => TransactionType::WITHDRAWAL,
+                        'danger' => TransactionType::WITHDRAW,
                     ]),
                 TextColumn::make('amount')
                     ->label(__('partner/transaction.label.amount'))
@@ -42,7 +42,7 @@ class WalletsTable
                     ->label(__('partner/transaction.label.type'))
                     ->options([
                         TransactionType::DEPOSIT->value => TransactionType::DEPOSIT->label(),
-                        TransactionType::WITHDRAWAL->value => TransactionType::WITHDRAWAL->label(),
+                        TransactionType::WITHDRAW->value => TransactionType::WITHDRAW->label(),
                     ])
                     ->native(true),
             ])

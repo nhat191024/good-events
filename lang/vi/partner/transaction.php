@@ -6,7 +6,7 @@ return [
 
     'types' => [
         'deposit' => 'Nạp tiền',
-        'withdrawal' => 'Rút tiền',
+        'withdraw' => 'Rút tiền',
     ],
 
     'label' => [

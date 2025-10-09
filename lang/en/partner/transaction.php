@@ -6,7 +6,7 @@ return [
 
     'types' => [
         'deposit' => 'Deposit',
-        'withdrawal' => 'Withdrawal',
+        'withdraw' => 'Withdraw',
     ],
 
     'label' => [
