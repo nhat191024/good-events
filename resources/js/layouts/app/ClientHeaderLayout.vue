@@ -29,7 +29,7 @@ onMounted(() => {
 
 <template>
     <Header :background-class-names="backgroundClassNames" />
-    <main>
+    <main class="pt-16">
         <div class="h-full bg-white">
             <AppContent>
                 <!-- the red bg banner on top of the page -->
