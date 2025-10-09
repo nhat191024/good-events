@@ -2,6 +2,9 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import DropdownMenu from './DropdownMenu.vue';
 import HamburgerMenu from './HamburgerMenu.vue';
+import NotificationPopover from '@/components/notification/NotificationPopover.vue';
+import { NotiItem } from '@/components/notification';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 interface Props {
     // showBannerBackground?: boolean;
@@ -24,15 +27,35 @@ const menuItems = [
     { name: 'Liên hệ', slug: 'contact', route: null }
 ];
 
+const notificationItems = ref<NotiItem[]>([
+    { id: 1, title: 'Đơn hàng đã chốt', message: "đơn 'MC sự kiện' đã được chốt", unread: true,  created_at: 'vừa xong' },
+    { id: 2, title: 'Ứng viên mới',     message: "có 1 ứng viên mới cho 'chủ hệ hoạt náo'", unread: false, created_at: '2 giờ trước' },
+])
+
+const isFloating = ref(false)
+
+
+onMounted(() => {
+    const handleScroll = () => {
+        isFloating.value = window.scrollY > 80
+    }
+    window.addEventListener('scroll', handleScroll)
+    handleScroll()
+    onUnmounted(() => window.removeEventListener('scroll', handleScroll))
+})
+
 </script>
 
 <template>
-    <header :class="`${backgroundClassNames || ''}`">
+    <header :class="[
+        backgroundClassNames || '',
+        'fixed top-0 left-0 w-full z-50 transition-all duration-300',
+        isFloating ? 'shadow-md bg-white/30 backdrop-blur-md' : backgroundClassNames+' backdrop-blur-md'
+    ]">
         <div class="sm:px-4 lg:px-8 mx-auto">
             <div class="flex items-center justify-between h-16 pl-3 pr-3">
                 <div class="flex items-center gap-3">
                     <!-- <HamburgerMenu :menu-items="menuItems" /> -->
-
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center gap-2">
                     <img src="/images/logo.png" alt="Sukientot"
@@ -43,7 +66,6 @@ const menuItems = [
                 </div>
 
                 <div class="hidden md:flex items-center gap-8">
-
                     <!-- Nav items (đậm, hover không đổi kích thước) -->
                     <nav class="flex items-center gap-6">
                         <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Sự Kiện</Link>
@@ -66,8 +88,8 @@ const menuItems = [
                     </svg>
                     <span class="hidden sm:inline">Đặt show nhanh</span>
                     </Link>
-
                     <DropdownMenu />
+                    <NotificationPopover :items="notificationItems" />
                 </div>
             </div>
         </div>

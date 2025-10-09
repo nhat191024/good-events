@@ -37,9 +37,9 @@ defineProps<{
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
                         <Label for="password">Mật khẩu</Label>
-                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm"
+                        <TextLink v-if="canResetPassword" :href="'#'" class="text-sm"
                             :tabindex="5">
-                            Quên mật khẩu?
+                            Quên mật khẩu? Liên hệ admin
                         </TextLink>
                     </div>
                     <Input id="password" type="password" name="password" required :tabindex="2"

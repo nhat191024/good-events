@@ -28,7 +28,7 @@ import { Link } from '@inertiajs/vue3';
     </div>
 
     <!-- Main Footer (không có line separator) -->
-    <footer class="bg-white py-12">
+    <footer class="bg-white md:py-12 py-2">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-6 gap-8">
                 <!-- Logo -->
