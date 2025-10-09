@@ -11,6 +11,7 @@ use UnitEnum;
 use App\Filament\Partner\Resources\PartnerBills\Pages\CreatePartnerBill;
 use App\Filament\Partner\Resources\PartnerBills\Pages\EditPartnerBill;
 use App\Filament\Partner\Resources\PartnerBills\Pages\ListPartnerBills;
+use App\Filament\Partner\Resources\PartnerBills\Pages\PartnerBillsListPage;
 use App\Filament\Partner\Resources\PartnerBills\Pages\ViewPartnerBill;
 use App\Filament\Partner\Resources\PartnerBills\Schemas\PartnerBillForm;
 use App\Filament\Partner\Resources\PartnerBills\Schemas\PartnerBillInfolist;
@@ -76,7 +77,7 @@ class PartnerBillResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListPartnerBills::route('/'),
+            'index' => PartnerBillsListPage::route('/'),
             'view' => ViewPartnerBill::route('/{record}'),
             // 'create' => CreatePartnerBill::route('/create'),
             // 'edit' => EditPartnerBill::route('/{record}/edit'),
