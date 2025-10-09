@@ -49,7 +49,7 @@ const reloadOrderDetails = debounce(() => {
 }, 5000)
 
 const classIfBookedPartnerFound = computed(()=>{
-    return (bookedPartner && props.mode === 'current') ? 'hidden' : '';
+    return (bookedPartner && props.mode === 'current' && props.order?.status=='confirmed') ? 'hidden' : '';
 });
 </script>
 
