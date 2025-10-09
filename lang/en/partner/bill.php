@@ -41,7 +41,10 @@ return [
 
     'status' => 'Status',
     'status_pending' => 'Pending',
-    'status_paid' => 'Paid',
+    'status_confirmed' => 'Confirmed',
+    'status_completed' => 'Completed',
+    'status_expired' => 'Expired',
+    'status_in_job' => 'In Job',
     'status_cancelled' => 'Cancelled',
 
     // View page sections
@@ -86,4 +89,25 @@ return [
     'insufficient_balance' => 'Insufficient balance. Amount to withdraw: :amount, Current balance: :balance',
     'minimum_balance' => 'Insufficient minimum balance. Please top up to continue accepting shows',
     'order_completed_success' => 'Order has been successfully completed',
+
+    // Custom list page
+    'search' => 'Search',
+    'search_placeholder' => 'Search by code, address, phone, or client name...',
+    'status_filter' => 'Status',
+    'date_filter' => 'Date',
+    'all_dates' => 'All Dates',
+    'tomorrow' => 'Tomorrow',
+    'next_week' => 'Next Week',
+    'sort_by' => 'Sort By',
+    'newest_first' => 'Newest First',
+    'oldest_first' => 'Oldest First',
+    'event_date_asc' => 'Event Date (Earliest)',
+    'event_date_desc' => 'Event Date (Latest)',
+    'showing_results' => 'Showing :count results',
+    'unknown_client' => 'Unknown Client',
+    'no_date' => 'No date',
+    'your_price' => 'Your Price',
+    'detail_status' => 'Detail Status',
+    'updated' => 'Updated',
+    'no_bills_filter_description' => 'No shows match your current filters.',
 ];

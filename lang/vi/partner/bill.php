@@ -41,9 +41,10 @@ return [
 
     'status' => 'Trạng thái',
     'status_pending' => 'Chờ xử lý',
-    'status_confirmed' => 'Đã chốt',
+    'status_confirmed' => 'Đã xác nhận',
     'status_completed' => 'Đã hoàn thành',
     'status_expired' => 'Đã hết hạn',
+    'status_in_job' => 'Đã đến nơi',
     'status_cancelled' => 'Đã hủy',
 
     // View page sections
@@ -88,4 +89,25 @@ return [
     'insufficient_balance' => 'Số dư không đủ. Số tiền cần rút: :amount, Số dư hiện tại: :balance',
     'minimum_balance' => 'Số dư tối thiểu không đủ. Vui lòng nạp thêm để tiếp tục nhận show',
     'order_completed_success' => 'Đơn hàng đã được hoàn thành thành công',
+
+    // Custom list page
+    'search' => 'Tìm kiếm',
+    'search_placeholder' => 'Tìm theo mã, địa chỉ, số điện thoại hoặc tên khách hàng...',
+    'status_filter' => 'Trạng thái',
+    'date_filter' => 'Ngày',
+    'all_dates' => 'Tất cả ngày',
+    'tomorrow' => 'Ngày mai',
+    'next_week' => 'Tuần sau',
+    'sort_by' => 'Sắp xếp',
+    'newest_first' => 'Mới nhất',
+    'oldest_first' => 'Cũ nhất',
+    'event_date_asc' => 'Ngày sự kiện (Sớm nhất)',
+    'event_date_desc' => 'Ngày sự kiện (Muộn nhất)',
+    'showing_results' => 'Hiển thị :count kết quả',
+    'unknown_client' => 'Khách hàng không xác định',
+    'no_date' => 'Chưa có ngày',
+    'your_price' => 'Giá của bạn',
+    'detail_status' => 'Trạng thái chi tiết',
+    'updated' => 'Cập nhật',
+    'no_bills_filter_description' => 'Không có show nào phù hợp với bộ lọc hiện tại.',
 ];
