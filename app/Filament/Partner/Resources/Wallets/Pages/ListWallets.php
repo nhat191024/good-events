@@ -72,8 +72,6 @@ class ListWallets extends ListRecords
             'expiryTime' => intval(now()->addMinutes(10)->timestamp)
         ];
 
-        ds($data);
-
         $paymentService = app(PaymentService::class);
         $response = $paymentService->processAppointmentPayment($data, 'qr_transfer', false);
 
