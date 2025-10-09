@@ -16,6 +16,9 @@ use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Auth;
+
+use App\Settings\PartnerSettings;
 
 class RealtimePartnerBill extends Page
 {
@@ -221,6 +224,14 @@ class RealtimePartnerBill extends Page
         ]);
 
         try {
+            $user =  Auth::user();
+            $balance = $user->balanceInt;
+            $minimum_balance = app(PartnerSettings::class)->minimum_balance;
+            if ($balance < $minimum_balance) {
+                session()->flash('error', __('partner/bill.minimum_balance'));
+                return;
+            }
+
             $bill = PartnerBill::find($this->selectedBillId);
             if ($bill && $bill->status === PartnerBillStatus::PENDING) {
 
