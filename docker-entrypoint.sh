@@ -31,7 +31,10 @@ php artisan optimize:clear
 
 # Cache for production
 echo "Caching for production..."
-php artisan optimize
+php artisan route:cache
+php artisan view:cache
+php artisan event:cache
+php artisan filament:optimize
 
 echo "Laravel application setup completed!"
 
