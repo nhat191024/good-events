@@ -6,6 +6,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 // use Filament\Tables\Filters\TrashedFilter;
 
+use Filament\Actions\Action;
 // use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -90,9 +91,16 @@ class PartnerBillsTable
             ->reorderableColumns()
             ->deferColumnManager(false)
             ->recordActions([
+                Action::make('mark_as_in_job')
+                    ->label('Đã đến nơi')
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->action(function ($record) {
+                        $record->status = PartnerBillStatus::IN_JOB;
+                        $record->save();
+                    }),
                 ViewAction::make()
                     ->label('Xem chi tiết'),
-                // EditAction::make(),
             ])
             ->toolbarActions([
                 // BulkActionGroup::make([
