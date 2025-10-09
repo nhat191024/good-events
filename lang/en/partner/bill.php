@@ -84,5 +84,6 @@ return [
     'complete_order_confirm_description' => 'Are you sure you want to mark this order as completed? This action cannot be undone.',
     'confirm_complete' => 'Confirm Complete',
     'insufficient_balance' => 'Insufficient balance. Amount to withdraw: :amount, Current balance: :balance',
+    'minimum_balance' => 'Insufficient minimum balance. Please top up to continue accepting shows',
     'order_completed_success' => 'Order has been successfully completed',
 ];

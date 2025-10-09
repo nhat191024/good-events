@@ -86,5 +86,6 @@ return [
     'complete_order_confirm_description' => 'Bạn có chắc chắn muốn đánh dấu đơn hàng này là đã hoàn thành? Hành động này không thể hoàn tác.',
     'confirm_complete' => 'Xác nhận hoàn thành',
     'insufficient_balance' => 'Số dư không đủ. Số tiền cần rút: :amount, Số dư hiện tại: :balance',
+    'minimum_balance' => 'Số dư tối thiểu không đủ. Vui lòng nạp thêm để tiếp tục nhận show',
     'order_completed_success' => 'Đơn hàng đã được hoàn thành thành công',
 ];
