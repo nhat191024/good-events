@@ -77,4 +77,12 @@ return [
     'price_numeric' => 'Price must be a number',
     'price_min' => 'Price must be greater than 0',
     'formatted_price' => 'Formatted price',
+
+    // Complete order translations
+    'complete_order' => 'Complete Show',
+    'complete_order_confirm_title' => 'Confirm Complete Order',
+    'complete_order_confirm_description' => 'Are you sure you want to mark this order as completed? This action cannot be undone.',
+    'confirm_complete' => 'Confirm Complete',
+    'insufficient_balance' => 'Insufficient balance. Amount to withdraw: :amount, Current balance: :balance',
+    'order_completed_success' => 'Order has been successfully completed',
 ];
