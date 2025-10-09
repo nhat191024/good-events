@@ -10,19 +10,6 @@ sleep 2
 echo "Generating application key..."
 php artisan key:generate --force
 
-# Clear and cache configurations
-echo "Clearing and caching configurations..."
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
-
-# Cache for production
-echo "Caching for production..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
 #run migrations
 php artisan migrate --force
 
@@ -37,6 +24,14 @@ npm run build
 echo "Setting permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Clear and cache configurations
+echo "Clearing and caching configurations..."
+php artisan optimize:clear
+
+# Cache for production
+echo "Caching for production..."
+php artisan optimize
 
 echo "Laravel application setup completed!"
 
