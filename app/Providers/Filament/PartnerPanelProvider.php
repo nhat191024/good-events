@@ -37,10 +37,6 @@ class PartnerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $user = Auth::user();
-        $balance = $user ? $user->balance : 0;
-        $balanceLabel = __('global.balance') . ': ' . number_format($balance, 0) . ' ' . __('global.currency');
-
         return $panel
             ->id('partner')
             ->path('partner')
@@ -51,11 +47,15 @@ class PartnerPanelProvider extends PanelProvider
             ->maxContentWidth(Width::Full)
 
             ->userMenuItems([
-                'profile' => fn(Action $action) => $action->url(route('filament.partner.pages.profile-settings')),
                 Action::make('balance')
-                    ->label($balanceLabel)
+                    ->label(function () {
+                        $user = Auth::user();
+                        $balance = $user ? $user->balanceInt : 0;
+                        return __('global.balance') . ': ' . number_format($balance, 0) . ' ' . __('global.currency');
+                    })
                     ->disabled(true)
                     ->icon('heroicon-o-currency-dollar'),
+                'profile' => fn(Action $action) => $action->url(route('filament.partner.pages.profile-settings')),
             ])
 
             ->databaseNotifications()
