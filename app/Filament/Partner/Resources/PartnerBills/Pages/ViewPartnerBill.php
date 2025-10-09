@@ -53,7 +53,7 @@ class ViewPartnerBill extends ViewRecord
                     }
 
                     //withdraw da moneyyyy! here come the moneyy! :)
-                    $user->withdraw($withdraw_amount);
+                    $user->withdraw($withdraw_amount, ['reason' => 'Thu phí nền tảng show mã: ' . $this->record->code]);
 
                     $this->record->status = PartnerBillStatus::COMPLETED;
                     $this->record->save();
