@@ -12,8 +12,10 @@ use Spatie\Permission\Traits\HasRoles;
 
 use Cmgmyr\Messenger\Traits\Messagable;
 
-use Bavix\Wallet\Traits\HasWallet;
 use Bavix\Wallet\Interfaces\Wallet;
+use Bavix\Wallet\Interfaces\Confirmable;
+use Bavix\Wallet\Traits\HasWallet;
+use Bavix\Wallet\Traits\CanConfirm;
 
 use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
 
@@ -105,10 +107,10 @@ use App\Enum\StatisticType;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar
+class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, Confirmable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanRedeemVouchers, ReviewRateable, LogsActivity;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanConfirm, CanRedeemVouchers, ReviewRateable, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
