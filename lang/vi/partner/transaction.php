@@ -14,6 +14,7 @@ return [
         'type' => 'Loại giao dịch',
         'amount' => 'Số tiền',
         'reason' => 'Lý do',
+        'old_balance' => 'Số dư cũ',
         'balance' => 'Số dư hiện tại',
         'created_at' => 'Thời gian',
     ],

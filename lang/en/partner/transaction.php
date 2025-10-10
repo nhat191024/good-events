@@ -14,6 +14,7 @@ return [
         'type' => 'Transaction Type',
         'amount' => 'Amount',
         'reason' => 'Reason',
+        'old_balance' => 'Old Balance',
         'balance' => 'Current Balance',
         'created_at' => 'Created At',
     ],
