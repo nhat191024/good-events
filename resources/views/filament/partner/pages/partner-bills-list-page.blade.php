@@ -177,6 +177,24 @@
 
                         {{-- Footer --}}
                         <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-700 dark:bg-gray-900/50">
+                            @if ($bill->status->value === 'confirmed')
+                                <div class="mb-3">
+                                    <button class="bg-success-600 hover:bg-success-700 focus:ring-success-500 w-full rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2" wire:click.stop="completeBill({{ $bill->id }})"
+                                        wire:loading.attr="disabled" wire:target="completeBill({{ $bill->id }})" onclick="if(!confirm('{{ __('partner/bill.complete_order_confirm_description') }}')) { event.stopPropagation(); return false; }">
+                                        <span wire:loading.remove wire:target="completeBill({{ $bill->id }})">
+                                            <x-filament::icon class="mr-1 inline-block h-4 w-4" icon="heroicon-o-check-circle" />
+                                            {{ __('partner/bill.complete_order') }}
+                                        </span>
+                                        <span class="flex items-center justify-center" wire:loading wire:target="completeBill({{ $bill->id }})">
+                                            <svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            {{ __('partner/bill.processing') }}
+                                        </span>
+                                    </button>
+                                </div>
+                            @endif
                             <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                                 <span>{{ __('partner/bill.updated') }}: {{ $bill->updated_at->diffForHumans() }}</span>
                                 <x-filament::icon class="text-primary-500 h-4 w-4 transition-transform group-hover:translate-x-1" icon="heroicon-o-arrow-right" />

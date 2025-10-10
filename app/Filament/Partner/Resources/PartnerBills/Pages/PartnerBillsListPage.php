@@ -2,12 +2,13 @@
 
 namespace App\Filament\Partner\Resources\PartnerBills\Pages;
 
+use App\Models\PartnerBill;
 use App\Enum\PartnerBillStatus;
 use App\Filament\Partner\Resources\PartnerBills\PartnerBillResource;
-use App\Models\PartnerBill;
-use BackedEnum;
+
 use Filament\Resources\Pages\Page;
-use Filament\Support\Icons\Heroicon;
+use Filament\Notifications\Notification;
+
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -149,5 +150,65 @@ class PartnerBillsListPage extends Page
             'cancelled' => __('partner/bill.status_cancelled'),
             default => $status,
         };
+    }
+
+    public function completeBill($billId): void
+    {
+        $bill = PartnerBill::findOrFail($billId);
+
+        // Verify the bill belongs to this partner
+        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+            Notification::make()
+                ->title(__('partner/bill.unauthorized_action'))
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // Check if status is confirmed
+        if ($bill->status !== PartnerBillStatus::CONFIRMED) {
+            Notification::make()
+                ->title(__('partner/bill.cannot_complete_order'))
+                ->danger()
+                ->send();
+            return;
+        }
+
+        $user = auth()->user();
+        $balance = $user->balanceInt;
+        $feePercentage = app(\App\Settings\PartnerSettings::class)->fee_percentage;
+        $withdrawAmount = floor($bill->final_total * ($feePercentage / 100));
+
+        if ($balance < $withdrawAmount) {
+            $formatWithdrawAmount = number_format($withdrawAmount) . ' VND';
+            $formatBalance = number_format($balance) . ' VND';
+            Notification::make()
+                ->title(__('partner/bill.insufficient_balance', ['amount' => $formatWithdrawAmount, 'balance' => $formatBalance]))
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // Withdraw money
+        $old_balance = $user->balanceInt;
+        $transaction = $user->withdraw($withdrawAmount, ['reason' => 'Thu phí nền tảng show mã: ' . $bill->code, 'old_balance' => $old_balance]);
+        $new_balance = $user->balanceInt;
+        $transactionId = $transaction->id;
+        $transaction->meta = array_merge($transaction->meta ?? [], [
+            'new_balance' => $new_balance,
+        ]);
+        $transaction->save();
+
+        // Update status
+        $bill->status = PartnerBillStatus::COMPLETED;
+        $bill->save();
+
+        Notification::make()
+            ->title(__('partner/bill.order_completed_success'))
+            ->success()
+            ->send();
+
+        // Reload bills
+        $this->loadBills();
     }
 }
