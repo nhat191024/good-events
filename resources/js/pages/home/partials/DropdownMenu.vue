@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, onBeforeUnmount, type Ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed, type Ref } from 'vue';
 
 const page = usePage()
 const user = page.props.auth?.user
@@ -33,7 +33,82 @@ const isLoggedIn = () => {
 const handleLogout = () => {
     router.flushAll();
 };
+
+// Navigation items for logged-in users
+const loggedInMenuItems = computed(() => [
+    {
+        label: 'Hồ sơ cá nhân',
+        route: () => route('profile.client.show', { user: user?.id ?? 1 }),
+        icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+        external: false
+    },
+    {
+        label: 'Đơn hàng của tôi',
+        route: () => route('client-orders.dashboard'),
+        icon: 'M5 8h14l-1.5 12.5A2 2 0 0115.5 23h-7a2 2 0 01-1.99-2.5L5 8zm3 0V6a4 4 0 018 0v2',
+        external: false
+    },
+    {
+        label: 'Nhắn tin',
+        route: () => route('chat.dashboard'),
+        icon: 'M8 10h8m-8 4h5m1 8a9 9 0 100-18 9 9 0 00-9 9c0 1.657.403 3.214 1.122 4.583L3 21l4.417-1.122A8.963 8.963 0 0012 22z',
+        external: false
+    },
+    {
+        label: 'Cài đặt',
+        route: () => route('home'),
+        icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+        external: false
+    },
+    {
+        label: 'Trợ giúp',
+        route: () => route('home'),
+        icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+        external: false
+    },
+    {
+        label: 'Trang đối tác',
+        route: () => '/partner/login',
+        icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+        external: true
+    },
+    {
+        label: 'Trang quản trị',
+        route: () => '/admin/login',
+        icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+        external: true  // use a regular <a> tag, non inertia
+    },
+]);
+
+// Navigation items for logged-out users
+const loggedOutMenuItems = [
+    {
+        label: 'Đăng nhập/Đăng ký',
+        route: () => route('login'),
+        icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+        external: false
+    },
+    {
+        label: 'Trợ giúp',
+        route: () => route('home'),
+        icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+        external: false
+    },
+    {
+        label: 'Trang đối tác',
+        route: () => '/partner/login',
+        icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+        external: true
+    },
+    {
+        label: 'Trang quản trị',
+        route: () => '/admin/login',
+        icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+        external: true
+    },
+];
 </script>
+
 <template>
     <div class="relative" ref="dropdown">
         <button type="button" aria-label="Tài khoản" @click="toggleDropdown"
@@ -56,54 +131,24 @@ const handleLogout = () => {
             <div v-if="isOpen"
                 class="absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-primary-200 ring-opacity-5 z-50">
                 <div v-if="isLoggedIn()" class="py-1">
-                    <Link :href="route('profile.client.show', { user: user?.id ?? 1 })"
-                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Hồ sơ cá nhân
-                    </Link>
+                    <template v-for="(item, index) in loggedInMenuItems" :key="index">
+                        <Link v-if="!item.external" :href="item.route()"
+                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
+                        </svg>
+                        {{ item.label }}
+                        </Link>
 
-                    <Link :href="route('client-orders.dashboard')"
-                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <!-- icon shopping bag -->
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M5 8h14l-1.5 12.5A2 2 0 0115.5 23h-7a2 2 0 01-1.99-2.5L5 8zm3 0V6a4 4 0 018 0v2" />
-                    </svg>
-                    Đơn hàng của tôi
-                    </Link>
-
-                    <Link :href="route('chat.dashboard')"
-                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <!-- icon message bubble -->
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 10h8m-8 4h5m1 8a9 9 0 100-18 9 9 0 00-9 9c0 1.657.403 3.214 1.122 4.583L3 21l4.417-1.122A8.963 8.963 0 0012 22z" />
-                    </svg>
-                    Nhắn tin
-                    </Link>
-
-                    <Link :href="route('home')"
-                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    Cài đặt
-                    </Link>
-
-                    <Link :href="route('home')"
-                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Trợ giúp
-                    </Link>
+                        <a v-else :href="item.route()"
+                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
+                            </svg>
+                            {{ item.label }}
+                        </a>
+                    </template>
 
                     <hr class="my-1 border-gray-200">
 
@@ -118,23 +163,24 @@ const handleLogout = () => {
                 </div>
 
                 <div v-else class="py-1">
-                    <Link :href="route('login')"
-                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Đăng nhập/Đăng ký
-                    </Link>
+                    <template v-for="(item, index) in loggedOutMenuItems" :key="index">
+                        <Link v-if="!item.external" :href="item.route()"
+                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
+                        </svg>
+                        {{ item.label }}
+                        </Link>
 
-                    <Link :href="route('home')"
-                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
-                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Trợ giúp
-                    </Link>
+                        <a v-else :href="item.route()"
+                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition">
+                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
+                            </svg>
+                            {{ item.label }}
+                        </a>
+                    </template>
                 </div>
             </div>
         </transition>
