@@ -53,7 +53,8 @@ class ListWallets extends ListRecords
     {
         $user = Auth::user();
         $id = date('YmdHis') . rand(1000, 9999) + 1;
-        $transaction = $user->deposit($amount, ['reason' => 'Nạp tiền vào ví qua QR', 'transaction_codes' => $id], false);
+        $oldBalance = $user->balanceInt;
+        $transaction = $user->deposit($amount, ['reason' => 'Nạp tiền vào ví qua QR', 'transaction_codes' => $id, 'old_balance' => $oldBalance], false);
 
         $data = [
             'billId' => "{$transaction->id}1010",
@@ -76,7 +77,7 @@ class ListWallets extends ListRecords
         $response = $paymentService->processAppointmentPayment($data, 'qr_transfer', false);
 
         if (isset($response['checkoutUrl'])) {
-            $this->js('window.open("' . $response['checkoutUrl'] . '", "_blank");');
+            $this->js('window.location.href = "' . $response['checkoutUrl'] . '";');
         } else {
             Notification::make()
                 ->title('Error')
