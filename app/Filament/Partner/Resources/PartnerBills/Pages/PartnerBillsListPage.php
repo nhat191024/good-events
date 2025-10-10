@@ -48,6 +48,7 @@ class PartnerBillsListPage extends Page
             ->whereIn('status', [
                 PartnerBillStatus::PENDING,
                 PartnerBillStatus::CONFIRMED,
+                PartnerBillStatus::IN_JOB,
             ])
             ->whereHas('details', function (Builder $query) {
                 $query->where('partner_id', auth()->id());
@@ -130,6 +131,25 @@ class PartnerBillsListPage extends Page
         $this->redirect(route('filament.partner.resources.partner-bills.view', ['record' => $billId]));
     }
 
+    public function openMarkInJobModal($billId): void
+    {
+        $this->selectedBillId = $billId;
+        $this->showMarkInJobModal = true;
+    }
+
+    public function openCompleteModal($billId): void
+    {
+        $this->selectedBillId = $billId;
+        $this->showCompleteModal = true;
+    }
+
+    public function closeModals(): void
+    {
+        $this->showMarkInJobModal = false;
+        $this->showCompleteModal = false;
+        $this->selectedBillId = null;
+    }
+
     public function getStatusColor(string $status): string
     {
         return match ($status) {
@@ -146,13 +166,14 @@ class PartnerBillsListPage extends Page
         return match ($status) {
             'pending' => __('partner/bill.status_pending'),
             'confirmed' => __('partner/bill.status_confirmed'),
+            'in_job' => __('partner/bill.status_in_job'),
             'paid' => __('partner/bill.paid'),
             'cancelled' => __('partner/bill.status_cancelled'),
             default => $status,
         };
     }
 
-    public function completeBill($billId): void
+    public function markAsInJob($billId): void
     {
         $bill = PartnerBill::findOrFail($billId);
 
@@ -168,7 +189,42 @@ class PartnerBillsListPage extends Page
         // Check if status is confirmed
         if ($bill->status !== PartnerBillStatus::CONFIRMED) {
             Notification::make()
-                ->title(__('partner/bill.cannot_complete_order'))
+                ->title(__('partner/bill.must_be_confirmed'))
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // Update status to IN_JOB
+        $bill->status = PartnerBillStatus::IN_JOB;
+        $bill->save();
+
+        Notification::make()
+            ->title(__('partner/bill.marked_as_in_job'))
+            ->success()
+            ->send();
+
+        // Reload bills
+        $this->loadBills();
+    }
+
+    public function completeBill($billId): void
+    {
+        $bill = PartnerBill::findOrFail($billId);
+
+        // Verify the bill belongs to this partner
+        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+            Notification::make()
+                ->title(__('partner/bill.unauthorized_action'))
+                ->danger()
+                ->send();
+            return;
+        }
+
+        // Check if status is IN_JOB
+        if ($bill->status !== PartnerBillStatus::IN_JOB) {
+            Notification::make()
+                ->title(__('partner/bill.must_be_in_job'))
                 ->danger()
                 ->send();
             return;
