@@ -9,6 +9,7 @@ import {
     ClientOrderHistory,
     ClientOrderHistoryPayload,
     OrderDetailsPayload,
+    OrderStatus,
     Partner,
     SingleClientOrderPayload,
 } from './types'
@@ -17,12 +18,17 @@ import {
     parseNextPage,
     stripPagingFromUrl,
     appendUniqueById,
+    debounce,
 } from './helper'
 import Loading from '@/components/Loading.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import { confirm } from '@/composables/useConfirm'
 import { hideLoading, showLoading } from '@/composables/useLoading'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
+import { formatPrice } from '@/lib/helper'
+import { default as PartnerProfilePage } from '../profile/partner/Partner.vue'
+import PartnerProfilePreview from './components/PartnerProfilePreview.vue'
+
 
 const activeTab = ref<'current' | 'history'>('current')
 
@@ -256,14 +262,19 @@ const applicants = computed<ClientOrderDetail[]>(() => {
     return detailsMap.value[id]?.items ?? []
 })
 
-async function handleConfirmChoosePartner(partner?: Partner | null) {
+async function handleConfirmChoosePartner(partner?: Partner | null, total?: number | null) {
+    console.log('handleConfirmChoosePartner: ',partner, total);
+
     if (!partner || !selectedOrder.value?.id) return
 
     const orderId = selectedOrder.value.id
 
     const ok = await confirm({
         title: `Bạn có muốn chọn đối tác (${partner.partner_profile?.partner_name ?? partner.name})?`,
-        message: `Xác nhận chốt đơn sẽ mở khóa chat với đối tác và <b class="font-lexend">không thể chọn lại đối tác khác cho đơn này.</b>`,
+        message: `Xác nhận chốt đơn sẽ mở khóa chat với đối tác và
+            <b class="font-lexend">không thể chọn lại đối tác khác cho đơn này.</b>
+            <br>Đối tác trả giá: <span class="text-red-800 font-bold text-md">`+formatPrice(total??0)+`đ</span>
+            <br> Bạn có chấp nhận mức giá này không?`,
         okText: 'Chốt đơn luôn!',
         cancelText: 'Ko, chưa chốt'
     })
@@ -280,8 +291,10 @@ async function handleConfirmChoosePartner(partner?: Partner | null) {
         },
         onSuccess: () => {
             delete detailsMap.value[orderId]
-            fetchDetails(orderId, true)
             refreshCurrentOrders()
+            debounce(()=>{
+                fetchDetails(orderId, true), 3000, { leading: false, trailing: true }
+            })();
         },
         onFinish: () => {
             hideLoading(true)
@@ -321,6 +334,18 @@ async function handleCancelOrder() {
     })
 }
 
+const selectedUserId = ref<number | null>(null)
+const isPartnerProfileOpen = ref(false)
+
+async function handleViewPartnerProfile(partnerId: number) {
+    selectedUserId.value = partnerId
+    isPartnerProfileOpen.value = true
+}
+
+function closePartnerProfile() {
+    isPartnerProfileOpen.value = false
+}
+
 const showRatingDialog = ref(false)
 const rating = ref(0)
 const comment = ref('')
@@ -339,7 +364,7 @@ function submitRating(payload: { rating: number; comment: string }) {
 }
 
 function pollForUpdates() {
-    if (selectedOrder.value?.id && selectedOrder.value?.status === 'pending') {
+    if (selectedOrder.value?.id && selectedOrder.value?.status === OrderStatus.PENDING) {
         fetchDetails(selectedOrder.value.id, true)
     }
 
@@ -425,7 +450,8 @@ onBeforeUnmount(() => {
                     @back="showMobileDetail = false"
                     @rate="openRating"
                     @cancel-order="handleCancelOrder"
-                    @confirm-choose-partner="handleConfirmChoosePartner"
+                    @confirm-choose-partner="(partner, total) => handleConfirmChoosePartner(partner, total)"
+                    @view-partner-profile="handleViewPartnerProfile($event)"
                 />
             </div>
 
@@ -437,4 +463,10 @@ onBeforeUnmount(() => {
             />
         </div>
     </ClientHeaderLayout>
+
+    <PartnerProfilePreview v-model:open="isPartnerProfileOpen" :user-id="selectedUserId" />
+    <!-- Full-screen overlay -->
+    <!-- <div v-if="isPartnerProfileOpen" class="fixed inset-0 bg-white z-50 overflow-auto">
+        <button @click="closePartnerProfile" class="absolute top-4 right-4">Close</button>
+    </div> -->
 </template>

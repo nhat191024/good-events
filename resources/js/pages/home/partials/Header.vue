@@ -22,9 +22,10 @@ withDefaults(defineProps<Props>(), {
 });
 
 const menuItems = [
-    { name: 'Chú hề', slug: 'home', route: null },
-    { name: 'MC', slug: 'about', route: null },
-    { name: 'Liên hệ', slug: 'contact', route: null }
+    { name: 'Sự kiện', slug: 'home', route: null },
+    { name: 'Vật tư', slug: 'supply', route: null },
+    { name: 'Tài liệu', slug: 'document', route: null },
+    { name: 'Khách sạn', slug: 'blog', route: null }
 ];
 
 const notificationItems = ref<NotiItem[]>([
@@ -53,33 +54,33 @@ onMounted(() => {
         isFloating ? 'shadow-md bg-white/30 backdrop-blur-md' : backgroundClassNames+' backdrop-blur-md'
     ]">
         <div class="sm:px-4 lg:px-8 mx-auto">
-            <div class="flex items-center justify-between h-16 pl-3 pr-3">
-                <div class="flex items-center gap-3">
-                    <!-- <HamburgerMenu :menu-items="menuItems" /> -->
+            <div class="flex items-center justify-between h-16 md:px-3 px-1">
+                <div class="flex items-center md:gap-3 gap-1">
+                    <HamburgerMenu class="block md:hidden" :menu-items="menuItems" />
                     <!-- Logo + text -->
-                    <Link :href="route('home')" class="flex items-center gap-2">
+                    <Link :href="route('home')" class="flex items-center md:gap-2 gap-1">
                     <img src="/images/logo.png" alt="Sukientot"
                         class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
                     <span
-                        class="font-bold tracking-tight text-black uppercase text-sm md:text-md">SUKIENTOT.COM</span>
+                        class="font-bold tracking-tight text-black uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
                     </Link>
                 </div>
 
                 <div class="hidden md:flex items-center gap-8">
                     <!-- Nav items (đậm, hover không đổi kích thước) -->
-                    <nav class="flex items-center gap-6">
+                    <nav class="flex items-center md:gap-3 lg:gap-6">
                         <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Sự Kiện</Link>
                         <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Vật Tư</Link>
                         <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
-                        <Link :href="'#'" class="font-semibold text-black hover:text-black/80 hidden md:block">Khách sạn</Link>
+                        <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Khách sạn</Link>
                     </nav>
                 </div>
 
                 <!-- RIGHT: actions -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center md:gap-3 gap-1">
                     <!-- Pill: Đặt show nhanh -->
                     <Link :href="route('quick-booking.choose-category')"
-                        class="inline-flex items-center gap-2 rounded-full bg-[#ED3B50] px-4 sm:px-5 py-2 h-10 text-white font-semibold shadow-md shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
+                        class="inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-4 sm:px-5 py-2 h-10 text-white font-semibold shadow-md shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path
                             d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"

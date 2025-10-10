@@ -3,7 +3,7 @@
 import BookingSummaryCard from './BookingSummaryCard.vue'
 import ApplicantCard from './ApplicantCard.vue'
 import { ArrowLeft, Star } from 'lucide-vue-next'
-import { ClientOrder, ClientOrderDetail, Partner } from '../types';
+import { ClientOrder, ClientOrderDetail, OrderDetailStatus, Partner } from '../types';
 import BookingSummaryCardEmpty from './BookingSummaryCardEmpty.vue';
 import { computed, ref } from 'vue';
 import ReloadButton from './ReloadButton.vue';
@@ -20,22 +20,24 @@ const props = withDefaults(defineProps<{
     applicants: () => [],
 })
 
-console.log('appliants ', props.applicants);
 const description = computed(() => {
     return (props.mode === 'current')
         ? 'Vui lòng đợi một lúc, chúng tôi đang gửi thông báo đến cho các đối tác gần đó và sẽ tải lại trang cho bạn'
         : 'Bạn đang xem lịch sử, đối tác đã từng được bạn chốt đơn sẽ hiển thị ở đây. Bạn cũng có thể đánh giá trải nghiệm của mình bên dưới'
 });
+
 const emit = defineEmits<{
     (e: 'back'): void,
     (e: 'rate'): void,
     (e: 'reload-detail',
     orderId: number | undefined): void
     (e: 'cancel-order') : void
-    (e: 'confirm-choose-partner', partner?: Partner | null | undefined) : void
+    (e: 'confirm-choose-partner', partner?: Partner | null | undefined, total?: number | null | undefined) : void
+    (e: 'view-partner-profile', partnerId: number): void
 }>()
+
 const bookedPartner = computed<ClientOrderDetail | undefined>(() => {
-    return props.applicants.find(item => item.status === 'closed')
+    return props.applicants.find(item => item.status === OrderDetailStatus.CLOSED)
 })
 
 const isReloading = ref(false)
@@ -51,6 +53,7 @@ const reloadOrderDetails = debounce(() => {
 const classIfBookedPartnerFound = computed(()=>{
     return (bookedPartner && props.mode === 'current' && props.order?.status=='confirmed') ? 'hidden' : '';
 });
+
 </script>
 
 <template>
@@ -80,7 +83,7 @@ const classIfBookedPartnerFound = computed(()=>{
                         <div v-if="props.applicants.length > 0" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
                         </div>
-                        <ApplicantCard :show-buttons="props.order?.status != 'confirmed'" v-for="a in props.applicants" :key="a.id" v-bind="a" @confirm-choose-partner="emit('confirm-choose-partner',$event)"/>
+                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)" :show-buttons="props.order?.status != 'confirmed'" v-for="a in props.applicants" :key="a.id" v-bind="a" @confirm-choose-partner="(partner, total) => emit('confirm-choose-partner', partner, total)"/>
                     </div>
                 </div>
                 <div v-else class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-5">
@@ -89,7 +92,7 @@ const classIfBookedPartnerFound = computed(()=>{
                         <div v-if="bookedPartner" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
                         </div>
-                        <ApplicantCard :show-buttons="false" v-if="bookedPartner" v-bind="bookedPartner" />
+                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)" :show-buttons="false" v-if="bookedPartner" v-bind="bookedPartner" />
                         <!-- rating button chỉ hiện ở history + completed -->
                         <!-- <div class="bg-white fixed bottom-1 md:bottom-3 w-[90%] md:w-[45%] lg:w-[55%] justify-self-center"> -->
                             <button v-if="bookedPartner && props.mode === 'history'"
@@ -101,7 +104,7 @@ const classIfBookedPartnerFound = computed(()=>{
                         <!-- </div> -->
                     </div>
                 </div>
-                <BookingSummaryCard :mode="props.mode" :booked-partner="bookedPartner" :order="props.order" class="mt-6" @cancel-order="emit('cancel-order')" />
+                <BookingSummaryCard @view-partner-profile="emit('view-partner-profile', $event)" :mode="props.mode" :booked-partner="bookedPartner" :order="props.order" class="mt-6" @cancel-order="emit('cancel-order')" />
 
             </template>
             <template v-else>

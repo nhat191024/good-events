@@ -3,16 +3,16 @@ import { getImg } from '@/pages/booking/helper';
 import { ClientOrder, OrderStatus } from '../types';
 import { calculateEstimatedPrice, formatDate, formatPrice, formatTime, formatTimeRange } from '@/lib/helper';
 import { statusBadge } from '../helper';
+import { cn } from '@/lib/utils';
 
 // note: card cho đơn hiện tại
 
 const props = defineProps<ClientOrder>()
-console.log("in order card",props);
 </script>
 
 <template>
     <div
-        class="cursor-pointer transition-shadow border border-border rounded-lg hover:shadow-md bg-card border-l-4 border-l-primary-700">
+        :class="cn('cursor-pointer transition-shadow border border-border rounded-lg hover:shadow-md bg-card border-l-4', statusBadge(props.status).border_class)">
         <div class="px-4 py-2 md:py-4">
             <div class="flex items-start gap-3">
                 <div
@@ -22,7 +22,7 @@ console.log("in order card",props);
                 <div class="flex-1 min-w-0">
                     <div class="flex flex-row justify-between">
                         <h3 class="font-semibold text-card-foreground text-sm mb-0 md:1">{{ props.category.name }}</h3>
-                        <span class="text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm">{{ props.partners.count }}</span>
+                        <span v-if="props.partners.count>0 && props.status == OrderStatus.PENDING" class="text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm">{{ props.partners.count }}</span>
                     </div>
                     <p class="text-xs text-muted-foreground mb-1">{{ props.category?.parent?.name ?? '' }}</p>
                     <p v-if="props.note" class="text-xs text-muted-foreground mb-1 md:mb-2">{{ props.note }}</p>

@@ -68,6 +68,10 @@ defineProps<{
                 Bạn là đối tác?
                 <a href="/partner/login" class="underline text-gray-800 underline-offset-4"> Đăng nhập đối tác </a>
             </div>
+            <div class="text-sm text-center text-muted-foreground">
+                Bạn là quản trị viên?
+                <a href="/admin/login" class="underline text-gray-800 underline-offset-4"> Đến trang quản trị</a>
+            </div>
             <hr>
             <div class="text-sm text-center text-muted-foreground">
                 Hoặc, bạn đang tìm việc?

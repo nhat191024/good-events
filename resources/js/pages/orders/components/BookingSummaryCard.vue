@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // note: hiển thị tóm tắt + nút hành động. nếu là history & completed -> hiện nút đánh giá
 import { CalendarDays, Clock, MapPin, Award, StickyNote, Handshake, BadgeDollarSign, ArrowUpRightFromSquare } from 'lucide-vue-next'
-import { ClientOrder, ClientOrderDetail } from '../types';
+import { ClientOrder, ClientOrderDetail, OrderStatus } from '../types';
 import { computed } from 'vue';
 import { formatDate, formatPrice, formatTimeRange } from '@/lib/helper';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,7 @@ const getCurrentTitle = computed(() => {
 
 const emit = defineEmits<{
     (e: 'cancel-order'): void
+    (e: 'view-partner-profile', partnerId: number): void
 }>()
 
 function goToChat() {
@@ -41,8 +42,10 @@ function goToPartnerProfile() {
     if (!props.bookedPartner) return
     const partner = props.bookedPartner.partner
     if (!partner) return
-    const url = route('profile.partner.show', { user: partner.id })
-    window.open(url, 'preview', 'width=900,height=700,noopener,noreferrer')
+    // const url = route('profile.partner.show', { user: partner.id })
+    // window.open(url, 'preview', 'width=900,height=700,noopener,noreferrer')
+    emit('view-partner-profile', partner.id)
+
 }
 </script>
 
@@ -167,7 +170,7 @@ function goToPartnerProfile() {
                 <div
                     class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
                     <button v-if="(props.mode === 'current')" @click="goToChat()"
-                        :class="(props.order?.status == 'confirmed') ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"
+                        :class="(props.order?.status == OrderStatus.CONFIRMED) ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"
                         class="h-10 rounded-md text-white flex-1">Chat ngay</button>
 
                     <button v-if="(props.mode === 'current')" @click="emit('cancel-order')"

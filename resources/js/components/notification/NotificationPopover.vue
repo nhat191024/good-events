@@ -82,7 +82,7 @@ onBeforeUnmount(() => {
             <Bell class="h-5 w-5" />
             <span
                 v-if="unreadCount"
-                class="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 bg-red-500 rounded-full flex items-center justify-center"
+                class="absolute -top-1 -right-0 h-4 min-w-[16px] px-1 bg-red-500 rounded-full flex items-center justify-center"
             >
                 <span class="text-[10px] leading-none text-white font-bold">
                     {{ unreadCount > 99 ? '99+' : unreadCount }}
