@@ -22,11 +22,19 @@ class PaymentController extends Controller
             return redirect()->route('login');
         }
 
-        if ($status === 'success') {
+        if ($status === 'PAID') {
             $transactionId = intval(explode('1010', $orderCode)[0] ?? 0);
             $transaction = Transaction::find($transactionId);
             if ($transaction) {
-                $transaction->confirm();
+                $metaData = $transaction->meta;
+
+                // Confirm the transaction first
+                $user->confirm($transaction);
+
+                // Update the new balance in meta data
+                $metaData['new_balance'] = $user->balanceInt;
+                $transaction->meta = $metaData;
+                $transaction->save();
             }
 
             Notification::make()
