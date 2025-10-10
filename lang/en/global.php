@@ -16,6 +16,8 @@ return [
 
     'hidden_records' => 'Hidden Records',
 
+    'processing' => 'Processing...',
+
     'filter' => [
         'hidden_include' => 'Include hidden records',
         'hidden_only' => 'Only hidden records'

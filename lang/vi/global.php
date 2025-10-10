@@ -23,6 +23,8 @@ return [
 
     'hidden_records' => 'Bản ghi bị ẩn',
 
+    'processing' => 'Đang xử lý...',
+
     'filter' => [
         'hidden_include' => 'Bao gồm bản ghi bị ẩn',
         'hidden_only' => 'Chỉ bản ghi bị ẩn'
