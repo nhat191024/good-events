@@ -85,6 +85,12 @@ return [
     'unauthorized_action' => 'Hành động không được phép',
     'cannot_complete_order' => 'Không thể hoàn thành đơn hàng',
 
+    // Mark in job translations
+    'mark_as_arrived' => 'Đã đến nơi',
+    'mark_in_job_confirm_title' => 'Xác nhận đã đến nơi',
+    'mark_in_job_confirm' => 'Bạn có chắc chắn muốn đánh dấu đơn hàng này là đã đến nơi?',
+    'confirm_arrived' => 'Xác nhận đã đến nơi',
+
     // Complete order translations
     'complete_order' => 'Hoàn thành đơn',
     'complete_order_confirm_title' => 'Xác nhận hoàn thành đơn hàng',
@@ -93,6 +99,7 @@ return [
     'insufficient_balance' => 'Số dư không đủ. Số tiền cần rút: :amount, Số dư hiện tại: :balance',
     'minimum_balance' => 'Số dư tối thiểu không đủ. Vui lòng nạp thêm để tiếp tục nhận show',
     'order_completed_success' => 'Đơn hàng đã được hoàn thành thành công',
+    'fee_will_be_deducted' => 'Phí dịch vụ sẽ được khấu trừ từ số dư của bạn khi hoàn thành đơn hàng này.',
 
     // Custom list page
     'search' => 'Tìm kiếm',

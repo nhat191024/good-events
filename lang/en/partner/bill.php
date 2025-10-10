@@ -85,6 +85,12 @@ return [
     'unauthorized_action' => 'Unauthorized Action',
     'cannot_complete_order' => 'Cannot complete order',
 
+    // Mark in job translations
+    'mark_in_job' => 'Mark as In Job',
+    'mark_in_job_confirm_title' => 'Confirm Mark as In Job',
+    'mark_in_job_confirm' => 'Are you sure you want to mark this order as in job? This action cannot be undone.',
+    'confirm_arrived' => 'Confirm Arrived',
+
     // Complete order translations
     'complete_order' => 'Complete Show',
     'complete_order_confirm_title' => 'Confirm Complete Order',
