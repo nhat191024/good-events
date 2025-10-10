@@ -81,6 +81,10 @@ return [
     'price_min' => 'Price must be greater than 0',
     'formatted_price' => 'Formatted price',
 
+    // Unauthorized action
+    'unauthorized_action' => 'Unauthorized Action',
+    'cannot_complete_order' => 'Cannot complete order',
+
     // Complete order translations
     'complete_order' => 'Complete Show',
     'complete_order_confirm_title' => 'Confirm Complete Order',

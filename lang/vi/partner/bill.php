@@ -81,6 +81,10 @@ return [
     'price_min' => 'Giá tiền phải lớn hơn 0',
     'formatted_price' => 'Số tiền đã định dạng',
 
+    // Unauthorized action
+    'unauthorized_action' => 'Hành động không được phép',
+    'cannot_complete_order' => 'Không thể hoàn thành đơn hàng',
+
     // Complete order translations
     'complete_order' => 'Hoàn thành đơn',
     'complete_order_confirm_title' => 'Xác nhận hoàn thành đơn hàng',
