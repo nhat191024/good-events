@@ -33,6 +33,12 @@ class WalletsTable
                     ->money('vnd', true),
                 TextColumn::make('meta.reason')
                     ->label(__('partner/transaction.label.reason')),
+                TextColumn::make('meta.old_balance')
+                    ->label(__('partner/transaction.label.old_balance'))
+                    ->money('vnd', true),
+                TextColumn::make('meta.new_balance')
+                    ->label(__('partner/transaction.label.balance'))
+                    ->money('vnd', true),
                 TextColumn::make('created_at')
                     ->label(__('partner/transaction.label.created_at'))
                     ->dateTime('d/m/Y H:i'),
