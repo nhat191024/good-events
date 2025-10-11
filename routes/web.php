@@ -13,8 +13,6 @@ use App\Mail\PartnerBillReceived;
 use App\Mail\PartnerBillConfirmed;
 use App\Mail\PartnerBillReminder;
 
-use App\Http\Controllers\TestPartnerCategoryController;
-
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
