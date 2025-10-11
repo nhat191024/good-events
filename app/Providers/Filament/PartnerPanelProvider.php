@@ -42,7 +42,7 @@ class PartnerPanelProvider extends PanelProvider
             ->path('partner')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Rose
             ])
             ->maxContentWidth(Width::Full)
 
