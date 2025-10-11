@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Broadcast;
+use Cmgmyr\Messenger\Models\Participant;
 
 // Only register channels if we have valid Pusher credentials
 if (
@@ -15,5 +16,10 @@ if (
 
     Broadcast::channel('category.{categoryId}', function ($user, $categoryId) {
         return $user->partnerServices()->where('id', $categoryId)->exists();
+    });
+
+    Broadcast::channel('thread.{threadId}', function ($user, $threadId) {
+        $participants = Participant::where('thread_id', $threadId)->where('user_id', $user->id)->first();
+        return $participants ? true : false;
     });
 }
