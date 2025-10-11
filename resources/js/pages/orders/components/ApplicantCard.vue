@@ -12,13 +12,13 @@ const props = withDefaults(defineProps<ClientOrderDetail & {
 })
 
 const emit = defineEmits<{
-    (e: 'confirm-choose-partner', partner: Partner | null | undefined): void
+    (e: 'confirm-choose-partner', partner: Partner | null | undefined, total: number | null | undefined): void
+    (e: 'view-partner-profile', partnerId: number): void
 }>()
 
 function goToPartnerProfile() {
     if (!props.partner) return
-    const partner = props.partner
-    router.get(route('profile.partner.show', { user: partner.id }))
+    emit('view-partner-profile', props.partner.id)
 }
 </script>
 
@@ -80,7 +80,7 @@ function goToPartnerProfile() {
                             class="cursor-pointer h-10 rounded-md border border-primary-700 text-primary-700 text-sm md:text-md bg-transparent md:px-6 px-2 hover:bg-primary/5">
                             Hồ sơ
                         </button>
-                        <button v-if="showButtons" @click="emit('confirm-choose-partner', props.partner)"
+                        <button v-if="showButtons" @click="emit('confirm-choose-partner', props.partner, props.total)"
                             class="cursor-pointer h-10 rounded-md bg-primary-700 text-white md:px-6 px-3 text-md md:text-md">
                             Chọn đối tác
                         </button>

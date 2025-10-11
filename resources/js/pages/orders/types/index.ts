@@ -43,8 +43,22 @@ export interface ClientOrderHistory {
     partner: Partner
 }
 
-export type OrderStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'expired' | string
-export type OrderDetailStatus = 'new' | 'closed' | string
+export const OrderStatus = {
+    PENDING: 'pending',
+    CONFIRMED: 'confirmed',
+    COMPLETED: 'completed',
+    CANCELLED: 'cancelled',
+    EXPIRED: 'expired'
+} as const;
+
+export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus] | string;
+
+export const OrderDetailStatus = {
+    NEW: 'new',
+    CLOSED: 'closed'
+} as const;
+
+export type OrderDetailStatus = typeof OrderDetailStatus[keyof typeof OrderDetailStatus] | string;
 
 export interface Category {
     id: number
@@ -72,8 +86,8 @@ export interface Partner {
     avatar: string
     partner_profile?: PartnerProfile
     statistics: Pick<Metrics,
-    | 'total_ratings'
-    | 'average_stars'
+        | 'total_ratings'
+        | 'average_stars'
     // | 'some_metric'
     // | 'some_metric'
 
