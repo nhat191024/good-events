@@ -26,6 +26,24 @@ class ViewPartnerBill extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('markAsInJob')
+                ->label(__('partner/bill.mark_as_arrived'))
+                ->icon('heroicon-o-map-pin')
+                ->color('primary')
+                ->requiresConfirmation()
+                ->modalHeading(__('partner/bill.mark_in_job_confirm_title'))
+                ->modalDescription(__('partner/bill.mark_in_job_confirm'))
+                ->modalSubmitActionLabel(__('partner/bill.confirm_arrived'))
+                ->modalIcon('heroicon-o-map-pin')
+                ->visible(fn() => $this->record->status === PartnerBillStatus::CONFIRMED)
+                ->action(function () {
+                    $this->record->status = PartnerBillStatus::IN_JOB;
+                    $this->record->save();
+                    Notification::make()
+                        ->title(__('partner/bill.marked_as_in_job'))
+                        ->success()
+                        ->send();
+                }),
             Action::make('complete')
                 ->label(__('partner/bill.complete_order'))
                 ->icon('heroicon-o-check-circle')
@@ -35,25 +53,31 @@ class ViewPartnerBill extends ViewRecord
                 ->modalDescription(__('partner/bill.complete_order_confirm_description'))
                 ->modalSubmitActionLabel(__('partner/bill.confirm_complete'))
                 ->modalIcon('heroicon-o-check-circle')
-                ->visible(fn() => $this->record->status === PartnerBillStatus::CONFIRMED)
+                ->visible(fn() => $this->record->status === PartnerBillStatus::IN_JOB)
                 ->action(function () {
-                    $user =  Auth::user();
+                    $user = Auth::user();
                     $balance = $user->balanceInt;
-                    $fee_percentage = app(PartnerSettings::class)->fee_percentage;
-                    $withdraw_amount = floor($this->record->final_total * ($fee_percentage / 100));
+                    $feePercentage = app(PartnerSettings::class)->fee_percentage;
+                    $withdrawAmount = floor($this->record->final_total * ($feePercentage / 100));
 
-                    if ($balance < $withdraw_amount) {
-                        $format_withdraw_amount = number_format($withdraw_amount) . ' VND';
-                        $format_balance = number_format($balance) . ' VND';
+                    if ($balance < $withdrawAmount) {
+                        $formatWithdrawAmount = number_format($withdrawAmount) . ' VND';
+                        $formatBalance = number_format($balance) . ' VND';
                         Notification::make()
-                            ->title(__('partner/bill.insufficient_balance', ['amount' => $format_withdraw_amount, 'balance' => $format_balance]))
+                            ->title(__('partner/bill.insufficient_balance', ['amount' => $formatWithdrawAmount, 'balance' => $formatBalance]))
                             ->danger()
                             ->send();
                         return;
                     }
 
-                    //withdraw da moneyyyy! here come the moneyy! :)
-                    $user->withdraw($withdraw_amount, ['reason' => 'Thu phí nền tảng show mã: ' . $this->record->code]);
+                    // Withdraw money
+                    $oldBalance = $user->balanceInt;
+                    $transaction = $user->withdraw($withdrawAmount, ['reason' => 'Thu phí nền tảng show mã: ' . $this->record->code, 'old_balance' => $oldBalance]);
+                    $newBalance = $user->balanceInt;
+                    $transaction->meta = array_merge($transaction->meta ?? [], [
+                        'new_balance' => $newBalance,
+                    ]);
+                    $transaction->save();
 
                     $this->record->status = PartnerBillStatus::COMPLETED;
                     $this->record->save();
