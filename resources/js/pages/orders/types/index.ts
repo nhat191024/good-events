@@ -24,6 +24,14 @@ export interface ClientOrder {
     category: Category
     event: Pick<Event, 'name'>
     partners: { count: number }
+    partner: Partner
+    review: Review
+}
+
+export interface Review {
+    rating: number,
+    comment: string,
+    recommend: true,
 }
 
 export interface ClientOrderHistory {
@@ -41,6 +49,7 @@ export interface ClientOrderHistory {
     category: Category
     event: Pick<Event, 'name'>
     partner: Partner
+    review: Review
 }
 
 export const OrderStatus = {
