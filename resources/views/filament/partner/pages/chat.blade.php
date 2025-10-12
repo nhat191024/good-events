@@ -33,9 +33,9 @@
                         if (this.loading) return;
             
                         if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
-                            if ({{ $hasMoreThreads ? 'true' : 'false' }}) {
+                            if (this.$wire.get('hasMoreThreads')) {
                                 this.loading = true;
-                                @this.call('loadMoreThreads').then(() => {
+                                this.$wire.loadMoreThreads().finally(() => {
                                     this.loading = false;
                                 });
                             }
@@ -120,7 +120,70 @@
                 </div>
 
                 <!-- Messages -->
-                <div id="messages-container" class="flex-1 space-y-4 overflow-y-auto p-4">
+                <div id="messages-container" class="flex-1 space-y-4 overflow-y-auto p-4" x-data="{
+                    loading: false,
+                    isAtBottom: true,
+                    oldScrollHeight: 0,
+                    oldScrollTop: 0,
+                    init() {
+                        const container = this.$el;
+                        const scrollToBottom = () => {
+                            container.scrollTop = container.scrollHeight;
+                        };
+                
+                        // Initial scroll to bottom
+                        this.$nextTick(() => {
+                            setTimeout(() => scrollToBottom(), 50);
+                        });
+                
+                        // Scroll event for loading older messages
+                        container.addEventListener('scroll', () => {
+                            if (this.loading) return;
+                
+                            // Check if user scrolled to top (load more messages)
+                            if (container.scrollTop <= 100) {
+                                if (this.$wire.get('hasMoreMessages')) {
+                                    this.loading = true;
+                                    // Save current scroll position before loading
+                                    this.oldScrollHeight = container.scrollHeight;
+                                    this.oldScrollTop = container.scrollTop;
+                
+                                    this.$wire.loadMoreMessages()
+                                        .then(() => {
+                                            // Use $nextTick to ensure DOM has updated
+                                            this.$nextTick(() => {
+                                                const heightDifference = container.scrollHeight - this.oldScrollHeight;
+                                                const targetScroll = Math.max(0, this.oldScrollTop + heightDifference);
+                                                container.scrollTop = targetScroll;
+                                            });
+                                        })
+                                        .finally(() => {
+                                            this.loading = false;
+                                        });
+                                }
+                            }
+                
+                            // Track if user is at bottom
+                            this.isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
+                        });
+                
+                        // Listen for new messages and scroll to bottom if user was at bottom
+                        Livewire.hook('morph.updated', ({ el, component }) => {
+                            if (el === container && this.isAtBottom && !this.loading) {
+                                this.$nextTick(() => {
+                                    setTimeout(() => scrollToBottom(), 50);
+                                });
+                            }
+                        });
+                    }
+                }">
+                    @if ($hasMoreMessages)
+                        <div class="flex items-center justify-center py-2" wire:loading.delay wire:target="loadMoreMessages">
+                            <x-filament::loading-indicator class="h-5 w-5" />
+                            <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Đang tải tin nhắn cũ...</span>
+                        </div>
+                    @endif
+
                     @forelse($messages as $message)
                         <div class="{{ $message['user_id'] === auth()->id() ? 'justify-end' : 'justify-start' }} flex">
                             <div class="max-w-[70%]">
@@ -168,27 +231,6 @@
     </div>
 
     <script>
-        // Auto scroll to bottom when new messages appear
-        document.addEventListener('livewire:initialized', () => {
-            Livewire.hook('morph.updated', ({
-                el,
-                component
-            }) => {
-                const messagesContainer = document.getElementById('messages-container');
-                if (messagesContainer) {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }
-            });
-        });
-
-        // Initial scroll to bottom
-        window.addEventListener('load', () => {
-            const messagesContainer = document.getElementById('messages-container');
-            if (messagesContainer) {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-        });
-
         document.addEventListener('livewire:initialized', () => {
             const subscriptions = new Map();
 

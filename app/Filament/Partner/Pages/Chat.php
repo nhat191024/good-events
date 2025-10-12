@@ -46,6 +46,13 @@ class Chat extends Page
     //selected thread messages
     public $messages = [];
 
+    //messages pagination
+    public int $messagesPerPage = 20;
+
+    public int $messagesCurrentPage = 1;
+
+    public bool $hasMoreMessages = false;
+
     //user input message
     public string $messageBody = '';
 
@@ -187,6 +194,19 @@ class Chat extends Page
     }
 
     /**
+     * Load more messages when user scrolls to the top
+     */
+    public function loadMoreMessages(): void
+    {
+        if (!$this->hasMoreMessages || !$this->selectedThreadId) {
+            return;
+        }
+
+        $this->messagesCurrentPage++;
+        $this->loadMessages($this->selectedThreadId, true);
+    }
+
+    /**
      * Open thread and clear unread count
      *
      * @param int $threadId
@@ -198,6 +218,10 @@ class Chat extends Page
 
         //clear user input message
         $this->messageBody = '';
+
+        //reset messages pagination
+        $this->messagesCurrentPage = 1;
+        $this->hasMoreMessages = false;
 
         //get thread data
         if (!$this->selectedThreadId) {
@@ -221,33 +245,67 @@ class Chat extends Page
             $this->messages = $this->cachedMessages;
         } else {
             $this->cachedMessages = null;
-
-            $message = Thread::with([
-                'messages.user' => function ($query) {
-                    $query->select('id', 'name');
-                }
-            ])
-                ->find($threadId);
-
-            $this->messages = $message->messages->map(fn($msg) => [
-                'id' => $msg->id,
-                'thread_id' => $msg->thread_id,
-                'user_id' => $msg->user_id,
-                'body' => $msg->body,
-                'created_at' => $msg->created_at,
-                'updated_at' => $msg->updated_at,
-                'user' => [
-                    'id' => $msg->user->id,
-                    'name' => $msg->user->name,
-                ],
-            ])->toArray();
-
-            $this->cachedMessages = $this->messages;
-
-            $message->markAsRead(Auth::id());
+            $this->loadMessages($threadId, false);
         }
 
         $this->showThreadListOnMobile = false;
+    }
+
+    /**
+     * Load messages for the selected thread with pagination
+     *
+     * @param int $threadId
+     * @param bool $prepend Whether to prepend to existing messages or replace them
+     */
+    private function loadMessages(int $threadId, bool $prepend = false): void
+    {
+        $thread = Thread::find($threadId);
+
+        $thread?->markAsRead(Auth::id());
+
+        if (!$thread) {
+            return;
+        }
+
+        $totalMessages = $thread->messages()->count();
+
+        // Calculate offset from the end
+        $offset = max(0, $totalMessages - ($this->messagesCurrentPage * $this->messagesPerPage));
+
+        $messages = $thread->messages()
+            ->with(['user' => function ($query) {
+                $query->select('id', 'name');
+            }])
+            ->orderBy('created_at', 'asc')
+            ->skip($offset)
+            ->take($this->messagesPerPage)
+            ->get();
+
+        // Check if there are more messages to load
+        $this->hasMoreMessages = $offset > 0;
+
+        $mappedMessages = $messages->map(fn($msg) => [
+            'id' => $msg->id,
+            'thread_id' => $msg->thread_id,
+            'user_id' => $msg->user_id,
+            'body' => $msg->body,
+            'created_at' => $msg->created_at,
+            'updated_at' => $msg->updated_at,
+            'user' => [
+                'id' => $msg->user->id,
+                'name' => $msg->user->name,
+            ],
+        ])->toArray();
+
+        if ($prepend) {
+            // Prepend older messages to the beginning
+            $this->messages = array_merge($mappedMessages, $this->messages);
+        } else {
+            // Replace with new messages (initial load)
+            $this->messages = $mappedMessages;
+        }
+
+        $this->cachedMessages = $this->messages;
     }
 
     /**
@@ -287,7 +345,7 @@ class Chat extends Page
             ],
         ];
 
-        $this->messages = collect($this->messages)->push($message);
+        $this->messages = collect($this->messages)->push($message)->toArray();
         $this->cachedMessages = $this->messages;
 
         $participant = Participant::firstOrCreate([
