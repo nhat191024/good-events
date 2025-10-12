@@ -16,9 +16,6 @@ class PartnerTopServicesWidget extends TableWidget
 {
     protected int | string | array $columnSpan = 'full';
 
-    // Giảm tần suất polling
-    protected ?string $pollingInterval = '60s';
-
     protected function getTableHeading(): ?string
     {
         return 'Dịch vụ phổ biến';

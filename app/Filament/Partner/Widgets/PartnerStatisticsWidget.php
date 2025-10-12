@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\Cache;
 
 class PartnerStatisticsWidget extends StatsOverviewWidget
 {
-    // Giảm tần suất polling xuống 30s thay vì 2s mặc định
-    protected ?string $pollingInterval = '30s';
-
     protected function getStats(): array
     {
         $user = Auth::user();

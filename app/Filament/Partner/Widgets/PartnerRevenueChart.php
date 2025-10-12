@@ -15,7 +15,6 @@ class PartnerRevenueChart extends ChartWidget
 
     // Giảm tần suất polling của widget (mặc định là 2s, tăng lên 30s)
     protected int | string | array $columnSpan = 'full';
-    protected ?string $pollingInterval = '30s';
 
     // Cache key cho dữ liệu
     protected function getCacheKey(): string
