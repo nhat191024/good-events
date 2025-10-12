@@ -13,8 +13,9 @@ class PartnerRevenueChart extends ChartWidget
 {
     protected ?string $heading = 'Biểu đồ doanh thu theo tháng';
 
-    // Giảm tần suất polling của widget (mặc định là 2s, tăng lên 30s)
     protected int | string | array $columnSpan = 'full';
+
+    protected  ?string $maxHeight = '400px';
 
     // Cache key cho dữ liệu
     protected function getCacheKey(): string
