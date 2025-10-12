@@ -76,6 +76,9 @@ class Chat extends Page
         $this->dispatch('filament-partner-chat:threads-updated', threadIds: $threadIds);
     }
 
+    /**
+     * Load more threads when user scrolls to the bottom
+     */
     public function loadMoreThreads(): void
     {
         if (!$this->hasMoreThreads) {
@@ -86,6 +89,11 @@ class Chat extends Page
         $this->loadThreads(true);
     }
 
+    /**
+     * Load threads for the authenticated user
+     *
+     * @param bool $append Whether to append to existing threads or replace them
+     */
     private function loadThreads(bool $append = false): void
     {
         $userId = Auth::id();
