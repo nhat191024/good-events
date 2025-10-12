@@ -4,13 +4,38 @@ namespace App\Http\Resources\OrderHistory;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
-/** @mixin \App\Models\PartnerBill */
 class PartnerBillHistoryResource extends JsonResource
 {
     public function toArray(Request $request)
     {
-        $expireAt = now()->addMinutes(60*24);
+        $expireAt = now()->addMinutes(60 * 24);
+        $review = null;
+
+        if ($request->user()) {
+            // lấy review record
+            $reviewRow = DB::table('reviews')
+                ->where('reviewable_type', User::class)
+                ->where('reviewable_id', $this->partner_id)
+                ->where('user_id', $request->user()->id)
+                ->where('partner_bill_id', $this->id)
+                ->first();
+
+            if ($reviewRow) {
+                $ratingValue = DB::table('ratings')
+                    ->where('review_id', $reviewRow->id)
+                    ->where('key', 'rating')
+                    ->value('value');
+
+                $review = [
+                    'rating' => $ratingValue ? (int) $ratingValue : 0,
+                    'comment' => $reviewRow->review ?? '',
+                    'recommend' => (bool) ($reviewRow->recommend ?? false),
+                ];
+            }
+        }
 
         return [
             "id" => $this->id,
@@ -24,6 +49,7 @@ class PartnerBillHistoryResource extends JsonResource
             "status" => $this->status,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
+
             "category" => $this->whenLoaded('category', function () use ($expireAt) {
                 $cat = $this->category;
                 return [
@@ -39,6 +65,7 @@ class PartnerBillHistoryResource extends JsonResource
                     ),
                 ];
             }),
+
             "event" => $this->whenLoaded("event", function () {
                 $cat = $this->event;
                 return [
@@ -46,6 +73,7 @@ class PartnerBillHistoryResource extends JsonResource
                     "name" => $cat->name
                 ];
             }),
+
             "partner" => $this->whenLoaded("partner", function () use ($expireAt) {
                 $cat = $this->partner;
                 return [
@@ -71,6 +99,8 @@ class PartnerBillHistoryResource extends JsonResource
                     ),
                 ];
             }),
+
+            "review" => $review,
         ];
     }
 }
