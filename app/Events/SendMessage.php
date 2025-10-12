@@ -8,6 +8,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendMessage implements ShouldBroadcastNow
 {
@@ -31,7 +32,7 @@ class SendMessage implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('thread.' . $this->message->thread_id),
+            new PrivateChannel('thread.' . $this->message['thread_id']),
         ];
     }
 
@@ -42,30 +43,27 @@ class SendMessage implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
-        $userPayload = null;
+        $createdAt = $this->message['created_at']?->toIso8601String();
+        $updatedAt = $this->message['updated_at']?->toIso8601String();
 
-        if ($this->message->relationLoaded('user') && $this->message->user) {
-            $userPayload = [
-                'id' => $this->message->user->id,
-                'name' => $this->message->user->name,
-                'avatar' => $this->message->user->avatar ?? null,
-            ];
-        }
-
-        $createdAt = $this->message->created_at ? $this->message->created_at->toIso8601String() : null;
-        $updatedAt = $this->message->updated_at ? $this->message->updated_at->toIso8601String() : null;
-
-        return [
-            'sender_id' => $this->message->user_id,
+        $payload = [
+            'sender_id' => $this->message['user_id'],
             'message' => [
-                'id' => $this->message->id,
-                'thread_id' => $this->message->thread_id,
-                'user_id' => $this->message->user_id,
-                'body' => $this->message->body,
+                'id' => $this->message['id'],
+                'thread_id' => $this->message['thread_id'],
+                'user_id' => $this->message['user_id'],
+                'body' => $this->message['body'],
                 'created_at' => $createdAt,
                 'updated_at' => $updatedAt,
             ],
-            'user' => $userPayload,
+            'user' => [
+                'id' => $this->message['user_id'],
+                'name' => $this->message['user']['name'] ?? 'Người dùng đã xóa',
+            ],
         ];
+
+        Log::info('🚀 Broadcasting message', $payload);
+
+        return $payload;
     }
 }
