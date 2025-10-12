@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // note: hiển thị tóm tắt + nút hành động. nếu là history & completed -> hiện nút đánh giá
-import { CalendarDays, Clock, MapPin, Award, StickyNote, Handshake, BadgeDollarSign, ArrowUpRightFromSquare } from 'lucide-vue-next'
+import { CalendarDays, Clock, MapPin, Award, StickyNote, Handshake, BadgeDollarSign, ArrowUpRightFromSquare, Star } from 'lucide-vue-next'
 import { ClientOrder, ClientOrderDetail, OrderStatus } from '../types';
 import { computed } from 'vue';
 import { formatDate, formatPrice, formatTimeRange } from '@/lib/helper';
@@ -71,6 +71,15 @@ function goToPartnerProfile() {
             </div>
 
             <div class="max-w-3xl mx-auto">
+                <div v-if="props.order?.review" class="space-y-3 mb-3">
+                    <div class="flex items-center gap-3 p-1 md:p-3 bg-muted/30 rounded-lg">
+                        <Star class="h-5 w-5 text-muted-foreground" />
+                        <div>
+                            <div class="text-xs text-muted-foreground" v-text="'Đánh giá của bạn '+(props.order?.review?.rating? ('('+props.order?.review?.rating+' sao)'):(''))"></div>
+                            <div class="text-sm md:text-md font-medium">{{ props.order?.review?.comment ?? 'Không' }}</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 mb-3 md:mb-6">
                     <div class="flex items-center gap-3 p-1 md:p-3 bg-muted/30 rounded-lg">
                         <CalendarDays class="h-5 w-5 text-muted-foreground" />
