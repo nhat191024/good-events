@@ -14,7 +14,6 @@ use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use Livewire\Attributes\On;
 
@@ -29,8 +28,6 @@ class Chat extends Page
     protected static ?string $navigationLabel = 'Chat';
 
     protected static ?string $title = 'Tin nhắn';
-
-    private $userId = null;
 
     //threads list & thread per page
     public $threads = [];
@@ -56,7 +53,7 @@ class Chat extends Page
     //show thread list on mobile
     public bool $showThreadListOnMobile = true;
 
-    public $cachedThread = null;
+    public $cachedSelectedThread = null;
 
     public $cachedMessages = null;
 
@@ -64,25 +61,46 @@ class Chat extends Page
 
     public function mount(): void
     {
-        $this->userId = Auth::id();
-
         $this->loadThreads();
+    }
+
+    public function updatedSearchTerm(): void
+    {
+        $this->currentPage = 1;
+        $this->hasMoreThreads = true;
+        $this->threads = [];
+        $this->loadThreads();
+
+        // Dispatch event to update thread subscriptions
+        $threadIds = collect($this->threads)->pluck('id')->toArray();
+        $this->dispatch('filament-partner-chat:threads-updated', threadIds: $threadIds);
     }
 
     public function loadMoreThreads(): void
     {
-        // if (!$this->hasMoreThreads) {
-        //     return;
-        // }
+        if (!$this->hasMoreThreads) {
+            return;
+        }
 
         $this->currentPage++;
-        // $this->loadThreads(true);
+        $this->loadThreads(true);
     }
 
-    private function loadThreads(bool $append = false, bool $preserveSelection = false): void
+    private function loadThreads(bool $append = false): void
     {
-        $userId = $this->userId;
-        $threads = Thread::forUserOrderByNotReadMessages($userId)
+        $userId = Auth::id();
+
+        if ($userId === null) {
+            if (! $append) {
+                $this->threads = [];
+            }
+
+            $this->hasMoreThreads = false;
+
+            return;
+        }
+
+        $query = Thread::forUserOrderByNotReadMessages($userId)
             ->with(
                 [
                     'latestMessage',
@@ -92,7 +110,18 @@ class Chat extends Page
                     },
                 ]
             )
-            ->latest('updated_at')
+            ->latest('updated_at');
+
+        if (!empty(trim($this->searchTerm))) {
+            $query->where(function ($q) {
+                $q->where('subject', 'like', '%' . $this->searchTerm . '%')
+                    ->orWhereHas('participants.user', function ($userQuery) {
+                        $userQuery->where('name', 'like', '%' . $this->searchTerm . '%');
+                    });
+            });
+        }
+
+        $threads = $query
             ->skip(($this->currentPage - 1) * $this->threadsPerPage)
             ->take($this->threadsPerPage + 1)
             ->get();
@@ -104,7 +133,6 @@ class Chat extends Page
         if ($this->hasMoreThreads) {
             $threads = $threads->take($this->threadsPerPage);
         }
-
 
         $mappedThreads = $threads->map(function ($thread) use ($userId) {
             $isUnread = false;
@@ -138,8 +166,11 @@ class Chat extends Page
             ];
         });
 
-        $this->threads = $mappedThreads;
-        return;
+        if ($append) {
+            $this->threads = collect($this->threads)->merge($mappedThreads)->all();
+        } else {
+            $this->threads = $mappedThreads->all();
+        }
     }
 
     public function showThreadList(): void
@@ -165,16 +196,16 @@ class Chat extends Page
             return null;
         }
 
-        if ($this->cachedThread && $this->cachedThread->id === $this->selectedThreadId) {
-            $this->selectedThread = $this->cachedThread;
+        if ($this->cachedSelectedThread && $this->cachedSelectedThread->id === $this->selectedThreadId) {
+            $this->selectedThread = $this->cachedSelectedThread;
         } else {
-            $this->cachedThread = null;
+            $this->cachedSelectedThread = null;
 
             $threads = collect($this->threads);
             $thread = $threads->firstWhere('id', $this->selectedThreadId);
             $thread->is_unread = false;
             $this->selectedThread = $thread;
-            $this->cachedThread = $thread;
+            $this->cachedSelectedThread = $thread;
         }
 
 

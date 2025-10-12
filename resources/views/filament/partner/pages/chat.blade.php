@@ -26,12 +26,18 @@
             </div>
 
             <div id="threads-container" class="max-h-[70vh] flex-1 overflow-y-auto lg:h-full" x-data="{
+                loading: false,
                 init() {
                     const container = this.$el;
                     container.addEventListener('scroll', () => {
+                        if (this.loading) return;
+            
                         if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
                             if ({{ $hasMoreThreads ? 'true' : 'false' }}) {
-                                @this.call('loadMoreThreads');
+                                this.loading = true;
+                                @this.call('loadMoreThreads').then(() => {
+                                    this.loading = false;
+                                });
                             }
                         }
                     });
