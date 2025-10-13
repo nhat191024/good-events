@@ -61,6 +61,8 @@ class PartnerBillHistoriesTable
                         'primary' => PartnerBillStatus::PENDING,
                         'success' => PartnerBillStatus::COMPLETED,
                         'danger' => PartnerBillStatus::CANCELLED,
+                        'warning' => PartnerBillStatus::CONFIRMED,
+                        'info' => PartnerBillStatus::IN_JOB,
                     ])
                     ->searchable(),
                 TextColumn::make('created_at')
