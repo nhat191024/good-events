@@ -26,6 +26,7 @@
         province_id: string | null
         ward_id: string | null
         event_id: string | null
+        event_custom: string | null
         category_id: number | null
         location_detail: string | number | undefined
         note: string
@@ -48,6 +49,7 @@
         province_id: null,
         ward_id: null,
         event_id: null,
+        event_custom: null,
         category_id: null,
         location_detail: '',
         note: '',
@@ -105,7 +107,7 @@
 
     watch(() => form.data(), (val) => {
         try {
-            localStorage.setItem(LS_KEY, JSON.stringify(val))
+            localStorage.setItem(LS_KEY, JSON.stringify(val))            
         } catch (e) {
             console.error('cannot write ls', e)
         }
@@ -119,6 +121,7 @@
             province_id: form.province_id,
             ward_id: form.ward_id,
             event_id: form.event_id,
+            event_custom: form.event_custom,
             location_detail: form.location_detail,
             note: form.note,
             category_id: partnerChildrenCategory.id
@@ -168,11 +171,11 @@
                 class="bg-gray-50 will-change-transform rounded md:rounded-lg flex flex-col items-center max-w-[800px] gap-[20px] w-full md:w-[86%] h-min p-3 md:p-7 relative">
                 <FormGroupLayout>
                     <FormItemLayout :for-id="'select-start-time'" :label="'Thời gian bắt đầu'" :error="form.errors.start_time">
-                        <TimePickerSingle v-model="form.start_time" :id="'select-start-time'" />
+                        <TimePickerSingle use24h v-model="form.start_time" :id="'select-start-time'" />
                     </FormItemLayout>
 
                     <FormItemLayout :for-id="'select-end-time'" :label="'Thời gian kết thúc'" :error="form.errors.end_time">
-                        <TimePickerSingle v-model="form.end_time" :id="'select-end-time'" />
+                        <TimePickerSingle use24h v-model="form.end_time" :id="'select-end-time'" />
                     </FormItemLayout>
                 </FormGroupLayout>
 
@@ -181,8 +184,16 @@
                     <FormItemLayout :for-id="'select-event-date'" :label="'Ngày tổ chức sự kiện'" :error="form.errors.order_date">
                         <DatePickerSingle :id="'select-event-date'" v-model="form.order_date" />
                     </FormItemLayout>
-                    <FormItemLayout :for-id="'select-event-type'" :label="'Nội dung sự kiện'" :error="form.errors.event_id">
-                        <SelectBox :id="'select-event-type'" v-model="form.event_id" :options="eventList" placeholder="Chọn nội dung sự kiện..." />
+                    <FormItemLayout :for-id="'select-event-type'" :label="'Nội dung sự kiện'" :error="form.errors.event_id??form.errors.event_custom">
+                        <SelectBox 
+                            :id="'select-event-type'" 
+                            v-model="form.event_id" 
+                            :custom-value="form.event_custom"
+                            @update:custom-value="val => form.event_custom = val"
+                            :options="eventList" 
+                            :allow-custom="true"
+                            placeholder="Chọn nội dung sự kiện..." 
+                        />
                     </FormItemLayout>
                 </FormGroupLayout>
 
