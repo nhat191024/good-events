@@ -95,7 +95,7 @@ const classIfBookedPartnerFound = computed(()=>{
                         <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)" :show-buttons="false" v-if="bookedPartner" v-bind="bookedPartner" />
                         <!-- rating button chỉ hiện ở history + completed -->
                         <!-- <div class="bg-white fixed bottom-1 md:bottom-3 w-[90%] md:w-[45%] lg:w-[55%] justify-self-center"> -->
-                            <button v-if="bookedPartner && props.mode === 'history'"
+                            <button v-if="bookedPartner && props.mode === 'history' && !props.order?.review"
                                 class="z-10 fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center h-10 rounded-md border border-yellow-700 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 flex-1 inline-flex items-center justify-center gap-2"
                                 @click="emit('rate')">
                                 <Star class="h-4 w-4 text-white stroke-yellow-800 fill-white" />

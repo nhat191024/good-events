@@ -2,13 +2,18 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { fmt24, from12h, to12h, toMinutes, Props } from '.'
 
-const props = withDefaults(defineProps<Props>(), {
+interface ExtendedProps extends Props {
+    use24h?: boolean
+}
+
+const props = withDefaults(defineProps<ExtendedProps>(), {
     modelValue: null,
     minuteStep: 1,
     id: '',
     placeholder: 'hh:mm AM/PM',
     commitDefaultOnMount: false,
-    defaultTime: '09:00'
+    defaultTime: '09:00',
+    use24h: false
 })
 
 const emit = defineEmits<{
@@ -21,25 +26,36 @@ const containerRef = ref<HTMLElement | null>(null)
 const totalMins = ref<number | null>(toMinutes(props.modelValue))
 
 const sel = computed(() => {
-    if (totalMins.value == null) return { h12: 12, m: 0, period: 'AM' as const }
-    return to12h(totalMins.value)
+    if (totalMins.value == null) return { h12: 12, h24: 0, m: 0, period: 'AM' as const }
+    const mins = totalMins.value
+    const h24 = Math.floor(mins / 60)
+    const m = mins % 60
+    const h12 = h24 % 12 || 12
+    const period = h24 < 12 ? ('AM' as const) : ('PM' as const)
+    return { h12, h24, m, period }
 })
 
 const displayValue = computed(() => {
     if (totalMins.value == null) return ''
-    const { h12, m, period } = to12h(totalMins.value)
-    const hh = String(h12).padStart(2, '0')
+    const { h24, h12, m, period } = sel.value
+    const hh = String(props.use24h ? h24 : h12).padStart(2, '0')
     const mm = String(m).padStart(2, '0')
-    return `${hh}:${mm} ${period}`
+    return props.use24h ? `${hh}:${mm}` : `${hh}:${mm} ${period}`
 })
 
-const hours = Array.from({ length: 12 }, (_, i) => i + 1) // 1..12
+const hours = computed(() => {
+    return props.use24h 
+        ? Array.from({ length: 24 }, (_, i) => i)  // 0..23
+        : Array.from({ length: 12 }, (_, i) => i + 1) // 1..12
+})
+
 const minutes = computed(() => {
     const step = Math.max(1, Math.min(60, props.minuteStep || 1))
     const out: number[] = []
     for (let i = 0; i < 60; i += step) out.push(i)
     return out
 })
+
 const periods = ['AM', 'PM'] as const
 
 const handleClickOutside = (event: Event) => {
@@ -64,13 +80,23 @@ const handleInputClick = () => {
 }
 
 function pickHour(h: number) {
-    totalMins.value = from12h(h, sel.value.m, sel.value.period)
+    if (props.use24h) {
+        totalMins.value = h * 60 + sel.value.m
+    } else {
+        totalMins.value = from12h(h, sel.value.m, sel.value.period)
+    }
     emitOut()
 }
+
 function pickMinute(m: number) {
-    totalMins.value = from12h(sel.value.h12, m, sel.value.period)
+    if (props.use24h) {
+        totalMins.value = sel.value.h24 * 60 + m
+    } else {
+        totalMins.value = from12h(sel.value.h12, m, sel.value.period)
+    }
     emitOut()
 }
+
 function pickPeriod(p: 'AM' | 'PM') {
     totalMins.value = from12h(sel.value.h12, sel.value.m, p)
     emitOut()
@@ -113,7 +139,8 @@ watch(() => props.modelValue, (v) => {
     <div ref="containerRef" class="relative w-full">
         <!-- Input -->
         <div class="relative">
-            <input :id="props.id" :value="displayValue" @click="handleInputClick" type="text" placeholder="hh:mm AM/PM"
+            <input :id="props.id" :value="displayValue" @click="handleInputClick" type="text" 
+                :placeholder="props.use24h ? 'hh:mm' : 'hh:mm AM/PM'"
                 readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 cursor-pointer
                 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500
                 hover:border-gray-400 transition" />
@@ -127,33 +154,33 @@ watch(() => props.modelValue, (v) => {
 
         <!-- Panel -->
         <transition name="fade-scale">
-            <div v-if="showPanel" class="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-3 w-80
-                ring-1 ring-black/5">
-                <!-- Header chips giống ảnh: hiển thị lựa chọn hiện tại -->
+            <div v-if="showPanel" class="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-3"
+                :class="props.use24h ? 'w-56' : 'w-80'">
+                <!-- Header chips -->
                 <div class="flex gap-2 mb-2">
                     <span
-                        class="px-2 py-1 rounded-md text-white bg-primary-500 text-xs font-semibold select-none w-12 text-center">
-                        {{ String(sel.h12).padStart(2, '0') }}
+                        class="px-2 py-1 rounded-md text-white bg-primary-500 text-xs font-semibold select-none flex-1 text-center">
+                        {{ String(props.use24h ? sel.h24 : sel.h12).padStart(2, '0') }}
                     </span>
                     <span
-                        class="px-2 py-1 rounded-md text-white bg-primary-500 text-xs font-semibold select-none w-12 text-center">
+                        class="px-2 py-1 rounded-md text-white bg-primary-500 text-xs font-semibold select-none flex-1 text-center">
                         {{ String(sel.m).padStart(2, '0') }}
                     </span>
-                    <span
-                        class="px-2 py-1 rounded-md text-white bg-primary-500 text-xs font-semibold select-none w-12 text-center">
+                    <span v-if="!props.use24h"
+                        class="px-2 py-1 rounded-md text-white bg-primary-500 text-xs font-semibold select-none flex-1 text-center">
                         {{ sel.period }}
                     </span>
                 </div>
 
-                <!-- 3 cột: giờ | phút | AM/PM -->
-                <div class="grid grid-cols-3 gap-2">
+                <!-- Columns: 24h mode has 2 columns, 12h mode has 3 columns -->
+                <div :class="props.use24h ? 'grid-cols-2' : 'grid-cols-3'" class="grid gap-2">
                     <!-- hours -->
                     <div class="max-h-64 overflow-auto px-1 pt-1" style="scrollbar-width: none;">
                         <button type="button" v-for="h in hours" :key="`h-${h}`" @click="pickHour(h)" class="w-full h-9 rounded-md text-sm transition flex items-center justify-center
                         hover:ring-2 hover:ring-primary-400 hover:ring-offset-2 hover:ring-offset-white
                         active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500" :class="{
-                            'bg-primary-500 text-white hover:bg-primary-600': sel.h12 === h,
-                            'text-gray-900 hover:bg-gray-100': sel.h12 !== h
+                            'bg-primary-500 text-white hover:bg-primary-600': props.use24h ? sel.h24 === h : sel.h12 === h,
+                            'text-gray-900 hover:bg-gray-100': props.use24h ? sel.h24 !== h : sel.h12 !== h
                         }">
                             {{ String(h).padStart(2, '0') }}
                         </button>
@@ -171,8 +198,8 @@ watch(() => props.modelValue, (v) => {
                         </button>
                     </div>
 
-                    <!-- AM/PM -->
-                    <div class="max-h-64 overflow-auto px-1 pt-1">
+                    <!-- AM/PM (only in 12h mode) -->
+                    <div v-if="!props.use24h" class="max-h-64 overflow-auto px-1 pt-1">
                         <button type="button" v-for="p in periods" :key="`p-${p}`" @click="pickPeriod(p)" class="w-full h-9 rounded-md text-sm transition flex items-center justify-center
                         hover:ring-2 hover:ring-primary-400 hover:ring-offset-2 hover:ring-offset-white
                         active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500" :class="{

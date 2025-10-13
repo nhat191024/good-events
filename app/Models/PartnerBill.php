@@ -14,6 +14,9 @@ use Cmgmyr\Messenger\Models\Thread;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+use App\Events\PartnerBillCreated;
+use App\Events\PartnerBillStatusChanged;
+
 /**
  * @property int $id
  * @property string $code
@@ -147,6 +150,8 @@ class PartnerBill extends Model
                 }
             }
 
+            PartnerBillCreated::dispatch($partnerBill);
+
             // Clear widget caches
             PartnerWidgetCacheService::clearPartnerCaches($partnerId);
         });
@@ -213,6 +218,10 @@ class PartnerBill extends Model
             // Clear widget caches when bill is updated
             if ($partnerBill->partner_id) {
                 PartnerWidgetCacheService::clearPartnerCaches($partnerBill->partner_id);
+            }
+
+            if ($partnerBill->isDirty('status')) {
+                PartnerBillStatusChanged::dispatch($partnerBill);
             }
         });
     }

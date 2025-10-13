@@ -37,7 +37,7 @@ console.log('order hjsito9ry card ', orders);
 
                         <span v-if="orders" class="inline-flex items-center gap-1 ml-2">
                             <Star class="h-3 w-3 fill-yellow-300 stroke-yellow-500" />
-                            <span>{{ orders.partner?.statistics?.average_stars ?? 'Chưa rate' }}</span>
+                            <span>{{ orders.review?.rating ?? 'Chưa rate' }}</span>
                         </span>
                     </div>
                     <div class="flex items-center justify-between">

@@ -263,7 +263,7 @@ const applicants = computed<ClientOrderDetail[]>(() => {
 })
 
 async function handleConfirmChoosePartner(partner?: Partner | null, total?: number | null) {
-    console.log('handleConfirmChoosePartner: ',partner, total);
+    console.log('handleConfirmChoosePartner: ', partner, total);
 
     if (!partner || !selectedOrder.value?.id) return
 
@@ -273,7 +273,7 @@ async function handleConfirmChoosePartner(partner?: Partner | null, total?: numb
         title: `Bạn có muốn chọn đối tác (${partner.partner_profile?.partner_name ?? partner.name})?`,
         message: `Xác nhận chốt đơn sẽ mở khóa chat với đối tác và
             <b class="font-lexend">không thể chọn lại đối tác khác cho đơn này.</b>
-            <br>Đối tác trả giá: <span class="text-red-800 font-bold text-md">`+formatPrice(total??0)+`đ</span>
+            <br>Đối tác trả giá: <span class="text-red-800 font-bold text-md">`+ formatPrice(total ?? 0) + `đ</span>
             <br> Bạn có chấp nhận mức giá này không?`,
         okText: 'Chốt đơn luôn!',
         cancelText: 'Ko, chưa chốt'
@@ -292,7 +292,7 @@ async function handleConfirmChoosePartner(partner?: Partner | null, total?: numb
         onSuccess: () => {
             delete detailsMap.value[orderId]
             refreshCurrentOrders()
-            debounce(()=>{
+            debounce(() => {
                 fetchDetails(orderId, true), 3000, { leading: false, trailing: true }
             })();
         },
@@ -357,10 +357,47 @@ function openRating() {
 }
 
 function submitRating(payload: { rating: number; comment: string }) {
-    console.log('[submit rating]', payload)
-    showRatingDialog.value = false
-    rating.value = 0
-    comment.value = ''
+    const partnerId = (selectedOrder.value as any)?.partner?.id
+        ?? (selectedOrder.value as any)?.partner_id
+        ?? (applicants.value?.[0] as any)?.partner?.id
+
+    if (!partnerId) {
+        console.warn('không tìm thấy partnerId để chấm điểm')
+        showRatingDialog.value = false
+        return
+    }
+
+    const form = useForm({
+        order_id: selectedOrder.value?.id ?? null,
+        partner_id: partnerId,
+        rating: payload.rating,
+        comment: payload.comment,
+        recommend: true, // test
+    })
+
+    form.post(route('client-orders.submit-review'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            if (selectedOrder.value) {
+                ; (selectedOrder.value as any).reviewed = true
+                    ; (selectedOrder.value as any).user_rating = payload.rating
+                    ; (selectedOrder.value as any).user_comment = payload.comment
+            }
+            showRatingDialog.value = false
+        },
+        onError: (e) => {
+            console.error('[submit rating] lỗi', e)
+        },
+        onBefore: () => {
+            showLoading({ title: 'Đang tải lên đánh giá của bạn', message: 'Đợi xíu nhé' })
+        },
+        onFinish: () => {
+            // optional: refresh lại chi tiết để sync số liệu
+            // fetchDetails(selectedOrder.value?.id, true)
+            reloadHistory()
+            hideLoading(true)
+        },
+    })
 }
 
 function pollForUpdates() {
@@ -409,7 +446,7 @@ let pollInterval: number | undefined
 
 onMounted(() => {
     initOrders()
-    pollInterval = window.setInterval(()=>{
+    pollInterval = window.setInterval(() => {
         pollForUpdates()
         refreshDetails(selectedOrder.value?.id ?? undefined)
     }, 64_000)
@@ -423,6 +460,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+
     <Head title="Đơn hàng của tôi" />
     <ClientHeaderLayout :show-footer="false">
         <div class="flex h-[90vh] bg-background w-full overflow-visible">
@@ -465,8 +503,4 @@ onBeforeUnmount(() => {
     </ClientHeaderLayout>
 
     <PartnerProfilePreview v-model:open="isPartnerProfileOpen" :user-id="selectedUserId" />
-    <!-- Full-screen overlay -->
-    <!-- <div v-if="isPartnerProfileOpen" class="fixed inset-0 bg-white z-50 overflow-auto">
-        <button @click="closePartnerProfile" class="absolute top-4 right-4">Close</button>
-    </div> -->
 </template>

@@ -50,7 +50,7 @@ const loggedInMenuItems = computed(() => [
     },
     {
         label: 'Nhắn tin',
-        route: () => route('chat.dashboard'),
+        route: () => route('chat.index'),
         icon: 'M8 10h8m-8 4h5m1 8a9 9 0 100-18 9 9 0 00-9 9c0 1.657.403 3.214 1.122 4.583L3 21l4.417-1.122A8.963 8.963 0 0012 22z',
         external: false
     },
