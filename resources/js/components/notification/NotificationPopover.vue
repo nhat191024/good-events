@@ -2,6 +2,7 @@
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { Bell, RefreshCw } from 'lucide-vue-next'
 import { NotiItem } from '.'
+import { formatDate, formatTime } from '@/lib/helper';
 
 /* two-way binding mở/đóng */
 const open = defineModel<boolean>('open', { default: false })
@@ -175,7 +176,7 @@ onBeforeUnmount(() => {
                                         v-if="item.created_at"
                                         class="text-[11px] text-muted-foreground mt-1"
                                     >
-                                        {{ item.created_at }}
+                                        {{ formatTime(item.created_at) }} - {{ formatDate(item.created_at) }}
                                     </div>
                                 </div>
                             </div>
