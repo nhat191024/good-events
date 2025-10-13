@@ -15,6 +15,11 @@ use App\Models\Event;
 use App\Models\Location;
 use App\Models\PartnerBill;
 use App\Models\PartnerCategory;
+use App\Notifications\OrderCancelled;
+use App\Notifications\OrderCompleted;
+use App\Notifications\OrderCreated;
+use App\Notifications\OrderStatusChanged;
+use App\Notifications\PartnerAcceptedOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -23,15 +28,10 @@ use App\Models\PartnerBillDetail;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
-/**
- *  @property PartnerBillStatus $status
- */
 class OrderController extends Controller
 {
-    // private $quickBookingService = null;
-    //? error messages
     public const RECORD_PER_PAGE = 20;
-    // todo: only get this user's bills, temporary disabled for better testing
+
     public function index(Request $request)
     {
         try {
@@ -145,23 +145,37 @@ class OrderController extends Controller
     {
         $bill_id = $request->input('order_id');
         $bill = PartnerBill::findOrFail($bill_id);
+
         $bill->status = PartnerBillStatus::CANCELLED;
         $bill->save();
+
+        $client = $bill->client;
+        OrderCancelled::send($bill, $client);
+
+        if ($bill->partner) {
+            OrderCancelled::send($bill, $bill->partner);
+        }
     }
 
     public function confirmChoosePartner(ConfirmPartnerRequest $request)
     {
         $bill_id = $request->input('order_id');
         $user_id = $request->input('partner_id');
-        // todo: add check if any of the current bill detail of the same bill has closed state already?
-        // todo: need to add bill staus 'confirmed' here
+
         $billDetail = PartnerBill::findOrFail($bill_id)->details()->where('partner_id', $user_id)->first();
         $bill = PartnerBill::findOrFail($bill_id);
+
         $bill->partner_id = $billDetail->partner_id;
         $bill->status = PartnerBillStatus::CONFIRMED;
         $billDetail->status = PartnerBillDetailStatus::CLOSED;
         $billDetail->save();
         $bill->save();
+
+        $client = $bill->client;
+        PartnerAcceptedOrder::send($bill, $client);
+
+        $partner = $bill->partner;
+        OrderStatusChanged::send($bill, $partner, PartnerBillStatus::CONFIRMED);
     }
 
     public function submitReview(Request $request)
@@ -174,11 +188,13 @@ class OrderController extends Controller
         ]);
 
         $partner = User::findOrFail($data['partner_id']);
+        $bill = PartnerBill::findOrFail($data['order_id']);
+
         $partner->addReview([
             'review' => $data['comment'],
             'ratings' => ['rating' => $data['rating']],
             'recommend' => true,
-            'approved' => true, //! for testing only
+            'approved' => true,
             'partner_bill_id' => $data['order_id'],
         ], $request->user()->id);
 
