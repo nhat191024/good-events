@@ -211,36 +211,4 @@ class OrderController extends Controller
 
         return back()->with('review_submitted', true);
     }
-
-    public function submitReview(Request $request)
-    {
-        $data = $request->validate([
-            'partner_id' => 'required|exists:users,id',
-            'order_id' => 'required|exists:partner_bills,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
-        ]);
-
-        $partner = User::findOrFail($data['partner_id']);
-        $partner->addReview([
-            'review' => $data['comment'],
-            'ratings' => ['rating' => $data['rating']],
-            'recommend' => true,
-            'approved' => true, //! for testing only
-            'partner_bill_id' => $data['order_id'],
-        ], $request->user()->id);
-
-        $latest = \Codebyray\ReviewRateable\Models\Review::where('reviewable_type', User::class)
-            ->where('reviewable_id', $partner->id)
-            ->where('user_id', $request->user()->id)
-            ->latest('id')
-            ->first();
-
-        if ($latest) {
-            $latest->partner_bill_id = $data['order_id'];
-            $latest->save();
-        }
-
-        return back()->with('review_submitted', true);
-    }
 }
