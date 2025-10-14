@@ -84,6 +84,7 @@ class PartnerBill extends Model
         'end_time',
         'final_total',
         'event_id',
+        'event_custom',
         'client_id',
         'partner_id',
         'category_id',
