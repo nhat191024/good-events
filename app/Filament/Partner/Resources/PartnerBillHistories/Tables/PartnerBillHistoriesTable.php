@@ -19,7 +19,8 @@ class PartnerBillHistoriesTable
         return $table
             ->columns([
                 TextColumn::make('code')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('client.name')
                     ->label(__('partner/bill.client'))
                     ->searchable(),
@@ -44,11 +45,13 @@ class PartnerBillHistoriesTable
                     ->color('danger')
                     ->time(),
                 TextColumn::make('phone')
-                    ->label(__('partner/bill.phone'))
-                    ->searchable(),
+                    ->label(__('partner/bill.phone')),
                 TextColumn::make('address')
                     ->label(__('partner/bill.address'))
-                    ->searchable(),
+                    ->toggleable(),
+                TextColumn::make('note')
+                    ->label(__('partner/bill.note'))
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('final_total')
                     ->label(__('partner/bill.final_total'))
                     ->numeric()
