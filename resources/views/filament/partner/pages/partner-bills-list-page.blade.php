@@ -26,7 +26,7 @@
             <div class="border-b border-gray-200 bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-700/50">
                 <div class="flex items-center justify-between">
                     <h3 class="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
-                        {{ __('partner/bill.bill') }} ({{ count($bills) }})
+                        {{ __('partner/bill.bill') }} ({{ $this->bills->total() }})
                     </h3>
                 </div>
 
@@ -112,10 +112,11 @@
         </div>
 
         {{-- Bills Grid --}}
-        @if (count($bills) > 0)
+        @if ($this->bills->count() > 0)
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-                @foreach ($bills as $bill)
+                @foreach ($this->bills as $bill)
                     <div class="hover:border-primary-500 dark:hover:border-primary-500 group cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800" wire:click="viewBill({{ $bill->id }})">
+                        {{-- ...existing code... --}}
                         {{-- Status Badge --}}
                         <div class="p-6 pb-4">
                             <div class="mb-4 flex items-start justify-between">
@@ -240,6 +241,11 @@
                     </div>
                 @endforeach
             </div>
+
+            {{-- Pagination --}}
+            <div class="mt-6">
+                {{ $this->bills->links() }}
+            </div>
         @else
             {{-- Empty State --}}
             <div class="rounded-xl border border-gray-200 bg-white p-12 shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -255,9 +261,6 @@
             </div>
         @endif
     </div>
-
-    {{-- Auto-refresh every 30 seconds --}}
-    <div wire:poll.30s="loadBills"></div>
 
     {{-- Modals --}}
     <x-partner.mark-in-job-modal />

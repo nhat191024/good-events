@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PartnerBillsListPage extends Page
 {
@@ -23,26 +24,21 @@ class PartnerBillsListPage extends Page
         return __('partner/bill.bill');
     }
 
-    public $bills = [];
-
     public $statusFilter = 'all';
 
     public $searchQuery = '';
 
-    public $dateFilter = '';
+    public $dateFilter = 'all';
 
     public $sortBy = 'date_asc';
 
+    public $perPage = 6;
+
     protected $listeners = [
-        'refreshBills' => 'loadBills',
+        'refreshBills' => '$refresh',
     ];
 
-    public function mount(): void
-    {
-        $this->loadBills();
-    }
-
-    public function loadBills(): void
+    public function getBillsProperty()
     {
         $query = PartnerBill::query()
             ->whereIn('status', [
@@ -95,27 +91,27 @@ class PartnerBillsListPage extends Page
             default => $query->orderBy('date', 'asc'),
         };
 
-        $this->bills = $query->get();
+        return $query->paginate($this->perPage);
     }
 
     public function updatedStatusFilter(): void
     {
-        $this->loadBills();
+        $this->resetPage();
     }
 
     public function updatedSearchQuery(): void
     {
-        $this->loadBills();
+        $this->resetPage();
     }
 
     public function updatedDateFilter(): void
     {
-        $this->loadBills();
+        $this->resetPage();
     }
 
     public function updatedSortBy(): void
     {
-        $this->loadBills();
+        $this->resetPage();
     }
 
     public function clearFilters(): void
@@ -124,7 +120,7 @@ class PartnerBillsListPage extends Page
         $this->searchQuery = '';
         $this->dateFilter = 'all';
         $this->sortBy = 'newest';
-        $this->loadBills();
+        $this->resetPage();
     }
 
     public function viewBill($billId): void
@@ -204,9 +200,6 @@ class PartnerBillsListPage extends Page
             ->title(__('partner/bill.marked_as_in_job'))
             ->success()
             ->send();
-
-        // Reload bills
-        $this->loadBills();
     }
 
     public function completeBill($billId): void
@@ -264,8 +257,5 @@ class PartnerBillsListPage extends Page
             ->title(__('partner/bill.order_completed_success'))
             ->success()
             ->send();
-
-        // Reload bills
-        $this->loadBills();
     }
 }
