@@ -16,6 +16,7 @@ return [
 
         'service_list' => 'Danh sách dịch vụ',
         'service_media' => 'Video giới thiệu dịch vụ',
+        'service_images' => 'Hình ảnh dịch vụ',
         'video_name' => 'Tên video',
         'video_url' => 'Link video',
         'video_description' => 'Mô tả video',
@@ -36,6 +37,19 @@ return [
     'helper' => [
         'service_unique' => 'Bạn đã đăng ký dịch vụ cho danh mục này rồi. Vui lòng chọn danh mục khác.',
         'service_media' => 'Thêm các video giới thiệu dịch vụ của bạn để admin duyệt. Chỉ có thể thêm khi tạo mới.',
+        'service_images' => 'Tải lên tối đa 10 hình ảnh giới thiệu dịch vụ của bạn. Hỗ trợ: JPG, PNG, GIF, WEBP.',
+    ],
+
+    'action' => [
+        'manage_images' => 'Quản lý hình ảnh',
+    ],
+
+    'modal' => [
+        'manage_images' => 'Quản lý hình ảnh dịch vụ',
+    ],
+
+    'notification' => [
+        'images_updated' => 'Cập nhật hình ảnh thành công!',
     ],
 
     'status_pending' => 'Chờ duyệt',

@@ -16,6 +16,7 @@ return [
 
         'service_list' => 'Service List',
         'service_media' => 'Service Introduction Videos',
+        'service_images' => 'Service Images',
         'video_name' => 'Video Name',
         'video_url' => 'Video URL',
         'video_description' => 'Video Description',
@@ -36,6 +37,19 @@ return [
     'helper' => [
         'service_unique' => 'You have already registered a service for this category. Please choose another category.',
         'service_media' => 'Add introduction videos of your service for admin approval. Can only be added when creating a new service.',
+        'service_images' => 'Upload up to 10 service images. Supported formats: JPG, PNG, GIF, WEBP.',
+    ],
+
+    'action' => [
+        'manage_images' => 'Manage Images',
+    ],
+
+    'modal' => [
+        'manage_images' => 'Manage Service Images',
+    ],
+
+    'notification' => [
+        'images_updated' => 'Images updated successfully!',
     ],
 
     'status_pending' => 'Pending',
