@@ -89,8 +89,8 @@ class PartnerBillsListPage extends Page
         // Apply sorting
         $query = match ($this->sortBy) {
             'oldest' => $query->orderBy('updated_at', 'asc'),
-            'date_asc' => $query->orderBy('date', 'asc'),
-            'date_desc' => $query->orderBy('date', 'desc'),
+            'date_asc' => $query->orderBy('date', 'asc')->orderBy('start_time', 'asc'),
+            'date_desc' => $query->orderBy('date', 'desc')->orderBy('start_time', 'desc'),
             'newest' => $query->orderByDesc('updated_at'),
             default => $query->orderBy('date', 'asc'),
         };
