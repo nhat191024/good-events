@@ -7,6 +7,10 @@ use App\Enum\PartnerServiceStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -41,9 +45,9 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService withoutTrashed()
  * @mixin \Eloquent
  */
-class PartnerService extends Model
+class PartnerService extends Model implements HasMedia
 {
-    use SoftDeletes, LogsActivity;
+    use SoftDeletes, InteractsWithMedia, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -78,6 +82,21 @@ class PartnerService extends Model
         'user_id' => 'required|exists:users,id',
         'status' => 'required|string|in:pending,approved,rejected',
     ];
+
+
+    /**
+     * Summary of registerMediaConversions
+     * @param Media|null $media
+     * @return void
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(300)
+            ->height(300)
+            ->sharpen(10)
+            ->nonQueued();
+    }
 
     /**
      * Summary of getActivitylogOptions
