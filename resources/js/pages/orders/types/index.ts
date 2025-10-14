@@ -22,6 +22,7 @@ export interface ClientOrder {
     created_at: string
     updated_at: string
     category: Category
+    event_custom: string
     event: Pick<Event, 'name'>
     partners: { count: number }
     partner: Partner
@@ -57,6 +58,7 @@ export const OrderStatus = {
     CONFIRMED: 'confirmed',
     COMPLETED: 'completed',
     CANCELLED: 'cancelled',
+    IN_JOB: 'in_job',
     EXPIRED: 'expired'
 } as const;
 
