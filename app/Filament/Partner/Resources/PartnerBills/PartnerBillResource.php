@@ -56,6 +56,7 @@ class PartnerBillResource extends Resource
             ->whereIn('status', [
                 PartnerBillStatus::PENDING,
                 PartnerBillStatus::CONFIRMED,
+                PartnerBillStatus::IN_JOB,
             ])
             ->whereHas(
                 'details',
