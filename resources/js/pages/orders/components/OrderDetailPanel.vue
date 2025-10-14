@@ -3,7 +3,7 @@
 import BookingSummaryCard from './BookingSummaryCard.vue'
 import ApplicantCard from './ApplicantCard.vue'
 import { ArrowLeft, Star } from 'lucide-vue-next'
-import { ClientOrder, ClientOrderDetail, OrderDetailStatus, Partner } from '../types';
+import { ClientOrder, ClientOrderDetail, OrderDetailStatus, OrderStatus, Partner } from '../types';
 import BookingSummaryCardEmpty from './BookingSummaryCardEmpty.vue';
 import { computed, ref } from 'vue';
 import ReloadButton from './ReloadButton.vue';
@@ -51,7 +51,7 @@ const reloadOrderDetails = debounce(() => {
 }, 5000)
 
 const classIfBookedPartnerFound = computed(()=>{
-    return (bookedPartner && props.mode === 'current' && props.order?.status=='confirmed') ? 'hidden' : '';
+    return (bookedPartner && props.mode === 'current' && (props.order?.status==OrderStatus.CONFIRMED || props.order?.status==OrderStatus.IN_JOB)) ? 'hidden' : '';
 });
 
 </script>
@@ -83,7 +83,7 @@ const classIfBookedPartnerFound = computed(()=>{
                         <div v-if="props.applicants.length > 0" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
                         </div>
-                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)" :show-buttons="props.order?.status != 'confirmed'" v-for="a in props.applicants" :key="a.id" v-bind="a" @confirm-choose-partner="(partner, total) => emit('confirm-choose-partner', partner, total)"/>
+                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)" :show-buttons="props.order?.status !=  OrderStatus.CONFIRMED && props.order?.status != OrderStatus.IN_JOB" v-for="a in props.applicants" :key="a.id" v-bind="a" @confirm-choose-partner="(partner, total) => emit('confirm-choose-partner', partner, total)"/>
                     </div>
                 </div>
                 <div v-else class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-5">

@@ -127,7 +127,7 @@ const filtered = computed<FlatItem[]>(() => {
 const displayLabel = computed(() => {
     const val = props.modelValue
     const custom = props.customValue
-    
+
     // Show custom value if it exists
     if (custom && showCustomInput.value) {
         return custom
@@ -165,7 +165,7 @@ function nextTickFocus() {
     })
 }
 
-function close() { 
+function close() {
     open.value = false
 }
 
@@ -213,7 +213,7 @@ function submitCustomValue() {
 
 function onKeydown(e: KeyboardEvent) {
     const navKeys = ['ArrowDown', 'ArrowUp', 'Enter', 'Escape', ' ']
-    
+
     // Handle custom input keydown
     if (showCustomInput.value) {
         if (e.key === 'Enter') {
@@ -232,9 +232,9 @@ function onKeydown(e: KeyboardEvent) {
     if (!open.value) return
     if (!navKeys.includes(e.key)) return
 
-    if (e.key === 'Escape') { 
+    if (e.key === 'Escape') {
         e.preventDefault()
-        close() 
+        close()
     }
     else if (e.key === 'ArrowDown') { e.preventDefault(); move(1) }
     else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1) }
@@ -291,9 +291,9 @@ function highlightHtml(label: string, toks: string[]) {
         <transition name="fade-scale">
             <div v-if="open" class="absolute z-10 w-full mt-2 bg-white overflow-hidden rounded-lg shadow-sm border border-gray-300
                     ring-1 ring-black/5" @keydown.stop="onKeydown">
-                
+
                 <!-- custom input mode -->
-                <div v-if="true" class="p-3 border-b border-gray-300">
+                <div v-if="props.allowCustom" class="p-3 border-b border-gray-300">
                     <input ref="customInputEl" v-model="inputCustomValue" type="text" :placeholder="customPlaceholder" class="w-full text-black h-8 px-2 rounded-md border bg-white text-sm
                     focus:outline-none focus:ring-2 focus:ring-primary-500 border-gray-300 focus:border-primary-500" @keydown="onKeydown" />
                     <div class="flex gap-2 mt-2">
