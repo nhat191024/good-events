@@ -66,10 +66,11 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($validated['password']),
         ])->assignRole(Role::CLIENT);
 
-        event(new Registered($user));
+        app(\App\Services\EmailVerificationMailService::class)->sendVerificationLink($user);
         Auth::login($user);
 
-        return to_route('login');
+        return redirect()->route('verification.notice');
+        // return to_route('login');
     }
 
     /**
@@ -108,7 +109,7 @@ class RegisteredUserController extends Controller
             'location_id' => $ward->id,
         ]);
 
-        event(new Registered($user));
+        app(\App\Services\EmailVerificationMailService::class)->sendVerificationLink($user);
         return Inertia::location(route('filament.partner.auth.login'));
     }
 }

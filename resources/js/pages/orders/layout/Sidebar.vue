@@ -7,7 +7,7 @@ import OrderList from '../components/OrderList.vue'
 import OrderHistoryList from '../components/OrderHistoryList.vue'
 
 import { createSearchFilter } from '../../../lib/search-filter'
-import { ClientOrder, ClientOrderHistory } from '../types'
+import { ClientOrder, ClientOrderHistory, OrderStatus } from '../types'
 import { debounce } from '../helper'
 import ReloadButton from '../components/ReloadButton.vue'
 
@@ -29,15 +29,23 @@ const kw = ref('')
 const sortBy = ref<'newest' | 'oldest' | 'most-applicants' | 'highest-budget' | 'lowest-budget'>('newest')
 const sortByHistory = ref<'newest' | 'oldest' | 'highest-budget' | 'lowest-budget'>('newest')
 
-const statusFilter = ref<string[]>(['pending', 'confirmed', 'cancelled', 'completed', 'expired'])
+const statusFilter = ref<string[]>([
+    OrderStatus.CONFIRMED,
+    OrderStatus.PENDING,
+    OrderStatus.CANCELLED,
+    OrderStatus.COMPLETED,
+    OrderStatus.EXPIRED,
+    OrderStatus.IN_JOB,
+])
 const locationsFilter = ref<string[]>([])
 
 const STATUS_ORDER: Array<ClientOrder['status']> = [
-    'confirmed',
-    'pending',
-    'cancelled',
-    'completed',
-    'expired',
+    OrderStatus.CONFIRMED,
+    OrderStatus.PENDING,
+    OrderStatus.CANCELLED,
+    OrderStatus.COMPLETED,
+    OrderStatus.EXPIRED,
+    OrderStatus.IN_JOB,
 ]
 
 const STATUS_RANK: Record<string, number> = STATUS_ORDER.reduce(
@@ -233,12 +241,16 @@ const emit = defineEmits<{
                         <div id="orders-adv-filter" class="relative">
                             <div class="flex flex-row space-x-4">
                                 <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" class="size-4" value="pending" v-model="statusFilter" />
+                                    <input type="checkbox" class="size-4" :value="OrderStatus.PENDING" v-model="statusFilter" />
                                     Đang chờ
                                 </label>
                                 <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" class="size-4" value="confirmed" v-model="statusFilter" />
+                                    <input type="checkbox" class="size-4" :value="OrderStatus.CONFIRMED" v-model="statusFilter" />
                                     Đã chốt
+                                </label>
+                                <label class="flex items-center gap-2 text-sm">
+                                    <input type="checkbox" class="size-4" :value="OrderStatus.IN_JOB" v-model="statusFilter" />
+                                    Đã đến nơi
                                 </label>
                             </div>
                             <div v-if="showAdvancedFilter"

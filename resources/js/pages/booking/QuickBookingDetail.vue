@@ -107,7 +107,7 @@
 
     watch(() => form.data(), (val) => {
         try {
-            localStorage.setItem(LS_KEY, JSON.stringify(val))            
+            localStorage.setItem(LS_KEY, JSON.stringify(val))
         } catch (e) {
             console.error('cannot write ls', e)
         }
@@ -185,14 +185,14 @@
                         <DatePickerSingle :id="'select-event-date'" v-model="form.order_date" />
                     </FormItemLayout>
                     <FormItemLayout :for-id="'select-event-type'" :label="'Nội dung sự kiện'" :error="form.errors.event_id??form.errors.event_custom">
-                        <SelectBox 
-                            :id="'select-event-type'" 
-                            v-model="form.event_id" 
+                        <SelectBox
+                            :id="'select-event-type'"
+                            v-model="form.event_id"
                             :custom-value="form.event_custom"
                             @update:custom-value="val => form.event_custom = val"
-                            :options="eventList" 
+                            :options="eventList"
                             :allow-custom="true"
-                            placeholder="Chọn nội dung sự kiện..." 
+                            placeholder="Chọn nội dung sự kiện..."
                         />
                     </FormItemLayout>
                 </FormGroupLayout>
@@ -206,13 +206,13 @@
 
                 <FormGroupLayout>
                     <FormItemLayout :for-id="'event-order-location-province'" :label="'Địa điểm tổ chức'" :error="form.errors.province_id">
-                        <SelectBox :id="'event-order-location-province'" v-model="location.provinceId" :options="provinceList" placeholder="Chọn Tỉnh thành..." />
+                        <SelectBox :allowCustom="false" :id="'event-order-location-province'" v-model="location.provinceId" :options="provinceList" placeholder="Chọn Tỉnh thành..." />
                     </FormItemLayout>
                     <FormItemLayout class="hidden md:block" :for-id="'event-order-location-ward'" :label="' '" :error="form.errors.ward_id">
-                        <SelectBox :is-enable="location.provinceId !== null" :id="'event-order-location-ward'" v-model="form.ward_id" :options="wardList" placeholder="Chọn xã, phường..." />
+                        <SelectBox :allowCustom="false" :is-enable="location.provinceId !== null" :id="'event-order-location-ward'" v-model="form.ward_id" :options="wardList" placeholder="Chọn xã, phường..." />
                     </FormItemLayout>
                     <FormItemLayout class="block md:hidden" :for-id="'event-order-location-ward-mobile'" :label="''" :error="form.errors.ward_id">
-                        <SelectBox :is-enable="location.provinceId !== null" :id="'event-order-location-ward-mobile'" v-model="form.ward_id" :options="wardList" placeholder="Chọn xã, phường..." />
+                        <SelectBox :allowCustom="false" :is-enable="location.provinceId !== null" :id="'event-order-location-ward-mobile'" v-model="form.ward_id" :options="wardList" placeholder="Chọn xã, phường..." />
                     </FormItemLayout>
                 </FormGroupLayout>
 

@@ -34,8 +34,7 @@ const emit = defineEmits<{
 }>()
 
 function goToChat() {
-    if (props.order?.status !== 'confirmed') return
-    router.get(route('chat.dashboard'));
+    router.get(route('chat.index'));
 }
 
 function goToPartnerProfile() {
@@ -46,6 +45,15 @@ function goToPartnerProfile() {
     // window.open(url, 'preview', 'width=900,height=700,noopener,noreferrer')
     emit('view-partner-profile', partner.id)
 
+}
+
+function getEventType(order: ClientOrder | null | undefined){
+    if (!order) return 'Không'
+    if (order.event_custom) {
+        return order.event_custom;
+    } else {
+        return order.event?.name?? 'Không'
+    }
 }
 </script>
 
@@ -111,7 +119,7 @@ function goToPartnerProfile() {
                         <Award class="h-5 w-5 text-muted-foreground" />
                         <div>
                             <div class="text-xs text-muted-foreground">Loại dịch vụ</div>
-                            <div class="text-sm md:text-md font-medium">{{ props.order?.event?.name ?? 'Không' }}</div>
+                            <div class="text-sm md:text-md font-medium">{{ getEventType(props.order) }}</div>
                         </div>
                     </div>
                 </div>
@@ -164,7 +172,7 @@ function goToPartnerProfile() {
                 </div>
 
                 <div class="space-y-3 mb-12 md:mb-8 lg:mb-12">
-                    <div v-if="props.mode === 'current'">
+                    <div v-if="props.mode === 'current' && !props.bookedPartner">
                         <div class="text-xs text-muted-foreground mb-2">Mã Voucher giảm giá (Áp dụng vào giá của ứng
                             viên bạn chọn)</div>
                         <Input placeholder="VD: N1993+1..." value="" class="w-full" />
@@ -179,7 +187,7 @@ function goToPartnerProfile() {
                 <div
                     class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
                     <button v-if="(props.mode === 'current')" @click="goToChat()"
-                        :class="(props.order?.status == OrderStatus.CONFIRMED) ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"
+                        :class="(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB) ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"
                         class="h-10 rounded-md text-white flex-1">Chat ngay</button>
 
                     <button v-if="(props.mode === 'current')" @click="emit('cancel-order')"

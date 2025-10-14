@@ -134,6 +134,7 @@ class OrderController extends Controller
             ->whereIn('status', [
                 PartnerBillStatus::PENDING,
                 PartnerBillStatus::CONFIRMED,
+                PartnerBillStatus::IN_JOB,
             ])
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
