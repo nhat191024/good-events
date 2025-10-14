@@ -15,7 +15,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
+use Filament\Notifications\Notification;
+
 use App\Enum\PartnerServiceStatus;
+use App\Filament\Partner\Resources\PartnerServices\Schemas\ServiceImagesForm;
 
 class PartnerServicesTable
 {
@@ -84,6 +87,24 @@ class PartnerServicesTable
                     ->default('only_trashed'),
             ])
             ->recordActions([
+                Action::make('manageImages')
+                    ->label(__('partner/service.action.manage_images'))
+                    ->icon('heroicon-o-photo')
+                    ->color('info')
+                    ->visible(fn($record) => $record->status === PartnerServiceStatus::APPROVED)
+                    ->modalHeading(__('partner/service.modal.manage_images'))
+                    ->modalWidth('2xl')
+                    ->schema(fn() => ServiceImagesForm::configure(new \Filament\Schemas\Schema())->getComponents())
+                    ->fillForm(fn($record) => [
+                        'service_images' => $record,
+                    ])
+                    ->action(function ($record, array $data) {
+                        // Data will be automatically saved by SpatieMediaLibraryFileUpload
+                        Notification::make()
+                            ->title(__('partner/service.notification.images_updated'))
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make()
                     ->label(__('global.edit'))
                     ->disabled(fn($record) => !in_array($record->status, [PartnerServiceStatus::PENDING, PartnerServiceStatus::REJECTED]))

@@ -85,6 +85,16 @@ class PartnerService extends Model implements HasMedia
 
 
     /**
+     * Register media collections for partner service
+     * @return void
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('service_images')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp']);
+    }
+
+    /**
      * Summary of registerMediaConversions
      * @param Media|null $media
      * @return void
