@@ -29,7 +29,7 @@ class PartnerBillsListPage extends Page
 
     public $searchQuery = '';
 
-    public $dateFilter = 'today';
+    public $dateFilter = '';
 
     public $sortBy = 'newest';
 
