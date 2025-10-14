@@ -47,6 +47,15 @@ function goToPartnerProfile() {
     emit('view-partner-profile', partner.id)
 
 }
+
+function getEventType(order: ClientOrder | null | undefined){
+    if (!order) return 'Không'
+    if (order.event_custom) {
+        return order.event_custom;
+    } else {
+        return order.event?.name?? 'Không'
+    }
+}
 </script>
 
 <template>
@@ -111,7 +120,7 @@ function goToPartnerProfile() {
                         <Award class="h-5 w-5 text-muted-foreground" />
                         <div>
                             <div class="text-xs text-muted-foreground">Loại dịch vụ</div>
-                            <div class="text-sm md:text-md font-medium">{{ props.order?.event?.name ?? 'Không' }}</div>
+                            <div class="text-sm md:text-md font-medium">{{ getEventType(props.order) }}</div>
                         </div>
                     </div>
                 </div>
