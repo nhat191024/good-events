@@ -31,7 +31,7 @@ class PartnerBillsListPage extends Page
 
     public $dateFilter = '';
 
-    public $sortBy = 'newest';
+    public $sortBy = 'date_asc';
 
     protected $listeners = [
         'refreshBills' => 'loadBills',
@@ -91,7 +91,8 @@ class PartnerBillsListPage extends Page
             'oldest' => $query->orderBy('updated_at', 'asc'),
             'date_asc' => $query->orderBy('date', 'asc'),
             'date_desc' => $query->orderBy('date', 'desc'),
-            default => $query->orderByDesc('updated_at'),
+            'newest' => $query->orderByDesc('updated_at'),
+            default => $query->orderBy('date', 'asc'),
         };
 
         $this->bills = $query->get();
