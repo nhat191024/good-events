@@ -224,10 +224,21 @@
                                     <!-- Address for mobile -->
                                     <div class="flex items-start gap-2">
                                         <x-heroicon-m-map-pin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-                                        <div>
+                                        <span class="break-words">
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.address') }}:</span>
-                                            <p class="mt-1 text-gray-900 dark:text-white">{{ $bill['address'] }}</p>
-                                        </div>
+                                            <span class="mt-1 text-gray-900 dark:text-white">{{ $bill['address'] }}</span>
+                                        </span>
+                                    </div>
+
+                                    <!-- Note for mobile -->
+                                    <div class="flex items-start gap-2">
+                                        <x-heroicon-m-document-text class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                                        <span class="break-words">
+                                            <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.note') }}:</span>
+                                            <span class="flex-1 text-gray-900 dark:text-white">
+                                                {{ $bill['note'] }}
+                                            </span>
+                                        </span>
                                     </div>
                                 </div>
 
@@ -298,12 +309,21 @@
                                         </div>
                                     @endif
 
-                                    <!-- Address for desktop -->
-                                    <div class="mt-3 flex items-start gap-2">
-                                        <x-heroicon-m-map-pin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-                                        <div class="flex">
-                                            <span class="pe-2 text-sm font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.address') }}:</span>
-                                            <p class="text-sm text-gray-900 dark:text-white">{{ $bill['address'] }}</p>
+                                    <!-- Address & note for desktop -->
+                                    <div class="mt-2 grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+                                        <div class="mt-3 flex items-start gap-2">
+                                            <x-heroicon-m-map-pin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                                            <div class="flex">
+                                                <span class="pe-2 text-sm font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.address') }}:</span>
+                                                <p class="text-sm text-gray-900 dark:text-white">{{ $bill['address'] }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 flex items-start gap-2">
+                                            <x-heroicon-m-document-text class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                                            <div class="flex">
+                                                <span class="pe-2 text-sm font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.note') }}:</span>
+                                                <p class="text-sm text-gray-900 dark:text-white">{{ Str::limit($bill['note'], 50) }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -16,6 +16,7 @@ return [
     'event' => 'Event',
     'date' => 'Date',
     'address' => 'Address',
+    'note' => 'Note',
     'accept_order' => 'Accept Show',
     'view_details' => 'View Details',
     'filter_status' => 'Filter by Status',

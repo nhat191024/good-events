@@ -16,6 +16,7 @@ return [
     'event' => 'Sự kiện',
     'date' => 'Ngày',
     'address' => 'Địa chỉ',
+    'note' => 'Ghi chú',
     'accept_order' => 'Nhận show',
     'view_details' => 'Xem chi tiết',
     'filter_status' => 'Lọc theo trạng thái',
