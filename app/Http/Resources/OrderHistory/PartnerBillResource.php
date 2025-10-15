@@ -66,7 +66,7 @@ class PartnerBillResource extends JsonResource {
                     ),
                 ];
             }),
-            "event_custom" => $this->event_custom,
+            "custom_event" => $this->custom_event,
             "event" => $this->whenLoaded("event", function () {
                 $cat = $this->event;
                 return [
