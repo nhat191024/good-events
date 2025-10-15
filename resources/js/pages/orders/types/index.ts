@@ -22,7 +22,7 @@ export interface ClientOrder {
     created_at: string
     updated_at: string
     category: Category
-    event_custom: string
+    custom_event: string
     event: Pick<Event, 'name'>
     partners: { count: number }
     partner: Partner
