@@ -26,7 +26,7 @@
         province_id: string | null
         ward_id: string | null
         event_id: string | null
-        event_custom: string | null
+        custom_event: string | null
         category_id: number | null
         location_detail: string | number | undefined
         note: string
@@ -49,7 +49,7 @@
         province_id: null,
         ward_id: null,
         event_id: null,
-        event_custom: null,
+        custom_event: null,
         category_id: null,
         location_detail: '',
         note: '',
@@ -121,7 +121,7 @@
             province_id: form.province_id,
             ward_id: form.ward_id,
             event_id: form.event_id,
-            event_custom: form.event_custom,
+            custom_event: form.custom_event,
             location_detail: form.location_detail,
             note: form.note,
             category_id: partnerChildrenCategory.id
@@ -184,12 +184,12 @@
                     <FormItemLayout :for-id="'select-event-date'" :label="'Ngày tổ chức sự kiện'" :error="form.errors.order_date">
                         <DatePickerSingle :id="'select-event-date'" v-model="form.order_date" />
                     </FormItemLayout>
-                    <FormItemLayout :for-id="'select-event-type'" :label="'Nội dung sự kiện'" :error="form.errors.event_id??form.errors.event_custom">
+                    <FormItemLayout :for-id="'select-event-type'" :label="'Nội dung sự kiện'" :error="form.errors.event_id??form.errors.custom_event">
                         <SelectBox
                             :id="'select-event-type'"
                             v-model="form.event_id"
-                            :custom-value="form.event_custom"
-                            @update:custom-value="val => form.event_custom = val"
+                            :custom-value="form.custom_event"
+                            @update:custom-value="val => form.custom_event = val"
                             :options="eventList"
                             :allow-custom="true"
                             placeholder="Chọn nội dung sự kiện..."

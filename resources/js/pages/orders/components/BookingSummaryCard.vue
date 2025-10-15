@@ -49,8 +49,8 @@ function goToPartnerProfile() {
 
 function getEventType(order: ClientOrder | null | undefined){
     if (!order) return 'Không'
-    if (order.event_custom) {
-        return order.event_custom;
+    if (order.custom_event) {
+        return order.custom_event;
     } else {
         return order.event?.name?? 'Không'
     }

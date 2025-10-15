@@ -211,7 +211,7 @@ class QuickBookingController extends Controller
         $provinceId = $request->input("province_id");
         $wardId = $request->input("ward_id");
         $eventId = $request->input("event_id");
-        $eventCustom = $request->input("event_custom");
+        $eventCustom = $request->input("custom_event");
         $locationDetail = $request->input("location_detail");
         $note = $request->input("note");
         $categoryId = $request->input("category_id");
@@ -242,7 +242,7 @@ class QuickBookingController extends Controller
             'start_time' => $startTime,
             'end_time' => $endTime,
             'event_id' => $eventId,
-            'event_custom' => $eventCustom,
+            'custom_event' => $eventCustom,
             'client_id' => $clientId,
             'category_id' => $categoryId,
             'note' => $note,
