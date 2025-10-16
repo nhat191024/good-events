@@ -52,5 +52,5 @@ return [
     /*
      * The user model that belongs to vouchers.
      */
-    'user_model' => \App\User::class,
+    'user_model' => \App\Models\User::class,
 ];
