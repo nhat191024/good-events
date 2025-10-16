@@ -254,7 +254,7 @@ class PartnerBillsListPage extends Page
         $user = auth()->user();
         $balance = $user->balanceInt;
         $feePercentage = app(\App\Settings\PartnerSettings::class)->fee_percentage;
-        $withdrawAmount = floor($bill->final_total * ($feePercentage / 100));
+        $withdrawAmount = floor($bill->total * ($feePercentage / 100));
 
         if ($balance < $withdrawAmount) {
             $formatWithdrawAmount = number_format($withdrawAmount) . ' VND';
