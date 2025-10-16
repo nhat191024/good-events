@@ -11,6 +11,9 @@ use App\Services\PartnerBillMailService;
 use Illuminate\Database\Eloquent\Model;
 use Cmgmyr\Messenger\Models\Thread;
 
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -66,9 +69,9 @@ use App\Events\PartnerBillStatusChanged;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereUpdatedAt($value)
  * @mixin \Eloquent
  */
-class PartnerBill extends Model
+class PartnerBill extends Model implements HasMedia
 {
-    use LogsActivity;
+    use InteractsWithMedia, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -114,6 +117,16 @@ class PartnerBill extends Model
     {
         return LogOptions::defaults()
             ->logOnlyDirty();
+    }
+
+    /**
+     * Register media collections
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('arrival_photo')
+            ->singleFile() // Only allow 1 file
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
     }
 
     //model boot method
