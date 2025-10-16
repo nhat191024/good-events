@@ -95,11 +95,30 @@ return [
     // Complete order translations
     'complete_order' => 'Complete Show',
     'complete_order_confirm_title' => 'Confirm Complete Order',
-    'complete_order_confirm_description' => 'Are you sure you want to mark this order as completed? This action cannot be undone.',
+    'complete_order_confirm_description' => 'Please upload a photo to confirm order completion. This action cannot be undone.',
     'confirm_complete' => 'Confirm Complete',
     'insufficient_balance' => 'Insufficient balance. Amount to withdraw: :amount, Current balance: :balance',
     'minimum_balance' => 'Insufficient minimum balance. Please top up to continue accepting shows',
     'order_completed_success' => 'Order has been successfully completed',
+    'fee_will_be_deducted' => 'Service fee will be deducted from your balance when completing this order.',
+
+    // Arrival photo translations
+    'arrival_photo' => 'Arrival Photo',
+    'arrival_photo_required' => 'Please upload an arrival photo',
+    'arrival_photo_must_be_image' => 'The file must be an image',
+    'arrival_photo_max_size' => 'Maximum image size is 5MB',
+    'arrival_photo_invalid_format' => 'Invalid image format. Only accepts: JPEG, PNG, JPG, WEBP',
+    'click_to_upload_photo' => 'Click to upload photo',
+    'max_5mb' => 'Max 5MB',
+    'arrival_photo_description' => 'This photo will be used as proof that you have arrived at the event location.',
+
+    // Completion photo translations (for complete order)
+    'completion_photo' => 'Completion Photo',
+    'completion_photo_required' => 'Please upload a completion photo',
+    'completion_photo_must_be_image' => 'The file must be an image',
+    'completion_photo_max_size' => 'Maximum image size is 5MB',
+    'completion_photo_invalid_format' => 'Invalid image format. Only accepts: JPEG, PNG, JPG, WEBP',
+    'completion_photo_description' => 'This photo will be used as proof of service completion.',
 
     // Custom list page
     'search' => 'Search',

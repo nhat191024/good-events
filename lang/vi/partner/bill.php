@@ -95,12 +95,30 @@ return [
     // Complete order translations
     'complete_order' => 'Hoàn thành đơn',
     'complete_order_confirm_title' => 'Xác nhận hoàn thành đơn hàng',
-    'complete_order_confirm_description' => 'Bạn có chắc chắn muốn đánh dấu đơn hàng này là đã hoàn thành? Hành động này không thể hoàn tác.',
+    'complete_order_confirm_description' => 'Vui lòng tải lên ảnh xác nhận hoàn thành đơn hàng. Hành động này không thể hoàn tác.',
     'confirm_complete' => 'Xác nhận hoàn thành',
     'insufficient_balance' => 'Số dư không đủ. Số tiền cần rút: :amount, Số dư hiện tại: :balance',
     'minimum_balance' => 'Số dư tối thiểu không đủ. Vui lòng nạp thêm để tiếp tục nhận show',
     'order_completed_success' => 'Đơn hàng đã được hoàn thành thành công',
     'fee_will_be_deducted' => 'Phí dịch vụ sẽ được khấu trừ từ số dư của bạn khi hoàn thành đơn hàng này.',
+
+    // Arrival photo translations
+    'arrival_photo' => 'Ảnh xác nhận đã đến nơi',
+    'arrival_photo_required' => 'Vui lòng tải lên ảnh xác nhận đã đến nơi',
+    'arrival_photo_must_be_image' => 'File tải lên phải là ảnh',
+    'arrival_photo_max_size' => 'Kích thước ảnh tối đa 5MB',
+    'arrival_photo_invalid_format' => 'Định dạng ảnh không hợp lệ. Chỉ chấp nhận: JPEG, PNG, JPG, WEBP',
+    'click_to_upload_photo' => 'Nhấp để tải lên ảnh',
+    'max_5mb' => 'Tối đa 5MB',
+    'arrival_photo_description' => 'Ảnh này sẽ được sử dụng làm bằng chứng xác nhận bạn đã đến địa điểm tổ chức sự kiện.',
+
+    // Completion photo translations (for complete order)
+    'completion_photo' => 'Ảnh xác nhận hoàn thành',
+    'completion_photo_required' => 'Vui lòng tải lên ảnh xác nhận hoàn thành',
+    'completion_photo_must_be_image' => 'File tải lên phải là ảnh',
+    'completion_photo_max_size' => 'Kích thước ảnh tối đa 5MB',
+    'completion_photo_invalid_format' => 'Định dạng ảnh không hợp lệ. Chỉ chấp nhận: JPEG, PNG, JPG, WEBP',
+    'completion_photo_description' => 'Ảnh này sẽ được sử dụng làm bằng chứng xác nhận đã hoàn thành dịch vụ.',
 
     // Custom list page
     'search' => 'Tìm kiếm',
