@@ -244,7 +244,7 @@
 
             {{-- Pagination --}}
             <div class="mt-6">
-                {{ $this->bills->links() }}
+                {{ $this->bills->links('pagination::tailwind') }}
             </div>
         @else
             {{-- Empty State --}}
