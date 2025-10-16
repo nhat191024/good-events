@@ -53,7 +53,7 @@ class PartnerBillResource extends Resource
                 'partner',
                 'category',
             ])
-            ->orderBy('created_at', 'desc');
+            ->orderBy('updated_at', 'desc');
     }
 
     public static function getRelations(): array
