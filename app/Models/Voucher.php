@@ -6,6 +6,31 @@ use Illuminate\Support\Carbon;
 
 use BeyondCode\Vouchers\Models\Voucher as BaseVoucher;
 
+/**
+ * @property int $id
+ * @property string $code
+ * @property string $model_type
+ * @property int $model_id
+ * @property \Illuminate\Support\Collection<array-key, mixed>|null $data
+ * @property Carbon|null $expires_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $model
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read int|null $users_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereData($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereModelId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereModelType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Voucher extends BaseVoucher
 {
     /**

@@ -23,6 +23,8 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @property-read int|null $activities_count
  * @property-read \App\Models\Location $location
  * @property-read \App\Models\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \BeyondCode\Vouchers\Models\Voucher> $vouchers
+ * @property-read int|null $vouchers_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile onlyTrashed()

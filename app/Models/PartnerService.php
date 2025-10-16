@@ -18,16 +18,17 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property int $category_id
  * @property int $user_id
- * @property string $status
- * @property string|null $service_media
+ * @property PartnerServiceStatus $status
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\PartnerCategory $category
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerMedia> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read int|null $media_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerMedia> $serviceMedia
+ * @property-read int|null $service_media_count
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService newQuery()
@@ -37,7 +38,6 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereServiceMedia($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService whereUserId($value)

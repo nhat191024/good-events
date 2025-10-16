@@ -47,6 +47,8 @@ use App\Enum\StatisticType;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $authoredReviews
+ * @property-read int|null $authored_reviews_count
  * @property-read non-empty-string $balance
  * @property-read int $balance_int
  * @property-read \Bavix\Wallet\Models\Wallet $wallet
@@ -73,6 +75,8 @@ use App\Enum\StatisticType;
  * @property-read int|null $reviews_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read int|null $roles_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Statistical> $statistics
+ * @property-read int|null $statistics_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Thread> $threads
  * @property-read int|null $threads_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transaction> $transactions

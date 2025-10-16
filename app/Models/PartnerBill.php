@@ -28,8 +28,10 @@ use App\Events\PartnerBillStatusChanged;
  * @property \Illuminate\Support\Carbon|null $date
  * @property \Illuminate\Support\Carbon|null $start_time
  * @property \Illuminate\Support\Carbon|null $end_time
+ * @property float|null $total
  * @property float|null $final_total
  * @property int|null $event_id
+ * @property string|null $custom_event
  * @property int|null $client_id
  * @property int|null $partner_id
  * @property int|null $category_id
@@ -45,6 +47,8 @@ use App\Events\PartnerBillStatusChanged;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $details
  * @property-read int|null $details_count
  * @property-read \App\Models\Event|null $event
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read int|null $media_count
  * @property-read \App\Models\User|null $partner
  * @property-read Thread|null $thread
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newModelQuery()
@@ -55,6 +59,7 @@ use App\Events\PartnerBillStatusChanged;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereClientId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereCustomEvent($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereEndTime($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereEventId($value)
@@ -66,6 +71,7 @@ use App\Events\PartnerBillStatusChanged;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereStartTime($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereThreadId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereUpdatedAt($value)
  * @mixin \Eloquent
  */
