@@ -52,6 +52,10 @@ class VouchersTable
                     ->label(__('admin/voucher.fields.label.usage_limit'))
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('data.times_used')
+                    ->label(__('admin/voucher.fields.label.times_used'))
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('data.is_unlimited')
                     ->label(__('admin/voucher.fields.label.is_unlimited'))
                     ->formatStateUsing(fn($state) => $state ? __('global.yes') : __('global.no'))
