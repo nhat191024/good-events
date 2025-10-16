@@ -13,11 +13,17 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
+use Livewire\WithPagination;
+
 class PartnerBillsListPage extends Page
 {
+    use WithPagination;
+
     protected static string $resource = PartnerBillResource::class;
 
     protected string $view = 'filament.partner.pages.partner-bills-list-page';
+
+    protected string $paginationTheme = 'tailwind';
 
     public function getTitle(): string|Htmlable
     {
