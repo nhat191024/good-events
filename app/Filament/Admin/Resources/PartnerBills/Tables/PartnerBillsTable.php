@@ -4,7 +4,6 @@ namespace App\Filament\Admin\Resources\PartnerBills\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\TrashedFilter;
 
 use Filament\Actions\Action;
@@ -84,24 +83,6 @@ class PartnerBillsTable
                         default => 'secondary',
                     })
                     ->badge(),
-                ImageColumn::make('arrival_photo')
-                    ->label(__('admin/partnerBill.fields.arrival_photo'))
-                    ->getStateUsing(function (PartnerBill $record): ?string {
-                        $media = $record->getFirstMedia('arrival_photo');
-                        return $media?->getUrl();
-                    })
-                    ->circular()
-                    ->imageSize(60)
-                    ->action(
-                        Action::make('viewImage')
-                            ->modalHeading(__('admin/partnerBill.fields.arrival_photo'))
-                            ->modalContent(fn(PartnerBill $record) => view('filament.modals.image-viewer', [
-                                'imageUrl' => $record->getFirstMedia('arrival_photo')?->getUrl(),
-                            ]))
-                            ->modalSubmitAction(false)
-                            ->modalCancelActionLabel(__('Close'))
-                            ->closeModalByClickingAway(true)
-                    ),
                 TextColumn::make('created_at')
                     ->label(__('admin/partnerBill.fields.created_at'))
                     ->dateTime()
@@ -117,7 +98,13 @@ class PartnerBillsTable
                 //
             ])
             ->recordActions([
-                // EditAction::make(),
+                Action::make('viewArrivalPhoto')
+                    ->label(__('admin/partnerBill.fields.arrival_photo'))
+                    ->icon('heroicon-o-photo')
+                    ->color('info')
+                    ->url(fn(PartnerBill $record): ?string => $record->getFirstMedia('arrival_photo')?->getUrl())
+                    ->openUrlInNewTab()
+                    ->visible(fn(PartnerBill $record): bool => $record->getFirstMedia('arrival_photo') !== null),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
