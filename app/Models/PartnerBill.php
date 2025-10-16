@@ -9,7 +9,6 @@ use App\Services\PartnerWidgetCacheService;
 use App\Services\PartnerBillMailService;
 
 use Illuminate\Database\Eloquent\Model;
-use Cmgmyr\Messenger\Models\Thread;
 
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -19,6 +18,10 @@ use Spatie\Activitylog\LogOptions;
 
 use App\Events\PartnerBillCreated;
 use App\Events\PartnerBillStatusChanged;
+
+use Cmgmyr\Messenger\Models\Participant;
+use Cmgmyr\Messenger\Models\Thread;
+use Cmgmyr\Messenger\Models\Message;
 
 /**
  * @property int $id
@@ -179,63 +182,12 @@ class PartnerBill extends Model implements HasMedia
         });
 
         static::updated(function ($partnerBill) {
-            if ($partnerBill->isDirty('status') && $partnerBill->status === PartnerBillStatus::COMPLETED->value) {
-                $partnerId = $partnerBill->partner_id;
-                $clientId = $partnerBill->client_id;
-                $finalTotal = $partnerBill->final_total;
-
-                //update total spent statistic for client
-                $existingClientStat = Statistical::where('user_id', $clientId)
-                    ->where('metrics_name', StatisticType::TOTAL_SPENT->value)
-                    ->first();
-
-                if ($existingClientStat) {
-                    $existingClientStat->metrics_value = (float)$existingClientStat->metrics_value + (float)$finalTotal;
-                    $existingClientStat->save();
-                }
-
-                //update completed orders statistic for both partner and client
-                foreach ([$partnerId, $clientId] as $userId) {
-                    $existingCompletedOrdersStat = Statistical::where('user_id', $userId)
-                        ->where('metrics_name', StatisticType::COMPLETED_ORDERS->value)
-                        ->first();
-
-                    if ($existingCompletedOrdersStat) {
-                        $existingCompletedOrdersStat->metrics_value = (int)$existingCompletedOrdersStat->metrics_value + 1;
-                        $existingCompletedOrdersStat->save();
-                    }
-                }
-
-                $mailService = new PartnerBillMailService();
-                $mailService->sendOrderConfirmedNotification($partnerBill);
-            } else if ($partnerBill->isDirty('status') && $partnerBill->status === PartnerBillStatus::CANCELLED->value) {
-                $partnerId = $partnerBill->partner_id;
-                $clientId = $partnerBill->client_id;
-
-                //update cancelled orders percentage statistic for both partner and client
-                foreach ([$partnerId, $clientId] as $userId) {
-                    $totalOrdersStat = Statistical::where('user_id', $userId)
-                        ->where('metrics_name', StatisticType::ORDERS_PLACED->value)
-                        ->first()
-                        ->metrics_value;
-
-                    $completedOderStat = Statistical::where('user_id', $userId)
-                        ->where('metrics_name', StatisticType::COMPLETED_ORDERS->value)
-                        ->first()
-                        ->metrics_value;
-
-                    $existingCancelledOrdersStat = Statistical::where('user_id', $userId)
-                        ->where('metrics_name', StatisticType::CANCELLED_ORDERS_PERCENTAGE->value)
-                        ->first();
-
-                    if ($existingCancelledOrdersStat) {
-                        $cancelledPercentage = $totalOrdersStat > 0 ? round((($totalOrdersStat - $completedOderStat) / $totalOrdersStat) * 100, 2) : 0;
-
-                        $existingCancelledOrdersStat->metrics_value = $cancelledPercentage;
-                        $existingCancelledOrdersStat->save();
-                    }
-                }
-            }
+            match ($partnerBill->status) {
+                PartnerBillStatus::COMPLETED => static::handleCompletedStatus($partnerBill),
+                PartnerBillStatus::CANCELLED => static::handleCancelledStatus($partnerBill),
+                PartnerBillStatus::CONFIRMED => static::handleConfirmedStatus($partnerBill),
+                default => null,
+            };
 
             // Clear widget caches when bill is updated
             if ($partnerBill->partner_id) {
@@ -246,6 +198,111 @@ class PartnerBill extends Model implements HasMedia
                 PartnerBillStatusChanged::dispatch($partnerBill);
             }
         });
+    }
+
+    /**
+     * Handle completed bill status
+     */
+    protected static function handleCompletedStatus(PartnerBill $partnerBill): void
+    {
+        $partnerId = $partnerBill->partner_id;
+        $clientId = $partnerBill->client_id;
+        $finalTotal = $partnerBill->final_total;
+
+        //update total spent statistic for client
+        $existingClientStat = Statistical::where('user_id', $clientId)
+            ->where('metrics_name', StatisticType::TOTAL_SPENT->value)
+            ->first();
+
+        if ($existingClientStat) {
+            $existingClientStat->metrics_value = (float)$existingClientStat->metrics_value + (float)$finalTotal;
+            $existingClientStat->save();
+        }
+
+        //update completed orders statistic for both partner and client
+        foreach ([$partnerId, $clientId] as $userId) {
+            $existingCompletedOrdersStat = Statistical::where('user_id', $userId)
+                ->where('metrics_name', StatisticType::COMPLETED_ORDERS->value)
+                ->first();
+
+            if ($existingCompletedOrdersStat) {
+                $existingCompletedOrdersStat->metrics_value = (int)$existingCompletedOrdersStat->metrics_value + 1;
+                $existingCompletedOrdersStat->save();
+            }
+        }
+
+        $mailService = new PartnerBillMailService();
+        $mailService->sendOrderConfirmedNotification($partnerBill);
+    }
+
+    /**
+     * Handle cancelled bill status
+     */
+    protected static function handleCancelledStatus(PartnerBill $partnerBill): void
+    {
+        $partnerId = $partnerBill->partner_id;
+        $clientId = $partnerBill->client_id;
+
+        //update cancelled orders percentage statistic for both partner and client
+        foreach ([$partnerId, $clientId] as $userId) {
+            $totalOrdersStat = Statistical::where('user_id', $userId)
+                ->where('metrics_name', StatisticType::ORDERS_PLACED->value)
+                ->first()
+                ->metrics_value;
+
+            $completedOderStat = Statistical::where('user_id', $userId)
+                ->where('metrics_name', StatisticType::COMPLETED_ORDERS->value)
+                ->first()
+                ->metrics_value;
+
+            $existingCancelledOrdersStat = Statistical::where('user_id', $userId)
+                ->where('metrics_name', StatisticType::CANCELLED_ORDERS_PERCENTAGE->value)
+                ->first();
+
+            if ($existingCancelledOrdersStat) {
+                $cancelledPercentage = $totalOrdersStat > 0 ? round((($totalOrdersStat - $completedOderStat) / $totalOrdersStat) * 100, 2) : 0;
+
+                $existingCancelledOrdersStat->metrics_value = $cancelledPercentage;
+                $existingCancelledOrdersStat->save();
+            }
+        }
+    }
+
+    /**
+     * Handle confirmed bill status
+     */
+    protected static function handleConfirmedStatus(PartnerBill $partnerBill): void
+    {
+        $thread = Thread::create([
+            'subject' => "Show - {$partnerBill->code}"
+        ]);
+
+        Participant::create([
+            'thread_id' => $thread->id,
+            'user_id' => 1, //system user
+            'last_read' => now(),
+        ]);
+
+        Participant::create([
+            'thread_id' => $thread->id,
+            'user_id' => $partnerBill->client_id,
+            'last_read' => null
+        ]);
+
+        Participant::create([
+            'thread_id' => $thread->id,
+            'user_id' => $partnerBill->partner_id,
+            'last_read' => null
+        ]);
+
+        Message::create([
+            'thread_id' => $thread->id,
+            'user_id' => 1, //system user
+            'body' => __("global.system_message.order_confirmed", ['code' => $partnerBill->code])
+        ]);
+
+        $partnerBill->thread_id = $thread->id;
+        $partnerBill->saveQuietly();
     }
 
     //model helpers method
