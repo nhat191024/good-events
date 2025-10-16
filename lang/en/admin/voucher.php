@@ -9,6 +9,7 @@ return [
             'max_discount_amount' => 'Max Discount Amount',
             'min_order_amount' => 'Min Order Amount',
             'usage_limit' => 'Usage Limit',
+            'times_used' => 'Times Used',
             'is_unlimited' => 'Is Unlimited',
             'model_type' => 'Apply To',
             'starts_at' => 'Start Date',

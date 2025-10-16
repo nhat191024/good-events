@@ -9,6 +9,7 @@ return [
             'max_discount_amount' => 'Số tiền giảm tối đa',
             'min_order_amount' => 'Giá trị đơn hàng tối thiểu',
             'usage_limit' => 'Giới hạn lượt sử dụng',
+            'times_used' => 'Lượt đã sử dụng',
             'is_unlimited' => 'Không giới hạn lượt sử dụng',
             'model_type' => 'Áp dụng cho',
             'starts_at' => 'Ngày bắt đầu',
