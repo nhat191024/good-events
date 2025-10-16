@@ -34,9 +34,28 @@ class PartnerBillsListPage extends Page
 
     public $perPage = 6;
 
+    public $arrivalPhoto;
+
     protected $listeners = [
         'refreshBills' => '$refresh',
     ];
+
+    protected function rules()
+    {
+        return [
+            'arrivalPhoto' => 'required|image|max:5120|mimes:jpeg,png,jpg,webp', // Max 5MB
+        ];
+    }
+
+    protected function messages()
+    {
+        return [
+            'arrivalPhoto.required' => __('partner/bill.arrival_photo_required'),
+            'arrivalPhoto.image' => __('partner/bill.arrival_photo_must_be_image'),
+            'arrivalPhoto.max' => __('partner/bill.arrival_photo_max_size'),
+            'arrivalPhoto.mimes' => __('partner/bill.arrival_photo_invalid_format'),
+        ];
+    }
 
     public function getBillsProperty()
     {
@@ -172,9 +191,10 @@ class PartnerBillsListPage extends Page
 
     public function markAsInJob($billId): void
     {
+        $this->validate();
+
         $bill = PartnerBill::findOrFail($billId);
 
-        // Verify the bill belongs to this partner
         if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
             Notification::make()
                 ->title(__('partner/bill.unauthorized_action'))
@@ -183,7 +203,6 @@ class PartnerBillsListPage extends Page
             return;
         }
 
-        // Check if status is confirmed
         if ($bill->status !== PartnerBillStatus::CONFIRMED) {
             Notification::make()
                 ->title(__('partner/bill.must_be_confirmed'))
@@ -192,9 +211,17 @@ class PartnerBillsListPage extends Page
             return;
         }
 
-        // Update status to IN_JOB
+        if ($this->arrivalPhoto) {
+            $bill->addMedia($this->arrivalPhoto->getRealPath())
+                ->usingName('Arrival Photo - ' . $bill->code)
+                ->usingFileName($this->arrivalPhoto->getClientOriginalName())
+                ->toMediaCollection('arrival_photo');
+        }
+
         $bill->status = PartnerBillStatus::IN_JOB;
         $bill->save();
+
+        $this->arrivalPhoto = null;
 
         Notification::make()
             ->title(__('partner/bill.marked_as_in_job'))
