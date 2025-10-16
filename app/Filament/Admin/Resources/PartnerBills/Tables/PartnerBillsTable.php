@@ -73,6 +73,9 @@ class PartnerBillsTable
                         PartnerBillStatus::PENDING => 'warning',
                         PartnerBillStatus::CANCELLED => 'danger',
                         PartnerBillStatus::COMPLETED => 'success',
+                        PartnerBillStatus::CONFIRMED => 'info',
+                        PartnerBillStatus::IN_JOB => 'info',
+                        PartnerBillStatus::EXPIRED => 'secondary',
                         default => 'secondary',
                     })
                     ->badge(),
