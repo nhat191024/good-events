@@ -85,6 +85,7 @@ class PartnerBill extends Model implements HasMedia
         'date',
         'start_time',
         'end_time',
+        'total',
         'final_total',
         'event_id',
         'custom_event',
@@ -105,6 +106,7 @@ class PartnerBill extends Model implements HasMedia
         'date' => 'datetime',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
+        'total' => 'float',
         'final_total' => 'float',
         'status' => PartnerBillStatus::class,
     ];
