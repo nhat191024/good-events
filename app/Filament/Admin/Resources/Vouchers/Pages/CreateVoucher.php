@@ -12,6 +12,7 @@ class CreateVoucher extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['model_id'] = 1;
+        $data['data']['times_used'] = 0;
 
         return $data;
     }
