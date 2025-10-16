@@ -30,8 +30,8 @@ return [
     'this_month' => 'Tháng này',
     'clear_filters' => 'Xóa bộ lọc',
     'apply_filters' => 'Áp dụng bộ lọc',
-    'order_accepted' => 'Đã nhận đơn thành công',
-    'order_accept_error' => 'Có lỗi xảy ra khi nhận đơn',
+    'order_accepted' => 'Đã nhận show thành công',
+    'order_accept_error' => 'Có lỗi xảy ra khi nhận show',
     'total_amount' => 'Tổng tiền',
     'start_time' => 'Thời gian bắt đầu',
     'end_time' => 'Thời gian kết thúc',
@@ -57,7 +57,7 @@ return [
     'system_information' => 'Thông tin hệ thống',
 
     // View page fields
-    'order_code' => 'Mã đơn hàng',
+    'order_code' => 'Mã show',
     'customer' => 'Khách hàng',
     'service_category' => 'Danh mục dịch vụ',
     'event_name' => 'Sự kiện',
@@ -73,7 +73,7 @@ return [
 
     // Modal translations
     'enter_price' => 'Nhập giá tiền',
-    'enter_price_for_order' => 'Vui lòng nhập giá tiền cho đơn hàng',
+    'enter_price_for_order' => 'Vui lòng nhập giá tiền cho show',
     'price_label' => 'Giá tiền',
     'confirm_accept' => 'Xác nhận nhận show',
     'cancel' => 'Hủy',
@@ -84,23 +84,24 @@ return [
 
     // Unauthorized action
     'unauthorized_action' => 'Hành động không được phép',
-    'cannot_complete_order' => 'Không thể hoàn thành đơn hàng',
+    'cannot_complete_order' => 'Không thể hoàn thành show',
 
     // Mark in job translations
     'mark_as_arrived' => 'Đã đến nơi',
     'mark_in_job_confirm_title' => 'Xác nhận đã đến nơi',
-    'mark_in_job_confirm' => 'Bạn có chắc chắn muốn đánh dấu đơn hàng này là đã đến nơi?',
+    'mark_in_job_confirm' => 'Bạn có chắc chắn muốn đánh dấu show này là đã đến nơi?',
     'confirm_arrived' => 'Xác nhận đã đến nơi',
+    'marked_as_arrived' => 'Show đã được đánh dấu là đã đến nơi',
 
     // Complete order translations
-    'complete_order' => 'Hoàn thành đơn',
-    'complete_order_confirm_title' => 'Xác nhận hoàn thành đơn hàng',
-    'complete_order_confirm_description' => 'Vui lòng tải lên ảnh xác nhận hoàn thành đơn hàng. Hành động này không thể hoàn tác.',
+    'complete_order' => 'Hoàn thành show',
+    'complete_order_confirm_title' => 'Xác nhận hoàn thành show',
+    'complete_order_confirm_description' => 'Vui lòng tải lên ảnh xác nhận hoàn thành show. Hành động này không thể hoàn tác.',
     'confirm_complete' => 'Xác nhận hoàn thành',
     'insufficient_balance' => 'Số dư không đủ. Số tiền cần rút: :amount, Số dư hiện tại: :balance',
     'minimum_balance' => 'Số dư tối thiểu không đủ. Vui lòng nạp thêm để tiếp tục nhận show',
-    'order_completed_success' => 'Đơn hàng đã được hoàn thành thành công',
-    'fee_will_be_deducted' => 'Phí dịch vụ sẽ được khấu trừ từ số dư của bạn khi hoàn thành đơn hàng này.',
+    'order_completed_success' => 'Show đã được hoàn thành thành công',
+    'fee_will_be_deducted' => 'Phí dịch vụ sẽ được khấu trừ từ số dư của bạn khi hoàn thành show này.',
 
     // Arrival photo translations
     'arrival_photo' => 'Ảnh xác nhận đã đến nơi',

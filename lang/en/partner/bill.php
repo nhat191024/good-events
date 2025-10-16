@@ -57,7 +57,7 @@ return [
     'system_information' => 'System Information',
 
     // View page fields
-    'order_code' => 'Order Code',
+    'order_code' => 'Show Code',
     'customer' => 'Customer',
     'service_category' => 'Service Category',
     'event_name' => 'Event Name',
@@ -73,7 +73,7 @@ return [
 
     // Modal translations
     'enter_price' => 'Enter Price',
-    'enter_price_for_order' => 'Please enter the price for order',
+    'enter_price_for_order' => 'Please enter the price for show',
     'price_label' => 'Price',
     'confirm_accept' => 'Confirm Accept Show',
     'cancel' => 'Cancel',
@@ -84,23 +84,24 @@ return [
 
     // Unauthorized action
     'unauthorized_action' => 'Unauthorized Action',
-    'cannot_complete_order' => 'Cannot complete order',
+    'cannot_complete_order' => 'Cannot complete show',
 
     // Mark in job translations
     'mark_in_job' => 'Mark as In Job',
     'mark_in_job_confirm_title' => 'Confirm Mark as In Job',
-    'mark_in_job_confirm' => 'Are you sure you want to mark this order as in job? This action cannot be undone.',
+    'mark_in_job_confirm' => 'Are you sure you want to mark this show as in job? This action cannot be undone.',
     'confirm_arrived' => 'Confirm Arrived',
+    'marked_as_arrived' => 'Show has been marked as in job',
 
     // Complete order translations
     'complete_order' => 'Complete Show',
-    'complete_order_confirm_title' => 'Confirm Complete Order',
-    'complete_order_confirm_description' => 'Please upload a photo to confirm order completion. This action cannot be undone.',
+    'complete_order_confirm_title' => 'Confirm Complete Show',
+    'complete_order_confirm_description' => 'Please upload a photo to confirm show completion. This action cannot be undone.',
     'confirm_complete' => 'Confirm Complete',
     'insufficient_balance' => 'Insufficient balance. Amount to withdraw: :amount, Current balance: :balance',
     'minimum_balance' => 'Insufficient minimum balance. Please top up to continue accepting shows',
-    'order_completed_success' => 'Order has been successfully completed',
-    'fee_will_be_deducted' => 'Service fee will be deducted from your balance when completing this order.',
+    'order_completed_success' => 'Show has been successfully completed',
+    'fee_will_be_deducted' => 'Service fee will be deducted from your balance when completing this show.',
 
     // Arrival photo translations
     'arrival_photo' => 'Arrival Photo',
