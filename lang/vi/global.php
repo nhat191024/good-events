@@ -28,6 +28,10 @@ return [
     'next' => 'Tiếp',
     'previous' => 'Trước',
 
+    'system_message' => [
+        'order_confirmed' => 'Đơn hàng :code đã được xác nhận. Đây là đoạn chat trao đổi giữa khách hàng và đối tác. Admin sẽ có thể theo dõi để hỗ trợ khi cần thiết.',
+    ],
+
     'paginate' => [
         'showing' => 'Hiển thị',
         'to' => 'đến',

@@ -26,6 +26,10 @@ return [
     'next' => 'Next',
     'previous' => 'Previous',
 
+    'system_message' => [
+        'order_confirmed' => 'The order :code has been confirmed. This is the chat between customer and partner. Admin can monitor to support when necessary.',
+    ],
+
     'paginate' => [
         'showing' => 'Showing',
         'to' => 'to',
