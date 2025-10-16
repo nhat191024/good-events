@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\PartnerBills\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\TrashedFilter;
 
 use Filament\Actions\Action;
@@ -28,10 +29,12 @@ class PartnerBillsTable
                     ->searchable(),
                 TextColumn::make('address')
                     ->label(__('admin/partnerBill.fields.address'))
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('phone')
                     ->label(__('admin/partnerBill.fields.phone'))
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('date')
                     ->label(__('admin/partnerBill.fields.date'))
                     ->date()
@@ -39,11 +42,13 @@ class PartnerBillsTable
                 TextColumn::make('start_time')
                     ->label(__('admin/partnerBill.fields.start_time'))
                     ->time()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('end_time')
                     ->label(__('admin/partnerBill.fields.end_time'))
                     ->time()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('final_total')
                     ->label(__('admin/partnerBill.fields.final_total'))
                     ->numeric()
@@ -79,6 +84,24 @@ class PartnerBillsTable
                         default => 'secondary',
                     })
                     ->badge(),
+                ImageColumn::make('arrival_photo')
+                    ->label(__('admin/partnerBill.fields.arrival_photo'))
+                    ->getStateUsing(function (PartnerBill $record): ?string {
+                        $media = $record->getFirstMedia('arrival_photo');
+                        return $media?->getUrl();
+                    })
+                    ->circular()
+                    ->imageSize(60)
+                    ->action(
+                        Action::make('viewImage')
+                            ->modalHeading(__('admin/partnerBill.fields.arrival_photo'))
+                            ->modalContent(fn(PartnerBill $record) => view('filament.modals.image-viewer', [
+                                'imageUrl' => $record->getFirstMedia('arrival_photo')?->getUrl(),
+                            ]))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel(__('Close'))
+                            ->closeModalByClickingAway(true)
+                    ),
                 TextColumn::make('created_at')
                     ->label(__('admin/partnerBill.fields.created_at'))
                     ->dateTime()
