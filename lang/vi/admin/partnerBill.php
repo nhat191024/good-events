@@ -15,6 +15,7 @@ return [
         'partner' => 'Đối tác',
         'category' => 'Danh mục',
         'status' => 'Trạng thái',
+        'arrival_photo' => 'Ảnh khi đến',
         'created_at' => 'Tạo lúc',
         'updated_at' => 'Cập nhật lúc',
     ],

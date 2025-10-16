@@ -15,6 +15,7 @@ return [
         'partner' => 'Partner',
         'category' => 'Category',
         'status' => 'Status',
+        'arrival_photo' => 'Arrival Photo',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
     ],
