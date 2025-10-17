@@ -8,6 +8,7 @@ use Filament\Pages\Dashboard;
 
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
+use Filament\Enums\ThemeMode;
 
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -66,6 +67,8 @@ class PartnerPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Partner/Widgets'), for: 'App\Filament\Partner\Widgets')
 
             ->viteTheme('resources/css/filament/partner/theme.css')
+
+            ->defaultThemeMode(ThemeMode::Light)
 
             ->pages([
                 Dashboard::class,
