@@ -31,7 +31,7 @@ return [
     'button' => [
         'add_service' => 'Thêm dịch vụ',
         'watch_videos' => 'Xem video',
-        'add_video' => 'Thêm video',
+        'add_video' => 'Thêm trường nhập video',
     ],
 
     'helper' => [

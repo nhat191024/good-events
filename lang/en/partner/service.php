@@ -31,7 +31,7 @@ return [
     'button' => [
         'add_service' => 'Add Service',
         'watch_videos' => 'Watch Videos',
-        'add_video' => 'Add Video',
+        'add_video' => 'Add video input field',
     ],
 
     'helper' => [
