@@ -41,6 +41,33 @@ class RealtimePartnerBill extends Page
         return __('partner/bill.new_bill');
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $user = Auth::user();
+        if (!$user || !$user->partnerServices()->exists()) {
+            return null;
+        }
+
+        $categoryIds = $user->partnerServices()
+            ->where('status', 'approved')
+            ->pluck('category_id')
+            ->unique()
+            ->toArray();
+
+        if (empty($categoryIds)) {
+            return null;
+        }
+
+        $count = PartnerBill::whereIn('category_id', $categoryIds)
+            ->where('status', PartnerBillStatus::PENDING)
+            ->whereDoesntHave('details', function ($query) use ($user) {
+                $query->where('partner_id', $user->id);
+            })
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
     public $partnerBills = [];
 
     public $partnerId = null;
