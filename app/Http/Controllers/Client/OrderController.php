@@ -26,7 +26,9 @@ use Inertia\Inertia;
 use App\Http\Resources\OrderHistory\PartnerBillResource;
 use App\Models\PartnerBillDetail;
 use App\Models\User;
+use App\Models\Voucher;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -162,10 +164,23 @@ class OrderController extends Controller
     {
         $bill_id = $request->input('order_id');
         $user_id = $request->input('partner_id');
+        $voucher_code = $request->input('voucher_code');
 
         $billDetail = PartnerBill::findOrFail($bill_id)->details()->where('partner_id', $user_id)->first();
         $bill = PartnerBill::findOrFail($bill_id);
 
+        $partnerBillDetail = PartnerBillDetail::where('partner_bill_id',$bill_id)
+            ->orWhere('partner_id',$user_id)->first();
+
+        $discount = 0;
+
+        $voucher = Voucher::where('code', $voucher_code)->first();
+        if ($voucher) {
+            $discount = $voucher->getDiscountAmount($partnerBillDetail->total);
+        }
+
+        $bill->total = $partnerBillDetail->total;
+        $bill->final_total = $partnerBillDetail->total - $discount;
         $bill->partner_id = $billDetail->partner_id;
         $bill->status = PartnerBillStatus::CONFIRMED;
         $billDetail->status = PartnerBillDetailStatus::CLOSED;
@@ -211,5 +226,70 @@ class OrderController extends Controller
         }
 
         return back()->with('review_submitted', true);
+    }
+
+    public function validateVoucher(Request $request)
+    {
+        $data = $request->validate([
+            'voucher_input' => 'required|string|min:5|max:20',
+            'order_id' => 'required|integer|exists:partner_bills,id',
+        ]);
+
+        $partnerBill = PartnerBill::find($data['order_id']);
+        $voucher = Voucher::where('code', $data['voucher_input'])->first();
+        if (!$voucher || !$partnerBill) {
+            return (object) [
+                'status' => false,
+                'message' => __('Voucher không tồn tại')
+            ];
+        }
+        $result = $voucher->validate($partnerBill->total);
+        return $result;
+    }
+
+    /**
+     * Get the discounted amount of a choosen partner of a bill
+     * @param \Illuminate\Http\Request $request
+     * @return object
+     */
+    public function getVoucherDiscountAmount(Request $request)
+    {
+        $data = $request->validate([
+            'voucher_input' => 'required|string|min:5|max:20',
+            'order_id' => 'required|integer|exists:partner_bills,id',
+            'partner_id' => 'required|integer|exists:users,id',
+        ]);
+
+        $partnerBill = PartnerBill::find($data['order_id']);
+        if (!$partnerBill) return self::voucherFail(__('Đơn hàng không tồn tại'));
+        // or, user
+        $partner = User::find($data['partner_id']);
+        if (!$partner) return self::voucherFail(__('Đối tác không tồn tại'));
+        
+        $partnerBillDetail = PartnerBillDetail::where('partner_bill_id',$partnerBill->id)
+            ->orWhere('partner_id',$partner->id)->first();
+        if (!$partnerBillDetail) return self::voucherFail(__('Đối tác không tồn tại'));
+        
+        $voucher = Voucher::where('code', $data['voucher_input'])->first();
+        if (!$voucher) return self::voucherFail(__('Voucher không tồn tại'));
+        
+        $result = $voucher->validate($partnerBillDetail->total);
+        if (!$result->status) return self::voucherFail(__($result->message));
+
+        $discount = $voucher->getDiscountAmount($partnerBillDetail->total);
+
+        return (object) [
+            'status' => true,
+            'message' => 'Voucher này khả dụng!',
+            'discount' => $discount,
+        ];
+    }
+
+    private function voucherFail(string $message) {
+        return (object) [
+            'status' => false,
+            'message' => $message,
+            'discount' => 0,
+        ];
     }
 }

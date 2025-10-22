@@ -1,24 +1,30 @@
 <script setup lang="ts">
-// note: hiển thị tóm tắt + nút hành động. nếu là history & completed -> hiện nút đánh giá
+
 import { CalendarDays, Clock, MapPin, Award, StickyNote, Handshake, BadgeDollarSign, ArrowUpRightFromSquare, Star } from 'lucide-vue-next'
 import { ClientOrder, ClientOrderDetail, OrderStatus } from '../types';
-import { computed } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { formatDate, formatPrice, formatTimeRange } from '@/lib/helper';
 import { Input } from '@/components/ui/input';
 import { getImg } from '@/pages/booking/helper';
 import { router } from '@inertiajs/core';
 import { statusBadge } from '../helper';
+import Button from '@/components/ui/button/Button.vue';
+import { useForm } from '@inertiajs/vue3';
+import { csrf } from '@/lib/utils';
+import { confirm } from '@/composables/useConfirm';
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
     order?: ClientOrder | null
     bookedPartner?: ClientOrderDetail | null
+    modelValue?: string
 }>(), {
     mode: 'current',
     order: undefined,
+    modelValue: ''
 })
 
-console.log('bookin summary card ', props.order);
+const storageKey = computed(() => `voucher_${form.order_id}`)
 
 const getCurrentTitle = computed(() => {
     if (props.mode == 'current') {
@@ -31,6 +37,7 @@ const getCurrentTitle = computed(() => {
 const emit = defineEmits<{
     (e: 'cancel-order'): void
     (e: 'view-partner-profile', partnerId: number): void
+    (e: 'update:modelValue', value: string): void
 }>()
 
 function goToChat() {
@@ -41,26 +48,101 @@ function goToPartnerProfile() {
     if (!props.bookedPartner) return
     const partner = props.bookedPartner.partner
     if (!partner) return
-    // const url = route('profile.partner.show', { user: partner.id })
-    // window.open(url, 'preview', 'width=900,height=700,noopener,noreferrer')
+
     emit('view-partner-profile', partner.id)
 
 }
 
-function getEventType(order: ClientOrder | null | undefined){
+function getEventType(order: ClientOrder | null | undefined) {
     if (!order) return 'Không'
     if (order.custom_event) {
         return order.custom_event;
     } else {
-        return order.event?.name?? 'Không'
+        return order.event?.name ?? 'Không'
     }
 }
+
+const form = useForm({
+    voucher_input: '',
+    order_id: props.order?.id ?? 0,
+})
+
+async function validateVoucher() {
+    form.processing = true
+
+    try {
+        const res = await fetch(route('client-orders.validate-voucher'), {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf(),
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                voucher_input: form.voucher_input,
+                order_id: form.order_id
+            }),
+        })
+
+        if (!res.ok) {
+            const err = await res.json()
+            throw new Error(err);
+        }
+
+        const data = await res.json()
+        showNotice(data['status'] === true ? 'Kiểm tra mã giảm giá thành công!' : 'Mã giảm giá này chưa thể sử dụng được!', data['message']+'\n- Mã giảm giá đã được lưu tạm thời, hãy giữ nguyên mã khi bấm chốt đơn với đối tác nhé!');
+    } catch (error) {
+        showNotice('Có lỗi xảy ra!', 'Chưa thể áp dụng hoặc mã giảm giá chưa hợp lệ, vui lòng thử lại sau!');
+    } finally {
+        form.processing = false
+    }
+}
+
+async function showNotice(title: string, message: string) {
+    await confirm({
+        title: title,
+        message: message,
+        okText: 'OK',
+        cancelText: 'Quay lại'
+    })
+}
+
+function loadVoucherFromStorage() {
+    const saved = localStorage.getItem(storageKey.value)
+    form.voucher_input = saved ?? ''
+}
+
+function getDiscountedAmountText(total: number | null | undefined, finalTotal: number | null | undefined) {
+    if (!total || !finalTotal) return 'Không'
+    let discounted = total - finalTotal
+    if (discounted > 0) return 'Đã giảm: ' + formatPrice(discounted) + 'đ'
+    else return 'Không'
+}
+
+onMounted(() => {
+    loadVoucherFromStorage()
+})
+
+watch(() => props.order?.id, (newId) => {
+    form.order_id = newId ?? 0
+    loadVoucherFromStorage()
+})
+
+watch(() => form.voucher_input, (newVal) => {
+    emit('update:modelValue', newVal)
+    if (!form.order_id) return
+    if (newVal && newVal.trim().length > 0) {
+        localStorage.setItem(`voucher_${form.order_id}`, newVal)
+    } else {
+        localStorage.removeItem(`voucher_${form.order_id}`)
+    }
+})
 </script>
 
 <template>
     <div class="border-2 border-primary/20 rounded-xl bg-card">
         <div class="p-3 md:p-6">
-            <!-- mobile back button sẽ nằm ở panel ngoài -->
             <div class="text-center mb-3 md:mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-3">
                     <img :src="getImg(props.order?.category.image)" alt="Traditional Vietnamese scholar"
@@ -73,8 +155,8 @@ function getEventType(order: ClientOrder | null | undefined){
                     <span>{{ statusBadge(props.order?.status).text }}</span>
                 </div>
                 <p class="text-sm text-muted-foreground">
-                    Bạn đã chọn đối tác '{{ props.order?.category?.parent?.name ?? '' }} - {{
-                        props.order?.category?.name ?? '' }}'
+                    Bạn đã chọn đối tác
+                    '{{ props.order?.category?.parent?.name ?? '' }} - {{ props.order?.category?.name ?? '' }}'
                 </p>
             </div>
 
@@ -83,8 +165,19 @@ function getEventType(order: ClientOrder | null | undefined){
                     <div class="flex items-center gap-3 p-1 md:p-3 bg-muted/30 rounded-lg">
                         <Star class="h-5 w-5 text-muted-foreground" />
                         <div>
-                            <div class="text-xs text-muted-foreground" v-text="'Đánh giá của bạn '+(props.order?.review?.rating? ('('+props.order?.review?.rating+' sao)'):(''))"></div>
-                            <div class="text-sm md:text-md font-medium">{{ props.order?.review?.comment ?? 'Không' }}</div>
+                            <div class="text-xs text-muted-foreground">
+                                {{ 'Đánh giá của bạn '
+                                    + (
+                                        props.order?.review?.rating
+                                            ? ('('
+                                                + props.order?.review?.rating
+                                                + 'sao)')
+                                            : ('')
+                                    )
+                                }}
+                            </div>
+                            <div class="text-sm md:text-md font-medium">{{ props.order?.review?.comment ?? 'Không' }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -118,12 +211,11 @@ function getEventType(order: ClientOrder | null | undefined){
                     <div class="flex items-center gap-3 p-1 md:p-3 bg-muted/30 rounded-lg">
                         <Award class="h-5 w-5 text-muted-foreground" />
                         <div>
-                            <div class="text-xs text-muted-foreground">Loại dịch vụ</div>
+                            <div class="text-xs text-muted-foreground">Loại sụ kiện</div>
                             <div class="text-sm md:text-md font-medium">{{ getEventType(props.order) }}</div>
                         </div>
                     </div>
                 </div>
-                <!-- other info here -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 mb-3 md:mb-6">
                     <div class="flex items-center gap-3 p-1 md:p-3 bg-muted/30 rounded-lg">
                         <StickyNote class="h-5 w-5 text-muted-foreground" />
@@ -151,20 +243,20 @@ function getEventType(order: ClientOrder | null | undefined){
                                 <div>
                                     <div class="text-xs text-muted-foreground">Đối tác đã chốt</div>
                                     <div class="flex items-center text-sm md:text-md font-medium gap-1 hover:underline">
-                                        {{ bookedPartner?.partner?.partner_profile?.partner_name ?? bookedPartner?.partner?.name }}
+                                        {{ bookedPartner?.partner?.partner_profile?.partner_name ??
+                                            bookedPartner?.partner?.name }}
                                         <ArrowUpRightFromSquare class="h-3.5 w-3.5 text-muted-foreground" />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-
                         <div class="flex items-center gap-3 p-1 md:p-3 bg-muted/30 rounded-lg">
                             <BadgeDollarSign class="h-5 w-5 text-muted-foreground" />
                             <div>
                                 <div class="text-xs text-muted-foreground">Giá niêm phong</div>
                                 <div class="text-md md:text-lg font-medium text-red-700">
-                                    {{ formatPrice(bookedPartner?.total ?? 0) }} ₫
+                                    {{ formatPrice(props.order?.final_total ?? 0) }} ₫
                                 </div>
                             </div>
                         </div>
@@ -173,19 +265,28 @@ function getEventType(order: ClientOrder | null | undefined){
 
                 <div class="space-y-3 mb-12 md:mb-8 lg:mb-12">
                     <div v-if="props.mode === 'current' && !props.bookedPartner">
-                        <div class="text-xs text-muted-foreground mb-2">Mã Voucher giảm giá (Áp dụng vào giá của ứng
-                            viên bạn chọn)</div>
-                        <Input placeholder="VD: N1993+1..." value="" class="w-full" />
+                        <div class="flex flex-col">
+                            <div class="text-xs text-muted-foreground mb-2">
+                                Mã giảm giá (Áp dụng vào giá chốt của ứng viên bạn chọn)
+                            </div>
+                            <div class="relative flex gap-2 items-center">
+                                <Input v-model="form.voucher_input" placeholder="VD: N1993+1..." class="w-full" />
+                                <Button :disabled="form.processing" @click="validateVoucher"
+                                    class="text-white font-bold h-full">
+                                    Kiểm tra & Lưu mã
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                     <div v-else>
-                        <div class="text-xs text-muted-foreground mb-2">Mã Voucher đã áp dụng</div>
-                        <Input disabled placeholder="Không" class="w-full" />
+                        <div class="text-xs text-muted-foreground mb-2">Mã giảm giá đã áp dụng</div>
+                        <Input disabled :placeholder="getDiscountedAmountText(props.order?.total, props.order?.final_total)"
+                            class="w-full" />
                     </div>
                 </div>
 
                 <!-- actions -->
-                <div
-                    class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
+                <div class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
                     <button v-if="(props.mode === 'current')" @click="goToChat()"
                         :class="(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB) ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"
                         class="h-10 rounded-md text-white flex-1">Chat ngay</button>

@@ -8,6 +8,25 @@ import { cn } from '@/lib/utils';
 // note: card cho đơn hiện tại
 
 const props = defineProps<ClientOrder>()
+
+function getEstimatedPrice() {
+    const price = props.final_total ?? props.total
+
+    if (price && price > 0) {
+        console.log('using actual price:', price)
+        return formatPrice(price)
+    }
+
+    console.log('calculating estimated price:', props)
+    const estimated = calculateEstimatedPrice(
+        props.start_time,
+        props.end_time,
+        props.category.min_price,
+        props.category.max_price
+    )
+    return formatPrice(estimated ?? 0)
+}
+
 </script>
 
 <template>
@@ -21,18 +40,28 @@ const props = defineProps<ClientOrder>()
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex flex-row justify-between">
-                        <h3 class="font-semibold text-card-foreground text-sm mb-0 md:1">{{ props.category.name }}</h3>
+                        <h3 class="font-semibold text-card-foreground text-sm mb-0 md:1">{{ props.category?.parent?.name ?? '' }} - {{ props.category.name }}</h3>
                         <span v-if="props.partners.count>0 && props.status == OrderStatus.PENDING" class="text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm">{{ props.partners.count }}</span>
                     </div>
-                    <p class="text-xs text-muted-foreground mb-1">{{ props.category?.parent?.name ?? '' }}</p>
-                    <p v-if="props.note" class="text-xs text-muted-foreground mb-1 md:mb-2">{{ props.note }}</p>
+                    <p class="text-xs text-muted-foreground mb-1">Ở {{ props.address ?? '' }}</p>
+                    <p
+                        v-if="props.note"
+                        class="text-xs text-muted-foreground mb-1 md:mb-2 truncate"
+                    >
+                        Ghi chú: {{ props.note }}
+                    </p>
                     <div class="flex items-center gap-2 mb-1 md:mb-2">
-                        <span class="text-xs text-muted-foreground">Đặt lúc {{ formatTime(props.created_at ?? '')}} - {{ formatDate(props.created_at ?? '') }}</span>
+                        <span class="text-xs text-muted-foreground">Tổ chức ngày {{ formatDate(props.date ?? '') }} từ lúc {{ formatTime(props.start_time ?? '')}} đến {{ formatTime(props.end_time ?? '') }} </span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-medium text-primary-700">Tạm ước tính: {{ formatPrice(calculateEstimatedPrice(props.start_time, props.end_time, props.category.min_price, props.category.max_price) ?? 0) }} ₫</span>
+                        <span class="text-xs font-bold text-primary-700">
+                            <template v-if="props.final_total ?? props.total">Giá chốt:</template>
+                            <template v-else>Giá ước tính:</template>
+                            {{ getEstimatedPrice() }} ₫
+                        </span>
                         <span class="text-xs px-2 py-0.5 rounded" :class="statusBadge(props.status).cls">
-                            {{ statusBadge(props.status).text }}</span>
+                            {{ statusBadge(props.status).text }}
+                        </span>
                     </div>
                 </div>
             </div>
