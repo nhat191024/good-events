@@ -26,6 +26,10 @@ class RealtimePartnerBill extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
 
+    // Static cache for navigation badge to avoid duplicate queries
+    protected static ?int $cachedBadgeCount = null;
+    protected static ?int $cachedBadgeUserId = null;
+
     // Livewire listeners for auto-update
     protected $listeners = [
         'refreshBills' => 'loadPartnerBills',
@@ -44,28 +48,25 @@ class RealtimePartnerBill extends Page
     public static function getNavigationBadge(): ?string
     {
         $user = Auth::user();
-        if (!$user || !$user->partnerServices()->exists()) {
+        if (!$user) {
             return null;
         }
 
-        $categoryIds = $user->partnerServices()
-            ->where('status', 'approved')
-            ->pluck('category_id')
-            ->unique()
-            ->toArray();
+        // Return cached count if available for this user
+        if (static::$cachedBadgeUserId === $user->id && static::$cachedBadgeCount !== null) {
+            return static::$cachedBadgeCount > 0 ? (string) static::$cachedBadgeCount : null;
+        }
 
-        if (empty($categoryIds)) {
+        // Simplified query - just check if partner services exist
+        // The actual detailed count will be calculated in loadPartnerBills()
+        if (!$user->partnerServices()->where('status', 'approved')->exists()) {
+            static::$cachedBadgeCount = 0;
+            static::$cachedBadgeUserId = $user->id;
             return null;
         }
 
-        $count = PartnerBill::whereIn('category_id', $categoryIds)
-            ->where('status', PartnerBillStatus::PENDING)
-            ->whereDoesntHave('details', function ($query) use ($user) {
-                $query->where('partner_id', $user->id);
-            })
-            ->count();
-
-        return $count > 0 ? (string) $count : null;
+        // Return a placeholder - will be updated by loadPartnerBills()
+        return null;
     }
 
     public $partnerBills = [];
@@ -198,6 +199,10 @@ class RealtimePartnerBill extends Page
 
         $this->partnerBills = $bills->toArray();
         $this->lastUpdated = now()->format('H:i:s');
+
+        // Update cached badge count for navigation
+        static::$cachedBadgeCount = count($this->partnerBills);
+        static::$cachedBadgeUserId = $this->partnerId;
 
         // Debug log
         logger('Partner Bills loaded: ' . count($this->partnerBills) . ' bills found for categories: ' . implode(', ', $this->categoryIds));
