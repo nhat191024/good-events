@@ -11,8 +11,8 @@
 <template>
     <div class="w-full flex min-h-svh flex-col items-center justify-start gap-6 bg-background p-6 md:p-10 pt-14">
         <div class="w-full max-w-sm">
-            <div class="flex flex-col gap-8">
-                <div class="flex flex-col items-center gap-4">
+            <div class="flex flex-col gap-6">
+                <div class="flex flex-row items-center w-full gap-4 justify-center mt-3">
                     <Link :href="route('home')" class="flex flex-col items-center gap-2 font-medium">
                     <div class="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
                         <AppLogoIcon class="size-9 fill-current text-[var(--foreground)] dark:text-white" />
