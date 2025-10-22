@@ -115,10 +115,9 @@
         @if ($this->bills->count() > 0)
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
                 @foreach ($this->bills as $bill)
-                    <div class="hover:border-primary-500 dark:hover:border-primary-500 group cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800" wire:click="viewBill({{ $bill->id }})">
-                        {{-- ...existing code... --}}
+                    <div class="hover:border-primary-500 dark:hover:border-primary-500 group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800" wire:click="viewBill({{ $bill->id }})">
                         {{-- Status Badge --}}
-                        <div class="p-6 pb-4">
+                        <div class="flex-1 p-6 pb-4">
                             <div class="mb-4 flex items-start justify-between">
                                 <div class="flex-1">
                                     <h3 class="group-hover:text-primary-600 dark:group-hover:text-primary-400 text-lg font-semibold text-gray-900 transition-colors dark:text-white">
@@ -136,7 +135,7 @@
                                         default => 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
                                     };
                                 @endphp
-                                <span class="{{ $statusClasses }} inline-flex items-center rounded-full px-3 py-1 text-xs font-medium">
+                                <span class="{{ $statusClasses }} inline-flex items-center rounded-full px-3 py-1 text-base font-semibold">
                                     {{ $this->getStatusLabel($bill->status->value) }}
                                 </span>
                             </div>
@@ -158,15 +157,17 @@
 
                             {{-- Event Details --}}
                             <div class="mb-4 space-y-2">
-                                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                    <x-filament::icon class="h-4 w-4 text-gray-400" icon="heroicon-o-calendar" />
-                                    <span>{{ $bill->date?->format('d/m/Y') ?? __('partner/bill.no_date') }}</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                    <x-filament::icon class="h-4 w-4 text-gray-400" icon="heroicon-o-clock" />
-                                    <span>
-                                        {{ $bill->start_time?->format('H:i') }} - {{ $bill->end_time?->format('H:i') }}
-                                    </span>
+                                <div class="flex justify-start gap-10">
+                                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <x-filament::icon class="h-4 w-4 text-gray-400" icon="heroicon-o-calendar" />
+                                        <span>{{ $bill->date?->format('d/m/Y') ?? __('partner/bill.no_date') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <x-filament::icon class="h-4 w-4 text-gray-400" icon="heroicon-o-clock" />
+                                        <span>
+                                            {{ $bill->start_time?->format('H:i') }} - {{ $bill->end_time?->format('H:i') }}
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
                                     <x-filament::icon class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" icon="heroicon-o-map-pin" />
@@ -188,12 +189,6 @@
                                             {{ number_format($partnerDetail->total ?? 0, 0, ',', '.') }} ₫
                                         </span>
                                     </div>
-                                    @if ($partnerDetail->status)
-                                        <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                            {{ __('partner/bill.detail_status') }}:
-                                            <span class="font-medium">{{ $partnerDetail->status }}</span>
-                                        </div>
-                                    @endif
                                 </div>
                             @else
                                 <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
@@ -210,7 +205,7 @@
                         </div>
 
                         {{-- Footer --}}
-                        <div class="border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-700 dark:bg-gray-900/50">
+                        <div class="mt-auto flex h-full flex-col justify-end border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-700 dark:bg-gray-900/50">
                             {{-- Button "Đã đến nơi" for CONFIRMED status --}}
                             @if ($bill->status->value === 'confirmed')
                                 <div class="mb-3">
