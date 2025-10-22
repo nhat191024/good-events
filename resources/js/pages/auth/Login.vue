@@ -7,12 +7,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Form, Head, Link } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+const showPassword = ref(false);
+const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value;
+};
 </script>
 
 <template>
@@ -38,23 +44,31 @@ defineProps<{
                     <div class="flex items-center justify-between">
                         <Label for="password">Mật khẩu</Label>
                         <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm"
-                            :tabindex="5">
+                            :tabindex="2">
                             Quên mật khẩu?
                         </TextLink>
                     </div>
-                    <Input id="password" type="password" name="password" required :tabindex="2"
-                        autocomplete="current-password" placeholder="Password" />
+                    <div class="relative">
+                        <Input id="password" :type="showPassword ? 'text' : 'password'" name="password" required
+                            :tabindex="3" autocomplete="current-password" placeholder="Password" class="pr-10" />
+                        <button type="button"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground focus:outline-none"
+                            :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" :tabindex="4"
+                            @click="togglePasswordVisibility">
+                            <component :is="showPassword ? EyeOff : Eye" class="w-4 h-4" />
+                        </button>
+                    </div>
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="flex items-center justify-between">
                     <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" name="remember" :tabindex="3" />
+                        <Checkbox id="remember" name="remember" :tabindex="5" />
                         <span>Ghi nhớ đăng nhập</span>
                     </Label>
                 </div>
 
-                <Button type="submit" class="w-full mt-4 font-bold text-white hover:bg-primary-700 active:bg-primary-800 cursor-pointer" :tabindex="4" :disabled="processing">
+                <Button type="submit" class="w-full mt-4 font-bold text-white hover:bg-primary-700 active:bg-primary-800 cursor-pointer" :tabindex="6" :disabled="processing">
                     <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
                     Đăng nhập
                 </Button>
@@ -62,11 +76,11 @@ defineProps<{
 
             <div class="text-sm text-center text-muted-foreground">
                 Chưa có tài khoản?
-                <TextLink :href="route('register')" :tabindex="5">Đăng ký</TextLink>
+                <TextLink :href="route('register')" :tabindex="7">Đăng ký</TextLink>
             </div>
             <div class="text-sm text-center text-muted-foreground">
                 Bạn là đối tác?
-                <a href="/partner/login" class="underline text-gray-800 underline-offset-4"> Đăng nhập đối tác </a>
+                <a href="/partner/login" class="underline text-gray-800 underline-offset-4" :tabindex="8"> Đăng nhập đối tác </a>
             </div>
             <!-- <div class="text-sm text-center text-muted-foreground">
                 Bạn là quản trị viên?
@@ -76,7 +90,7 @@ defineProps<{
             <div class="text-sm text-center text-muted-foreground">
                 Hoặc, bạn đang tìm việc?
             </div>
-            <Button type="button" class="p-0 w-full mb-4 font-bold text-white bg-green-700 hover:bg-green-800 active:bg-green-900" :tabindex="4" :disabled="processing">
+            <Button type="button" class="p-0 w-full mb-4 font-bold text-white bg-green-700 hover:bg-green-800 active:bg-green-900" :tabindex="9" :disabled="processing">
                 <!-- <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" /> -->
                 <Link :href="route('partner.register')" class="w-full h-full p-2">Đăng ký đối tác</Link>
             </Button>
