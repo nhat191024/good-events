@@ -16,7 +16,7 @@ defineProps<{
 </script>
 
 <template>
-    <AuthBase title="Đăng nhập" description="Đăng nhập hoặc đăng ký để tiếp tục">
+    <AuthBase title="Đăng nhập" description="">
 
         <Head title="Log in" />
 
@@ -68,10 +68,10 @@ defineProps<{
                 Bạn là đối tác?
                 <a href="/partner/login" class="underline text-gray-800 underline-offset-4"> Đăng nhập đối tác </a>
             </div>
-            <div class="text-sm text-center text-muted-foreground">
+            <!-- <div class="text-sm text-center text-muted-foreground">
                 Bạn là quản trị viên?
                 <a href="/admin/login" class="underline text-gray-800 underline-offset-4"> Đến trang quản trị</a>
-            </div>
+            </div> -->
             <hr>
             <div class="text-sm text-center text-muted-foreground">
                 Hoặc, bạn đang tìm việc?
