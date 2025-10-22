@@ -4,9 +4,11 @@ namespace App\Filament\Admin\Resources\EventCategories\Pages;
 
 use App\Filament\Admin\Resources\EventCategories\EventCategoryResource;
 use App\Filament\Admin\Resources\EventCategories\Resources\PartnerCategories\PartnerCategoryResource;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ManageRelatedRecords;
+
 use Filament\Tables\Table;
+use Filament\Actions\CreateAction;
+
+use Filament\Resources\Pages\ManageRelatedRecords;
 
 class ManagePartnerCategory extends ManageRelatedRecords
 {
