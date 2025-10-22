@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// note: panel chi tiết bên phải. mobile sẽ có nút back để quay về danh sách
+
 import BookingSummaryCard from './BookingSummaryCard.vue'
 import ApplicantCard from './ApplicantCard.vue'
 import { ArrowLeft, Star } from 'lucide-vue-next'
@@ -20,6 +20,8 @@ const props = withDefaults(defineProps<{
     applicants: () => [],
 })
 
+const voucher_code = ref('')
+
 const description = computed(() => {
     return (props.mode === 'current')
         ? 'Vui lòng đợi một lúc, chúng tôi đang gửi thông báo đến cho các đối tác gần đó và sẽ tải lại trang cho bạn'
@@ -32,7 +34,7 @@ const emit = defineEmits<{
     (e: 'reload-detail',
     orderId: number | undefined): void
     (e: 'cancel-order') : void
-    (e: 'confirm-choose-partner', partner?: Partner | null | undefined, total?: number | null | undefined) : void
+    (e: 'confirm-choose-partner', partner?: Partner | null | undefined, total?: number | null | undefined, voucher_code?: string | null | undefined) : void
     (e: 'view-partner-profile', partnerId: number): void
 }>()
 
@@ -53,6 +55,10 @@ const reloadOrderDetails = debounce(() => {
 const classIfBookedPartnerFound = computed(()=>{
     return (bookedPartner && props.mode === 'current' && (props.order?.status==OrderStatus.CONFIRMED || props.order?.status==OrderStatus.IN_JOB)) ? 'hidden' : '';
 });
+
+function emitConfirmChoosePartnerWithVoucher(partner?: Partner | null | undefined, total?: number | null | undefined) {
+    emit('confirm-choose-partner', partner, total, voucher_code.value)
+}
 
 </script>
 
@@ -83,7 +89,7 @@ const classIfBookedPartnerFound = computed(()=>{
                         <div v-if="props.applicants.length > 0" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
                         </div>
-                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)" :show-buttons="props.order?.status !=  OrderStatus.CONFIRMED && props.order?.status != OrderStatus.IN_JOB" v-for="a in props.applicants" :key="a.id" v-bind="a" @confirm-choose-partner="(partner, total) => emit('confirm-choose-partner', partner, total)"/>
+                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)" :show-buttons="props.order?.status !=  OrderStatus.CONFIRMED && props.order?.status != OrderStatus.IN_JOB" v-for="a in props.applicants" :key="a.id" v-bind="a" @confirm-choose-partner="(partner, total) => emitConfirmChoosePartnerWithVoucher(partner, total)"/>
                     </div>
                 </div>
                 <div v-else class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-5">
@@ -104,7 +110,7 @@ const classIfBookedPartnerFound = computed(()=>{
                         <!-- </div> -->
                     </div>
                 </div>
-                <BookingSummaryCard @view-partner-profile="emit('view-partner-profile', $event)" :mode="props.mode" :booked-partner="bookedPartner" :order="props.order" class="mt-6" @cancel-order="emit('cancel-order')" />
+                <BookingSummaryCard v-model="voucher_code" @view-partner-profile="emit('view-partner-profile', $event)" :mode="props.mode" :booked-partner="bookedPartner" :order="props.order" class="mt-6" @cancel-order="emit('cancel-order')" />
 
             </template>
             <template v-else>
