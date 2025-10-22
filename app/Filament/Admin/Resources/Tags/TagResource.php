@@ -2,23 +2,30 @@
 
 namespace App\Filament\Admin\Resources\Tags;
 
+use Spatie\Tags\Tag;
+
+use BackedEnum;
+use UnitEnum;
+
 use App\Filament\Admin\Resources\Tags\Pages\CreateTag;
 use App\Filament\Admin\Resources\Tags\Pages\EditTag;
 use App\Filament\Admin\Resources\Tags\Pages\ListTags;
 use App\Filament\Admin\Resources\Tags\Schemas\TagForm;
 use App\Filament\Admin\Resources\Tags\Tables\TagsTable;
-use BackedEnum;
+
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Spatie\Tags\Tag;
+
+use App\Enum\FilamentNavigationGroup;
 
 class TagResource extends Resource
 {
     protected static ?string $model = Tag::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
+    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::CATEGORIES;
 
     public static function form(Schema $schema): Schema
     {
