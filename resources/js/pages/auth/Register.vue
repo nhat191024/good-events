@@ -6,11 +6,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Form, Head, Link } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
+
+const showPassword = ref(false);
+const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value;
+};
 </script>
 
 <template>
-    <AuthBase title="Tạo tài khoản" description="Nhập thông tin của bạn bên dưới để tạo tài khoản mới">
+    <AuthBase title="Tạo tài khoản" description="">
 
         <Head title="Đăng ký" />
 
@@ -33,26 +39,42 @@ import { LoaderCircle } from 'lucide-vue-next';
 
                 <div class="grid gap-2">
                     <Label for="phone">Số điện thoại</Label>
-                    <Input id="phone" type="phone" required :tabindex="2" autocomplete="phone" name="phone"
+                    <Input id="phone" type="phone" required :tabindex="3" autocomplete="phone" name="phone"
                         placeholder="0987654321" />
                     <InputError :message="errors.phone" />
                 </div>
 
                 <div class="grid gap-2">
                     <Label for="password">Mật khẩu</Label>
-                    <Input id="password" type="password" required :tabindex="3" autocomplete="new-password"
-                        name="password" placeholder="Nhập mật khẩu" />
+                    <div class="relative">
+                        <Input id="password" :type="showPassword ? 'text' : 'password'" name="password" required
+                            :tabindex="4" autocomplete="current-password" placeholder="Password" class="pr-10" />
+                        <button type="button"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground focus:outline-none"
+                            :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" :tabindex="5"
+                            @click="togglePasswordVisibility">
+                            <component :is="showPassword ? EyeOff : Eye" class="w-4 h-4" />
+                        </button>
+                    </div>
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="grid gap-2">
                     <Label for="password_confirmation">Xác nhận mật khẩu</Label>
-                    <Input id="password_confirmation" type="password" required :tabindex="4" autocomplete="new-password"
-                        name="password_confirmation" placeholder="Nhập lại mật khẩu" />
+                    <div class="relative">
+                        <Input id="password_confirmation" :type="showPassword ? 'text' : 'password'" name="password_confirmation" required
+                            :tabindex="6" autocomplete="current-password" placeholder="Nhập lại mật khẩu" class="pr-10" />
+                        <button type="button"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground focus:outline-none"
+                            :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" :tabindex="7"
+                            @click="togglePasswordVisibility">
+                            <component :is="showPassword ? EyeOff : Eye" class="w-4 h-4" />
+                        </button>
+                    </div>
                     <InputError :message="errors.password_confirmation" />
                 </div>
 
-                <Button type="submit" class="w-full mt-2 text-white font-bold" tabindex="5" :disabled="processing">
+                <Button type="submit" class="w-full mt-2 text-white font-bold" tabindex="8" :disabled="processing">
                     <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
                     Tạo tài khoản
                 </Button>
@@ -60,7 +82,7 @@ import { LoaderCircle } from 'lucide-vue-next';
 
             <div class="text-sm text-center text-muted-foreground">
                 Đã có tài khoản?
-                <TextLink :href="route('login')" class="underline underline-offset-4" :tabindex="6">
+                <TextLink :href="route('login')" class="underline underline-offset-4" :tabindex="9">
                     Đăng nhập
                 </TextLink>
             </div>
@@ -68,7 +90,7 @@ import { LoaderCircle } from 'lucide-vue-next';
             <div class="text-sm text-center text-muted-foreground">
                 Hoặc, bạn đang tìm việc?
             </div>
-            <Button type="button" class="p-0 w-full mb-4 font-bold text-white bg-green-700 hover:bg-green-800 active:bg-green-900" :tabindex="4" :disabled="processing">
+            <Button type="button" class="p-0 w-full mb-4 font-bold text-white bg-green-700 hover:bg-green-800 active:bg-green-900" :tabindex="10" :disabled="processing">
                 <Link :href="route('partner.register')" class="w-full h-full p-2">Đăng ký đối tác</Link>
             </Button>
         </Form>

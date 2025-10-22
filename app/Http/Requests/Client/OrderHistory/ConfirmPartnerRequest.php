@@ -9,25 +9,25 @@ use App\Models\PartnerBill;
 class ConfirmPartnerRequest extends FormRequest
 {
     // todo: enable this after hot fix
-    // public function authorize(): bool
-    // {
-    //     $orderId = $this->input('order_id');
-    //     $bill = PartnerBill::find($orderId);
+    public function authorize(): bool
+    {
+        $orderId = $this->input('order_id');
+        $bill = PartnerBill::find($orderId);
 
-    //     if (!$bill) {
-    //         return false;
-    //     }
+        if (!$bill) {
+            return false;
+        }
 
-    //     // kiểm tra user hiện tại có sở hữu đơn này không
-    //     return $bill->user_id === $this->user()?->id;
-    // }
+        return $bill->client_id === $this->user()?->id;
+    }
 
     public function rules(): array
     {
-        \Log::debug('ConfirmPartnerRequest data', $this->all());
+        // \Log::debug('ConfirmPartnerRequest data', $this->all());
         return [
             'order_id' => ['required', 'integer', 'exists:partner_bills,id'],
             'partner_id' => ['required', 'integer', 'exists:users,id'],
+            'voucher_code' => ['string'],
         ];
     }
 

@@ -28,6 +28,7 @@ import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import { formatPrice } from '@/lib/helper'
 import { default as PartnerProfilePage } from '../profile/partner/Partner.vue'
 import PartnerProfilePreview from './components/PartnerProfilePreview.vue'
+import { csrf } from '@/lib/utils'
 
 
 const activeTab = ref<'current' | 'history'>('current')
@@ -262,43 +263,103 @@ const applicants = computed<ClientOrderDetail[]>(() => {
     return detailsMap.value[id]?.items ?? []
 })
 
-async function handleConfirmChoosePartner(partner?: Partner | null, total?: number | null) {
-    console.log('handleConfirmChoosePartner: ', partner, total);
+async function getVoucherDiscountAmount(voucher_code?: string | null, partner?: Partner | null) {
+    if (!voucher_code || !selectedOrder.value?.id) return
+    let order_id = selectedOrder.value.id
 
-    if (!partner || !selectedOrder.value?.id) return
-
-    const orderId = selectedOrder.value.id
-
-    const ok = await confirm({
-        title: `Bạn có muốn chọn đối tác (${partner.partner_profile?.partner_name ?? partner.name})?`,
-        message: `Xác nhận chốt đơn sẽ mở khóa chat với đối tác và
-            <b class="font-lexend">không thể chọn lại đối tác khác cho đơn này.</b>
-            <br>Đối tác trả giá: <span class="text-red-800 font-bold text-md">`+ formatPrice(total ?? 0) + `đ</span>
-            <br> Bạn có chấp nhận mức giá này không?`,
-        okText: 'Chốt đơn luôn!',
-        cancelText: 'Ko, chưa chốt'
+    const res = await fetch(route('client-orders.get-voucher-discount-amount'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrf(),
+        },
+        body: JSON.stringify({ voucher_input: voucher_code, order_id, partner_id: partner?.id }),
     })
 
-    if (!ok) return
+    if (!res.ok) return 0;
+    const data = await res.json()
+    if (data.status === false) return 0;
+    return data.discount ?? 0
+}
 
-    useForm({
-        order_id: orderId,
-        partner_id: partner.id,
-    }).post(route('client-orders.confirm-partner'), {
-        preserveScroll: true,
-        onBefore: () => {
-            showLoading({ title: 'Đang tải', message: 'Đợi xíu nhé' })
-        },
-        onSuccess: () => {
-            delete detailsMap.value[orderId]
-            refreshCurrentOrders()
-            debounce(() => {
-                fetchDetails(orderId, true), 3000, { leading: false, trailing: true }
-            })();
-        },
-        onFinish: () => {
-            hideLoading(true)
+async function handleConfirmChoosePartner(
+    partner?: Partner | null,
+    total?: number | null,
+    voucher_code?: string | null
+) {
+    console.log('handleConfirmChoosePartner: ', partner, total)
+    if (!partner || !selectedOrder.value?.id) return
+
+    try {
+        showLoading({
+            title: 'Đang kiểm tra mã giảm giá',
+            message: 'Đợi xíu nhé...',
+        })
+
+        const orderId = selectedOrder.value.id
+        let voucherDiscountAmount = 0;
+        try {
+            voucherDiscountAmount = await getVoucherDiscountAmount(voucher_code, partner)
+        } catch (error) {
+            console.error(error);
+        } finally {
+            hideLoading()
         }
+        console.log('got voucher discount', voucherDiscountAmount)
+
+        let finalTotal = (total ?? 0) - voucherDiscountAmount
+        if (finalTotal < 0) finalTotal = 0
+
+        const ok = await confirm({
+            title: `Bạn có muốn chọn đối tác (${partner.partner_profile?.partner_name ?? partner.name})?`,
+            message: `
+              Xác nhận chốt đơn sẽ mở khóa chat với đối tác và 
+              <b class="font-lexend">không thể chọn lại đối tác khác cho đơn này.</b>
+              <br>Đối tác trả giá: <span class="text-red-800 font-bold text-md">
+              ${formatPrice(total??0)}đ ${(voucherDiscountAmount > 0)?'<br>Giá đã giảm từ mã giảm giá: '+formatPrice(finalTotal)+'đ (-'+formatPrice(voucherDiscountAmount)+'đ)':''}</span>
+              <br> Bạn có chấp nhận mức giá này không?
+            `,
+            okText: 'Chốt đơn luôn!',
+            cancelText: 'Ko, chưa chốt',
+        })
+
+        if (!ok) return
+
+        useForm({
+            order_id: orderId,
+            partner_id: partner.id,
+            voucher_code: voucher_code
+        }).post(route('client-orders.confirm-partner'), {
+            preserveScroll: true,
+            onBefore: () => {
+                showLoading({ title: 'Đang tải', message: 'Đợi xíu nhé' })
+            },
+            onSuccess: () => {
+                delete detailsMap.value[orderId]
+                refreshCurrentOrders()
+                debounce(() => {
+                    fetchDetails(orderId, true), 3000, { leading: false, trailing: true }
+                })();
+            },
+            onFinish: () => {
+                hideLoading(true)
+            }
+        })
+    } catch (err) {
+        console.error('error in handleConfirmChoosePartner', err)
+        hideLoading()
+        showNotice('Có lỗi xảy ra', 'Không thể lấy thông tin mã giảm giá, thử lại sau!')
+    } finally {
+        hideLoading()
+    }
+}
+
+async function showNotice(title: string, message: string) {
+    await confirm({
+        title: title,
+        message: message,
+        okText: 'OK',
+        cancelText: 'Quay lại'
     })
 }
 
@@ -488,7 +549,7 @@ onBeforeUnmount(() => {
                     @back="showMobileDetail = false"
                     @rate="openRating"
                     @cancel-order="handleCancelOrder"
-                    @confirm-choose-partner="(partner, total) => handleConfirmChoosePartner(partner, total)"
+                    @confirm-choose-partner="(partner, total, voucher_code) => handleConfirmChoosePartner(partner, total, voucher_code)"
                     @view-partner-profile="handleViewPartnerProfile($event)"
                 />
             </div>

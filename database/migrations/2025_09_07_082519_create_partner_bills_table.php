@@ -19,8 +19,10 @@ return new class extends Migration
             $table->date('date')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
+            $table->double('total')->nullable();
             $table->double('final_total')->nullable();
             $table->foreignId('event_id')->nullable()->constrained('events')->restrictOnDelete();
+            $table->string('custom_event')->nullable();
             $table->foreignId('client_id')->nullable()->constrained('users')->restrictOnDelete();
             $table->foreignId('partner_id')->nullable()->constrained('users')->restrictOnDelete();
             $table->foreignId('category_id')->nullable()->constrained('partner_categories')->restrictOnDelete();
