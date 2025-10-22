@@ -47,7 +47,7 @@ import { Star } from 'lucide-vue-next';
                     <div class="flex items-center gap-3 p-1 md:p-3 bg-muted/30 rounded-lg">
                         <Award class="h-5 w-5 text-muted-foreground" />
                         <div>
-                            <div class="text-xs text-muted-foreground">Loại dịch vụ</div>
+                            <div class="text-xs text-muted-foreground">Loại sụ kiện</div>
                             <div class="text-sm md:text-md font-medium">-</div>
                         </div>
                     </div>
