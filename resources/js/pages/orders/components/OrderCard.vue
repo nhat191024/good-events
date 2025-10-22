@@ -44,7 +44,12 @@ function getEstimatedPrice() {
                         <span v-if="props.partners.count>0 && props.status == OrderStatus.PENDING" class="text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm">{{ props.partners.count }}</span>
                     </div>
                     <p class="text-xs text-muted-foreground mb-1">Ở {{ props.address ?? '' }}</p>
-                    <!-- <p v-if="props.note" class="text-xs text-muted-foreground mb-1 md:mb-2">Ghi chú: {{ props.note }}</p> -->
+                    <p
+                        v-if="props.note"
+                        class="text-xs text-muted-foreground mb-1 md:mb-2 truncate"
+                    >
+                        Ghi chú: {{ props.note }}
+                    </p>
                     <div class="flex items-center gap-2 mb-1 md:mb-2">
                         <span class="text-xs text-muted-foreground">Tổ chức ngày {{ formatDate(props.date ?? '') }} từ lúc {{ formatTime(props.start_time ?? '')}} đến {{ formatTime(props.end_time ?? '') }} </span>
                     </div>
