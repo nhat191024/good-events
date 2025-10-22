@@ -6,6 +6,7 @@ import NotificationPopover from '@/components/notification/NotificationPopover.v
 // import { NotiItem } from '@/components/notification';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useEcho, useEchoNotification } from '@laravel/echo-vue';
+import { csrf } from '@/lib/utils';
 
 interface Props {
     // showBannerBackground?: boolean;
@@ -50,10 +51,6 @@ function mergeById(oldList: NotiItem[], incoming: NotiItem[]): NotiItem[] {
     const map = new Map<string, NotiItem>(oldList.map(n => [n.id, n]))
     for (const n of incoming) map.set(n.id, { ...(map.get(n.id) ?? {}), ...n })
     return Array.from(map.values()).sort((a, b) => (a.created_at > b.created_at ? -1 : 1))
-}
-
-function csrf(): string {
-    return (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
 }
 
 let aborter: AbortController | null = null

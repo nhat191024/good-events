@@ -170,9 +170,9 @@
         <div class="header">
             <h1>
                 @if ($recipientType === 'client')
-                    ✅ Đơn đặt dịch vụ đã được xác nhận
+                    ✅ Đơn đặt sụ kiện đã được xác nhận
                 @else
-                    💰 Đơn đặt dịch vụ đã được thanh toán
+                    💰 Đơn đặt sụ kiện đã được thanh toán
                 @endif
             </h1>
         </div>
@@ -188,7 +188,7 @@
 
             <div class="success-message">
                 @if ($recipientType === 'client')
-                    🎉 <strong>Chúc mừng!</strong> Đơn đặt dịch vụ của bạn đã được xác nhận và thanh toán thành công.
+                    🎉 <strong>Chúc mừng!</strong> Đơn đặt sụ kiện của bạn đã được xác nhận và thanh toán thành công.
                 @else
                     💰 <strong>Thông báo!</strong> Khách hàng đã thanh toán cho đơn đặt dịch vụ của bạn.
                 @endif

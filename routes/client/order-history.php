@@ -1,9 +1,7 @@
 <?php
 
 use App\Http\Controllers\Client\OrderController;
-use App\Http\Controllers\Client\QuickBookingController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::middleware('auth')->group(function () {
     Route::prefix("don-hang-cua-toi")->name('client-orders.')->group(function () {
@@ -31,5 +29,15 @@ Route::middleware('auth')->group(function () {
             '/submit-review',
             [OrderController::class, 'submitReview']
         )->name('submit-review');
+
+        Route::post(
+            '/validate-voucher',
+            [OrderController::class, 'validateVoucher']
+        )->name('validate-voucher');
+        
+        Route::post(
+            '/get-voucher-discount-amount',
+            [OrderController::class, 'getVoucherDiscountAmount']
+        )->name('get-voucher-discount-amount');
     });
 });

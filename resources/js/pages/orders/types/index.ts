@@ -16,6 +16,7 @@ export interface ClientOrder {
     date: string
     start_time: string
     end_time: string
+    total: number | null
     final_total: number | null
     note: string
     status: OrderStatus
@@ -42,6 +43,7 @@ export interface ClientOrderHistory {
     date: string
     start_time: string
     end_time: string
+    total: number | null
     final_total: number | null
     note: string
     status: OrderStatus

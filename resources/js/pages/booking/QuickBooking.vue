@@ -11,7 +11,7 @@
     import { getImg } from './helper';
 
     const title: string = 'Bạn đang cần kiểu đối tác nào cho sự kiện?'
-    const subtitle: string = 'Chọn loại dịch vụ phù hợp với nhu cầu của bạn'
+    const subtitle: string = 'Chọn loại sụ kiện phù hợp với nhu cầu của bạn'
 
     const pageProps = usePage().props
     const partnerCategories = computed(() => pageProps.partnerCategories as PartnerCategoryType[])

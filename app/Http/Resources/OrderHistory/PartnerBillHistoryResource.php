@@ -44,6 +44,7 @@ class PartnerBillHistoryResource extends JsonResource
             "date" => $this->date,
             "start_time" => $this->start_time,
             "end_time" => $this->end_time,
+            "total" => $this->total,
             "final_total" => $this->final_total,
             "note" => $this->note,
             "status" => $this->status,

@@ -101,7 +101,7 @@
 
     const headerImageSrc = getImg(partnerChildrenCategory.media)
     const title = 'Điền thông tin thuê chi tiết'
-    const subtitle = `Bạn đã chọn đối tác '${partnerCategory.name}' - Cụ thể là '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin dưới đây nhé`
+    const subtitle = `Bạn đang tìm '${partnerCategory.name}' - '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin và mô tả rõ sự kiện của bạn dưới đây nhé`
 
     const form = useForm<PartnerBillForm>(initial)
 
