@@ -19,7 +19,7 @@
     const parentPartnerCategorySlug = partnerCategory.slug as string
 
     const title = `Trong lĩnh vực \'${partnerCategory.name}\', bạn muốn thuê đối tác cụ thể nào dưới đây?`
-    const subtitle = 'Chọn loại dịch vụ quay chụp phù hợp với nhu cầu'
+    const subtitle = 'Chọn loại sụ kiện quay chụp phù hợp với nhu cầu'
 
     // TODO: test img, needs to change later
     const cardImgDemo = "https://framerusercontent.com/images/IDBlVR9F6tbH9i8opwaJiutM.png?scale-down-to=512&width=1024&height=1024"
