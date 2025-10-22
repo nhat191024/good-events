@@ -17,13 +17,10 @@
                         <Button :variant="'outlineWhite'" :size="'lg'" :class="'w-full'">Đặt show tiếp</Button>
                     </Link>
                     <Link :class="'w-full'" :href="route('client-orders.dashboard')">
-                        <Button :variant="'outlineWhite'" :size="'lg'" :class="'w-full'">Xem chi tiết</Button>
+                        <Button :variant="'outlineWhite'" :size="'lg'" :class="'w-full'">Xem đơn đã đặt</Button>
                     </Link>
                 </FormGroupLayout>
                 <FormGroupLayout class="mb-0">
-                    <!-- <Link :class="'w-full'" :href="route('chat.dashboard')">
-                        <Button :variant="'outlineWhite'" :size="'lg'" :class="'w-full'">Nhắn tin ngay</Button>
-                    </Link> -->
                     <Link :class="'w-full'" :href="route('home')">
                         <Button :variant="'outlineWhite'" :size="'lg'" :class="'w-full'">Về trang chủ</Button>
                     </Link>
