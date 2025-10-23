@@ -1,12 +1,12 @@
 <?php
 return [
-    'singular' => 'Sự kiện',
-    'plural' => 'Danh mục sự kiện',
+    'singular' => 'Danh mục đối tác',
+    'plural' => 'Danh mục đối tác',
 
     'manage_event_categories' => 'Quản lý danh mục :name',
 
     'partner_categories' => 'Danh mục đối tác',
-    'manage_partner_categories' => 'Quản lý danh mục đối tác',
+    'manage_child_partner_categories' => 'Quản lý danh mục đối tác con',
 
     'edit_partner_category' => 'Chỉnh sửa danh mục đối tác',
     'create_partner_category' => 'Tạo danh mục đối tác',
