@@ -2,17 +2,26 @@
 return [
     'user' => 'Người dùng',
 
-    'fields.label.name' => 'Tên',
-    'fields.label.avatar' => 'Ảnh đại diện',
-    'fields.label.email' => 'Địa chỉ email',
-    'fields.label.country_code' => 'Mã quốc gia',
-    'fields.label.phone' => 'Số điện thoại',
-    'fields.label.password' => 'Mật khẩu',
-    'fields.label.email_verified_at' => 'Email đã xác minh',
+    'fields' => [
+        'label' => [
+            'name' => 'Tên',
+            'avatar' => 'Ảnh đại diện',
+            'email' => 'Địa chỉ email',
+            'country_code' => 'Mã quốc gia',
+            'phone' => 'Số điện thoại',
+            'password' => 'Mật khẩu',
+            'email_verified_at' => 'Email đã xác minh',
+        ],
 
-    'fields.placeholder.name' => 'Nhập tên',
-    'fields.placeholder.email' => 'Nhập địa chỉ email',
-    'fields.placeholder.country_code' => 'Nhập mã quốc gia',
-    'fields.placeholder.phone' => 'Nhập số điện thoại',
-    'fields.placeholder.password' => 'Nhập mật khẩu',
+        'placeholder' => [
+            'name' => 'Nhập tên',
+            'email' => 'Nhập địa chỉ email',
+            'country_code' => 'Nhập mã quốc gia',
+            'phone' => 'Nhập số điện thoại',
+            'password' => 'Nhập mật khẩu',
+        ],
+    ],
+
+    'ban_title' => 'Cấm người dùng',
+    'ban_description' => 'Bạn có chắc chắn muốn cấm người dùng này không?',
 ];
