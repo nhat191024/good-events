@@ -6,7 +6,7 @@ return [
     'manage_event_categories' => 'Manage :name',
 
     'partner_categories' => 'Partner Categories',
-    'manage_partner_categories' => 'Manage Partner Categories',
+    'manage_child_partner_categories' => 'Manage Child Partner Categories',
 
     'edit_partner_category' => 'Edit Partner Category',
     'create_partner_category' => 'Create Partner Category',
