@@ -2,17 +2,26 @@
 return [
     'user' => 'Users',
 
-    'fields.label.name' => 'Name',
-    'fields.label.avatar' => 'Avatar',
-    'fields.label.email' => 'Email address',
-    'fields.label.country_code' => 'Country code',
-    'fields.label.phone' => 'Phone number',
-    'fields.label.password' => 'Password',
-    'fields.label.email_verified_at' => 'Email verified at',
+    'fields' => [
+        'label' => [
+            'name' => 'Name',
+            'avatar' => 'Avatar',
+            'email' => 'Email Address',
+            'country_code' => 'Country Code',
+            'phone' => 'Phone Number',
+            'password' => 'Password',
+            'email_verified_at' => 'Email Verified At',
+        ],
 
-    'fields.placeholder.name' => 'Enter name',
-    'fields.placeholder.email' => 'Enter email address',
-    'fields.placeholder.country_code' => 'Enter country code',
-    'fields.placeholder.phone' => 'Enter phone number',
-    'fields.placeholder.password' => 'Enter password',
+        'placeholder' => [
+            'name' => 'Enter name',
+            'email' => 'Enter email address',
+            'country_code' => 'Enter country code',
+            'phone' => 'Enter phone number',
+            'password' => 'Enter password',
+        ],
+    ],
+
+    'ban_title' => 'Ban User',
+    'ban_description' => 'Are you sure you want to ban this user?',
 ];
