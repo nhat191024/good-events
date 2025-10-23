@@ -67,7 +67,7 @@ class EventCategoriesTable
             ])
             ->recordActions([
                 Action::make('manage-partner-categories')
-                    ->label(__('admin/partnerCategory.manage_partner_categories'))
+                    ->label(__('admin/partnerCategory.manage_child_partner_categories'))
                     ->url(fn($record): string => EventCategoryResource::getUrl('partner-categories', ['record' => $record->id]))
                     ->visible(fn($record): bool => $record->deleted_at === null),
                 EditAction::make()
