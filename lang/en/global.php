@@ -10,6 +10,7 @@ return [
     'cancel' => 'Cancel',
     'save' => 'Save',
     'confirm' => 'Confirm',
+    'ban' => 'Ban',
 
     'no' => 'No',
     'yes' => 'Yes',

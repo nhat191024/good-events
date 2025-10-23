@@ -10,6 +10,7 @@ return [
     'cancel' => 'Hủy',
     'save' => 'Lưu',
     'confirm' => 'Xác nhận',
+    'ban' => 'Cấm',
 
     'no' => 'Không',
     'yes' => 'Có',
