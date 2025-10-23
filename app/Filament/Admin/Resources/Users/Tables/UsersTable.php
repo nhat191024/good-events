@@ -69,7 +69,11 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->label(__('global.ban'))
+                    ->modalHeading(__('admin/user.ban_title'))
+                    ->modalDescription(__('admin/user.ban_description'))
+                    ->modalSubmitActionLabel(__('global.ban'))
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
