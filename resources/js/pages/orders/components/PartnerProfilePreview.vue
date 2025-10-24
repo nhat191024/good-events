@@ -5,12 +5,14 @@ import PartnerQuickStatsCard from '@/pages/profile/partner/components/PartnerQui
 import PartnerServiceCard from '@/pages/profile/partner/components/PartnerServiceCard.vue'
 import PartnerIntroCard from '@/pages/profile/partner/components/PartnerIntroCard.vue'
 import PartnerReviewsCard from '@/pages/profile/partner/components/PartnerReviewsCard.vue'
+import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesCard.vue'
 
 type UserInfo = {
     id: number; name: string; avatar_url: string; location: string | null;
     joined_year: string | null; is_pro: boolean; rating: number; total_reviews: number; total_customers: number | null;
 }
-type Service = { id: number; name: string; field: string; price: number | null }
+type Media = { id: number; url: string }
+type Service = { id: number; name: string | null; field: string | null; price: number | null; media: Media[] }
 type Review = { id: number; author: string; rating: number; review: string | null; created_human: string | null }
 type Payload = {
     user: UserInfo;
@@ -111,6 +113,10 @@ const user = computed(() => data.value?.user)
                                     <PartnerIntroCard :intro="data.intro" :stats="data.stats" />
                                     <PartnerServiceCard :services="data.services" />
                                     <PartnerReviewsCard :items="data.reviews" />
+                                </div>
+                                
+                                <div class="md:col-span-12 space-y-4">
+                                    <PartnerImagesCard :services="data.services" />
                                 </div>
                             </div>
                         </template>
