@@ -44,16 +44,16 @@ const togglePasswordVisibility = () => {
                     <div class="flex items-center justify-between">
                         <Label for="password">Mật khẩu</Label>
                         <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm"
-                            :tabindex="2">
+                            :tabindex="5">
                             Quên mật khẩu?
                         </TextLink>
                     </div>
                     <div class="relative">
                         <Input id="password" :type="showPassword ? 'text' : 'password'" name="password" required
-                            :tabindex="3" autocomplete="current-password" placeholder="Password" class="pr-10" />
+                            :tabindex="2" autocomplete="current-password" placeholder="Password" class="pr-10" />
                         <button type="button"
                             class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground focus:outline-none"
-                            :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" :tabindex="4"
+                            :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" :tabindex="6"
                             @click="togglePasswordVisibility">
                             <component :is="showPassword ? EyeOff : Eye" class="w-4 h-4" />
                         </button>
@@ -63,12 +63,12 @@ const togglePasswordVisibility = () => {
 
                 <div class="flex items-center justify-between">
                     <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" name="remember" :tabindex="5" />
+                        <Checkbox id="remember" name="remember" :tabindex="3" />
                         <span>Ghi nhớ đăng nhập</span>
                     </Label>
                 </div>
 
-                <Button type="submit" class="w-full mt-4 font-bold text-white hover:bg-primary-700 active:bg-primary-800 cursor-pointer" :tabindex="6" :disabled="processing">
+                <Button type="submit" class="w-full mt-4 font-bold text-white hover:bg-primary-700 active:bg-primary-800 cursor-pointer" :tabindex="4" :disabled="processing">
                     <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
                     Đăng nhập
                 </Button>
