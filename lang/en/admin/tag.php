@@ -1,5 +1,6 @@
 <?php
 return [
-    'name' =>  'name',
-    'slug' => 'slug',
+    'singular' => 'Tag',
+    'name' =>  'Name',
+    'slug' => 'Slug',
 ];
