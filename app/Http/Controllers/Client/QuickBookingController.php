@@ -53,7 +53,7 @@ class QuickBookingController extends Controller
                     'deleted_at' => $category->deleted_at,
                     'created_at' => $category->created_at,
                     'updated_at' => $category->updated_at,
-                    'media' => $category->getFirstTemporaryUrl($expireAt, 'images')
+                    'media' => $this->getTemporaryImageUrl($category, $expireAt)
                 ];
             });
 
@@ -97,7 +97,7 @@ class QuickBookingController extends Controller
             'deleted_at' => $partnerCategory->deleted_at,
             'created_at' => $partnerCategory->created_at,
             'updated_at' => $partnerCategory->updated_at,
-            'media' => $partnerCategory->getFirstTemporaryUrl($expireAt, 'images')
+            'media' => $this->getTemporaryImageUrl($partnerCategory, $expireAt)
         ];
 
         $transformedChildrenList = $partnerCategory->children->map(function ($child) use ($expireAt) {
@@ -112,7 +112,7 @@ class QuickBookingController extends Controller
                 'deleted_at' => $child->deleted_at,
                 'created_at' => $child->created_at,
                 'updated_at' => $child->updated_at,
-                'media' => $child->getFirstTemporaryUrl($expireAt, 'images')
+                'media' => $this->getTemporaryImageUrl($child, $expireAt)
             ];
         });
 
@@ -173,7 +173,7 @@ class QuickBookingController extends Controller
             'deleted_at' => $partnerCategory->deleted_at,
             'created_at' => $partnerCategory->created_at,
             'updated_at' => $partnerCategory->updated_at,
-            'media' => $partnerCategory->getFirstTemporaryUrl($expireAt, 'images')
+            'media' => $this->getTemporaryImageUrl($partnerCategory, $expireAt)
         ];
 
         $transformedChildCategory = [
@@ -187,7 +187,7 @@ class QuickBookingController extends Controller
             'deleted_at' => $searchItem->deleted_at,
             'created_at' => $searchItem->created_at,
             'updated_at' => $searchItem->updated_at,
-            'media' => $searchItem->getFirstTemporaryUrl($expireAt, 'images')
+            'media' => $this->getTemporaryImageUrl($searchItem, $expireAt)
         ];
 
         return Inertia::render('booking/QuickBookingDetail', [
@@ -263,5 +263,20 @@ class QuickBookingController extends Controller
         return Inertia::render("booking/Finished", [
             'partnerBill' => $newBill
         ]);
+    }
+
+    private function getTemporaryImageUrl($model, $expireAt)
+    {
+        if (!method_exists($model, 'getFirstTemporaryUrl')) {
+            return null;
+        }
+
+        try {
+            return $model->getFirstTemporaryUrl($expireAt, 'images');
+        } catch (\Throwable $e) {
+            return method_exists($model, 'getFirstMediaUrl')
+                ? $model->getFirstMediaUrl('images')
+                : null;
+        }
     }
 }
