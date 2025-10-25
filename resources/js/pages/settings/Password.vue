@@ -1,72 +1,108 @@
 <script setup lang="ts">
-    import InputError from '@/components/InputError.vue';
-    import AppLayout from '@/layouts/AppLayout.vue';
-    import SettingsLayout from '@/layouts/settings/Layout.vue';
-    import { Form, Head } from '@inertiajs/vue3';
-    import { ref } from 'vue';
+import InputError from '@/components/InputError.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import SettingsLayout from '@/layouts/settings/Layout.vue';
+import { Form, Head, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
-    import HeadingSmall from '@/components/HeadingSmall.vue';
-    import { Button } from '@/components/ui/button';
-    import { Input } from '@/components/ui/input';
-    import { Label } from '@/components/ui/label';
-    import { type BreadcrumbItem } from '@/types';
+import HeadingSmall from '@/components/HeadingSmall.vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { type AppPageProps, type BreadcrumbItem } from '@/types';
+import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
-    const breadcrumbItems: BreadcrumbItem[] = [
-        {
-            title: 'Password settings',
-            href: '/settings/password',
-        },
-    ];
+interface PasswordTranslations {
+    breadcrumb: string;
+    head_title: string;
+    heading: {
+        title: string;
+        description: string;
+    };
+    form: {
+        current: {
+            label: string;
+            placeholder: string;
+        };
+        new: {
+            label: string;
+            placeholder: string;
+        };
+        confirmation: {
+            label: string;
+            placeholder: string;
+        };
+        submit: string;
+        success: string;
+    };
+}
 
-    const passwordInput = ref<HTMLInputElement | null>(null);
-    const currentPasswordInput = ref<HTMLInputElement | null>(null);
+const page = usePage<AppPageProps<{ translations: PasswordTranslations }>>();
+const translations = computed(() => page.props.translations as PasswordTranslations);
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
+    {
+        title: translations.value.breadcrumb,
+        href: '/settings/password',
+    },
+]);
+
+const passwordInput = ref<HTMLInputElement | null>(null);
+const currentPasswordInput = ref<HTMLInputElement | null>(null);
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbItems">
+    <ClientHeaderLayout :show-footer="false">
 
-        <Head title="Password settings" />
+        <AppLayout :breadcrumbs="breadcrumbItems">
 
-        <SettingsLayout>
-            <div class="space-y-6">
-                <HeadingSmall title="Update password"
-                    description="Ensure your account is using a long, random password to stay secure" />
+            <Head :title="translations.head_title" />
 
-                <Form method="put" :action="route('password.update')" :options="{
-                    preserveScroll: true,
-                }" reset-on-success :reset-on-error="['password', 'password_confirmation', 'current_password']"
-                    class="space-y-6" v-slot="{ errors, processing, recentlySuccessful }">
-                    <div class="grid gap-2">
-                        <Label for="current_password">Current password</Label>
-                        <Input id="current_password" ref="currentPasswordInput" name="current_password" type="password"
-                            class="block w-full mt-1" autocomplete="current-password" placeholder="Current password" />
-                        <InputError :message="errors.current_password" />
-                    </div>
+            <SettingsLayout>
+                <div class="space-y-6">
+                    <HeadingSmall :title="translations.heading.title" :description="translations.heading.description" />
 
-                    <div class="grid gap-2">
-                        <Label for="password">New password</Label>
-                        <Input id="password" ref="passwordInput" name="password" type="password"
-                            class="block w-full mt-1" autocomplete="new-password" placeholder="New password" />
-                        <InputError :message="errors.password" />
-                    </div>
+                    <Form method="put" :action="route('password.update')" :options="{
+                        preserveScroll: true,
+                    }" reset-on-success :reset-on-error="['password', 'password_confirmation', 'current_password']"
+                        class="space-y-6" v-slot="{ errors, processing, recentlySuccessful }">
+                        <div class="grid gap-2">
+                            <Label for="current_password">{{ translations.form.current.label }}</Label>
+                            <Input id="current_password" ref="currentPasswordInput" name="current_password"
+                                type="password" class="block w-full mt-1" autocomplete="current-password"
+                                :placeholder="translations.form.current.placeholder" />
+                            <InputError :message="errors.current_password" />
+                        </div>
 
-                    <div class="grid gap-2">
-                        <Label for="password_confirmation">Confirm password</Label>
-                        <Input id="password_confirmation" name="password_confirmation" type="password"
-                            class="block w-full mt-1" autocomplete="new-password" placeholder="Confirm password" />
-                        <InputError :message="errors.password_confirmation" />
-                    </div>
+                        <div class="grid gap-2">
+                            <Label for="password">{{ translations.form.new.label }}</Label>
+                            <Input id="password" ref="passwordInput" name="password" type="password"
+                                class="block w-full mt-1" autocomplete="new-password"
+                                :placeholder="translations.form.new.placeholder" />
+                            <InputError :message="errors.password" />
+                        </div>
 
-                    <div class="flex items-center gap-4">
-                        <Button :disabled="processing">Save password</Button>
+                        <div class="grid gap-2">
+                            <Label for="password_confirmation">{{ translations.form.confirmation.label }}</Label>
+                            <Input id="password_confirmation" name="password_confirmation" type="password"
+                                class="block w-full mt-1" autocomplete="new-password"
+                                :placeholder="translations.form.confirmation.placeholder" />
+                            <InputError :message="errors.password_confirmation" />
+                        </div>
 
-                        <Transition enter-active-class="transition ease-in-out" enter-from-class="opacity-0"
-                            leave-active-class="transition ease-in-out" leave-to-class="opacity-0">
-                            <p v-show="recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
-                        </Transition>
-                    </div>
-                </Form>
-            </div>
-        </SettingsLayout>
-    </AppLayout>
+                        <div class="flex items-center gap-4">
+                            <Button class="text-white" :disabled="processing">{{ translations.form.submit }}</Button>
+
+                            <Transition enter-active-class="transition ease-in-out" enter-from-class="opacity-0"
+                                leave-active-class="transition ease-in-out" leave-to-class="opacity-0">
+                                <p v-show="recentlySuccessful" class="text-sm text-neutral-600">
+                                    {{ translations.form.success }}
+                                </p>
+                            </Transition>
+                        </div>
+                    </Form>
+                </div>
+            </SettingsLayout>
+        </AppLayout>
+
+    </ClientHeaderLayout>
 </template>
