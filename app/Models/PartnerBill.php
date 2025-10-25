@@ -247,20 +247,22 @@ class PartnerBill extends Model implements HasMedia
         foreach ([$partnerId, $clientId] as $userId) {
             $totalOrdersStat = Statistical::where('user_id', $userId)
                 ->where('metrics_name', StatisticType::ORDERS_PLACED->value)
-                ->first()
-                ->metrics_value;
+                ->first();
 
             $completedOderStat = Statistical::where('user_id', $userId)
                 ->where('metrics_name', StatisticType::COMPLETED_ORDERS->value)
-                ->first()
-                ->metrics_value;
+                ->first();
 
             $existingCancelledOrdersStat = Statistical::where('user_id', $userId)
                 ->where('metrics_name', StatisticType::CANCELLED_ORDERS_PERCENTAGE->value)
                 ->first();
 
             if ($existingCancelledOrdersStat) {
-                $cancelledPercentage = $totalOrdersStat > 0 ? round((($totalOrdersStat - $completedOderStat) / $totalOrdersStat) * 100, 2) : 0;
+                $totalOrders = $totalOrdersStat ? (float)$totalOrdersStat->metrics_value : 0;
+                $completedOrders = $completedOderStat ? (float)$completedOderStat->metrics_value : 0;
+
+                $cancelledOrders = max($totalOrders - $completedOrders, 0);
+                $cancelledPercentage = $totalOrders > 0 ? round(($cancelledOrders / $totalOrders) * 100, 2) : 0;
 
                 $existingCancelledOrdersStat->metrics_value = $cancelledPercentage;
                 $existingCancelledOrdersStat->save();
