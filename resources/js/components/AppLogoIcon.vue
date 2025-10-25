@@ -13,5 +13,5 @@
 </script>
 
 <template>
-    <img src="/images/logo.png" alt="Sukientot" class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
+    <img src="/images/logo.svg" alt="Sukientot" class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
 </template>
