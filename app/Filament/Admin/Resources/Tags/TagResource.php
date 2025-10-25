@@ -27,6 +27,11 @@ class TagResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
     protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::CATEGORIES;
 
+    public static function getModelLabel(): string
+    {
+        return __('admin/tag.singular');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return TagForm::configure($schema);
