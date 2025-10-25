@@ -287,7 +287,6 @@ async function handleConfirmChoosePartner(
     total?: number | null,
     voucher_code?: string | null
 ) {
-    console.log('handleConfirmChoosePartner: ', partner, total)
     if (!partner || !selectedOrder.value?.id) return
 
     try {
@@ -305,7 +304,6 @@ async function handleConfirmChoosePartner(
         } finally {
             hideLoading()
         }
-        console.log('got voucher discount', voucherDiscountAmount)
 
         let finalTotal = (total ?? 0) - voucherDiscountAmount
         if (finalTotal < 0) finalTotal = 0
