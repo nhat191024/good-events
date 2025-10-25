@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-const props = defineProps<{ services: Array<{ id:number; name:string; field:string; price:number|null }> }>()
+type Media = { id: number; url: string }
+const props = defineProps<{ services: Array<{ id:number; name:string; field:string; price:number|null, media: Media[] }> }>()
 const money = (v:number|null) => v!=null ? v.toLocaleString('vi-VN') + 'đ/giờ' : 'Liên hệ'
 
 const showAll = ref(false)
