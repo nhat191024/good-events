@@ -10,6 +10,9 @@ use Spatie\Sluggable\SlugOptions;
 
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
+use Spatie\Image\Enums\CropPosition;
 
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -76,6 +79,26 @@ class Category extends Model implements HasMedia
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
+    }
+
+    /**
+     * Summary of registerMediaConversions
+     * @param Media|null $media
+     * @return void
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(300)
+            ->height(300)
+            ->sharpen(10)
+            ->queued();
+
+        $this->addMediaConversion('mobile_optimized')
+            ->width(320)
+            ->height(240)
+            ->crop(320, 240, CropPosition::Center)
+            ->queued();
     }
 
     /**
