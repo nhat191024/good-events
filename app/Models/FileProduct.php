@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+use Spatie\Tags\HasTags;
+
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -45,7 +47,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  */
 class FileProduct extends Model implements HasMedia
 {
-    use SoftDeletes, HasSlug, InteractsWithMedia;
+    use SoftDeletes, HasSlug, HasTags, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -68,6 +70,18 @@ class FileProduct extends Model implements HasMedia
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        // 1. Collection cho File PRIVATE (Designs)
+        $this->addMediaCollection('designs')
+            ->useDisk('s3');
+
+        // 2. Collection cho File PUBLIC (Thumbnails)
+        $this->addMediaCollection('thumbnails')
+            ->useDisk('public')
+            ->withResponsiveImages();
     }
 
     //model relationships
