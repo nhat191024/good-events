@@ -5,6 +5,7 @@ WORKDIR /var/www/html
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
     libzip-dev \
     libpng-dev \
     libpq-dev \
