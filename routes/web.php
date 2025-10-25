@@ -38,9 +38,6 @@ Route::get('/locale/{locale}', function ($locale) {
     return redirect()->back();
 })->name('locale.switch');
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
-
 // Mail Preview Routes (chỉ dành cho development)
 if (app()->environment(['local', 'staging', 'testing'])) {
     Route::prefix('mail-preview')->group(function () {
@@ -124,7 +121,6 @@ if (app()->environment(['local', 'staging', 'testing'])) {
     });
 }
 
-require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
 
 require __DIR__ . '/home.php';
@@ -132,9 +128,10 @@ require __DIR__ . '/home.php';
 require __DIR__ . '/partner-profile.php';
 require __DIR__ . '/client-profile.php';
 
-require __DIR__ . '/client/test-partner.php';
+// require __DIR__ . '/client/test-partner.php';
 require __DIR__ . '/client/quick-booking.php';
 require __DIR__ . '/client/order-history.php';
 require __DIR__ . '/client/chat.php';
+require __DIR__ . '/client/settings.php';
 require __DIR__ . '/client/test-partner.php';
 require __DIR__ . '/client/notification.php';
