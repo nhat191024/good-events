@@ -103,7 +103,7 @@ onBeforeUnmount(() => {
             <div
                 v-if="open"
                 ref="panelRef"
-                class="absolute mt-2 w-80 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg overflow-hidden z-[100]"
+                class="ring-1 ring-primary-200 ring-opacity-5 absolute mt-2 w-80 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg overflow-hidden z-[100]"
                 :class="placement === 'bottom-end' ? 'right-0' : 'left-0'"
             >
                 <!-- Header -->
