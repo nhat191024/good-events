@@ -12,35 +12,30 @@ const categories = [
         name: 'Sự kiện',
         slug: 'su-kien',
         icon: 'mdi:flower',
-        image: '/images/logo-su-kien.png',
+        image: '/images/logo-su-kien.webp',
     },
     {
         id: 2,
         name: 'Tài liệu',
         slug: 'tai-lieu',
         icon: 'mdi:book-open',
-        image: '/images/logo-tai-lieu.png',
+        image: '/images/logo-tai-lieu.webp',
     },
     {
         id: 3,
         name: 'Thiết bị',
         slug: 'tim-khach-san',
         icon: 'mdi:bed',
-        image: '/images/logo-loa-dai.png',
+        image: '/images/logo-loa-dai.webp',
     },
     {
         id: 4,
         name: 'Khách sạn',
         slug: 'khach-san',
         icon: 'mdi:bag-personal',
-        image: '/images/logo_khach_san.png',
+        image: '/images/logo_khach_san.webp',
     },
 ];
-
-const getIconForCategory = (slug: string) => {
-    const category = categories.find(c => c.slug === slug);
-    return category ? category.icon : '';
-};
 
 const getImageForCategory = (slug: string) => {
     const category = categories.find(c => c.slug === slug);
