@@ -42,15 +42,17 @@ class CategoryController extends Controller
                 ->get();
 
             // Chuẩn hóa dữ liệu gửi sang Inertia (tránh gửi cả model kèm thuộc tính không cần)
+            $expireAt = now()->addMinutes(5);
+
             $payload = [
                 'parent' => [],
-                'children' => $parent->map(function (PartnerCategory $cat) {
+                'children' => $parent->map(function (PartnerCategory $cat) use ($expireAt) {
                     return [
                         'id' => $cat->id,
                         'name' => $cat->name,
                         'slug' => $cat->slug,
                         'description' => $cat->description,
-                        'partner_categories' => $cat->children->map(function ($pc) {
+                        'partner_categories' => $cat->children->map(function ($pc) use ($expireAt) {
                             return [
                                 'id' => $pc->id,
                                 'name' => $pc->name,
@@ -58,7 +60,7 @@ class CategoryController extends Controller
                                 'min_price' => $pc->min_price,
                                 'max_price' => $pc->max_price,
                                 // Ảnh lấy từ media library (collection 'images') nếu có
-                                'image' => $pc->getFirstTemporaryUrl(now()->addMinutes(5), 'images'),
+                                'image' => $this->getTemporaryImageUrl($pc, $expireAt),
                             ];
                         }),
                     ];
@@ -71,6 +73,21 @@ class CategoryController extends Controller
             return Inertia::render('categories/Parent', $payload);
         } else {
             // dd("Slug này chưa tích hợp");
+        }
+    }
+
+    private function getTemporaryImageUrl($model, $expireAt)
+    {
+        if (!method_exists($model, 'getFirstTemporaryUrl')) {
+            return null;
+        }
+
+        try {
+            return $model->getFirstTemporaryUrl($expireAt, 'images');
+        } catch (\Throwable $e) {
+            return method_exists($model, 'getFirstMediaUrl')
+                ? $model->getFirstMediaUrl('images')
+                : null;
         }
     }
 }
