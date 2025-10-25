@@ -9,7 +9,7 @@ class ProductPathGenerator implements PathGenerator
 {
     public function getPath(Media $media): string
     {
-        return "products/{$media->model->id}/{$media->collection_name}/";
+        return "products/{$media->model_id}/{$media->collection_name}/";
     }
 
     public function getPathForConversions(Media $media): string
