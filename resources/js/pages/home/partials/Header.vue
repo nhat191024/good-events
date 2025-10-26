@@ -6,7 +6,7 @@ import NotificationPopover from '@/components/notification/NotificationPopover.v
 // import { NotiItem } from '@/components/notification';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useEcho, useEchoNotification } from '@laravel/echo-vue';
-import { csrf } from '@/lib/utils';
+import axios from 'axios';
 
 interface Props {
     // showBannerBackground?: boolean;
@@ -63,14 +63,11 @@ async function loadNotifications(initial = false) {
     aborter = new AbortController()
     isFetching.value = true
     try {
-        const res = await fetch(route('notifications.index'), {
-            method: 'GET',
+        const res = await axios.get(route('notifications.index'), {
             headers: { Accept: 'application/json' },
             signal: aborter.signal,
-            credentials: 'same-origin',
         })
-        if (!res.ok) throw new Error(`http ${res.status}`)
-        const json = await res.json()
+        const json = res.data
         const items: NotiItem[] = (json.data ?? []) as NotiItem[]
         notificationItems.value = mergeById(notificationItems.value, items)
         unreadCount.value = json?.meta?.unread_count ?? items.filter(i => i.unread).length
@@ -87,16 +84,15 @@ function startPolling() {
     pollTimer = window.setInterval(() => loadNotifications(false), 60_000) as unknown as number
 }
 
+function reloadNotifications() {
+    loadNotifications(false)
+}
+
 async function markAsRead(item: NotiItem) {
     const id = item.id
     try {
-        await fetch(route('notifications.read', { id }), {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'X-CSRF-TOKEN': csrf(),
-            },
-            credentials: 'same-origin',
+        await axios.post(route('notifications.read', { id }), undefined, {
+            headers: { Accept: 'application/json' },
         })
         const n = notificationItems.value.find(x => x.id === id)
         if (n && n.unread) {
@@ -109,10 +105,8 @@ async function markAsRead(item: NotiItem) {
 
 async function markAllAsRead() {
     try {
-        await fetch(route('notifications.readAll'), {
-            method: 'POST',
-            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrf() },
-            credentials: 'same-origin',
+        await axios.post(route('notifications.readAll'), undefined, {
+            headers: { Accept: 'application/json' },
         })
         notificationItems.value = notificationItems.value.map(n => ({ ...n, unread: false }))
         unreadCount.value = 0
@@ -180,7 +174,13 @@ onUnmounted(() => {
                     <span class="hidden sm:inline">Đặt show nhanh</span>
                     </Link>
                     <DropdownMenu />
-                    <NotificationPopover :items="notificationItems" @mark-all-read="markAllAsRead" @select="markAsRead"/>
+                    <NotificationPopover
+                        :items="notificationItems"
+                        :loading="isFetching"
+                        @mark-all-read="markAllAsRead"
+                        @select="markAsRead"
+                        @reload="reloadNotifications"
+                    />
                 </div>
             </div>
         </div>
