@@ -147,9 +147,9 @@ const loggedOutMenuItems: MenuItem[] = [
 <template>
     <div class="relative" ref="dropdown">
         <button type="button" aria-label="Tài khoản" @click="toggleDropdown"
-            class="relative cursor-pointer h-10 w-10 rounded-full bg-[#ED3B50] text-white shadow-lg shadow-[#ED3B50]/30 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#ED3B50] overflow-hidden">
+            class="relative cursor-pointer h-10 w-10 rounded-full bg-[#ED3B50] text-white shadow-lg shadow-[#ED3B50]/30 transition focus:outline-none focus-visible:ring-2 border border-primary-200 focus-visible:ring-offset-2 focus-visible:ring-[#ED3B50] overflow-show">
             <img v-if="shouldRenderImage" :src="avatarUrl ?? ''" alt="Avatar"
-                class="absolute inset-0 h-full w-full object-cover transition-opacity duration-200"
+                class="absolute rounded-full inset-0 h-full w-full object-cover transition-opacity duration-200 z-0"
                 :class="avatarStatus === 'loaded' ? 'opacity-100' : 'opacity-0'" @load="handleAvatarLoad"
                 @error="handleAvatarError">
             <div v-if="showFallbackIcon" class="grid h-full w-full place-items-center">
@@ -159,7 +159,7 @@ const loggedOutMenuItems: MenuItem[] = [
                 </svg>
             </div>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                class="absolute -bottom-1 -right-1 bg-[#ED3B50] rounded-full" :class="{ 'rotate-180': isOpen }">
+                class="absolute -bottom-1 -right-1 bg-[#ED3B50] rounded-full z-10" :class="{ 'rotate-180': isOpen }">
                 <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" />
             </svg>
