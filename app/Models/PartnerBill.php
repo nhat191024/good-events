@@ -17,6 +17,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 use App\Events\PartnerBillCreated;
+use App\Events\NewThreadCreated;
 use App\Events\PartnerBillStatusChanged;
 
 use Cmgmyr\Messenger\Models\Participant;
@@ -305,6 +306,8 @@ class PartnerBill extends Model implements HasMedia
 
         $partnerBill->thread_id = $thread->id;
         $partnerBill->saveQuietly();
+
+        NewThreadCreated::dispatch($partnerBill);
     }
 
     //model helpers method
