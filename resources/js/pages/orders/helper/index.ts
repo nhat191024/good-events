@@ -2,8 +2,8 @@ import { Ref } from "vue";
 import { OrderStatus } from "../types";
 
 /**
- ** example use in other component:
- *? const debouncedReload = debounce(() => doSomething(), 500, { leading: true, trailing: false })
+ ** slow down spamming of function calls, example use in other component:
+ ** const debouncedReload = debounce(() => doSomething(), 500, { leading: true, trailing: false })
  ** 500ms: delay in ms
  ** leading: run first, then delay
  ** trailing: delay first, then run
@@ -11,7 +11,7 @@ import { OrderStatus } from "../types";
  * @param fn (callable)
  * @param wait (ms)
  * @param options? (optional)
- * @returns
+ * @returns 
  */
 export function debounce<T extends (...args: any[]) => void>(
     fn: T,
@@ -43,6 +43,61 @@ export function debounce<T extends (...args: any[]) => void>(
     }
 }
 
+type SlowFn<T extends (...args: any[]) => void> = ((...args: Parameters<T>) => void) & { clear: () => void }
+
+/**
+ * Enqueue calls and run them sequentially on a fixed interval.
+ *
+ * ```ts
+ * const enqueueSave = slow(saveDraft, 200)
+ * enqueueSave(payloadA) // runs immediately
+ * enqueueSave(payloadB) // runs ~200ms later
+ * enqueueSave.clear()   // flush the queue and cancel pending timeouts
+ * ```
+ * @param fn Callback to execute serially.
+ * @param wait Delay in ms between each queued execution. Default 100.
+ */
+export function slow<T extends (...args: any[]) => void>(fn: T, wait = 100): SlowFn<T> {
+    const queue: Parameters<T>[] = []
+    let isRunning = false
+    let timeoutId: number | undefined
+
+    function runNext() {
+        if (!queue.length) {
+            isRunning = false
+            timeoutId = undefined
+            return
+        }
+
+        isRunning = true
+        const args = queue.shift()!
+
+        timeoutId = window.setTimeout(() => {
+            timeoutId = undefined
+            fn(...args)
+            runNext()
+        }, wait)
+    }
+
+    const runner = ((...args: Parameters<T>) => {
+        queue.push(args)
+        if (!isRunning) {
+            runNext()
+        }
+    }) as SlowFn<T>
+
+    runner.clear = () => {
+        queue.length = 0
+        if (timeoutId !== undefined) {
+            window.clearTimeout(timeoutId)
+            timeoutId = undefined
+        }
+        isRunning = false
+    }
+
+    return runner
+}
+
 export function statusBadge(status: OrderStatus) {
     switch (status) {
         case OrderStatus.PENDING:
@@ -52,7 +107,7 @@ export function statusBadge(status: OrderStatus) {
         case OrderStatus.EXPIRED:
             return { text: 'Hết hạn', cls: 'bg-orange-100 text-orange-800 border border-orange-200', border_class: 'border-l-orange-200' }
         case OrderStatus.IN_JOB:
-            return { text: 'Đã đến nơi', cls: 'bg-green-100 text-green-800 border border-green-200', border_class: 'border-l-green-200' }
+            return { text: 'Đã đến nơi', cls: 'bg-primary-100 text-primary-800 border border-primary-200', border_class: 'border-l-primary-200' }
         case OrderStatus.COMPLETED:
             return { text: 'Hoàn thành', cls: 'bg-green-100 text-green-800 border border-green-200', border_class: 'border-l-green-200' }
         case OrderStatus.CANCELLED:
