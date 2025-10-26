@@ -109,12 +109,26 @@ onBeforeUnmount(() => {
                 <!-- Header -->
                 <div class="p-4 border-b border-border flex items-center justify-between bg-background">
                     <h3 class="font-semibold">Thông báo</h3>
-                    <span
-                        v-if="unreadCount"
-                        class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium"
-                    >
-                        {{ unreadCount }} mới
-                    </span>
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-transparent hover:border-border transition-colors disabled:opacity-50"
+                            @click.stop="$emit('reload')"
+                            :disabled="loading"
+                            aria-label="Tải lại thông báo"
+                        >
+                            <RefreshCw
+                                class="h-4 w-4"
+                                :class="loading ? 'animate-spin text-primary' : 'text-muted-foreground'"
+                            />
+                        </button>
+                        <span
+                            v-if="unreadCount"
+                            class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium"
+                        >
+                            {{ unreadCount }} mới
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Content -->
