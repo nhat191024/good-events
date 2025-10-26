@@ -48,10 +48,10 @@
             <div class="items-center flex flex-col gap-1 h-min overflow-visible p-0 relative w-full">
                 <div class="flex flex-col justify-start flex-shrink-0 transform-none h-auto relative break-words">
                     <h1 v-text="title"
-                        class="font-lexend text-secondary-text md:text-[1.69rem] text-[1.3rem] font-extrabold text-center"></h1>
+                        class="font-lexend text-secondary-text md:text-[1.69rem] text-[1.3rem] font-extrabold text-center w-full"></h1>
                 </div>
-                <div class="flex flex-col justify-start flex-shrink-0 transform-none h-auto relative break-words">
-                    <h1 v-text="subtitle" class="font-lexend text-gray-500 md:text-2xl text-lg font-light text-center max-w-[700px]"></h1>
+                <div class="flex flex-col justify-start flex-shrink-0 transform-none h-auto relative break-words w-full">
+                    <h1 v-text="subtitle" class="font-lexend text-gray-500 md:text-2xl text-lg font-light text-center w-full"></h1>
                 </div>
             </div>
 
