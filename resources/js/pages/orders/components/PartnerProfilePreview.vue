@@ -6,6 +6,7 @@ import PartnerServiceCard from '@/pages/profile/partner/components/PartnerServic
 import PartnerIntroCard from '@/pages/profile/partner/components/PartnerIntroCard.vue'
 import PartnerReviewsCard from '@/pages/profile/partner/components/PartnerReviewsCard.vue'
 import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesCard.vue'
+import axios from 'axios'
 
 type UserInfo = {
     id: number; name: string; avatar_url: string; location: string | null;
@@ -46,10 +47,8 @@ watch([open, () => props.userId], async ([isOpen, id]) => {
     status.value = 'loading'
     try {
         const url = route('profile.partner.show.json', { user: id })
-        const res = await fetch(url, { headers: { 'Accept': 'application/json' } })
-        if (!res.ok) throw new Error('failed to fetch profile')
-
-        const payload = await res.json() as Payload
+        const response = await axios.get<Payload>(url, { headers: { 'Accept': 'application/json' } })
+        const payload = response.data
         cache.set(id, payload)
         data.value = payload
         status.value = 'success'
