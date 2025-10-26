@@ -256,12 +256,19 @@ class QuickBookingController extends Controller
 
     public function finishedBooking(string $billCode)
     {
-        $newBill = PartnerBill::where('code', $billCode)->first();
+        $newBill = PartnerBill::where('code', $billCode)->with('category')->first();
         if (!$newBill) {
             return redirect()->route('home');
         }
+        
+        $partnerCategory = $newBill->category;
+        if (!$partnerCategory) {
+            return redirect()->route('home');
+        }
+
         return Inertia::render("booking/Finished", [
-            'partnerBill' => $newBill
+            'partnerBill' => $newBill,
+            'categoryName' => $partnerCategory->name
         ]);
     }
 
