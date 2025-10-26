@@ -70,22 +70,37 @@ class BookingRequest extends FormRequest
             }
 
             try {
-                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $startTime);
-                $endDateTime = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $endTime);
+                // Ensure both parsed times and "now" use the same timezone
+                $tz = config('app.timezone') ?: 'UTC';
+
+                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $startTime, $tz);
+                $endDateTime = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $endTime, $tz);
             } catch (\Exception $e) {
                 $validator->errors()->add('start_time', 'Không thể xác định ngày/giờ.');
                 return;
             }
 
-            if ($startDateTime->lessThan(now())) {
+            // Reject when start is earlier than the current real-time
+            $now = Carbon::now($tz);
+
+            if ($startDateTime->lessThan($now)) {
                 $validator->errors()->add('order_date', 'Thời gian tổ chức sự kiện phải là thời gian tới.');
+                $validator->errors()->add('start_time', 'Thời gian tổ chức sự kiện phải là thời gian tới.');
+            } else {
+                // Enforce minimum lead time of 15 minutes
+                $minLeadMinutes = 15;
+                $nowPlusLead = $now->copy()->addMinutes($minLeadMinutes);
+                if ($startDateTime->lessThan($nowPlusLead)) {
+                    $validator->errors()->add('start_time', 'Bạn phải đặt lịch trước ít nhất 15 phút.');
+                }
             }
 
             if ($startDateTime->greaterThanOrEqualTo($endDateTime)) {
                 $validator->errors()->add('start_time', 'Giờ bắt đầu phải nhỏ hơn giờ kết thúc.');
             }
 
-            if ($startDateTime->diffInMinutes($endDateTime) < 30) {
+            $duration = $startDateTime->diffInMinutes($endDateTime, false);
+            if ($duration < 30) {
                 $validator->errors()->add('end_time', 'Thời gian tổ chức sự kiện phải ít nhất 30 phút.');
             }
         });
