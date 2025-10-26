@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted, Ref } from 'vue'
 import type { Thread, BroadcastMessagePayload } from '@/pages/chat/types'
+import { slow } from '@/pages/orders/helper'
 
 interface UseThreadsSubscriptionOptions {
     threads: Ref<Thread[]>
@@ -7,10 +8,18 @@ interface UseThreadsSubscriptionOptions {
     onMessageReceived?: (payload: BroadcastMessagePayload) => void
 }
 
+//? avoid spamming, you could try to set this to 0ms for testing (with more than 10 chat threads on the sidebar)
+const SUBSCRIBE_DELAY_MS = 500
+
 export function useThreadsSubscription(options: UseThreadsSubscriptionOptions) {
     const { threads, selectedThreadId, onMessageReceived } = options
     const echo = (window as any).Echo
     const subscribedChannels = new Set<number>()
+    const pendingSubscriptions = new Set<number>()
+
+    const scheduleSubscribe = slow((threadId: number) => {
+        performSubscribe(threadId)
+    }, SUBSCRIBE_DELAY_MS)
 
     function subscribeToThreads() {
         if (!echo) {
@@ -25,7 +34,24 @@ export function useThreadsSubscription(options: UseThreadsSubscriptionOptions) {
     }
 
     function subscribeToThread(threadId: number) {
-        if (!echo || subscribedChannels.has(threadId)) return
+        if (!echo || subscribedChannels.has(threadId) || pendingSubscriptions.has(threadId)) {
+            return
+        }
+
+        pendingSubscriptions.add(threadId)
+        scheduleSubscribe(threadId)
+    }
+
+    function performSubscribe(threadId: number) {
+        if (!echo) {
+            pendingSubscriptions.delete(threadId)
+            return
+        }
+
+        if (subscribedChannels.has(threadId)) {
+            pendingSubscriptions.delete(threadId)
+            return
+        }
 
         try {
             const channel = echo.private(`thread.${threadId}`)
@@ -35,13 +61,16 @@ export function useThreadsSubscription(options: UseThreadsSubscriptionOptions) {
             })
 
             channel.subscribed(() => {
+                pendingSubscriptions.delete(threadId)
                 subscribedChannels.add(threadId)
             })
 
             channel.error((error: any) => {
+                pendingSubscriptions.delete(threadId)
                 console.error(`❌ Subscription error for thread.${threadId}:`, error)
             })
         } catch (error) {
+            pendingSubscriptions.delete(threadId)
             console.error(`❌ Error subscribing to thread.${threadId}:`, error)
         }
     }
@@ -92,6 +121,8 @@ export function useThreadsSubscription(options: UseThreadsSubscriptionOptions) {
         })
 
         subscribedChannels.clear()
+        pendingSubscriptions.clear()
+        scheduleSubscribe.clear()
     }
 
     onMounted(() => {

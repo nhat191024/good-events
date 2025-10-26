@@ -6,12 +6,14 @@ import PartnerIntroCard from './components/PartnerIntroCard.vue'
 import PartnerReviewsCard from './components/PartnerReviewsCard.vue'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import { Head } from '@inertiajs/vue3'
+import PartnerImagesCard from './components/PartnerImagesCard.vue'
 
 interface UserInfo {
     id: number; name: string; avatar_url: string; location: string | null;
     joined_year: string | null; is_pro: boolean; rating: number; total_reviews: number; total_customers: number | null;
 }
-interface Service { id: number; name: string; field: string; price: number | null }
+type Media = { id: number; url: string }
+type Service = { id: number; name: string | null; field: string | null; price: number | null; media: Media[] }
 interface Review { id: number; author: string; rating: number; review: string | null; created_human: string | null }
 
 interface Props {
@@ -147,12 +149,16 @@ const props = defineProps<Props>();
                         <PartnerContactCard :contact="contact" />
                         <PartnerQuickStatsCard :quick="quick" />
                     </div>
-
+                    
                     <!-- Right Main Content -->
                     <div class="md:col-span-9 space-y-4">
                         <PartnerIntroCard :intro="intro" :stats="stats" />
                         <PartnerServiceCard :services="services" />
                         <PartnerReviewsCard :items="reviews" />
+                    </div>
+                    
+                    <div class="md:col-span-12 space-y-4">
+                        <PartnerImagesCard :services="services" />
                     </div>
                 </div>
             </div>

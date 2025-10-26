@@ -8,7 +8,10 @@ import { ClientOrder, OrderStatus } from '../types';
 const props = withDefaults(defineProps<{
     orders: ClientOrder[]
     loading?: boolean
+    selectedId?: number | null
 }>(), {
+    loading: false,
+    selectedId: null,
 })
 console.log("in order list", props);
 const emit = defineEmits<{ (e: 'select', order: any): void, (e: 'load-more'): void }>()
@@ -35,7 +38,7 @@ onBeforeUnmount(() => {
 <template>
     <div class="space-y-4">
         <div v-for="o in orders" :key="o.id" @click="emit('select', o)">
-            <OrderCard v-bind="o" />
+            <OrderCard v-bind="o" :selected="o.id === props.selectedId" />
         </div>
         <div v-if="orders.length === 0" class="text-xs text-muted-foreground">Không có kết quả</div>
         <!-- sentinel + loading -->

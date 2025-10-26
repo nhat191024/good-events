@@ -12,6 +12,8 @@ class ClientProfileController extends Controller
 {
     public function show(User $user)
     {
+        $user->loadMissing('partnerProfile');
+
         // cache key theo user
         $key = "profile:client:{$user->id}";
 
@@ -52,6 +54,7 @@ class ClientProfileController extends Controller
                     'phone' => $user->phone,
                     'created_year' => optional($user->created_at)->format('Y'),
                     'location' => '—', // chưa có bảng địa lý cho user -> để placeholder
+                    'partner_profile_name' => $user->partner_profile_name,
                 ],
                 'stats' => [
                     'orders_placed' => $ordersPlaced,

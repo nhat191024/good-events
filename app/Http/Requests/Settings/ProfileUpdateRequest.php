@@ -5,6 +5,7 @@ namespace App\Http\Requests\Settings;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 
 class ProfileUpdateRequest extends FormRequest
 {
@@ -25,6 +26,9 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'country_code' => ['nullable', 'string', 'max:10'],
+            'phone' => ['nullable', 'string', 'max:25'],
+            'avatar' => ['nullable', File::image()->max(5 * 1024)],
         ];
     }
 }

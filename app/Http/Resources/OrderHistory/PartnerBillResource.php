@@ -56,13 +56,13 @@ class PartnerBillResource extends JsonResource {
                     'name' => $cat->name,
                     'max_price' => $cat->max_price,
                     'min_price' => $cat->min_price,
-                    'image' => $cat->getFirstTemporaryUrl($expireAt, 'images'),
+                    'image' => $this->getTemporaryImageUrl($cat, $expireAt),
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,
                         fn () => [
                             'id' => $cat->parent->id,
                             'name' => $cat->parent->name,
-                            'image' => $cat->parent->getFirstTemporaryUrl($expireAt, 'images'),
+                            'image' => $this->getTemporaryImageUrl($cat->parent, $expireAt),
                         ]
                     ),
                 ];
@@ -107,5 +107,20 @@ class PartnerBillResource extends JsonResource {
             }),
             "review" => $review,
         ];
+    }
+
+    private function getTemporaryImageUrl($model, $expireAt)
+    {
+        if (!$model || !method_exists($model, 'getFirstTemporaryUrl')) {
+            return null;
+        }
+
+        try {
+            return $model->getFirstTemporaryUrl($expireAt, 'images');
+        } catch (\Throwable $e) {
+            return method_exists($model, 'getFirstMediaUrl')
+                ? $model->getFirstMediaUrl('images')
+                : null;
+        }
     }
 }

@@ -13,6 +13,7 @@ import { LoaderCircle } from 'lucide-vue-next'
 import { reactive, ref, watch, computed } from 'vue'
 import { route } from 'ziggy-js'
 import type { Province, Ward, WardTypeSelectBox } from '@/types/database'
+import axios from 'axios'
 
 const pageProps = usePage().props
 const provinceListProp = pageProps.provinces as Province[] | undefined
@@ -66,12 +67,10 @@ watch(
         loadingWards.value = true
 
         try {
-            const res = await fetch(`/api/locations/${provinceId}/wards`, {
-                method: 'GET',
+            const response = await axios.get<Ward[]>(`/api/locations/${provinceId}/wards`, {
                 headers: { Accept: 'application/json' },
             })
-            if (!res.ok) throw new Error(`http ${res.status}`)
-            const data = (await res.json()) as Ward[]
+            const data = response.data
             wardList.value = data.map((w) => ({ name: w.name, value: String(w.id) }))
         } catch (err) {
             wardsError.value = 'không tải được danh sách phường/xã'

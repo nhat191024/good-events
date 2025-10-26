@@ -28,6 +28,7 @@ use App\Models\PartnerBillDetail;
 use App\Models\User;
 use App\Models\Voucher;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
@@ -51,7 +52,8 @@ class OrderController extends Controller
     public function getSingleOrder(Request $request)
     {
         $orderId = (int) $request->query('single_order');
-        if (!$orderId) return null;
+        if (!$orderId)
+            return null;
 
         $order = PartnerBill::query()
             ->where('id', $orderId)
@@ -72,7 +74,8 @@ class OrderController extends Controller
     public function getPartnerBillDetails(Request $request)
     {
         $billId = (int) $request->query('active');
-        if (!$billId) return null;
+        if (!$billId)
+            return null;
 
         $details = PartnerBillDetail::query()
             ->where('partner_bill_id', $billId)
@@ -90,8 +93,8 @@ class OrderController extends Controller
         )->updated_at?->timestamp;
 
         return [
-            'billId'  => $billId,
-            'items'   => PartnerBillDetailResource::collection($details),
+            'billId' => $billId,
+            'items' => PartnerBillDetailResource::collection($details),
             'version' => $billUpdatedTs,
         ];
     }
@@ -162,36 +165,41 @@ class OrderController extends Controller
 
     public function confirmChoosePartner(ConfirmPartnerRequest $request)
     {
-        $bill_id = $request->input('order_id');
-        $user_id = $request->input('partner_id');
-        $voucher_code = $request->input('voucher_code');
+        Log::debug('[controller] confirming partner request...', $request->all());
+        try {
+            $bill_id = $request->input('order_id');
+            $user_id = $request->input('partner_id');
+            $voucher_code = $request->input('voucher_code');
 
-        $billDetail = PartnerBill::findOrFail($bill_id)->details()->where('partner_id', $user_id)->first();
-        $bill = PartnerBill::findOrFail($bill_id);
+            $billDetail = PartnerBill::findOrFail($bill_id)->details()->where('partner_id', $user_id)->first();
+            $bill = PartnerBill::findOrFail($bill_id);
 
-        $partnerBillDetail = PartnerBillDetail::where('partner_bill_id',$bill_id)
-            ->orWhere('partner_id',$user_id)->first();
+            $partnerBillDetail = PartnerBillDetail::where('partner_bill_id', $bill_id)
+                ->orWhere('partner_id', $user_id)->first();
 
-        $discount = 0;
+            $discount = 0;
 
-        $voucher = Voucher::where('code', $voucher_code)->first();
-        if ($voucher) {
-            $discount = $voucher->getDiscountAmount($partnerBillDetail->total);
+            $voucher = Voucher::where('code', $voucher_code)->first();
+            if ($voucher) {
+                $discount = $voucher->getDiscountAmount($partnerBillDetail->total);
+            }
+
+            $bill->total = $partnerBillDetail->total;
+            $bill->final_total = $partnerBillDetail->total - $discount;
+            $bill->partner_id = $billDetail->partner_id;
+            $bill->status = PartnerBillStatus::CONFIRMED;
+            $billDetail->status = PartnerBillDetailStatus::CLOSED;
+            $billDetail->save();
+            $bill->save();
+
+            $client = $bill->client;
+            PartnerAcceptedOrder::send($bill, $client);
+
+            $partner = $bill->partner;
+            OrderStatusChanged::send($bill, $partner, PartnerBillStatus::CONFIRMED);
+        } catch (\Throwable $th) {
+            Log::error('error in confirming choose partner', context: ['exception' => $th]);
         }
-
-        $bill->total = $partnerBillDetail->total;
-        $bill->final_total = $partnerBillDetail->total - $discount;
-        $bill->partner_id = $billDetail->partner_id;
-        $bill->status = PartnerBillStatus::CONFIRMED;
-        $billDetail->status = PartnerBillDetailStatus::CLOSED;
-        $billDetail->save();
-        $bill->save();
-
-        $client = $bill->client;
-        PartnerAcceptedOrder::send($bill, $client);
-
-        $partner = $bill->partner;
-        OrderStatusChanged::send($bill, $partner, PartnerBillStatus::CONFIRMED);
     }
 
     public function submitReview(Request $request)
@@ -261,20 +269,25 @@ class OrderController extends Controller
         ]);
 
         $partnerBill = PartnerBill::find($data['order_id']);
-        if (!$partnerBill) return self::voucherFail(__('Đơn hàng không tồn tại'));
+        if (!$partnerBill)
+            return self::voucherFail(__('Đơn hàng không tồn tại'));
         // or, user
         $partner = User::find($data['partner_id']);
-        if (!$partner) return self::voucherFail(__('Đối tác không tồn tại'));
-        
-        $partnerBillDetail = PartnerBillDetail::where('partner_bill_id',$partnerBill->id)
-            ->orWhere('partner_id',$partner->id)->first();
-        if (!$partnerBillDetail) return self::voucherFail(__('Đối tác không tồn tại'));
-        
+        if (!$partner)
+            return self::voucherFail(__('Đối tác không tồn tại'));
+
+        $partnerBillDetail = PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
+            ->orWhere('partner_id', $partner->id)->first();
+        if (!$partnerBillDetail)
+            return self::voucherFail(__('Đối tác không tồn tại'));
+
         $voucher = Voucher::where('code', $data['voucher_input'])->first();
-        if (!$voucher) return self::voucherFail(__('Voucher không tồn tại'));
-        
+        if (!$voucher)
+            return self::voucherFail(__('Voucher không tồn tại'));
+
         $result = $voucher->validate($partnerBillDetail->total);
-        if (!$result->status) return self::voucherFail(__($result->message));
+        if (!$result->status)
+            return self::voucherFail(__($result->message));
 
         $discount = $voucher->getDiscountAmount($partnerBillDetail->total);
 
@@ -285,7 +298,8 @@ class OrderController extends Controller
         ];
     }
 
-    private function voucherFail(string $message) {
+    private function voucherFail(string $message)
+    {
         return (object) [
             'status' => false,
             'message' => $message,

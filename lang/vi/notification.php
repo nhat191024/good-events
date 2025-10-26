@@ -3,8 +3,11 @@ return [
     'partner_show_reminder_title' => 'Nhắc nhở: Buổi diễn :code sắp bắt đầu',
     'partner_show_reminder_body' => 'Buổi diễn với mã :code sẽ bắt đầu vào lúc :start_date. Vui lòng đảm bảo có mặt đúng giờ.',
 
-   'order_created_title' => 'Đơn hàng mới được tạo',
+    'order_created_title' => 'Đơn hàng mới được tạo',
     'order_created_body' => 'Đơn hàng :code của bạn đã được tạo thành công',
+    
+    'thread_created_title' => 'Khung chat mới được tạo',
+    'thread_created_body' => 'Khung chat đơn hàng :code của bạn đã được tạo',
 
     'order_status_changed_title' => 'Cập nhật trạng thái đơn hàng',
     'order_status_changed_body' => 'Trạng thái của đơn hàng :code đã được thay đổi thành :status',

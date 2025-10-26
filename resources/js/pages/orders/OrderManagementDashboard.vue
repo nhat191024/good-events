@@ -20,15 +20,14 @@ import {
     appendUniqueById,
     debounce,
 } from './helper'
-import Loading from '@/components/Loading.vue'
-import ConfirmModal from '@/components/ConfirmModal.vue'
+
 import { confirm } from '@/composables/useConfirm'
 import { hideLoading, showLoading } from '@/composables/useLoading'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import { formatPrice } from '@/lib/helper'
-import { default as PartnerProfilePage } from '../profile/partner/Partner.vue'
+
 import PartnerProfilePreview from './components/PartnerProfilePreview.vue'
-import { csrf } from '@/lib/utils'
+import axios from 'axios'
 
 
 const activeTab = ref<'current' | 'history'>('current')
@@ -264,22 +263,16 @@ const applicants = computed<ClientOrderDetail[]>(() => {
 })
 
 async function getVoucherDiscountAmount(voucher_code?: string | null, partner?: Partner | null) {
-    if (!voucher_code || !selectedOrder.value?.id) return
-    let order_id = selectedOrder.value.id
+    if (!voucher_code || !selectedOrder.value?.id) return 0
 
-    const res = await fetch(route('client-orders.get-voucher-discount-amount'), {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrf(),
-        },
-        body: JSON.stringify({ voucher_input: voucher_code, order_id, partner_id: partner?.id }),
+    const { data } = await axios.post(route('client-orders.get-voucher-discount-amount'), {
+        voucher_input: voucher_code,
+        order_id: selectedOrder.value.id,
+        partner_id: partner?.id,
     })
 
-    if (!res.ok) return 0;
-    const data = await res.json()
-    if (data.status === false) return 0;
-    return data.discount ?? 0
+    if (data?.status === false) return 0
+    return data?.discount ?? 0
 }
 
 async function handleConfirmChoosePartner(
@@ -287,7 +280,6 @@ async function handleConfirmChoosePartner(
     total?: number | null,
     voucher_code?: string | null
 ) {
-    console.log('handleConfirmChoosePartner: ', partner, total)
     if (!partner || !selectedOrder.value?.id) return
 
     try {
@@ -305,7 +297,6 @@ async function handleConfirmChoosePartner(
         } finally {
             hideLoading()
         }
-        console.log('got voucher discount', voucherDiscountAmount)
 
         let finalTotal = (total ?? 0) - voucherDiscountAmount
         if (finalTotal < 0) finalTotal = 0
@@ -325,24 +316,28 @@ async function handleConfirmChoosePartner(
 
         if (!ok) return
 
+        debounce(() => {
+            showLoading({ title: 'Đang tải', message: 'Đợi xíu nhé' })
+        }, 1, { leading: false, trailing: true })();
+
         useForm({
             order_id: orderId,
             partner_id: partner.id,
             voucher_code: voucher_code
         }).post(route('client-orders.confirm-partner'), {
             preserveScroll: true,
-            onBefore: () => {
-                showLoading({ title: 'Đang tải', message: 'Đợi xíu nhé' })
-            },
             onSuccess: () => {
                 delete detailsMap.value[orderId]
-                refreshCurrentOrders()
-                debounce(() => {
-                    fetchDetails(orderId, true), 3000, { leading: false, trailing: true }
-                })();
             },
             onFinish: () => {
-                hideLoading(true)
+                debounce(() => {
+                    fetchDetails(orderId, true);
+                }, 1000, { leading: false, trailing: true })();
+                
+                debounce(() => {
+                    refreshCurrentOrders();
+                    hideLoading(true);
+                }, 3000, { leading: false, trailing: true })();
             }
         })
     } catch (err) {
@@ -531,6 +526,8 @@ onBeforeUnmount(() => {
                     :history-loading="loadingForSidebar"
                     :order-loading="loadingForSidebar"
                     :orderHistory="historyItems"
+                    :selected-order-id="selectedOrder?.id ?? null"
+                    :selected-mode="selectedMode"
                     v-model:activeTab="activeTab"
                     @select="handleSelect"
                     @load-history-more="loadMoreHistory"
