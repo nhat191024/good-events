@@ -18,6 +18,8 @@ const props = defineProps<{
     orderHistory: ClientOrderHistory[]
     historyLoading?: boolean
     orderLoading?: boolean
+    selectedOrderId?: number | null
+    selectedMode?: 'current' | 'history'
 }>()
 
 const orderHistory = computed(() => props.orderHistory)
@@ -39,13 +41,14 @@ const statusFilter = ref<string[]>([
 ])
 const locationsFilter = ref<string[]>([])
 
+//! change the status group display priority here 
 const STATUS_ORDER: Array<ClientOrder['status']> = [
-    OrderStatus.CONFIRMED,
     OrderStatus.PENDING,
+    OrderStatus.IN_JOB,
+    OrderStatus.CONFIRMED,
     OrderStatus.CANCELLED,
     OrderStatus.COMPLETED,
     OrderStatus.EXPIRED,
-    OrderStatus.IN_JOB,
 ]
 
 const STATUS_RANK: Record<string, number> = STATUS_ORDER.reduce(
@@ -182,6 +185,14 @@ const emit = defineEmits<{
     (e: 'load-history-more'): void
     (e: 'load-orders-more'): void
 }>()
+
+const selectedCurrentId = computed(() =>
+    props.selectedMode === 'current' ? props.selectedOrderId ?? null : null
+)
+
+const selectedHistoryId = computed(() =>
+    props.selectedMode === 'history' ? props.selectedOrderId ?? null : null
+)
 </script>
 
 <template>
@@ -190,7 +201,7 @@ const emit = defineEmits<{
         <div class="p-2 md:p-6">
             <!-- tabs -->
             <div
-                class="grid grid-cols-2 gap-2 mb-3 md:mb-6 items-center sticky top-1 rounded bg-white/30 backdrop-blur-md w-full md:h-fit h-[50px]">
+                class="grid grid-cols-2 z-10 gap-2 mb-3 md:mb-6 items-center sticky top-1 rounded bg-white/30 backdrop-blur-md w-full md:h-fit h-[50px]">
                 <button type="button"
                     class="h-10 rounded-md border border-border flex items-center justify-center gap-2"
                     :class="activeTab === 'current' ? 'bg-primary-700 text-white' : 'bg-card'"
@@ -209,7 +220,7 @@ const emit = defineEmits<{
 
             <!-- CURRENT TAB -->
             <div v-if="activeTab === 'current'" class="">
-                <div class="space-y-1 md:space-y-4 top-12 rounded-md sticky bg-white/30 backdrop-blur-md p-2 mb-3">
+                <div class="space-y-1 z-10 md:space-y-4 top-12 rounded-md sticky bg-white/30 backdrop-blur-md p-2 mb-3">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-lexend font-semibold text-sidebar-foreground">Đơn hàng của bạn</h2>
                         <span class="bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded">{{
@@ -276,7 +287,10 @@ const emit = defineEmits<{
                     </div>
                 </div>
 
-                <OrderList :orders="visibleOrders" :loading="orderLoading"
+                <OrderList
+                    :orders="visibleOrders"
+                    :loading="orderLoading"
+                    :selected-id="selectedCurrentId"
                     @select="(o) => emit('select', { order: o, mode: 'current' })" @load-more="loadMoreOrders" />
             </div>
 
@@ -326,7 +340,10 @@ const emit = defineEmits<{
                     </div>
                 </div>
 
-                <OrderHistoryList :orders="visibleHistoryOrders" :loading="historyLoading"
+                <OrderHistoryList
+                    :orders="visibleHistoryOrders"
+                    :loading="historyLoading"
+                    :selected-id="selectedHistoryId"
                     @select="(o) => emit('select', { order: o, mode: 'history' })" @load-more="loadMoreHistory"
                     @reload="reloadHistory()" />
             </div>
