@@ -4,10 +4,14 @@ import { ClientOrder, OrderStatus } from '../types';
 import { calculateEstimatedPrice, formatDate, formatPrice, formatTime, formatTimeRange } from '@/lib/helper';
 import { statusBadge } from '../helper';
 import { cn } from '@/lib/utils';
+import { MessageCircle } from 'lucide-vue-next';
+import { router } from '@inertiajs/core';
 
 // note: card cho đơn hiện tại
 
-const props = defineProps<ClientOrder>()
+const props = withDefaults(defineProps<ClientOrder & { selected?: boolean }>(), {
+    selected: false,
+})
 
 function getEstimatedPrice() {
     const price = props.final_total ?? props.total
@@ -31,7 +35,25 @@ function getEstimatedPrice() {
 
 <template>
     <div
-        :class="cn('cursor-pointer transition-shadow border border-border rounded-lg hover:shadow-md bg-card border-l-4', statusBadge(props.status).border_class)">
+        :class="cn(
+            'relative cursor-pointer transition-shadow border rounded-lg bg-card border-l-4',
+            statusBadge(props.status).border_class,
+            props.selected ? 'border-primary-500 shadow-lg ring-1 ring-primary-400/60' : 'hover:shadow-md'
+        )">
+        <span
+            v-if="props.selected"
+            class="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary-700 text-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+        >
+            Đang xem
+        </span>
+        <span v-if="props.partners.count>0 && props.status == OrderStatus.PENDING" class="absolute left-5 bottom-5 text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm">{{ props.partners.count }}</span>
+        <span
+            v-if="props.status == OrderStatus.CONFIRMED || props.status == OrderStatus.IN_JOB"
+            class="absolute left-6 bottom-14 flex h-7 w-7 items-center justify-center rounded-full bg-primary-700 text-white shadow"
+            aria-label="Chat" @click="router.get(route('chat.index'))"
+        >
+            <MessageCircle class="h-4 w-4" aria-hidden="true" />
+        </span>
         <div class="px-4 py-2 md:py-4">
             <div class="flex items-start gap-3">
                 <div
@@ -40,8 +62,7 @@ function getEstimatedPrice() {
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex flex-row justify-between">
-                        <h3 class="font-semibold text-card-foreground text-sm mb-0 md:1">{{ props.category?.parent?.name ?? '' }} - {{ props.category.name }}</h3>
-                        <span v-if="props.partners.count>0 && props.status == OrderStatus.PENDING" class="text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm">{{ props.partners.count }}</span>
+                        <h3 class="font-semibold text-card-foreground truncate text-sm mb-0 md:1">{{ props.category.name }} - {{ props.code }}</h3>
                     </div>
                     <p class="text-xs text-muted-foreground mb-1">Ở {{ props.address ?? '' }}</p>
                     <p
