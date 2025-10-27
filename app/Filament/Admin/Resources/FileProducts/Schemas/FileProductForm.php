@@ -52,6 +52,7 @@ class FileProductForm
                 SpatieTagsInput::make('tags')
                     ->label(__('admin/fileProduct.fields.tags'))
                     ->placeholder(__('admin/fileProduct.placeholders.tags'))
+                    ->required()
                     ->columnSpanFull(),
                 Textarea::make('description')
                     ->label(__('admin/fileProduct.fields.description'))
