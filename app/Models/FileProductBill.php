@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+use App\Enum\FileProductBillStatus;
+
 /**
  * @property int $id
  * @property int $file_product_id
@@ -49,6 +51,18 @@ class FileProductBill extends Model
         'final_total',
         'status',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => FileProductBillStatus::class,
+        ];
+    }
 
     /**
      * Summary of getActivitylogOptions
