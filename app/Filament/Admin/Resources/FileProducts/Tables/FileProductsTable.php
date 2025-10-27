@@ -39,6 +39,9 @@ class FileProductsTable
                 SpatieTagsColumn::make('tags')
                     ->label(__('admin/fileProduct.fields.tags'))
                     ->alignCenter(),
+                TextColumn::make('description')
+                    ->label(__('admin/fileProduct.fields.description'))
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->label(__('admin/fileProduct.fields.deleted_at'))
                     ->dateTime()
