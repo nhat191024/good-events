@@ -5,8 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Spatie\Tags\HasTags;
+
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 /**
  * @property int $id
@@ -37,9 +45,9 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog withoutTrashed()
  * @mixin \Eloquent
  */
-class Blog extends Model
+class Blog extends Model implements HasMedia
 {
-    use SoftDeletes, HasSlug;
+    use SoftDeletes, HasTags, HasSlug, InteractsWithMedia, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -64,10 +72,20 @@ class Blog extends Model
             ->saveSlugsTo('slug');
     }
 
+    /**
+     * Summary of getActivitylogOptions
+     * @return LogOptions
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty();
+    }
+
     //model relationships
     public function author()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function category()
