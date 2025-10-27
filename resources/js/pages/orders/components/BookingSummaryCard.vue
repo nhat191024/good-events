@@ -10,8 +10,8 @@ import { router } from '@inertiajs/core';
 import { statusBadge } from '../helper';
 import Button from '@/components/ui/button/Button.vue';
 import { useForm } from '@inertiajs/vue3';
-import { csrf } from '@/lib/utils';
 import { confirm } from '@/composables/useConfirm';
+import axios from 'axios';
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
@@ -71,26 +71,13 @@ async function validateVoucher() {
     form.processing = true
 
     try {
-        const res = await fetch(route('client-orders.validate-voucher'), {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrf(),
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify({
-                voucher_input: form.voucher_input,
-                order_id: form.order_id
-            }),
+        const { data } = await axios.post(route('client-orders.validate-voucher'), {
+            voucher_input: form.voucher_input,
+            order_id: form.order_id,
+        }, {
+            headers: { Accept: 'application/json' },
         })
 
-        if (!res.ok) {
-            const err = await res.json()
-            throw new Error(err);
-        }
-
-        const data = await res.json()
         showNotice(data['status'] === true ? 'Kiểm tra mã giảm giá thành công!' : 'Mã giảm giá này chưa thể sử dụng được!', data['message']+'\n- Mã giảm giá đã được lưu tạm thời, hãy giữ nguyên mã khi bấm chốt đơn với đối tác nhé!');
     } catch (error) {
         showNotice('Có lỗi xảy ra!', 'Chưa thể áp dụng hoặc mã giảm giá chưa hợp lệ, vui lòng thử lại sau!');

@@ -23,7 +23,7 @@ const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();
             <!-- Hero Image/Video -->
             <div class="mb-8 flex justify-center">
                 <div class="w-full max-w-4xl h-64 bg-white rounded-4xl shadow-lg overflow-hidden">
-                    <img src="/images/banner-image.png" alt="Hero Banner" class="w-full h-full object-cover" />
+                    <img src="/images/banner-image.webp" alt="Hero Banner" class="w-full h-full object-cover" />
                 </div>
             </div>
 

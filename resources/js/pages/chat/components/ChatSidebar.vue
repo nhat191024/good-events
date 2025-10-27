@@ -3,6 +3,8 @@
     import { Search, MoreVertical } from 'lucide-vue-next'
     import { router } from '@inertiajs/vue3'
     import axios from 'axios'
+    import { createSearchFilter } from '@/lib/search-filter'
+    import { debounce } from '@/pages/orders/helper'
     import type { Thread } from '../types'
 
     const props = defineProps<{ selectedThreadId: number | null }>()
@@ -17,16 +19,16 @@
     const isLoading = ref(false)
     const threadsContainer = ref<HTMLDivElement | null>(null)
 
+    const searchKeys = ['subject', 'other_participants', 'latest_message.body']
+
     const filteredThreads = computed(() => {
-        if (!searchTerm.value.trim()) {
+        const query = searchTerm.value.trim()
+        if (!query) {
             return threads.value
         }
 
-        const search = searchTerm.value.toLowerCase()
-        return threads.value.filter(thread =>
-            thread.subject?.toLowerCase().includes(search) ||
-            thread.other_participants.some(p => p.name.toLowerCase().includes(search))
-        )
+        const filter = createSearchFilter<Thread>(searchKeys, query)
+        return threads.value.filter(filter)
     })
 
     function handleSelect(id: number) {
@@ -38,6 +40,7 @@
         if (thread) {
             thread.is_unread = false
         }
+        
     }
 
     async function loadMoreThreads() {
@@ -89,6 +92,10 @@
         }
     }
 
+    const debouncedSearchThreads = debounce(() => {
+        searchThreads()
+    }, 3000, { leading: false, trailing: true })
+
     function formatTimestamp(timestamp: string): string {
         const date = new Date(timestamp)
         const now = new Date()
@@ -134,7 +141,7 @@
 
             <div class="relative">
                 <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input v-model="searchTerm" type="text" placeholder="Tìm kiếm cuộc hội thoại..." @input="searchThreads"
+                <input v-model="searchTerm" type="text" placeholder="Tìm kiếm cuộc hội thoại..." @input="debouncedSearchThreads"
                     class="pl-10 w-full bg-gray-50 border-0 focus:outline-none focus:ring-1 ring-red-500 px-3 py-2 rounded-md" />
             </div>
         </div>

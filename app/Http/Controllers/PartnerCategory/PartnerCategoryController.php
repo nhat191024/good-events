@@ -36,7 +36,7 @@ class PartnerCategoryController extends Controller
                 'description' => $item->description,
                 'updated_human' => $item->updated_at?->diffForHumans(),
                 // Ảnh từ media library nếu có
-                'image' => $item->getFirstTemporaryUrl($expireAt, 'images')
+                'image' => $this->getTemporaryImageUrl($item, $expireAt)
             ],
             'category' => $category ? [
                 'id' => $category->id,
@@ -50,9 +50,24 @@ class PartnerCategoryController extends Controller
                     'slug' => $r->slug,
                     'min_price' => $r->min_price,
                     'max_price' => $r->max_price,
-                    'image' => $r->getFirstTemporaryUrl($expireAt, 'images')
+                    'image' => $this->getTemporaryImageUrl($r, $expireAt)
                 ];
             }),
         ]);
+    }
+
+    private function getTemporaryImageUrl($model, $expireAt)
+    {
+        if (!method_exists($model, 'getFirstTemporaryUrl')) {
+            return null;
+        }
+
+        try {
+            return $model->getFirstTemporaryUrl($expireAt, 'images');
+        } catch (\Throwable $e) {
+            return method_exists($model, 'getFirstMediaUrl')
+                ? $model->getFirstMediaUrl('images')
+                : null;
+        }
     }
 }

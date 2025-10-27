@@ -1,5 +1,6 @@
 import { ref, watch } from 'vue';
 import type { Ward, WardTypeSelectBox } from '@/types/database';
+import axios from 'axios';
 
 type Options = {
   endpoint?: (provinceId: string) => string;
@@ -37,12 +38,10 @@ export function useWards(opts: Options = {}) {
     loadingWards.value = true;
     wardsError.value = '';
     try {
-      const res = await fetch(endpointFn(id), {
-        method: 'GET',
+      const response = await axios.get<Ward[]>(endpointFn(id), {
         headers: { Accept: 'application/json' },
       });
-      if (!res.ok) throw new Error(`http ${res.status}`);
-      const data: Ward[] = await res.json();
+      const data = response.data;
       const options: WardTypeSelectBox[] = data.map((w) => ({ name: w.name, value: String(w.id) }));
       wardList.value = options;
       if (useCache) _cache.set(id, options);

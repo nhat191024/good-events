@@ -7,17 +7,17 @@
 
     const sidebarNavItems: NavItem[] = [
         {
-            title: 'Profile',
-            href: '/settings/profile',
+            title: 'Hồ sơ',
+            href: route('profile.edit'),
         },
         {
-            title: 'Password',
-            href: '/settings/password',
+            title: 'Mật khẩu',
+            href: route('profile.password.edit'),
         },
-        {
-            title: 'Appearance',
-            href: '/settings/appearance',
-        },
+        // {
+        //     title: 'Giao diện',
+        //     href: route('appearance'),
+        // },
     ];
 
     const page = usePage();
@@ -26,8 +26,8 @@
 </script>
 
 <template>
-    <div class="px-4 py-6">
-        <Heading title="Settings" description="Manage your profile and account settings" />
+    <div class="px-4 py-6 mt-8">
+        <Heading title="Cài đặt" description="Quản lý hồ sơ và các thiết lập khác" />
 
         <div class="flex flex-col lg:flex-row lg:space-x-12">
             <aside class="w-full max-w-xl lg:w-48">
@@ -43,8 +43,8 @@
 
             <Separator class="my-6 lg:hidden" />
 
-            <div class="flex-1 md:max-w-2xl">
-                <section class="max-w-xl space-y-12">
+            <div class="flex-1 md:max-w-4xl">
+                <section class="max-w-2xl space-y-12">
                     <slot />
                 </section>
             </div>

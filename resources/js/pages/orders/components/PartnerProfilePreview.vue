@@ -5,12 +5,15 @@ import PartnerQuickStatsCard from '@/pages/profile/partner/components/PartnerQui
 import PartnerServiceCard from '@/pages/profile/partner/components/PartnerServiceCard.vue'
 import PartnerIntroCard from '@/pages/profile/partner/components/PartnerIntroCard.vue'
 import PartnerReviewsCard from '@/pages/profile/partner/components/PartnerReviewsCard.vue'
+import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesCard.vue'
+import axios from 'axios'
 
 type UserInfo = {
     id: number; name: string; avatar_url: string; location: string | null;
     joined_year: string | null; is_pro: boolean; rating: number; total_reviews: number; total_customers: number | null;
 }
-type Service = { id: number; name: string; field: string; price: number | null }
+type Media = { id: number; url: string }
+type Service = { id: number; name: string | null; field: string | null; price: number | null; media: Media[] }
 type Review = { id: number; author: string; rating: number; review: string | null; created_human: string | null }
 type Payload = {
     user: UserInfo;
@@ -44,10 +47,8 @@ watch([open, () => props.userId], async ([isOpen, id]) => {
     status.value = 'loading'
     try {
         const url = route('profile.partner.show.json', { user: id })
-        const res = await fetch(url, { headers: { 'Accept': 'application/json' } })
-        if (!res.ok) throw new Error('failed to fetch profile')
-
-        const payload = await res.json() as Payload
+        const response = await axios.get<Payload>(url, { headers: { 'Accept': 'application/json' } })
+        const payload = response.data
         cache.set(id, payload)
         data.value = payload
         status.value = 'success'
@@ -111,6 +112,10 @@ const user = computed(() => data.value?.user)
                                     <PartnerIntroCard :intro="data.intro" :stats="data.stats" />
                                     <PartnerServiceCard :services="data.services" />
                                     <PartnerReviewsCard :items="data.reviews" />
+                                </div>
+                                
+                                <div class="md:col-span-12 space-y-4">
+                                    <PartnerImagesCard :services="data.services" />
                                 </div>
                             </div>
                         </template>

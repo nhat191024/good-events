@@ -8,9 +8,12 @@ import { RefreshCw } from 'lucide-vue-next';
 const props = withDefaults(defineProps<{
     orders: ClientOrderHistory[]
     loading?: boolean
+    selectedId?: number | null
     // searchKeyword?: string
 }>(), {
     // searchKeyword: '',
+    loading: false,
+    selectedId: null,
 })
 
 const emit = defineEmits<{ (e: 'select', order: any): void; (e: 'reload'): void, (e: 'load-more'): void }>()
@@ -41,7 +44,7 @@ onBeforeUnmount(() => {
         <!-- khi có orders -->
         <template v-if="props.orders.length > 0">
             <div v-for="o in props.orders" :key="o.id" @click="emit('select', o)">
-                <OrderHistoryCard v-bind="o" />
+                <OrderHistoryCard v-bind="o" :selected="o.id === props.selectedId" />
             </div>
         </template>
 

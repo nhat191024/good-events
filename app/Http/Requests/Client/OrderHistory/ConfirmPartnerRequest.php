@@ -5,12 +5,14 @@ namespace App\Http\Requests\Client\OrderHistory;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Models\PartnerBill;
+use Illuminate\Support\Facades\Log;
 
 class ConfirmPartnerRequest extends FormRequest
 {
     // todo: enable this after hot fix
     public function authorize(): bool
     {
+        Log::debug('[request file] authorising confirm choose partner requrest', $this->all());
         $orderId = $this->input('order_id');
         $bill = PartnerBill::find($orderId);
 
@@ -23,11 +25,11 @@ class ConfirmPartnerRequest extends FormRequest
 
     public function rules(): array
     {
-        // \Log::debug('ConfirmPartnerRequest data', $this->all());
+        Log::debug('[request file] ConfirmPartnerRequest data', $this->all());
         return [
             'order_id' => ['required', 'integer', 'exists:partner_bills,id'],
             'partner_id' => ['required', 'integer', 'exists:users,id'],
-            'voucher_code' => ['string'],
+            // 'voucher_code' => ['string'],
         ];
     }
 

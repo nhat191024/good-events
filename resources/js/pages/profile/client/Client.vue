@@ -6,7 +6,9 @@ import IntroCard from './components/IntroCard.vue'
 import RecentOrdersCard from './components/RecentOrdersCard.vue'
 import RecentReviewsCard from './components/RecentReviewsCard.vue'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import type { AppPageProps } from '@/types'
 
 interface UserInfo {
     id: number
@@ -16,6 +18,7 @@ interface UserInfo {
     phone: string
     created_year: string | null
     location: string | null
+    partner_profile_name?: string | null
 }
 
 interface BillItem {
@@ -53,6 +56,53 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const page = usePage<AppPageProps>()
+const authUser = computed(() => page.props.auth?.user ?? null)
+const isOwnProfile = computed(() => authUser.value?.id === props.user.id)
+
+const partnerDisplayName = computed(() => {
+    if (props.user.partner_profile_name) {
+        return `${props.user.name} (Partner name: ${props.user.partner_profile_name})`
+    }
+    return props.user.name
+})
+
+const menuOpen = ref(false)
+const menuWrapper = ref<HTMLDivElement | null>(null)
+
+const toggleMenu = () => {
+    if (!isOwnProfile.value) {
+        return
+    }
+    menuOpen.value = !menuOpen.value
+}
+
+const closeMenu = (event: MouseEvent) => {
+    if (!menuWrapper.value) {
+        return
+    }
+
+    if (!menuWrapper.value.contains(event.target as Node)) {
+        menuOpen.value = false
+    }
+}
+
+const handleEscape = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+        menuOpen.value = false
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', closeMenu)
+    document.addEventListener('keydown', handleEscape)
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', closeMenu)
+    document.removeEventListener('keydown', handleEscape)
+})
 </script>
 
 <template>
@@ -71,7 +121,7 @@ const props = defineProps<Props>()
                         <div class="relative flex-shrink-0">
                             <div
                                 class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-                                <img v-if="user.avatar_url" :src="user.avatar_url" :alt="user.name"
+                                <img v-if="user.avatar_url" :key="user.avatar_url" :src="user.avatar_url" :alt="user.name"
                                     class="w-full h-full object-cover" />
                                 <div v-else class="w-full h-full flex items-center justify-center bg-gray-200">
                                     <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400" fill="currentColor"
@@ -92,7 +142,7 @@ const props = defineProps<Props>()
                         <!-- User info -->
                         <div class="flex-1 pt-2">
                             <div class="flex items-center gap-2 flex-wrap mb-2">
-                                <h1 class="text-2xl md:text-3xl font-bold text-white">{{ user.name }}</h1>
+                                <h1 class="text-2xl md:text-3xl font-bold text-white">{{ partnerDisplayName }}</h1>
                                 <span
                                     class="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-md border border-white/30">
                                     Đã xác minh
@@ -133,13 +183,45 @@ const props = defineProps<Props>()
                         </div>
 
                         <!-- Menu button -->
-                        <button
-                            class="flex-shrink-0 w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                            </svg>
-                        </button>
+                        <div v-if="isOwnProfile" class="relative flex-shrink-0" ref="menuWrapper">
+                            <button
+                                type="button"
+                                aria-haspopup="menu"
+                                :aria-expanded="menuOpen"
+                                @click.stop="toggleMenu"
+                                class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                </svg>
+                            </button>
+
+                            <transition enter-active-class="transition ease-out duration-100"
+                                enter-from-class="transform opacity-0 scale-95"
+                                enter-to-class="transform opacity-100 scale-100"
+                                leave-active-class="transition ease-in duration-75"
+                                leave-from-class="transform opacity-100 scale-100"
+                                leave-to-class="transform opacity-0 scale-95">
+                                <div
+                                    v-if="menuOpen"
+                                    class="absolute right-0 mt-2 w-48 rounded-lg bg-white/95 shadow-lg ring-1 ring-black/10 backdrop-blur"
+                                >
+                                    <Link
+                                        :href="route('profile.edit')"
+                                        class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors rounded-lg"
+                                        @click="menuOpen = false"
+                                    >
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5h2m-1-1v2m0 8v3m-3 0h6a2 2 0 002-2v-5a2 2 0 00-.59-1.41l-4-4a2 2 0 00-2.82 0l-4 4A2 2 0 006 10v5a2 2 0 002 2z" />
+                                        </svg>
+                                        Cài đặt hồ sơ
+                                    </Link>
+                                </div>
+                            </transition>
+                        </div>
                     </div>
                 </div>
             </div>

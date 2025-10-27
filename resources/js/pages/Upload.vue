@@ -159,6 +159,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
 
 
 // form upload (same as trước)
@@ -226,32 +227,23 @@ async function submitExisting() {
         if (existingForm.value.image) fd.append('image', existingForm.value.image, existingForm.value.image.name);
         for (const f of existingForm.value.photos) fd.append('photos[]', f, f.name);
 
-        const tokenMeta = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null;
-        const token = tokenMeta?.getAttribute('content') ?? '';
-
-        const res = await fetch(`/test/partner-categories/${existingForm.value.categoryId}/media`, {
-            method: 'POST',
+        await axios.post(`/test/partner-categories/${existingForm.value.categoryId}/media`, fd, {
             headers: {
-                'X-CSRF-TOKEN': token,
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
             },
-            body: fd,
-            credentials: 'same-origin',
         });
-
-        if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            throw new Error(data.message || res.statusText);
-        }
 
         // reset and refresh props
         existingForm.value = { categoryId: '', image: null, photos: [] };
         existingImagePreview.value = null;
         existingPhotosPreview.value = [];
         window.location.reload();
-    } catch (e:any) {
-        alert('Upload thất bại: ' + (e.message || 'Unknown error'));
+    } catch (e: any) {
+        const message = axios.isAxiosError(e)
+            ? e.response?.data?.message ?? e.message
+            : e?.message ?? 'Unknown error';
+        alert('Upload thất bại: ' + message);
     } finally {
         existingSubmitting.value = false;
     }
@@ -303,36 +295,27 @@ function formatBytes(bytes: number) {
     return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
 }
 
-// delete media bằng fetch + csrf token
+// delete media helper
 async function confirmDelete(mediaId: number) {
     if (!confirm('Bạn có chắc muốn xóa file này?')) return;
 
-    const tokenMeta = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null;
-    const token = tokenMeta?.getAttribute('content') ?? '';
-
     try {
-        const res = await fetch(`/test/media/${mediaId}`, {
-            method: 'DELETE',
+        await axios.delete(`/test/media/${mediaId}`, {
             headers: {
-                'X-CSRF-TOKEN': token,
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
             },
-            credentials: 'same-origin',
         });
-
-        if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            alert('xóa thất bại: ' + (data.message || res.statusText));
-            return;
-        }
 
         // on success: reload page props để cập nhật danh sách media
         // simple approach: reload current page via location (Inertia would preserve SPA)
         window.location.reload();
-    } catch (err) {
+    } catch (err: any) {
         console.error(err);
-        alert('xóa thất bại, kiểm tra console');
+        const message = axios.isAxiosError(err)
+            ? err.response?.data?.message ?? err.message
+            : err?.message ?? 'Unknown error';
+        alert('xóa thất bại: ' + message);
     }
 }
 </script>

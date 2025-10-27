@@ -59,7 +59,7 @@ onBeforeUnmount(() => {
             leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
             leave-to-class="transform opacity-0 scale-95">
             <div v-if="isOpen"
-                class="absolute left-0 mt-2 w-64 rounded-lg shadow-lg bg-white ring-1 ring-primary-200 ring-opacity-5 z-50">
+                class="absolute left-0 mt-2 w-64 rounded-lg shadow-lg bg-white ring-1 ring-primary-200 ring-opacity-5 z-100">
                 <div class="py-1">
                     <Link v-for="item in menuItems" :key="item.slug" :href="item.route?route(item.route, { slug: item.slug }):'#'"
                         @click="closeMenu"

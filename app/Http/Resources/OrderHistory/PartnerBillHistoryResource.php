@@ -56,12 +56,12 @@ class PartnerBillHistoryResource extends JsonResource
                 return [
                     'id' => $cat->id,
                     'name' => $cat->name,
-                    'image' => $cat->getFirstTemporaryUrl($expireAt, 'images'),
+                    'image' => $this->getTemporaryImageUrl($cat, $expireAt),
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,
                         fn() => [
                             'name' => $cat->parent->name,
-                            'image' => $cat->parent->getFirstTemporaryUrl($expireAt, 'images'),
+                            'image' => $this->getTemporaryImageUrl($cat->parent, $expireAt),
                         ]
                     ),
                 ];
@@ -104,5 +104,20 @@ class PartnerBillHistoryResource extends JsonResource
 
             "review" => $review,
         ];
+    }
+
+    private function getTemporaryImageUrl($model, $expireAt)
+    {
+        if (!$model || !method_exists($model, 'getFirstTemporaryUrl')) {
+            return null;
+        }
+
+        try {
+            return $model->getFirstTemporaryUrl($expireAt, 'images');
+        } catch (\Throwable $e) {
+            return method_exists($model, 'getFirstMediaUrl')
+                ? $model->getFirstMediaUrl('images')
+                : null;
+        }
     }
 }

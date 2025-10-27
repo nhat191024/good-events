@@ -5,6 +5,9 @@ return [
 
     'order_created_title' => 'New Order Created',
     'order_created_body' => 'Your order :code has been created successfully',
+    
+    'thread_created_title' => 'Chat Box for Order Created',
+    'thread_created_body' => 'The chat box for your order :code has been created',
 
     'order_status_changed_title' => 'Order Status Updated',
     'order_status_changed_body' => 'Order :code status changed to :status',

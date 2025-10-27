@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\PartnerProfilePayload;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class PartnerProfileController extends Controller

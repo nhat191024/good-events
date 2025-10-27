@@ -33,7 +33,7 @@ import { Link } from '@inertiajs/vue3';
             <div class="grid grid-cols-2 md:grid-cols-6 gap-8">
                 <!-- Logo -->
                 <Link :href="route('home')" class="col-span-2 md:col-span-1">
-                    <img src="/images/logo.png" alt="Sukientot" class="h-26 w-26 rounded-full object-contain" />
+                    <img src="/images/logo.svg" alt="Sukientot" class="h-26 w-26 rounded-full object-contain" />
                 </Link>
 
                 <!-- Sự kiện -->
@@ -108,7 +108,7 @@ import { Link } from '@inertiajs/vue3';
 
                 <!-- Certification Badge -->
                 <div class="mt-4 lg:mt-0 flex-shrink-0">
-                    <img src="/images/gov.png" alt="Đã đăng ký Bộ Công Thương" class="h-20 w-[150px] object-contain"
+                    <img src="/images/gov.webp" alt="Đã đăng ký Bộ Công Thương" class="h-20 w-[150px] object-contain"
                         loading="lazy" />
                 </div>
             </div>

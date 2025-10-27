@@ -40,7 +40,7 @@ class HomeController extends Controller
                     'description' => $pc->description,
                     'min_price' => $pc->min_price,
                     'max_price' => $pc->max_price,
-                    'image' => $pc->getFirstTemporaryUrl($expireAt, 'images')
+                    'image' => $this->getTemporaryImageUrl($pc, $expireAt)
                 ];
             });
         }
@@ -49,5 +49,20 @@ class HomeController extends Controller
             'eventCategories' => $eventCategories,
             'partnerCategories' => $partnerCategories,
         ]);
+    }
+
+    private function getTemporaryImageUrl($model, $expireAt)
+    {
+        if (!method_exists($model, 'getFirstTemporaryUrl')) {
+            return null;
+        }
+
+        try {
+            return $model->getFirstTemporaryUrl($expireAt, 'images');
+        } catch (\Throwable $e) {
+            return method_exists($model, 'getFirstMediaUrl')
+                ? $model->getFirstMediaUrl('images')
+                : null;
+        }
     }
 }

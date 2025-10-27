@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 use Spatie\Permission\Traits\HasRoles;
 
@@ -142,6 +143,16 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
     ];
 
     /**
+     * Additional attributes to append to array / JSON representations.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'avatar_url',
+        'partner_profile_name',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -185,11 +196,31 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
      */
     public function getFilamentAvatarUrl(): ?string
     {
-        if ($this->avatar) {
-            return asset('storage/' . $this->avatar);
+        return $this->avatar_url;
+    }
+
+    /**
+     * Accessor for the user's avatar URL that supports both stored paths and external URLs.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (empty($this->avatar)) {
+            return null;
         }
 
-        return null;
+        if (Str::startsWith($this->avatar, ['http://', 'https://'])) {
+            return $this->avatar;
+        }
+
+        return asset('storage/' . ltrim($this->avatar, '/'));
+    }
+
+    /**
+     * Accessor to expose the partner profile name (if any) to front-end consumers.
+     */
+    public function getPartnerProfileNameAttribute(): ?string
+    {
+        return $this->partnerProfile?->partner_name;
     }
 
     //model boot method
