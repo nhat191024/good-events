@@ -47,7 +47,8 @@ class PartnerServiceResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('user_id', auth()->id())
-            ->with(['category', 'serviceMedia']);
+            ->with(['category', 'serviceMedia'])
+            ->withCount('serviceMedia');
     }
 
     public static function getRelations(): array

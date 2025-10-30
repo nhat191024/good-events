@@ -29,14 +29,14 @@ class PartnerServicesTable
                 TextColumn::make('category.name')
                     ->label(__('partner/service.label.category'))
                     ->sortable(),
-                TextColumn::make('serviceMedia')
+                TextColumn::make('service_media_count')
                     ->label(__('partner/service.label.videos'))
-                    ->formatStateUsing(function ($record) {
-                        $count = $record->serviceMedia()->count();
-                        if ($count === 0) {
+                    ->formatStateUsing(function ($state) {
+                        if ($state === 0) {
                             return __('partner/service.no_video');
+                        } else {
+                            return "{$state} video";
                         }
-                        return "{$count} video";
                     })
                     ->action(
                         Action::make('viewVideos')
@@ -48,6 +48,7 @@ class PartnerServicesTable
                                 if ($videos->isEmpty()) {
                                     return view('filament.components.no-videos');
                                 }
+
                                 return view('filament.components.video-list', compact('videos'));
                             })
                             ->modalSubmitAction(false)
@@ -94,7 +95,7 @@ class PartnerServicesTable
                     ->visible(fn($record) => $record->status === PartnerServiceStatus::APPROVED)
                     ->modalHeading(__('partner/service.modal.manage_images'))
                     ->modalWidth('2xl')
-                    ->schema(fn() => ServiceImagesForm::configure(new \Filament\Schemas\Schema())->getComponents())
+                    ->schema(fn() => ServiceImagesForm::configure(new \Filament\Schemas\Schema)->getComponents())
                     ->fillForm(fn($record) => [
                         'service_images' => $record,
                     ])
@@ -107,9 +108,10 @@ class PartnerServicesTable
                     }),
                 EditAction::make()
                     ->label(__('global.edit'))
-                    ->disabled(fn($record) => !in_array($record->status, [PartnerServiceStatus::PENDING, PartnerServiceStatus::REJECTED]))
+                    ->disabled(fn($record) => ! in_array($record->status, [PartnerServiceStatus::PENDING, PartnerServiceStatus::REJECTED]))
                     ->mutateDataUsing(function (array $data): array {
                         $data['user_id'] = auth()->id();
+
                         return $data;
                     }),
                 DeleteAction::make()
