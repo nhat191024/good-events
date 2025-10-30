@@ -25,7 +25,6 @@ function getEstimatedPrice() {
 
 function goToChat(thread_id: number) {
     if (!thread_id) return
-    // router.get(route('chat.index')+`?chat=${thread_id}`)
     router.get(route('chat.index', { chat: thread_id }))
 }
 
