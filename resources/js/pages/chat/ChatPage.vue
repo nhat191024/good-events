@@ -18,8 +18,9 @@ const threads = ref<Thread[]>(props.initialThreads);
 const hasMoreThreads = ref(props.hasMoreThreads);
 
 const isValidThreadId = computed(() => {
-    return threads.value.some((thread) => thread.id === props.initialSelectedChatId);
+    return threads.value.some((thread) => thread.id == props.initialSelectedChatId);
 });
+
 const selectedThreadId = ref<number | null>(isValidThreadId.value ? (props.initialSelectedChatId as number) : null);
 
 const isMobileMenuOpen = ref(false);
