@@ -82,4 +82,9 @@ class Thread extends BaseThread
         }
         return $this->messages()->latest()->first();
     }
+
+    public function bill()
+    {
+        return $this->hasOne(PartnerBill::class);
+    }
 }
