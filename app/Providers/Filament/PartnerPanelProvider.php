@@ -60,6 +60,7 @@ class PartnerPanelProvider extends PanelProvider
             ])
 
             ->databaseNotifications()
+            ->lazyLoadedDatabaseNotifications(true)
             ->databaseNotificationsPolling('30s')
 
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
