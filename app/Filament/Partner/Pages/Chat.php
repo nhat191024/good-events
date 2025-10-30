@@ -29,6 +29,26 @@ class Chat extends Page
 
     protected static ?string $title = 'Tin nhắn';
 
+    public static function getNavigationBadge(): ?string
+    {
+        $userId = Auth::id();
+        if ($userId === null) {
+            return null;
+        }
+
+        $unreadCount = Thread::forUser($userId)
+            ->whereHas('participants', function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->where(function ($q) {
+                        $q->whereNull('last_read')
+                            ->orWhereRaw('threads.updated_at > participants.last_read');
+                    });
+            })
+            ->count();
+
+        return $unreadCount > 0 ? (string) $unreadCount : null;
+    }
+
     //threads list & thread per page
     public $threads = [];
 
