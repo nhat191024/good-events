@@ -1,23 +1,10 @@
 <?php
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PaymentController;
 
-use App\Filament\Partner\Pages\CalendarPage;
-
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
-
-Route::get('dashboard', function () {
-    return redirect()->route('home');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-// Calendar API routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/api/calendar/events', [CalendarPage::class, 'getEvents'])->name('calendar.events');
-    Route::get('/api/calendar/locale', [CalendarPage::class, 'getLocaleData'])->name('calendar.locale');
+    require __DIR__ . '/api/calendar.php';
 
     Route::get('/payment/result', [PaymentController::class, 'result'])->name('payment.result');
 });
