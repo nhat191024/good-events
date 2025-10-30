@@ -31,7 +31,7 @@
                     const container = this.$el;
                     container.addEventListener('scroll', () => {
                         if (this.loading) return;
-            
+
                         if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
                             if (this.$wire.get('hasMoreThreads')) {
                                 this.loading = true;
@@ -56,7 +56,7 @@
                                     </p>
                                 @endif
                                 @if ($thread->latest_message)
-                                    <p class="mt-1 truncate text-xs text-gray-500 dark:text-gray-500">
+                                    <p class="{{ $thread->is_unread ? 'font-extrabold text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-500' }} mt-1 truncate text-xs">
                                         {{ Str::limit($thread->latest_message->body, 50) }}
                                     </p>
                                 @endif
@@ -130,16 +130,16 @@
                         const scrollToBottom = () => {
                             container.scrollTop = container.scrollHeight;
                         };
-                
+
                         // Initial scroll to bottom
                         this.$nextTick(() => {
                             setTimeout(() => scrollToBottom(), 50);
                         });
-                
+
                         // Scroll event for loading older messages
                         container.addEventListener('scroll', () => {
                             if (this.loading) return;
-                
+
                             // Check if user scrolled to top (load more messages)
                             if (container.scrollTop <= 100) {
                                 if (this.$wire.get('hasMoreMessages')) {
@@ -147,7 +147,7 @@
                                     // Save current scroll position before loading
                                     this.oldScrollHeight = container.scrollHeight;
                                     this.oldScrollTop = container.scrollTop;
-                
+
                                     this.$wire.loadMoreMessages()
                                         .then(() => {
                                             // Use $nextTick to ensure DOM has updated
@@ -162,11 +162,11 @@
                                         });
                                 }
                             }
-                
+
                             // Track if user is at bottom
                             this.isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
                         });
-                
+
                         // Listen for new messages and scroll to bottom if user was at bottom
                         Livewire.hook('morph.updated', ({ el, component }) => {
                             if (el === container && this.isAtBottom && !this.loading) {
