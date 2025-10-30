@@ -8,8 +8,6 @@ import { Star } from 'lucide-vue-next';
 const orders = withDefaults(defineProps<ClientOrderHistory & { selected?: boolean }>(), {
     selected: false,
 })
-
-console.log('order hjsito9ry card ', orders);
 </script>
 
 <template>
