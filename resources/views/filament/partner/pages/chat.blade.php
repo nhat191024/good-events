@@ -110,6 +110,14 @@
                                     Người tham gia: {{ $selectedThread->participants->pluck('name')->filter()->join(', ') }}
                                 </p>
                             @endif
+                            <p class="mt-2 truncate text-sm text-gray-600 dark:text-gray-400">
+                                Thông tin đơn hàng:
+                            </p>
+                            <div class="truncate text-sm text-gray-600 dark:text-gray-400">
+                                Sự kiện: {{ $selectedThread->bill->event_name ?? 'N/A' }} <br />
+                                Thời gian: {{ $selectedThread->bill->datetime ?? 'N/A' }} <br />
+                                Địa điểm: {{ $selectedThread->bill->address ?? 'N/A' }}
+                            </div>
                         </div>
                         <button class="focus:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-200/70 focus:outline-none focus:ring-2 focus:ring-offset-2 lg:hidden dark:text-gray-300 dark:hover:bg-gray-700" type="button"
                             wire:click="showThreadList">

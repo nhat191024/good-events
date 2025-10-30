@@ -156,6 +156,7 @@ class Chat extends Page
                     'participants.user' => function ($query) {
                         $query->select('id', 'name');
                     },
+                    'bill.event',
                 ]
             )
             ->latest('updated_at');
@@ -210,6 +211,11 @@ class Chat extends Page
                 'latest_message' => $thread->latestMessage ? (object) [
                     'body' => $thread->latestMessage->body,
                     'created_at' => $thread->latestMessage->created_at->toIso8601String(),
+                ] : null,
+                'bill' => $thread->bill ? (object) [
+                    'address' => $thread->bill->address,
+                    'datetime' => Carbon::parse($thread->bill->start_time)->format('H:i') . ' - ' . Carbon::parse($thread->bill->date)->format('d/m/Y'),
+                    'event_name' => $thread->bill->event ? $thread->bill->event->name : $thread->bill->custom_event,
                 ] : null,
             ];
         });
