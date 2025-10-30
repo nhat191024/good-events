@@ -89,6 +89,19 @@ class Chat extends Page
     public function mount(): void
     {
         $this->loadThreads();
+
+        $chatThreadId = request()->query('chat');
+        if ($chatThreadId && is_numeric($chatThreadId)) {
+            $threadId = (int) $chatThreadId;
+
+            $userId = Auth::id();
+            $thread = Thread::forUser($userId)
+                ->where('threads.id', $threadId)
+                ->first();
+            if ($thread) {
+                $this->openThread($threadId);
+            }
+        }
     }
 
     public function updatedSearchTerm(): void
