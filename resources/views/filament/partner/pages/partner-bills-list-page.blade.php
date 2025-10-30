@@ -176,11 +176,11 @@
                             </div>
 
                             {{-- Partner Detail Info --}}
-                            @php
-                                $partnerDetail = $bill->details->first();
-                            @endphp
-                            @if ($partnerDetail->status == 'new')
-                                <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+                            <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+                                @php
+                                    $partnerDetail = $bill->details->first();
+                                @endphp
+                                @if ($partnerDetail->status == 'new')
                                     <div class="flex items-center justify-between">
                                         <span class="text-xs text-gray-500 dark:text-gray-400">
                                             {{ __('partner/bill.your_price') }}
@@ -189,9 +189,7 @@
                                             {{ number_format($partnerDetail->total ?? 0, 0, ',', '.') }} ₫
                                         </span>
                                     </div>
-                                </div>
-                            @else
-                                <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+                                @else
                                     <div class="flex items-center justify-between">
                                         <span class="text-xs text-gray-500 dark:text-gray-400">
                                             {{ __('partner/bill.final_total') }}
@@ -200,33 +198,43 @@
                                             {{ number_format($bill->final_total ?? 0, 0, ',', '.') }} ₫
                                         </span>
                                     </div>
-                                </div>
-                            @endif
+                                @endif
+                            </div>
                         </div>
 
                         {{-- Footer --}}
                         <div class="mt-auto flex h-full flex-col justify-end border-t border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-700 dark:bg-gray-900/50">
-                            {{-- Button "Đã đến nơi" for CONFIRMED status --}}
-                            @if ($bill->status->value === 'confirmed')
-                                <div class="mb-3">
+                            <div class="mb-3 flex gap-1">
+                                {{-- Button "Đã đến nơi" for CONFIRMED status --}}
+                                @if ($bill->status->value === 'confirmed')
                                     <button class="bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 w-full rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2" type="button"
                                         @click.stop="openMarkInJobModal({{ $bill->id }}, '{{ $bill->code }}')">
                                         <x-filament::icon class="mr-1 inline-block h-4 w-4" icon="heroicon-o-map-pin" />
                                         {{ __('partner/bill.mark_as_arrived') }}
                                     </button>
-                                </div>
-                            @endif
+                                    @if ($bill->thread_id)
+                                        <a class="flex w-full flex-1 items-center justify-center rounded-lg bg-blue-600 p-4 text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                            href="{{ route('filament.partner.pages.chat') }}?chat={{ $bill->thread_id }}" @click.stop>
+                                            <x-filament::icon class="size-8" icon="heroicon-o-chat-bubble-oval-left-ellipsis" />
+                                        </a>
+                                    @endif
+                                @endif
 
-                            {{-- Button "Hoàn thành" for IN_JOB status --}}
-                            @if ($bill->status->value === 'in_job')
-                                <div class="mb-3">
+                                {{-- Button "Hoàn thành" for IN_JOB status --}}
+                                @if ($bill->status->value === 'in_job')
                                     <button class="bg-success-600 hover:bg-success-700 focus:ring-success-500 w-full rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2" type="button"
                                         @click.stop="openCompleteModal({{ $bill->id }}, '{{ $bill->code }}')">
                                         <x-filament::icon class="mr-1 inline-block h-4 w-4" icon="heroicon-o-check-circle" />
                                         {{ __('partner/bill.complete_order') }}
                                     </button>
-                                </div>
-                            @endif
+                                    @if ($bill->thread_id)
+                                        <a class="flex w-full flex-1 items-center justify-center rounded-lg bg-blue-600 p-4 text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                            href="{{ route('filament.partner.pages.chat') }}?chat={{ $bill->thread_id }}" @click.stop>
+                                            <x-filament::icon class="size-8" icon="heroicon-o-chat-bubble-oval-left-ellipsis" />
+                                        </a>
+                                    @endif
+                                @endif
+                            </div>
 
                             <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                                 <span>{{ __('partner/bill.updated') }}: {{ $bill->updated_at->diffForHumans() }}</span>
