@@ -190,7 +190,7 @@
                                         <x-heroicon-m-calendar-days class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                                         <div>
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.event') }}:</span>
-                                            <span class="ml-1 text-gray-900 dark:text-white">{{ $bill['event']['name'] ?? 'N/A' }}</span>
+                                            <span class="ml-1 text-gray-900 dark:text-white">{{ $bill['event']['name'] ?? $bill['custom_event'] }}</span>
                                         </div>
                                     </div>
                                     <div class="flex items-start gap-2">
@@ -280,12 +280,13 @@
                                         <div class="flex items-center gap-2">
                                             <x-heroicon-m-calendar-days class="h-4 w-4 text-gray-400" />
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.event') }}:</span>
-                                            <span class="text-gray-900 dark:text-white">{{ $bill['event']['name'] ?? 'N/A' }}</span>
+                                            <span class="text-gray-900 dark:text-white">{{ $bill['event']['name'] ?? $bill['custom_event'] }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <x-heroicon-m-clock class="h-4 w-4 text-gray-400" />
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.date') }}:</span>
-                                            <span class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($bill['date'])->format('d/m/Y') }}</span>
+                                            {{-- <span class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($bill['date'])->format('d/m/Y') }}</span> --}}
+                                            <span class="text-gray-900 dark:text-white">{{ $bill['date'] }}</span>
                                         </div>
                                     </div>
 
