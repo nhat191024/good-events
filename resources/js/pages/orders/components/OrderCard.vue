@@ -20,13 +20,13 @@ function getEstimatedPrice() {
         return formatPrice(price) + ' đ'
     }
 
-    // const estimated = calculateEstimatedPrice(
-    //     props.start_time,
-    //     props.end_time,
-    //     props.category.min_price,
-    //     props.category.max_price
-    // )
     return 'Đợi báo giá'
+}
+
+function goToChat(thread_id: number) {
+    if (!thread_id) return
+    // router.get(route('chat.index')+`?chat=${thread_id}`)
+    router.get(route('chat.index', { chat: thread_id }))
 }
 
 </script>
@@ -55,7 +55,7 @@ function getEstimatedPrice() {
                     <div v-if="props.status == OrderStatus.CONFIRMED || props.status == OrderStatus.IN_JOB" class="h-12 w-12 grid rounded-full overflow-visible place-items-center">
                         <span
                             class="flex flex-col h-7 w-7 items-center justify-center rounded-full bg-primary-700 text-white shadow justify-self-start"
-                            aria-label="Chat" @click="router.get(route('chat.index'))"
+                            aria-label="Chat" @click="goToChat(props.thread_id)"
                         >
                             <MessageCircle class="h-4 w-4" aria-hidden="true" />
                         </span>

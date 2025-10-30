@@ -40,8 +40,9 @@ const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void
 }>()
 
-function goToChat() {
-    router.get(route('chat.index'));
+function goToChat(thread_id: number|null) {
+    if (!thread_id) return
+    router.get(route('chat.index', { chat: thread_id }))
 }
 
 function goToPartnerProfile() {
@@ -274,7 +275,7 @@ watch(() => form.voucher_input, (newVal) => {
 
                 <!-- actions -->
                 <div class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
-                    <button v-if="(props.mode === 'current')" @click="goToChat()"
+                    <button v-if="(props.mode === 'current')" @click="goToChat(props.order?.thread_id??null)"
                         :class="(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB) ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"
                         class="h-10 rounded-md text-white flex-1">Chat ngay</button>
 
