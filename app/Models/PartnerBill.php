@@ -276,9 +276,9 @@ class PartnerBill extends Model implements HasMedia
      */
     protected static function handleConfirmedStatus(PartnerBill $partnerBill): void
     {
-        $eventName = $partnerBill->event ? $partnerBill->event->name : ($partnerBill->custom_event ?? 'Event');
+        $partnerCategoryName = $partnerBill->category ? $partnerBill->category->name : 'General';
         $thread = Thread::create([
-            'subject' => "$partnerBill->code - $eventName"
+            'subject' => "$partnerBill->code - $partnerCategoryName"
         ]);
 
         Participant::create([
