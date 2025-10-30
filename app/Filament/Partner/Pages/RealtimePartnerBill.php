@@ -26,10 +26,6 @@ class RealtimePartnerBill extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
 
-    // Static cache for navigation badge to avoid duplicate queries
-    protected static ?int $cachedBadgeCount = null;
-    protected static ?int $cachedBadgeUserId = null;
-
     // Livewire listeners for auto-update
     protected $listeners = [
         'refreshBills' => 'loadPartnerBills',
@@ -52,21 +48,24 @@ class RealtimePartnerBill extends Page
             return null;
         }
 
-        // Return cached count if available for this user
-        if (static::$cachedBadgeUserId === $user->id && static::$cachedBadgeCount !== null) {
-            return static::$cachedBadgeCount > 0 ? (string) static::$cachedBadgeCount : null;
-        }
+        $partnerServices = $user->partnerServices()
+            ->where('status', 'approved')
+            ->pluck('category_id')
+            ->unique()
+            ->toArray();
 
-        // Simplified query - just check if partner services exist
-        // The actual detailed count will be calculated in loadPartnerBills()
-        if (!$user->partnerServices()->where('status', 'approved')->exists()) {
-            static::$cachedBadgeCount = 0;
-            static::$cachedBadgeUserId = $user->id;
+        if (empty($partnerServices)) {
             return null;
         }
 
-        // Return a placeholder - will be updated by loadPartnerBills()
-        return null;
+        $count = PartnerBill::whereIn('category_id', $partnerServices)
+            ->where('status', PartnerBillStatus::PENDING)
+            ->whereDoesntHave('details', function ($query) use ($user) {
+                $query->where('partner_id', $user->id);
+            })
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
     }
 
     public $partnerBills = [];
@@ -117,7 +116,6 @@ class RealtimePartnerBill extends Page
             return;
         }
 
-        // Get category_id from partner services - load categories only once for both purposes
         $partnerServices = $user->partnerServices()
             ->select('id', 'category_id', 'status')
             ->where('status', 'approved')
@@ -126,7 +124,6 @@ class RealtimePartnerBill extends Page
 
         $this->categoryIds = $partnerServices->pluck('category_id')->unique()->toArray();
 
-        // Build available categories from the already loaded data and cache them
         $categoriesMap = $partnerServices
             ->filter(fn($service) => $service->category !== null)
             ->pluck('category', 'category.id')
@@ -140,18 +137,17 @@ class RealtimePartnerBill extends Page
             ->values()
             ->toArray();
 
-        // Query partner bills WITHOUT eager loading category (we'll attach manually)
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
             ->with([
                 'client:id,name,email,avatar',
+                'client.partnerProfile:id,user_id,partner_name',
                 'event:id,name'
             ])
-            ->where('status', PartnerBillStatus::PENDING) // Only show pending orders
+            ->where('status', PartnerBillStatus::PENDING)
             ->whereDoesntHave('details', function ($query) {
                 $query->where('partner_id', $this->partnerId);
-            }); // Exclude bills already accepted by this partner
+            });
 
-        // Apply date filter
         if ($this->dateFilter !== 'all') {
             switch ($this->dateFilter) {
                 case 'today':
@@ -167,12 +163,10 @@ class RealtimePartnerBill extends Page
             }
         }
 
-        // Apply category filter
         if ($this->categoryFilter !== 'all') {
             $query->where('category_id', $this->categoryFilter);
         }
 
-        // Apply search filter
         if (! empty($this->searchQuery)) {
             $query->where(function ($q) {
                 $q->where('code', 'like', '%' . $this->searchQuery . '%')
@@ -185,12 +179,10 @@ class RealtimePartnerBill extends Page
             });
         }
 
-        // Get bills and manually attach cached categories to avoid duplicate queries
         $bills = $query->latest()
             ->limit(20)
             ->get();
 
-        // Manually attach categories from cache
         $bills->each(function ($bill) use ($categoriesMap) {
             if (isset($categoriesMap[$bill->category_id])) {
                 $bill->setRelation('category', $categoriesMap[$bill->category_id]);
@@ -200,18 +192,13 @@ class RealtimePartnerBill extends Page
         $this->partnerBills = $bills->toArray();
         $this->lastUpdated = now()->format('H:i:s');
 
-        // Update cached badge count for navigation
-        static::$cachedBadgeCount = count($this->partnerBills);
-        static::$cachedBadgeUserId = $this->partnerId;
-
-        // Debug log
         logger('Partner Bills loaded: ' . count($this->partnerBills) . ' bills found for categories: ' . implode(', ', $this->categoryIds));
     }
 
     public function refreshBills(): void
     {
         $this->loadPartnerBills();
-    }    // Auto refresh method - called every 30 seconds
+    }
     public function autoRefresh(): void
     {
         $this->loadPartnerBills();
@@ -285,19 +272,13 @@ class RealtimePartnerBill extends Page
 
     public function viewDetails($billId): void
     {
-        // For now, just show a message. You can implement modal or redirect later
         session()->flash('info', "Xem chi tiết đơn hàng #$billId - Tính năng đang phát triển");
-
-        // Alternative: You could store the bill ID and show details in a modal
-        // $this->selectedBillId = $billId;
-        // $this->showDetailsModal = true;
     }
 
     public function openClientModal($clientId): void
     {
-        $client = User::with(['statistics'])
+        $client = User::with(['statistics', 'partnerProfile'])
             ->find($clientId);
-
 
         if ($client) {
             $this->selectedClient = $client->toArray();
@@ -311,7 +292,6 @@ class RealtimePartnerBill extends Page
         $this->selectedClient = null;
     }
 
-    // Livewire updated methods for automatic filtering
     public function updatedDateFilter(): void
     {
         logger('Date filter updated: ' . $this->dateFilter);
