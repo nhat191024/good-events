@@ -112,7 +112,18 @@
         }
     }, { deep: true })
 
-    function submit() {
+    async function submit() {
+        const ok = await confirm({
+            title: 'Xác nhận đặt đơn ngay?',
+            message: 'Vui lòng kiểm tra kỹ thông tin trước khi xác nhận',
+            okText: 'Đặt đơn ngay!',
+            cancelText: 'Kiểm tra lại'
+        })
+
+        if (!ok) {
+            return
+        }
+
         form.transform(() => ({
             order_date: toISODate(form.order_date),
             start_time: form.start_time,
