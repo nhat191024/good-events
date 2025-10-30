@@ -13,29 +13,6 @@ class PartnerBillResource extends JsonResource {
         $expireAt = now()->addMinutes(60 * 24);
         $review = null;
 
-        if ($request->user()) {
-            // lấy review record
-            $reviewRow = DB::table('reviews')
-                ->where('reviewable_type', User::class)
-                ->where('reviewable_id', $this->partner_id)
-                ->where('user_id', $request->user()->id)
-                ->where('partner_bill_id', $this->id)
-                ->first();
-
-            if ($reviewRow) {
-                $ratingValue = DB::table('ratings')
-                    ->where('review_id', $reviewRow->id)
-                    ->where('key', 'rating')
-                    ->value('value');
-
-                $review = [
-                    'rating' => $ratingValue ? (int) $ratingValue : 0,
-                    'comment' => $reviewRow->review ?? '',
-                    'recommend' => (bool) ($reviewRow->recommend ?? false),
-                ];
-            }
-        }
-
         return [
             "id"=> $this->id,
             "code"=> $this->code,
