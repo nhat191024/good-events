@@ -1,5 +1,5 @@
-<!-- all test route gonna be here -->
 <?php
+// all test route gonna be here
 
 use App\Models\PartnerBill;
 
