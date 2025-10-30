@@ -20,6 +20,7 @@ export interface ClientOrder {
     final_total: number | null
     note: string
     status: OrderStatus
+    thread_id: number
     created_at: string
     updated_at: string
     category: Category

@@ -24,6 +24,7 @@ class PartnerBillResource extends JsonResource {
             "final_total"=> $this->final_total,
             "note"=> $this->note,
             "status"=> $this->status,
+            "thread_id"=> $this->thread_id,
             "created_at"=> $this->created_at,
             "updated_at"=> $this->updated_at,
             "category" => $this->whenLoaded('category', function() use ($expireAt) {
