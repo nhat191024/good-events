@@ -22,8 +22,8 @@ use Illuminate\Database\QueryException;
  */
 class ChatController extends Controller
 {
-    private const THREADS_PER_PAGE = 10;
-    private const MESSAGES_PER_PAGE = 20;
+    private const int THREADS_PER_PAGE = 10;
+    private const int MESSAGES_PER_PAGE = 20;
 
     public function index(Request $request): Response
     {
