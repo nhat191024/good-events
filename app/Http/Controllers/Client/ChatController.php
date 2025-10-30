@@ -29,12 +29,14 @@ class ChatController extends Controller
     {
         $userId = Auth::id();
         $searchTerm = $request->input('search', '');
+        $chatId = $request->input('chat', null);
 
         $threads = $this->getThreads($userId, $searchTerm, 1);
 
         return Inertia::render('chat/ChatPage', [
             'initialThreads' => $threads['data'],
             'hasMoreThreads' => $threads['hasMore'],
+            'initialSelectedChatId' => $chatId,
         ]);
     }
 
