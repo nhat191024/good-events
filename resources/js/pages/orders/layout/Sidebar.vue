@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { Package, History, SlidersHorizontal, Filter, ChevronDown, Calendar } from 'lucide-vue-next'
 import OrderList from '../components/OrderList.vue'
@@ -101,7 +100,6 @@ function sortHistoryOrders(list: ClientOrderHistory[]) {
 const visibleOrders = computed(() => {
     let list = [...props.orderList]
 
-
     try {
         const fn = createSearchFilter(
             ['code', 'note', 'status', 'address', 'start_time', 'end_time', 'final_total', 'category.name', 'category.parent.name', 'event.name'],
@@ -198,10 +196,10 @@ const selectedHistoryId = computed(() =>
 <template>
     <div
         class="w-full md:w-96 md:flex-shrink-0 bg-sidebar border-r border-sidebar-border overflow-y-auto scrollbar-hide h-full">
-        <div class="p-2 md:p-6">
+        <div class="py-2 md:p-6">
             <!-- tabs -->
             <div
-                class="grid grid-cols-2 z-10 gap-2 mb-3 md:mb-6 items-center sticky top-1 rounded bg-white/30 backdrop-blur-md w-full md:h-fit h-[50px]">
+                class="grid grid-cols-2 z-10 gap-2 mb-3 md:mb-6 items-center pt-1 pb-2 sticky top-0 bg-sidebar w-full md:h-fit h-[50px]">
                 <button type="button"
                     class="h-10 rounded-md border border-border flex items-center justify-center gap-2"
                     :class="activeTab === 'current' ? 'bg-primary-700 text-white' : 'bg-card'"
@@ -220,12 +218,12 @@ const selectedHistoryId = computed(() =>
 
             <!-- CURRENT TAB -->
             <div v-if="activeTab === 'current'" class="">
-                <div class="space-y-1 z-10 md:space-y-4 top-12 rounded-md sticky bg-white/30 backdrop-blur-md p-2 mb-3">
+                <div class="space-y-1 z-10 md:space-y-4 top-13 sticky bg-white shadow p-2 mb-3 rounded-b-md">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-lexend font-semibold text-sidebar-foreground">Đơn hàng của bạn</h2>
-                        <span class="bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded">{{
-                            visibleOrders.length
-                        }} đơn</span>
+                        <span class="bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded">
+                            {{ visibleOrders.length }} đơn
+                        </span>
                         <ReloadButton :is-reloading="isReloading" @reload="reloadOrders()" />
                     </div>
 
@@ -252,15 +250,18 @@ const selectedHistoryId = computed(() =>
                         <div id="orders-adv-filter" class="relative">
                             <div class="flex flex-row space-x-4">
                                 <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" class="size-4" :value="OrderStatus.PENDING" v-model="statusFilter" />
+                                    <input type="checkbox" class="size-4" :value="OrderStatus.PENDING"
+                                        v-model="statusFilter" />
                                     Đang chờ
                                 </label>
                                 <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" class="size-4" :value="OrderStatus.CONFIRMED" v-model="statusFilter" />
+                                    <input type="checkbox" class="size-4" :value="OrderStatus.CONFIRMED"
+                                        v-model="statusFilter" />
                                     Đã chốt
                                 </label>
                                 <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" class="size-4" :value="OrderStatus.IN_JOB" v-model="statusFilter" />
+                                    <input type="checkbox" class="size-4" :value="OrderStatus.IN_JOB"
+                                        v-model="statusFilter" />
                                     Đã đến nơi
                                 </label>
                             </div>
@@ -287,16 +288,13 @@ const selectedHistoryId = computed(() =>
                     </div>
                 </div>
 
-                <OrderList
-                    :orders="visibleOrders"
-                    :loading="orderLoading"
-                    :selected-id="selectedCurrentId"
+                <OrderList :orders="visibleOrders" :loading="orderLoading" :selected-id="selectedCurrentId"
                     @select="(o) => emit('select', { order: o, mode: 'current' })" @load-more="loadMoreOrders" />
             </div>
 
             <!-- HISTORY TAB -->
             <div v-else>
-                <div class="space-y-1 md:space-y-4 top-12 rounded-md sticky bg-white/30 backdrop-blur-md p-2 mb-3">
+                <div class="space-y-1 md:space-y-4 top-12 rounded-md sticky bg-white/30 backdrop-blur-md p-2 mb-3 z-10">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-lexend font-semibold text-sidebar-foreground">Lịch sử đơn hàng</h2>
                         <div class="flex items-center gap-2">
@@ -340,12 +338,9 @@ const selectedHistoryId = computed(() =>
                     </div>
                 </div>
 
-                <OrderHistoryList
-                    :orders="visibleHistoryOrders"
-                    :loading="historyLoading"
-                    :selected-id="selectedHistoryId"
-                    @select="(o) => emit('select', { order: o, mode: 'history' })" @load-more="loadMoreHistory"
-                    @reload="reloadHistory()" />
+                <OrderHistoryList :orders="visibleHistoryOrders" :loading="historyLoading"
+                    :selected-id="selectedHistoryId" @select="(o) => emit('select', { order: o, mode: 'history' })"
+                    @load-more="loadMoreHistory" @reload="reloadHistory()" />
             </div>
         </div>
     </div>
