@@ -15,11 +15,11 @@ const dateDiffHours = (start: any, end: any) => {
 }
 
 export function calculateEstimatedPrice(startTime: string, endTime: string, minPrice: number, maxPrice: number) {
-    let startFormatted = new Date(startTime);
-    let endFormatted = new Date(endTime);
+    const startFormatted = new Date(startTime);
+    const endFormatted = new Date(endTime);
 
-    let averagePricePerHour = (minPrice+maxPrice)/2;
-    let totalHoursDiff = dateDiffHours(startFormatted, endFormatted);
+    const averagePricePerHour = (minPrice+maxPrice)/2;
+    const totalHoursDiff = dateDiffHours(startFormatted, endFormatted);
     return (averagePricePerHour * totalHoursDiff);
 }
 

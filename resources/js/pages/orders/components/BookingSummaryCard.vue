@@ -102,7 +102,7 @@ function loadVoucherFromStorage() {
 
 function getDiscountedAmountText(total: number | null | undefined, finalTotal: number | null | undefined) {
     if (!total || !finalTotal) return 'Không'
-    let discounted = total - finalTotal
+    const discounted = total - finalTotal
     if (discounted > 0) return 'Đã giảm: ' + formatPrice(discounted) + 'đ'
     else return 'Không'
 }

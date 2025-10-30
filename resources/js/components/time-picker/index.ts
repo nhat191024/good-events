@@ -33,7 +33,7 @@ export function fmt24(mins: number): string {
 }
 
 export function to12h(mins: number): Time12Hour {
-    let h24 = Math.floor(mins / 60)
+    const h24 = Math.floor(mins / 60)
     const m = mins % 60
     const period = h24 >= 12 ? 'PM' : 'AM'
     let h12 = h24 % 12
