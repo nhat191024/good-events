@@ -26,7 +26,6 @@ class RealtimePartnerBill extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
 
-    // Livewire listeners for auto-update
     protected $listeners = [
         'refreshBills' => 'loadPartnerBills',
     ];
