@@ -17,18 +17,16 @@ function getEstimatedPrice() {
     const price = props.final_total ?? props.total
 
     if (price && price > 0) {
-        console.log('using actual price:', price)
-        return formatPrice(price)
+        return formatPrice(price) + ' đ'
     }
 
-    console.log('calculating estimated price:', props)
-    const estimated = calculateEstimatedPrice(
-        props.start_time,
-        props.end_time,
-        props.category.min_price,
-        props.category.max_price
-    )
-    return formatPrice(estimated ?? 0)
+    // const estimated = calculateEstimatedPrice(
+    //     props.start_time,
+    //     props.end_time,
+    //     props.category.min_price,
+    //     props.category.max_price
+    // )
+    return 'Đợi báo giá'
 }
 
 </script>
@@ -46,23 +44,30 @@ function getEstimatedPrice() {
         >
             Đang xem
         </span>
-        <span v-if="props.partners.count>0 && props.status == OrderStatus.PENDING" class="absolute left-5 bottom-5 text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm">{{ props.partners.count }}</span>
-        <span
-            v-if="props.status == OrderStatus.CONFIRMED || props.status == OrderStatus.IN_JOB"
-            class="absolute left-6 bottom-14 flex h-7 w-7 items-center justify-center rounded-full bg-primary-700 text-white shadow"
-            aria-label="Chat" @click="router.get(route('chat.index'))"
-        >
-            <MessageCircle class="h-4 w-4" aria-hidden="true" />
-        </span>
+        
         <div class="px-4 py-2 md:py-4">
-            <div class="flex items-start gap-3">
+            <div class="flex items-start gap-3 h-full">
                 <div
-                    class="h-12 w-12 rounded-full overflow-hidden bg-muted grid place-items-center ring-2 ring-primary/10">
-                    <img :src="getImg(props.category?.image)" alt="org" class="h-full w-full object-cover" />
+                    class="flex flex-col overflow-visible place-items-center h-full">
+                    <div class="h-12 w-12 grid rounded-full overflow-visible bg-muted place-items-center ring-2 ring-primary/10">
+                        <img :src="getImg(props.category?.image)" alt="org" class="h-full w-full object-cover" />
+                    </div>
+                    <div v-if="props.status == OrderStatus.CONFIRMED || props.status == OrderStatus.IN_JOB" class="h-12 w-12 grid rounded-full overflow-visible place-items-center">
+                        <span
+                            class="flex flex-col h-7 w-7 items-center justify-center rounded-full bg-primary-700 text-white shadow justify-self-start"
+                            aria-label="Chat" @click="router.get(route('chat.index'))"
+                        >
+                            <MessageCircle class="h-4 w-4" aria-hidden="true" />
+                        </span>
+                    </div>
+                    
+                    <div v-if="props.partners.count>0 && props.status == OrderStatus.PENDING" class="h-12 w-12 grid rounded-full overflow-visible place-items-center">
+                        <span class="text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm justify-self-start">{{ props.partners.count }}</span>
+                    </div>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex flex-row justify-between">
-                        <h3 class="font-semibold text-card-foreground truncate text-sm mb-0 md:1">{{ props.category.name }} - {{ props.code }}</h3>
+                        <h3 class="font-semibold text-card-foreground truncate text-sm mb-0 md:1">{{ props.category.name }}</h3>
                     </div>
                     <p class="text-xs text-muted-foreground mb-1">Ở {{ props.address ?? '' }}</p>
                     <p
@@ -78,7 +83,7 @@ function getEstimatedPrice() {
                         <span class="text-xs font-bold text-primary-700">
                             <template v-if="props.final_total ?? props.total">Giá chốt:</template>
                             <template v-else>Giá ước tính:</template>
-                            {{ getEstimatedPrice() }} ₫
+                            {{ getEstimatedPrice() }}
                         </span>
                         <span class="text-xs px-2 py-0.5 rounded" :class="statusBadge(props.status).cls">
                             {{ statusBadge(props.status).text }}
