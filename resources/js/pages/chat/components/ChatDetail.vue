@@ -265,6 +265,28 @@
                 <span class="ml-2 text-sm text-gray-600">Đang tải tin nhắn cũ...</span>
             </div>
 
+            <div class="flex flex-col gap-2 w-full h-fit ring ring-primary rounded-md bg-primary-50 p-3 text-xs md:text-sm text-center text-gray-500">
+                <p>
+                    <b>Bảo mật thông tin: </b>Vui lòng không chia sẻ số điện thoại, zalo hay thông tin
+                    cá nhân khác để đảm bảo an toàn cho chính bạn.
+                    giao dịch qua ứng dụng : mọi thỏa thuận về giá cả, công việc phát sinh hoặc
+                    thay đổi lịch hẹn đều cần được xác nhận trên ứng dụng 
+                </p>
+
+                <p>
+                    <b>Đảm bảo quyền lợi: </b>sukientot.com chỉ bảo vệ và hỗ trợ các vấn đề 
+                    (bảo hành, khiếu nại) dựa trên các giao dịch được ghi nhận chính thức trên
+                    ứng dụng.
+                </p>
+                
+                <p>
+                    <b>Báo cáo vi phạm:</b> Nếu CTV sukientot.com có bất kỳ yêu cầu giao dịch 
+                    riêng nào, hãy báo cáo ngay cho chúng tôi qua hotline <b>0393719095</b>.
+                </p>
+
+
+            </div>
+
             <!-- Messages list -->
             <template v-for="(message, idx) in messages" :key="message.id">
                 <!-- Date separator -->
