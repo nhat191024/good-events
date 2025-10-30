@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<{
     loading: false,
     selectedId: null,
 })
-console.log("in order list", props);
+
 const emit = defineEmits<{ (e: 'select', order: any): void, (e: 'load-more'): void }>()
 
 const sentinel = ref<HTMLElement | null>(null)
