@@ -42,6 +42,7 @@ class PartnerPanelProvider extends PanelProvider
             ->id('partner')
             ->path('partner')
             ->login()
+            ->emailVerification()
             ->colors([
                 'primary' => Color::Rose
             ])
