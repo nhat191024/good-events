@@ -31,3 +31,4 @@ laradumps.yaml
 docker-compose-local.yml
 pnpm-workspace.yaml
 /worktrees/
+.rnd
