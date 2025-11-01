@@ -24,7 +24,7 @@ return [
         'next_steps_client' => 'Điều gì sẽ xảy ra tiếp theo?',
         'next_steps_partner' => 'Bạn cần làm gì tiếp theo?',
         'next_steps_list_client' => [
-            'Đối tác sẽ xem xét yêu cầu của bạn trong vòng 24 giờ',
+            'Đối tác sẽ xem xét yêu cầu của bạn',
             'Bạn sẽ nhận được email xác nhận khi được chấp thuận',
             'Bạn có thể liên hệ trực tiếp với đối tác nếu có thắc mắc'
         ],
