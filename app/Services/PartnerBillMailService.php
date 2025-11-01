@@ -28,24 +28,22 @@ class PartnerBillMailService
     public function sendOrderReceivedNotification(PartnerBill $partnerBill): void
     {
         try {
-            // Gửi mail cho client
             if ($partnerBill->client && $partnerBill->client->email) {
                 $clientLocale = $this->getUserLocale($partnerBill->client);
                 Mail::to($partnerBill->client->email)
-                    ->send(new PartnerBillReceived($partnerBill, 'client', $clientLocale));
+                    ->queue(new PartnerBillReceived($partnerBill, 'client', $clientLocale));
             }
 
-            // Gửi mail cho partner
-            if ($partnerBill->partner && $partnerBill->partner->email) {
-                $partnerLocale = $this->getUserLocale($partnerBill->partner);
-                Mail::to($partnerBill->partner->email)
-                    ->send(new PartnerBillReceived($partnerBill, 'partner', $partnerLocale));
-            }
+            $eligiblePartners = User::whereHas('partnerServices', function ($query) use ($partnerBill) {
+                $query->where('category_id', $partnerBill->category_id)
+                    ->where('status', 'approved');
+            })->whereNotNull('email')->get();
 
-            Log::info('Order received notification sent successfully', [
-                'partner_bill_id' => $partnerBill->id,
-                'code' => $partnerBill->code
-            ]);
+            foreach ($eligiblePartners as $partner) {
+                $partnerLocale = $this->getUserLocale($partner);
+                Mail::to($partner->email)
+                    ->queue(new PartnerBillReceived($partnerBill, 'partner', $partnerLocale));
+            }
         } catch (\Exception $e) {
             Log::error('Failed to send order received notification', [
                 'partner_bill_id' => $partnerBill->id,
