@@ -24,7 +24,7 @@ return [
         'next_steps_client' => 'What happens next?',
         'next_steps_partner' => 'What to do next?',
         'next_steps_list_client' => [
-            'Our partner will review your request within 24 hours',
+            'Our partner will review your request',
             'You will receive a confirmation email once approved',
             'You can contact the partner directly for any questions'
         ],
