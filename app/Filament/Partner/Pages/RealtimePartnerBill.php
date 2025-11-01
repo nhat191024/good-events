@@ -138,7 +138,7 @@ class RealtimePartnerBill extends Page
 
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
             ->with([
-                'client:id,name,email,avatar',
+                'client:id,name,email,avatar,created_at',
                 'client.partnerProfile:id,user_id,partner_name',
                 'event:id,name'
             ])
@@ -188,10 +188,36 @@ class RealtimePartnerBill extends Page
             }
         });
 
-        $this->partnerBills = $bills->toArray();
-        $this->lastUpdated = now()->format('H:i:s');
+        // Format datetime fields properly for Livewire
+        $this->partnerBills = $bills->map(function ($bill) {
+            $billArray = $bill->toArray();
 
-        logger('Partner Bills loaded: ' . count($this->partnerBills) . ' bills found for categories: ' . implode(', ', $this->categoryIds));
+            // Ensure datetime fields are formatted with correct timezone
+            if (isset($billArray['created_at'])) {
+                $billArray['created_at'] = $bill->created_at->format('Y-m-d H:i:s');
+            }
+            if (isset($billArray['updated_at'])) {
+                $billArray['updated_at'] = $bill->updated_at->format('Y-m-d H:i:s');
+            }
+            if (isset($billArray['date'])) {
+                $billArray['date'] = $bill->date ? $bill->date->format('d-m-Y') : null;
+            }
+            if (isset($billArray['start_time'])) {
+                $billArray['start_time'] = $bill->start_time ? $bill->start_time->format('H:i') : null;
+            }
+            if (isset($billArray['end_time'])) {
+                $billArray['end_time'] = $bill->end_time ? $bill->end_time->format('H:i') : null;
+            }
+
+            // Format client created_at if exists
+            if (isset($billArray['client']['created_at']) && $bill->client) {
+                $billArray['client']['created_at'] = $bill->client->created_at->format('Y-m-d');
+            }
+
+            return $billArray;
+        })->toArray();
+
+        $this->lastUpdated = now()->format('H:i:s');
     }
 
     public function refreshBills(): void
