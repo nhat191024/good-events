@@ -173,8 +173,16 @@ class PartnerBill extends Model implements HasMedia
         });
     }
 
+    /**
+     * Handle bill created event
+     * @param \App\Models\PartnerBill $partnerBill
+     * @return void
+     */
     protected static function handleBillCreated(PartnerBill $partnerBill): void
     {
+        $mailService = new PartnerBillMailService();
+        $mailService->sendOrderReceivedNotification($partnerBill);
+
         $partnerId = $partnerBill->partner_id;
         $clientId = $partnerBill->client_id;
 
