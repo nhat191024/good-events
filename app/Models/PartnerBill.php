@@ -316,6 +316,9 @@ class PartnerBill extends Model implements HasMedia
         $partnerBill->thread_id = $thread->id;
         $partnerBill->saveQuietly();
 
+        $mailService = new PartnerBillMailService();
+        $mailService->sendOrderConfirmedNotification($partnerBill);
+
         NewThreadCreated::dispatch($partnerBill);
     }
 
