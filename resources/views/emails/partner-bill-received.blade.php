@@ -150,9 +150,9 @@
         <div class="header">
             <h1>
                 @if ($recipientType === 'client')
-                    🎉 {{ __('emails.partner_bill_received.subject', ['code' => '']) }}
+                    🎉 {{ __('emails.partner_bill_received.subject', ['code' => $partnerBill->code]) }}
                 @else
-                    📋 {{ __('emails.partner_bill_received.subject', ['code' => '']) }}
+                    📋 {{ __('emails.partner_bill_received.new_order_notification') }}
                 @endif
             </h1>
         </div>
@@ -162,7 +162,7 @@
                 @if ($recipientType === 'client')
                     {!! __('emails.partner_bill_received.greeting_client', ['name' => '<strong>' . $partnerBill->client->name . '</strong>']) !!}
                 @else
-                    {!! __('emails.partner_bill_received.greeting_partner', ['name' => '<strong>' . $partnerBill->partner->name . '</strong>']) !!}
+                    {!! __('emails.partner_bill_received.greeting_partner_new') !!}
                 @endif
             </div>
 
@@ -170,7 +170,7 @@
                 @if ($recipientType === 'client')
                     {{ __('emails.partner_bill_received.message_client') }}
                 @else
-                    {{ __('emails.partner_bill_received.message_partner') }}
+                    {{ __('emails.partner_bill_received.message_partner_new') }}
                 @endif
             </p>
 
@@ -185,7 +185,7 @@
                 @if ($partnerBill->event)
                     <div class="info-row">
                         <span class="info-label">{{ __('emails.partner_bill_received.event_name') }}:</span>
-                        <span class="info-value">{{ $partnerBill->event->name }}</span>
+                        <span class="info-value">{{ $partnerBill->event ? $partnerBill->event->name : $partnerBill->custom_event }}</span>
                     </div>
                 @endif
 
@@ -225,13 +225,6 @@
                     <span class="info-value">{{ $partnerBill->phone }}</span>
                 </div>
 
-                @if ($partnerBill->final_total)
-                    <div class="info-row">
-                        <span class="info-label">{{ __('emails.partner_bill_received.total_amount') }}:</span>
-                        <span class="info-value highlight">{{ number_format($partnerBill->final_total, 0, ',', '.') }} VNĐ</span>
-                    </div>
-                @endif
-
                 <div class="info-row">
                     <span class="info-label">{{ __('emails.partner_bill_received.status') }}:</span>
                     <span class="info-value">
@@ -258,7 +251,7 @@
 
             <div class="cta-section">
                 <a class="cta-button" href="#">
-                    {{ __('emails.partner_bill_received.cta_view_order') }}
+                    {{ __('emails.partner_bill_received.' . ($recipientType === 'client' ? 'cta_view_order' : 'cta_accept_order')) }}
                 </a>
             </div>
         </div>
