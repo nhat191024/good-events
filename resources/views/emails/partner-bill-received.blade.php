@@ -150,7 +150,7 @@
         <div class="header">
             <h1>
                 @if ($recipientType === 'client')
-                    🎉 {{ __('emails.partner_bill_received.subject', ['code' => $partnerBill->code]) }}
+                    🎉 {{ __('emails.partner_bill_received.title') }}
                 @else
                     📋 {{ __('emails.partner_bill_received.new_order_notification') }}
                 @endif
@@ -160,9 +160,9 @@
         <div class="content">
             <div class="greeting">
                 @if ($recipientType === 'client')
-                    {!! __('emails.partner_bill_received.greeting_client', ['name' => '<strong>' . $partnerBill->client->name . '</strong>']) !!}
+                    {{ __('emails.common.greeting_client', ['name' => $partnerBill->client->name]) }}
                 @else
-                    {!! __('emails.partner_bill_received.greeting_partner_new') !!}
+                    {{ __('emails.common.greeting_partner', ['name' => $partnerBill->partner->name ?? 'Partner']) }}
                 @endif
             </div>
 
@@ -170,71 +170,71 @@
                 @if ($recipientType === 'client')
                     {{ __('emails.partner_bill_received.message_client') }}
                 @else
-                    {{ __('emails.partner_bill_received.message_partner_new') }}
+                    {{ __('emails.partner_bill_received.message_partner') }}
                 @endif
             </p>
 
             <div class="bill-info">
-                <h3>📋 {{ __('emails.partner_bill_received.bill_details') }}</h3>
+                <h3>📋 {{ __('emails.common.bill_details') }}</h3>
 
                 <div class="info-row">
-                    <span class="info-label">{{ __('emails.partner_bill_received.order_code') }}:</span>
+                    <span class="info-label">{{ __('emails.common.order_code') }}:</span>
                     <span class="info-value highlight">#{{ $partnerBill->code }}</span>
                 </div>
 
                 @if ($partnerBill->event)
                     <div class="info-row">
-                        <span class="info-label">{{ __('emails.partner_bill_received.event_name') }}:</span>
+                        <span class="info-label">{{ __('emails.common.event_name') }}:</span>
                         <span class="info-value">{{ $partnerBill->event ? $partnerBill->event->name : $partnerBill->custom_event }}</span>
                     </div>
                 @endif
 
                 @if ($partnerBill->category)
                     <div class="info-row">
-                        <span class="info-label">{{ __('emails.partner_bill_received.category') }}:</span>
+                        <span class="info-label">{{ __('emails.common.category') }}:</span>
                         <span class="info-value">{{ $partnerBill->category->name }}</span>
                     </div>
                 @endif
 
                 <div class="info-row">
-                    <span class="info-label">{{ __('emails.partner_bill_received.event_date') }}:</span>
+                    <span class="info-label">{{ __('emails.common.event_date') }}:</span>
                     <span class="info-value">{{ $partnerBill->date ? $partnerBill->date->format('d/m/Y') : __('Not specified') }}</span>
                 </div>
 
                 @if ($partnerBill->start_time)
                     <div class="info-row">
-                        <span class="info-label">{{ __('emails.partner_bill_received.event_time') }}:</span>
+                        <span class="info-label">{{ __('emails.common.start_time') }}:</span>
                         <span class="info-value">{{ $partnerBill->start_time->format('H:i') }}</span>
                     </div>
                 @endif
 
                 @if ($partnerBill->end_time)
                     <div class="info-row">
-                        <span class="info-label">{{ __('End Time') }}:</span>
+                        <span class="info-label">{{ __('emails.common.end_time') }}:</span>
                         <span class="info-value">{{ $partnerBill->end_time->format('H:i') }}</span>
                     </div>
                 @endif
 
                 <div class="info-row">
-                    <span class="info-label">{{ __('emails.partner_bill_received.location') }}:</span>
+                    <span class="info-label">{{ __('emails.common.address') }}:</span>
                     <span class="info-value">{{ $partnerBill->address }}</span>
                 </div>
 
                 <div class="info-row">
-                    <span class="info-label">{{ __('emails.partner_bill_received.phone') }}:</span>
+                    <span class="info-label">{{ __('emails.common.phone') }}:</span>
                     <span class="info-value">{{ $partnerBill->phone }}</span>
                 </div>
 
                 <div class="info-row">
-                    <span class="info-label">{{ __('emails.partner_bill_received.status') }}:</span>
+                    <span class="info-label">{{ __('emails.common.status') }}:</span>
                     <span class="info-value">
-                        <span class="status-badge status-pending">{{ __('emails.partner_bill_received.status_pending') }}</span>
+                        <span class="status-badge status-pending">{{ __('emails.common.status_pending') }}</span>
                     </span>
                 </div>
 
                 @if ($partnerBill->note)
                     <div class="info-row">
-                        <span class="info-label">{{ __('emails.partner_bill_received.note') }}:</span>
+                        <span class="info-label">{{ __('emails.common.note') }}:</span>
                         <span class="info-value">{{ $partnerBill->note }}</span>
                     </div>
                 @endif
@@ -247,7 +247,7 @@
                 @endforeach
             </ul>
 
-            <p>{{ __('emails.partner_bill_received.contact_support') }}</p>
+            <p>{{ __('emails.common.contact_support') }}</p>
 
             <div class="cta-section">
                 <a class="cta-button" href="#">
@@ -258,11 +258,11 @@
 
         <div class="footer">
             <p>
-                {{ __('emails.partner_bill_received.thanks') }}<br>
-                {{ __('emails.partner_bill_received.footer_text') }}
+                {{ __('emails.common.thanks') }}<br>
+                {{ __('emails.common.automated_email') }}
             </p>
             <p style="margin-top: 15px; font-size: 12px; color: #999;">
-                © {{ date('Y') }} {{ __('emails.common.company_name') }} - Event Management Platform
+                {{ __('emails.common.copyright', ['year' => date('Y')]) }}
             </p>
         </div>
     </div>

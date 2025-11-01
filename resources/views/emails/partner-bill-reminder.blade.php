@@ -197,34 +197,28 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>
-                @if ($recipientType === 'client')
-                    ⏰ Nhắc nhở: Sự kiện sắp diễn ra
-                @else
-                    ⚡ Chuẩn bị: Sự kiện sắp bắt đầu
-                @endif
-            </h1>
+            <h1>{{ __('emails.partner_bill_reminder.title') }}</h1>
         </div>
 
         <div class="content">
             <div class="greeting">
                 @if ($recipientType === 'client')
-                    Xin chào <strong>{{ $partnerBill->client->name }}</strong>,
+                    {{ __('emails.common.greeting_client', ['name' => $partnerBill->client->name]) }}
                 @else
-                    Xin chào <strong>{{ $partnerBill->partner->name }}</strong>,
+                    {{ __('emails.common.greeting_partner', ['name' => $partnerBill->partner->name]) }}
                 @endif
             </div>
 
             <div class="reminder-alert">
                 @if ($recipientType === 'client')
-                    🎪 Sự kiện của bạn sẽ diễn ra trong 24 giờ tới!
+                    {{ __('emails.partner_bill_reminder.alert_client') }}
                 @else
-                    🚀 Bạn có dịch vụ cần thực hiện trong 24 giờ tới!
+                    {{ __('emails.partner_bill_reminder.alert_partner') }}
                 @endif
             </div>
 
             <div class="countdown">
-                <h3>⏳ Thời gian còn lại</h3>
+                <h3>{{ __('emails.partner_bill_reminder.time_remaining_title') }}</h3>
                 @if ($partnerBill->date && $partnerBill->start_time)
                     @php
                         $eventDateTime = \Carbon\Carbon::parse($partnerBill->date->format('Y-m-d') . ' ' . $partnerBill->start_time->format('H:i:s'));
@@ -233,64 +227,64 @@
                     @endphp
                     <div class="countdown-timer">{{ $diff }}</div>
                 @else
-                    <div class="countdown-timer">Kiểm tra thời gian cụ thể</div>
+                    <div class="countdown-timer">{{ __('emails.partner_bill_reminder.time_remaining_text') }}</div>
                 @endif
             </div>
 
             <div class="bill-info">
-                <h3>📋 Thông tin sự kiện</h3>
+                <h3>📋 {{ __('emails.common.bill_details') }}</h3>
 
                 <div class="info-row">
-                    <span class="info-label">Mã đơn:</span>
+                    <span class="info-label">{{ __('emails.common.order_code') }}:</span>
                     <span class="info-value highlight">#{{ $partnerBill->code }}</span>
                 </div>
 
                 @if ($partnerBill->event)
                     <div class="info-row">
-                        <span class="info-label">Sự kiện:</span>
+                        <span class="info-label">{{ __('emails.common.event_name') }}:</span>
                         <span class="info-value">{{ $partnerBill->event->name }}</span>
                     </div>
                 @endif
 
                 <div class="info-row">
-                    <span class="info-label">Ngày:</span>
-                    <span class="info-value highlight">{{ $partnerBill->date ? $partnerBill->date->format('d/m/Y') : 'Chưa xác định' }}</span>
+                    <span class="info-label">{{ __('emails.common.event_date') }}:</span>
+                    <span class="info-value highlight">{{ $partnerBill->date ? $partnerBill->date->format('d/m/Y') : __('Not specified') }}</span>
                 </div>
 
                 @if ($partnerBill->start_time)
                     <div class="info-row">
-                        <span class="info-label">Giờ bắt đầu:</span>
+                        <span class="info-label">{{ __('emails.common.start_time') }}:</span>
                         <span class="info-value highlight">{{ $partnerBill->start_time->format('H:i') }}</span>
                     </div>
                 @endif
 
                 @if ($partnerBill->end_time)
                     <div class="info-row">
-                        <span class="info-label">Giờ kết thúc:</span>
+                        <span class="info-label">{{ __('emails.common.end_time') }}:</span>
                         <span class="info-value">{{ $partnerBill->end_time->format('H:i') }}</span>
                     </div>
                 @endif
 
                 <div class="info-row">
-                    <span class="info-label">Địa chỉ:</span>
+                    <span class="info-label">{{ __('emails.common.address') }}:</span>
                     <span class="info-value">{{ $partnerBill->address }}</span>
                 </div>
 
                 <div class="info-row">
-                    <span class="info-label">Số điện thoại:</span>
+                    <span class="info-label">{{ __('emails.common.phone') }}:</span>
                     <span class="info-value">{{ $partnerBill->phone }}</span>
                 </div>
 
                 @if ($recipientType === 'client' && $partnerBill->partner)
                     <div class="info-row">
-                        <span class="info-label">Nhà cung cấp:</span>
+                        <span class="info-label">{{ __('emails.common.partner_name') }}:</span>
                         <span class="info-value">{{ $partnerBill->partner->name }}</span>
                     </div>
                 @endif
 
                 @if ($recipientType === 'partner' && $partnerBill->client)
                     <div class="info-row">
-                        <span class="info-label">Khách hàng:</span>
+                        <span class="info-label">{{ __('emails.common.client_name') }}:</span>
                         <span class="info-value">{{ $partnerBill->client->name }}</span>
                     </div>
                 @endif
@@ -298,57 +292,52 @@
 
             @if ($recipientType === 'client')
                 <div class="checklist">
-                    <h4>✅ Checklist chuẩn bị cho khách hàng:</h4>
+                    <h4>{{ __('emails.partner_bill_reminder.checklist_client_title') }}</h4>
                     <ul>
-                        <li>Xác nhận lại thời gian và địa điểm với nhà cung cấp</li>
-                        <li>Chuẩn bị đầy đủ những gì cần thiết cho sự kiện</li>
-                        <li>Kiểm tra đường đi và phương tiện di chuyển</li>
-                        <li>Lưu số điện thoại liên hệ của nhà cung cấp</li>
-                        <li>Đến sớm 15-30 phút so với giờ hẹn</li>
+                        @foreach (__('emails.partner_bill_reminder.checklist_client_list') as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
                     </ul>
                 </div>
 
                 <div class="contact-info">
-                    <strong>📞 Thông tin liên hệ nhà cung cấp:</strong><br>
-                    Tên: {{ $partnerBill->partner->name ?? 'N/A' }}<br>
-                    Email: {{ $partnerBill->partner->email ?? 'N/A' }}<br>
-                    Điện thoại: {{ $partnerBill->partner->phone ?? 'N/A' }}
+                    <strong>{{ __('emails.partner_bill_reminder.contact_info_client_title') }}</strong><br>
+                    {{ __('emails.partner_bill_reminder.contact_name') }}: {{ $partnerBill->partner->name ?? 'N/A' }}<br>
+                    {{ __('emails.partner_bill_reminder.contact_email') }}: {{ $partnerBill->partner->email ?? 'N/A' }}<br>
+                    {{ __('emails.partner_bill_reminder.contact_phone') }}: {{ $partnerBill->partner->phone ?? 'N/A' }}
                 </div>
 
                 <p>
-                    Chúng tôi hy vọng sự kiện của bạn sẽ diễn ra thành công và để lại những kỷ niệm đẹp!
+                    {{ __('emails.partner_bill_reminder.message_client') }}
                 </p>
             @else
                 <div class="checklist">
-                    <h4>🎯 Checklist chuẩn bị cho nhà cung cấp:</h4>
+                    <h4>{{ __('emails.partner_bill_reminder.checklist_partner_title') }}</h4>
                     <ul>
-                        <li>Xem lại yêu cầu dịch vụ của khách hàng</li>
-                        <li>Chuẩn bị đầy đủ thiết bị và vật liệu cần thiết</li>
-                        <li>Xác nhận lại thời gian và địa điểm với khách hàng</li>
-                        <li>Kiểm tra đường đi và lên kế hoạch di chuyển</li>
-                        <li>Đảm bảo có mặt đúng giờ hoặc sớm hơn 15 phút</li>
-                        <li>Chuẩn bị tinh thần để cung cấp dịch vụ tốt nhất</li>
+                        @foreach (__('emails.partner_bill_reminder.checklist_partner_list') as $item)
+                            <li>{{ $item }}</li>
+                        @endforeach
                     </ul>
                 </div>
 
                 <div class="contact-info">
-                    <strong>📞 Thông tin liên hệ khách hàng:</strong><br>
-                    Tên: {{ $partnerBill->client->name ?? 'N/A' }}<br>
-                    Email: {{ $partnerBill->client->email ?? 'N/A' }}<br>
-                    Điện thoại: {{ $partnerBill->phone }}
+                    <strong>{{ __('emails.partner_bill_reminder.contact_info_partner_title') }}</strong><br>
+                    {{ __('emails.partner_bill_reminder.contact_name') }}: {{ $partnerBill->client->name ?? 'N/A' }}<br>
+                    {{ __('emails.partner_bill_reminder.contact_email') }}: {{ $partnerBill->client->email ?? 'N/A' }}<br>
+                    {{ __('emails.partner_bill_reminder.contact_phone') }}: {{ $partnerBill->phone }}
                 </div>
 
                 <p>
-                    Hãy thực hiện dịch vụ một cách chuyên nghiệp và tận tâm để nhận được đánh giá tích cực từ khách hàng!
+                    {{ __('emails.partner_bill_reminder.message_partner') }}
                 </p>
             @endif
 
             <div class="cta-section">
                 <a class="cta-button" href="#">
                     @if ($recipientType === 'client')
-                        Xem chi tiết sự kiện
+                        {{ __('emails.partner_bill_reminder.cta_client') }}
                     @else
-                        Quản lý đơn hàng
+                        {{ __('emails.partner_bill_reminder.cta_partner') }}
                     @endif
                 </a>
             </div>
@@ -356,11 +345,11 @@
 
         <div class="footer">
             <p>
-                <strong>Lưu ý:</strong> Nếu có bất kỳ thay đổi hoặc vấn đề gì, vui lòng liên hệ ngay lập tức.<br>
-                Đây là email tự động, vui lòng không reply email này.
+                {!! __('emails.partner_bill_reminder.footer_note') !!}<br>
+                {{ __('emails.common.automated_email') }}
             </p>
             <p style="margin-top: 15px; font-size: 12px; color: #999;">
-                © {{ date('Y') }} SukiEntot - Event Management Platform
+                {{ __('emails.common.copyright', ['year' => date('Y')]) }}
             </p>
         </div>
     </div>

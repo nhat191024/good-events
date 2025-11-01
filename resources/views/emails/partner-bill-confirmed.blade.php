@@ -169,166 +169,127 @@
     <div class="email-container">
         <div class="header">
             <h1>
-                @if ($recipientType === 'client')
-                    ✅ Đơn đặt sụ kiện đã được xác nhận
-                @else
-                    💰 Đơn đặt sụ kiện đã được thanh toán
-                @endif
+                {{ __('emails.partner_bill_confirmed.title') }}
             </h1>
         </div>
 
         <div class="content">
             <div class="greeting">
-                @if ($recipientType === 'client')
-                    Xin chào <strong>{{ $partnerBill->client->name }}</strong>,
-                @else
-                    Xin chào <strong>{{ $partnerBill->partner->name }}</strong>,
-                @endif
+                {{ __('emails.common.greeting_partner', ['name' => $partnerBill->partner->name]) }}
             </div>
 
-            <div class="success-message">
-                @if ($recipientType === 'client')
-                    🎉 <strong>Chúc mừng!</strong> Đơn đặt sụ kiện của bạn đã được xác nhận và thanh toán thành công.
-                @else
-                    💰 <strong>Thông báo!</strong> Khách hàng đã thanh toán cho đơn đặt dịch vụ của bạn.
-                @endif
+            <div class="success-banner">
+                {{ __('emails.partner_bill_confirmed.success_banner') }}
             </div>
+
+            <p>
+                {{ __('emails.partner_bill_confirmed.message_partner') }}
+            </p>
 
             <div class="bill-info">
-                <h3>📋 Thông tin đơn đặt dịch vụ</h3>
+                <h3>📋 {{ __('emails.common.bill_details') }}</h3>
 
                 <div class="info-row">
-                    <span class="info-label">Mã đơn:</span>
+                    <span class="info-label">{{ __('emails.common.order_code') }}:</span>
                     <span class="info-value highlight">#{{ $partnerBill->code }}</span>
                 </div>
 
                 @if ($partnerBill->event)
                     <div class="info-row">
-                        <span class="info-label">Sự kiện:</span>
+                        <span class="info-label">{{ __('emails.common.event_name') }}:</span>
                         <span class="info-value">{{ $partnerBill->event->name }}</span>
                     </div>
                 @endif
 
                 @if ($partnerBill->category)
                     <div class="info-row">
-                        <span class="info-label">Danh mục:</span>
+                        <span class="info-label">{{ __('emails.common.category') }}:</span>
                         <span class="info-value">{{ $partnerBill->category->name }}</span>
                     </div>
                 @endif
 
                 <div class="info-row">
-                    <span class="info-label">Ngày sự kiện:</span>
-                    <span class="info-value">{{ $partnerBill->date ? $partnerBill->date->format('d/m/Y') : 'Chưa xác định' }}</span>
+                    <span class="info-label">{{ __('emails.common.event_date') }}:</span>
+                    <span class="info-value">{{ $partnerBill->date ? $partnerBill->date->format('d/m/Y') : __('Not specified') }}</span>
                 </div>
 
                 @if ($partnerBill->start_time)
                     <div class="info-row">
-                        <span class="info-label">Giờ bắt đầu:</span>
+                        <span class="info-label">{{ __('emails.common.start_time') }}:</span>
                         <span class="info-value">{{ $partnerBill->start_time->format('H:i') }}</span>
                     </div>
                 @endif
 
                 @if ($partnerBill->end_time)
                     <div class="info-row">
-                        <span class="info-label">Giờ kết thúc:</span>
+                        <span class="info-label">{{ __('emails.common.end_time') }}:</span>
                         <span class="info-value">{{ $partnerBill->end_time->format('H:i') }}</span>
                     </div>
                 @endif
 
                 <div class="info-row">
-                    <span class="info-label">Địa chỉ:</span>
+                    <span class="info-label">{{ __('emails.common.address') }}:</span>
                     <span class="info-value">{{ $partnerBill->address }}</span>
                 </div>
 
                 <div class="info-row">
-                    <span class="info-label">Số điện thoại:</span>
+                    <span class="info-label">{{ __('emails.common.phone') }}:</span>
                     <span class="info-value">{{ $partnerBill->phone }}</span>
                 </div>
 
                 @if ($partnerBill->final_total)
                     <div class="info-row">
-                        <span class="info-label">Tổng tiền:</span>
+                        <span class="info-label">{{ __('emails.common.total_amount') }}:</span>
                         <span class="info-value highlight">{{ number_format($partnerBill->final_total, 0, ',', '.') }} VNĐ</span>
                     </div>
                 @endif
 
                 <div class="info-row">
-                    <span class="info-label">Trạng thái:</span>
+                    <span class="info-label">{{ __('emails.common.status') }}:</span>
                     <span class="info-value">
-                        <span class="status-badge status-paid">Đã thanh toán</span>
+                        <span class="status-badge status-paid">{{ __('emails.common.status_paid') }}</span>
                     </span>
                 </div>
-
-                @if ($recipientType === 'client' && $partnerBill->partner)
-                    <div class="info-row">
-                        <span class="info-label">Nhà cung cấp:</span>
-                        <span class="info-value">{{ $partnerBill->partner->name }}</span>
-                    </div>
-                @endif
-
-                @if ($recipientType === 'partner' && $partnerBill->client)
-                    <div class="info-row">
-                        <span class="info-label">Khách hàng:</span>
-                        <span class="info-value">{{ $partnerBill->client->name }}</span>
-                    </div>
-                @endif
+                <div class="info-row">
+                    <span class="info-label">{{ __('emails.common.client_name') }}:</span>
+                    <span class="info-value">{{ $partnerBill->client->name }}</span>
+                </div>
 
                 @if ($partnerBill->note)
                     <div class="info-row">
-                        <span class="info-label">Ghi chú:</span>
+                        <span class="info-label">{{ __('emails.common.note') }}:</span>
                         <span class="info-value">{{ $partnerBill->note }}</span>
                     </div>
                 @endif
             </div>
 
-            @if ($recipientType === 'client')
-                <div class="important-note">
-                    <strong>📝 Lưu ý quan trọng:</strong>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Vui lòng có mặt đúng giờ tại địa điểm đã đặt</li>
-                        <li>Liên hệ với nhà cung cấp nếu có bất kỳ thay đổi nào</li>
-                        <li>Chuẩn bị sẵn mọi thứ cần thiết cho sự kiện</li>
-                    </ul>
-                </div>
+            <div class="important-note">
+                <strong>{{ __('emails.partner_bill_confirmed.important_note_partner_title') }}</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    @foreach (__('emails.partner_bill_confirmed.important_note_partner_list') as $item)
+                        <li>{{ $item }}</li>
+                    @endforeach
+                </ul>
+            </div>
 
-                <p>
-                    Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi.
-                    Chúng tôi hy vọng sự kiện của bạn sẽ diễn ra thành công tốt đẹp!
-                </p>
-            @else
-                <div class="important-note">
-                    <strong>📝 Nhiệm vụ của bạn:</strong>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Chuẩn bị đầy đủ dịch vụ theo yêu cầu</li>
-                        <li>Liên hệ với khách hàng để xác nhận chi tiết</li>
-                        <li>Có mặt đúng giờ tại địa điểm</li>
-                        <li>Đảm bảo chất lượng dịch vụ tốt nhất</li>
-                    </ul>
-                </div>
-
-                <p>
-                    Chúc bạn thực hiện dịch vụ thành công và nhận được đánh giá tích cực từ khách hàng!
-                </p>
-            @endif
+            <p>
+                {{ __('emails.partner_bill_confirmed.thanks_partner') }}
+            </p>
 
             <div class="cta-section">
                 <a class="cta-button" href="#">
-                    @if ($recipientType === 'client')
-                        Xem chi tiết đơn hàng
-                    @else
-                        Quản lý đơn hàng
-                    @endif
+                    {{ __('emails.partner_bill_confirmed.cta_partner') }}
                 </a>
             </div>
         </div>
 
         <div class="footer">
             <p>
-                Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!<br>
-                Đây là email tự động, vui lòng không reply email này.
+                {{ __('emails.common.thanks') }}<br>
+                {{ __('emails.common.automated_email') }}
             </p>
             <p style="margin-top: 15px; font-size: 12px; color: #999;">
-                © {{ date('Y') }} SukiEntot - Event Management Platform
+                {{ __('emails.common.copyright', ['year' => date('Y')]) }}
             </p>
         </div>
     </div>
