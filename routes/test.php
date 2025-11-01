@@ -33,18 +33,14 @@ if (app()->environment(['local', 'staging', 'testing'])) {
             return new PartnerBillReceived($partnerBill, $type, $locale);
         })->name('mail.preview.partner-bill-received');
 
-        Route::get('partner-bill-confirmed/{id}/{type}/{locale?}', function ($id, $type, $locale = 'vi') {
+        Route::get('partner-bill-confirmed/{id}/{locale?}', function ($id, $locale = 'vi') {
             $partnerBill = PartnerBill::with(['client', 'partner', 'category', 'event', 'details'])->findOrFail($id);
-
-            if (!in_array($type, ['client', 'partner'])) {
-                abort(400, 'Type must be either "client" or "partner"');
-            }
 
             if (!in_array($locale, ['vi', 'en'])) {
                 abort(400, 'Locale must be either "vi" or "en"');
             }
 
-            return new PartnerBillConfirmed($partnerBill, $type, $locale);
+            return new PartnerBillConfirmed($partnerBill, $locale);
         })->name('mail.preview.partner-bill-confirmed');
 
         Route::get('partner-bill-reminder/{id}/{type}/{locale?}', function ($id, $type, $locale = 'vi') {
