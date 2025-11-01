@@ -3,11 +3,14 @@
 return [
     'partner_bill_received' => [
         'title' => 'Service Order Notification',
-        'subject' => 'Order Received - :code',
+        'subject' => 'Order Matching - :code',
         'greeting_client' => 'Dear :name,',
         'greeting_partner' => 'Dear Partner :name,',
+        'greeting_partner_new' => 'Hello Partner,',
         'message_client' => 'Thank you for your order! We have received your service booking request and our partner will review it shortly.',
         'message_partner' => 'You have received a new service booking request. Please review the details below and respond to the client.',
+        'message_partner_new' => 'There is a new order that matches your services. Please review the details and accept the order if you can fulfill it.',
+        'new_order_notification' => 'New Order Matching Your Services',
         'bill_details' => 'Order Details',
         'order_code' => 'Order Code',
         'event_name' => 'Event',
@@ -38,6 +41,7 @@ return [
         'footer_text' => 'This is an automated email. Please do not reply directly to this message.',
         'status_pending' => 'Pending Review',
         'cta_view_order' => 'View Order Details',
+        'cta_accept_order' => 'View & Accept Order',
     ],
 
     'partner_bill_confirmed' => [
