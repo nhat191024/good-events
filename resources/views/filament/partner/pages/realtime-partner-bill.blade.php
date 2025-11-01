@@ -197,7 +197,7 @@
                                         <x-heroicon-m-clock class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                                         <div>
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.date') }}:</span>
-                                            <span class="ml-1 text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($bill['date'])->format('d/m/Y') }}</span>
+                                            <span class="ml-1 text-gray-900 dark:text-white">{{ $bill['date'] ?? 'N/A' }}</span>
                                         </div>
                                     </div>
 
@@ -208,14 +208,14 @@
                                                 <div class="flex items-center gap-2">
                                                     <x-heroicon-m-play class="h-4 w-4 text-green-400" />
                                                     <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.start_time') }}:</span>
-                                                    <span class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($bill['start_time'])->format('H:i') }}</span>
+                                                    <span class="text-gray-900 dark:text-white">{{ $bill['start_time'] ?? 'N/A' }}</span>
                                                 </div>
                                             @endif
                                             @if ($bill['end_time'])
                                                 <div class="flex items-center gap-2">
                                                     <x-heroicon-m-stop class="h-4 w-4 text-red-400" />
                                                     <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.end_time') }}:</span>
-                                                    <span class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($bill['end_time'])->format('H:i') }}</span>
+                                                    <span class="text-gray-900 dark:text-white">{{ $bill['end_time'] ?? 'N/A' }}</span>
                                                 </div>
                                             @endif
                                         </div>
@@ -285,7 +285,7 @@
                                         <div class="flex items-center gap-2">
                                             <x-heroicon-m-clock class="h-4 w-4 text-gray-400" />
                                             <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.date') }}:</span>
-                                            <span class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($bill['date'])->format('d/m/Y') }}</span>
+                                            <span class="text-gray-900 dark:text-white">{{ $bill['date'] ?? 'N/A' }}</span>
                                         </div>
                                     </div>
 
@@ -296,14 +296,14 @@
                                                 <div class="flex items-center gap-2">
                                                     <x-heroicon-m-play class="h-4 w-4 text-green-400" />
                                                     <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.start_time') }}:</span>
-                                                    <span class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($bill['start_time'])->format('H:i') }}</span>
+                                                    <span class="text-gray-900 dark:text-white">{{ $bill['start_time'] ?? 'N/A' }}</span>
                                                 </div>
                                             @endif
                                             @if ($bill['end_time'])
                                                 <div class="flex items-center gap-2">
                                                     <x-heroicon-m-stop class="h-4 w-4 text-red-400" />
                                                     <span class="font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.end_time') }}:</span>
-                                                    <span class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($bill['end_time'])->format('H:i') }}</span>
+                                                    <span class="text-gray-900 dark:text-white">{{ $bill['end_time'] ?? 'N/A' }}</span>
                                                 </div>
                                             @endif
                                         </div>
