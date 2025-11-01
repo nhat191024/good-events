@@ -170,11 +170,10 @@ class OrderController extends Controller
             $user_id = $request->input('partner_id');
             $voucher_code = $request->input('voucher_code');
 
-            $billDetail = PartnerBill::findOrFail($bill_id)->details()->where('partner_id', $user_id)->first();
             $bill = PartnerBill::findOrFail($bill_id);
-
             $partnerBillDetail = PartnerBillDetail::where('partner_bill_id', $bill_id)
-                ->orWhere('partner_id', $user_id)->first();
+                ->where('partner_id', $user_id)
+                ->first();
 
             $discount = 0;
 
@@ -185,11 +184,12 @@ class OrderController extends Controller
 
             $bill->total = $partnerBillDetail->total;
             $bill->final_total = $partnerBillDetail->total - $discount;
-            $bill->partner_id = $billDetail->partner_id;
+            $bill->partner_id = $partnerBillDetail->partner_id;
             $bill->status = PartnerBillStatus::CONFIRMED;
-            $billDetail->status = PartnerBillDetailStatus::CLOSED;
-            $billDetail->save();
             $bill->save();
+
+            $partnerBillDetail->status = PartnerBillDetailStatus::CLOSED;
+            $partnerBillDetail->save();
 
             $client = $bill->client;
             PartnerAcceptedOrder::send($bill, $client);
