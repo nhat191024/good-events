@@ -151,35 +151,7 @@ class PartnerBill extends Model implements HasMedia
         });
 
         static::created(function ($partnerBill) {
-            $partnerId = $partnerBill->partner_id;
-            $clientId = $partnerBill->client_id;
-
-            //update number of customer statistic for partner
-            $existingStat = Statistical::where('user_id', $partnerId)
-                ->where('metrics_name', StatisticType::NUMBER_CUSTOMER->value)
-                ->first();
-
-            if ($existingStat) {
-                $existingStat->metrics_value = (int)$existingStat->metrics_value + 1;
-                $existingStat->save();
-            }
-
-            //update orders placed statistic for both partner and client
-            foreach ([$partnerId, $clientId] as $userId) {
-                $existingClientStat = Statistical::where('user_id', $userId)
-                    ->where('metrics_name', StatisticType::ORDERS_PLACED->value)
-                    ->first();
-
-                if ($existingClientStat) {
-                    $existingClientStat->metrics_value = (int)$existingClientStat->metrics_value + 1;
-                    $existingClientStat->save();
-                }
-            }
-
-            PartnerBillCreated::dispatch($partnerBill);
-
-            // Clear widget caches
-            PartnerWidgetCacheService::clearPartnerCaches($partnerId);
+            static::handleBillCreated($partnerBill);
         });
 
         static::updated(function ($partnerBill) {
@@ -199,6 +171,37 @@ class PartnerBill extends Model implements HasMedia
                 PartnerBillStatusChanged::dispatch($partnerBill);
             }
         });
+    }
+
+    protected static function handleBillCreated(PartnerBill $partnerBill): void
+    {
+        $partnerId = $partnerBill->partner_id;
+        $clientId = $partnerBill->client_id;
+
+        //update number of customer statistic for partner
+        $existingStat = Statistical::where('user_id', $partnerId)
+            ->where('metrics_name', StatisticType::NUMBER_CUSTOMER->value)
+            ->first();
+
+        if ($existingStat) {
+            $existingStat->metrics_value = (int)$existingStat->metrics_value + 1;
+            $existingStat->save();
+        }
+
+        //update orders placed statistic for both partner and client
+        foreach ([$partnerId, $clientId] as $userId) {
+            $existingClientStat = Statistical::where('user_id', $userId)
+                ->where('metrics_name', StatisticType::ORDERS_PLACED->value)
+                ->first();
+
+            if ($existingClientStat) {
+                $existingClientStat->metrics_value = (int)$existingClientStat->metrics_value + 1;
+                $existingClientStat->save();
+            }
+        }
+
+        // Clear widget caches
+        PartnerWidgetCacheService::clearPartnerCaches($partnerId);
     }
 
     /**
