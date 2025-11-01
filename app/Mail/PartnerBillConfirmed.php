@@ -16,16 +16,14 @@ class PartnerBillConfirmed extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public PartnerBill $partnerBill;
-    public string $recipientType;
     public string $userLocale;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(PartnerBill $partnerBill, string $recipientType, ?string $locale = null)
+    public function __construct(PartnerBill $partnerBill, ?string $locale = null)
     {
         $this->partnerBill = $partnerBill;
-        $this->recipientType = $recipientType;
         $this->userLocale = $locale ?? $this->determineUserLocale();
     }
 
@@ -34,10 +32,8 @@ class PartnerBillConfirmed extends Mailable implements ShouldQueue
      */
     private function determineUserLocale(): string
     {
-        // Try to get locale from user preference (if available)
-        $user = $this->recipientType === 'client' ? $this->partnerBill->client : $this->partnerBill->partner;
+        $user = $this->partnerBill->partner;
 
-        // For now, use app locale. In future, can add language field to User model
         return $user && property_exists($user, 'language') ? $user->language : config('app.locale', 'vi');
     }
 
@@ -68,7 +64,6 @@ class PartnerBillConfirmed extends Mailable implements ShouldQueue
             view: 'emails.partner-bill-confirmed',
             with: [
                 'partnerBill' => $this->partnerBill,
-                'recipientType' => $this->recipientType,
                 'locale' => $this->userLocale,
             ],
         );
