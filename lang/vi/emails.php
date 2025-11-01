@@ -3,11 +3,14 @@
 return [
     'partner_bill_received' => [
         'title' => 'Thông báo đơn đặt dịch vụ',
-        'subject' => 'Đơn hàng đã nhận - :code',
+        'subject' => 'Đơn hàng phù hợp - :code',
         'greeting_client' => 'Kính chào :name,',
         'greeting_partner' => 'Kính chào Đối tác :name,',
+        'greeting_partner_new' => 'Xin chào Đối tác,',
         'message_client' => 'Cảm ơn bạn đã đặt dịch vụ! Chúng tôi đã nhận được yêu cầu đặt dịch vụ của bạn và đối tác sẽ xem xét trong thời gian sớm nhất.',
         'message_partner' => 'Bạn có một yêu cầu đặt dịch vụ mới. Vui lòng xem xét thông tin chi tiết bên dưới và phản hồi khách hàng.',
+        'message_partner_new' => 'Có một đơn hàng mới phù hợp với dịch vụ của bạn. Vui lòng xem chi tiết và chấp nhận đơn hàng nếu bạn có thể thực hiện.',
+        'new_order_notification' => 'Đơn Hàng Mới Phù Hợp Với Dịch Vụ Của Bạn',
         'bill_details' => 'Chi tiết đơn hàng',
         'order_code' => 'Mã đơn hàng',
         'event_name' => 'Sự kiện',
@@ -38,6 +41,7 @@ return [
         'footer_text' => 'Đây là email tự động. Vui lòng không trả lời trực tiếp tin nhắn này.',
         'status_pending' => 'Đang chờ xem xét',
         'cta_view_order' => 'Xem chi tiết đơn hàng',
+        'cta_accept_order' => 'Xem & Chấp Nhận Đơn Hàng',
     ],
 
     'partner_bill_confirmed' => [
