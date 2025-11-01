@@ -53,29 +53,16 @@ class PartnerBillMailService
     }
 
     /**
-     * Gửi mail thông báo đơn đã được xác nhận (khi status chuyển thành PAID)
+     * Gửi mail thông báo đơn đã được xác nhận
      */
     public function sendOrderConfirmedNotification(PartnerBill $partnerBill): void
     {
         try {
-            // Gửi mail cho client
-            if ($partnerBill->client && $partnerBill->client->email) {
-                $clientLocale = $this->getUserLocale($partnerBill->client);
-                Mail::to($partnerBill->client->email)
-                    ->send(new PartnerBillConfirmed($partnerBill, 'client', $clientLocale));
-            }
-
-            // Gửi mail cho partner
             if ($partnerBill->partner && $partnerBill->partner->email) {
                 $partnerLocale = $this->getUserLocale($partnerBill->partner);
                 Mail::to($partnerBill->partner->email)
-                    ->send(new PartnerBillConfirmed($partnerBill, 'partner', $partnerLocale));
+                    ->queue(new PartnerBillConfirmed($partnerBill, $partnerLocale));
             }
-
-            Log::info('Order confirmed notification sent successfully', [
-                'partner_bill_id' => $partnerBill->id,
-                'code' => $partnerBill->code
-            ]);
         } catch (\Exception $e) {
             Log::error('Failed to send order confirmed notification', [
                 'partner_bill_id' => $partnerBill->id,
