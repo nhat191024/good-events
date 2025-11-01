@@ -242,9 +242,6 @@ class PartnerBill extends Model implements HasMedia
                 $existingCompletedOrdersStat->save();
             }
         }
-
-        $mailService = new PartnerBillMailService();
-        $mailService->sendOrderConfirmedNotification($partnerBill);
     }
 
     /**
