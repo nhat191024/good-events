@@ -19,4 +19,15 @@ return [
         'created_at' => 'Tạo lúc',
         'updated_at' => 'Cập nhật lúc',
     ],
+
+    'actions' => [
+        'change_status' => 'Thay đổi trạng thái',
+        'change_status_description' => 'Chọn trạng thái mới cho hóa đơn này',
+        'update' => 'Cập nhật',
+    ],
+
+    'notifications' => [
+        'status_changed' => 'Trạng thái đã được thay đổi',
+        'status_changed_body' => 'Hóa đơn :code đã được thay đổi từ :old_status sang :new_status',
+    ],
 ];
