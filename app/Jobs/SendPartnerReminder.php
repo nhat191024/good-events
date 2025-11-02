@@ -33,8 +33,10 @@ class SendPartnerReminder implements ShouldQueue
      */
     public function handle(): void
     {
-        //check if start time is within next 6 hours
-        if ($this->partnerBill->start_date->isFuture() && $this->partnerBill->start_date->diffInHours(now()) <= 6) {
+        $eventDateTime = $this->partnerBill->date->copy()
+            ->setTimeFrom($this->partnerBill->start_time);
+
+        if ($eventDateTime->isFuture() && $eventDateTime->diffInHours(now()) <= 2) {
             $partnerId = $this->partnerBill->partner_id;
             $clientId = $this->partnerBill->client_id;
             $partner = User::find($partnerId);
@@ -44,15 +46,14 @@ class SendPartnerReminder implements ShouldQueue
             $partner->notify(
                 Notification::make()
                     ->title(__('notification.partner_show_reminder_title', ['code' => $this->partnerBill->code]))
-                    ->body(__('notification.partner_show_reminder_body', ['code' => $this->partnerBill->code, 'start_date' => $this->partnerBill->start_date]))
+                    ->body(__('notification.partner_show_reminder_body', ['code' => $this->partnerBill->code, 'start_time' => $eventDateTime]))
                     ->warning()
                     ->send()
             );
 
-            //send email
             $this->mailService->sendUpcomingEventReminder($this->partnerBill);
         } else {
-            $timeUntilReminder = $this->partnerBill->start_date->subHours(6);
+            $timeUntilReminder = $eventDateTime->copy()->subHours(2);
             SendPartnerReminder::dispatch($this->partnerBill)->delay($timeUntilReminder);
             return;
         }
