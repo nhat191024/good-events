@@ -20,6 +20,8 @@ use App\Events\PartnerBillCreated;
 use App\Events\NewThreadCreated;
 use App\Events\PartnerBillStatusChanged;
 
+use App\Jobs\SendPartnerReminder;
+
 use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
 use Cmgmyr\Messenger\Models\Message;
@@ -320,6 +322,15 @@ class PartnerBill extends Model implements HasMedia
         $mailService->sendOrderConfirmedNotification($partnerBill);
 
         NewThreadCreated::dispatch($partnerBill);
+
+        if ($partnerBill->date && $partnerBill->start_time) {
+            $eventDateTime = $partnerBill->date->copy()->setTimeFrom($partnerBill->start_time);
+            $reminderTime = $eventDateTime->copy()->subHours(2);
+
+            if ($reminderTime->isFuture()) {
+                SendPartnerReminder::dispatch($partnerBill)->delay($reminderTime);
+            }
+        }
     }
 
     //model helpers method
