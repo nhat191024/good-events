@@ -29,7 +29,7 @@
 </script>
 
 <template>
-    <AuthLayout title="Lấy lại mật khẩu" description="Nhập email của bạn để nhận link đặt lại mặt khẩu">
+    <AuthLayout title="Lấy lại mật khẩu" description="Nhập email của bạn để nhận link đặt lại mật khẩu">
 
         <Head title="Forgot password" />
 
