@@ -6,17 +6,23 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
-import { configureEcho } from '@laravel/echo-vue';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 
-configureEcho({
+// Expose Pusher to window for Echo
+(window as any).Pusher = Pusher;
+
+// Configure and expose Echo instance
+(window as any).Echo = new Echo({
     broadcaster: 'pusher',
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     key: import.meta.env.VITE_PUSHER_APP_KEY,
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     wsHost: import.meta.env.VITE_PUSHER_HOST ? import.meta.env.VITE_PUSHER_HOST : `ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com`,
     wsPort: import.meta.env.VITE_PUSHER_PORT ?? 80,
     wssPort: import.meta.env.VITE_PUSHER_PORT ?? 443,
     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
+    disableStats: true,
 });
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';

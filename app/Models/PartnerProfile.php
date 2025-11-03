@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+use BeyondCode\Vouchers\Traits\HasVouchers;
+
 /**
  * @property int $id
  * @property int $user_id
@@ -21,6 +23,8 @@ use Spatie\Activitylog\LogOptions;
  * @property-read int|null $activities_count
  * @property-read \App\Models\Location $location
  * @property-read \App\Models\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \BeyondCode\Vouchers\Models\Voucher> $vouchers
+ * @property-read int|null $vouchers_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile onlyTrashed()
@@ -39,7 +43,7 @@ use Spatie\Activitylog\LogOptions;
  */
 class PartnerProfile extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use SoftDeletes, LogsActivity, HasVouchers;
 
     /**
      * The attributes that are mass assignable.

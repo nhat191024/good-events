@@ -1,22 +1,28 @@
 <script setup lang="ts">
-    import InputError from '@/components/InputError.vue';
-    import TextLink from '@/components/TextLink.vue';
-    import { Button } from '@/components/ui/button';
-    import { Checkbox } from '@/components/ui/checkbox';
-    import { Input } from '@/components/ui/input';
-    import { Label } from '@/components/ui/label';
-    import AuthBase from '@/layouts/AuthLayout.vue';
-    import { Form, Head } from '@inertiajs/vue3';
-    import { LoaderCircle } from 'lucide-vue-next';
+import InputError from '@/components/InputError.vue';
+import TextLink from '@/components/TextLink.vue';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import AuthBase from '@/layouts/AuthLayout.vue';
+import { Form, Head, Link } from '@inertiajs/vue3';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
 
-    defineProps<{
-        status?: string;
-        canResetPassword: boolean;
-    }>();
+defineProps<{
+    status?: string;
+    canResetPassword: boolean;
+}>();
+
+const showPassword = ref(false);
+const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value;
+};
 </script>
 
 <template>
-    <AuthBase title="Log in to your account" description="Enter your email and password below to log in">
+    <AuthBase title="Đăng nhập" description="">
 
         <Head title="Log in" />
 
@@ -28,42 +34,66 @@
             class="flex flex-col gap-6">
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email">Email hoặc SĐT</Label>
                     <Input id="email" type="email" name="email" required autofocus :tabindex="1" autocomplete="email"
-                        placeholder="email@example.com" />
+                        placeholder="email@example.com, 097654321" />
                     <InputError :message="errors.email" />
                 </div>
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
-                        <Label for="password">Password</Label>
+                        <Label for="password">Mật khẩu</Label>
                         <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm"
                             :tabindex="5">
-                            Forgot password?
+                            Quên mật khẩu?
                         </TextLink>
                     </div>
-                    <Input id="password" type="password" name="password" required :tabindex="2"
-                        autocomplete="current-password" placeholder="Password" />
+                    <div class="relative">
+                        <Input id="password" :type="showPassword ? 'text' : 'password'" name="password" required
+                            :tabindex="2" autocomplete="current-password" placeholder="Password" class="pr-10" />
+                        <button type="button"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground focus:outline-none"
+                            :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" :tabindex="6"
+                            @click="togglePasswordVisibility">
+                            <component :is="showPassword ? EyeOff : Eye" class="w-4 h-4" />
+                        </button>
+                    </div>
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="flex items-center justify-between">
                     <Label for="remember" class="flex items-center space-x-3">
                         <Checkbox id="remember" name="remember" :tabindex="3" />
-                        <span>Remember me</span>
+                        <span>Ghi nhớ đăng nhập</span>
                     </Label>
                 </div>
 
-                <Button type="submit" class="w-full mt-4" :tabindex="4" :disabled="processing">
+                <Button type="submit" class="w-full mt-4 font-bold text-white hover:bg-primary-700 active:bg-primary-800 cursor-pointer" :tabindex="4" :disabled="processing">
                     <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
-                    Log in
+                    Đăng nhập
                 </Button>
             </div>
 
             <div class="text-sm text-center text-muted-foreground">
-                Don't have an account?
-                <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
+                Chưa có tài khoản?
+                <TextLink :href="route('register')" :tabindex="7">Đăng ký</TextLink>
             </div>
+            <div class="text-sm text-center text-muted-foreground">
+                Bạn là đối tác?
+                <a href="/partner/login" class="underline text-gray-800 underline-offset-4" :tabindex="8"> Đăng nhập đối tác </a>
+            </div>
+            <!-- <div class="text-sm text-center text-muted-foreground">
+                Bạn là quản trị viên?
+                <a href="/admin/login" class="underline text-gray-800 underline-offset-4"> Đến trang quản trị</a>
+            </div> -->
+            <hr>
+            <div class="text-sm text-center text-muted-foreground">
+                Hoặc, bạn đang tìm việc?
+            </div>
+            <Button type="button" class="p-0 w-full mb-4 font-bold text-white bg-green-700 hover:bg-green-800 active:bg-green-900" :tabindex="9" :disabled="processing">
+                <!-- <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" /> -->
+                <Link :href="route('partner.register')" class="w-full h-full p-2">Đăng ký đối tác</Link>
+            </Button>
         </Form>
     </AuthBase>
 </template>

@@ -26,6 +26,12 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use Jacobtims\FilamentLogger\FilamentLoggerPlugin;
+
+use App\Filament\Admin\Widgets\AdminStatisticsWidget;
+use App\Filament\Admin\Widgets\AdminRevenueChart;
+use App\Filament\Admin\Widgets\AdminTopPartnersWidget;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -44,13 +50,20 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
 
+            ->viteTheme('resources/css/filament/admin/theme.css')
+
             ->pages([
                 Dashboard::class,
             ])
 
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                AdminStatisticsWidget::class,
+                AdminRevenueChart::class,
+                AdminTopPartnersWidget::class,
+            ])
+
+            ->plugins([
+                FilamentLoggerPlugin::make(),
             ])
 
             ->middleware([

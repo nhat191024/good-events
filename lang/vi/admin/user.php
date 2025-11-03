@@ -20,5 +20,8 @@ return [
             'phone' => 'Nhập số điện thoại',
             'password' => 'Nhập mật khẩu',
         ],
-    ]
+    ],
+
+    'ban_title' => 'Cấm người dùng',
+    'ban_description' => 'Bạn có chắc chắn muốn cấm người dùng này không?',
 ];

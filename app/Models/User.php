@@ -3,27 +3,36 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 use Spatie\Permission\Traits\HasRoles;
 
 use Cmgmyr\Messenger\Traits\Messagable;
 
-use Bavix\Wallet\Traits\HasWallet;
 use Bavix\Wallet\Interfaces\Wallet;
+use Bavix\Wallet\Interfaces\Confirmable;
+use Bavix\Wallet\Traits\HasWallet;
+use Bavix\Wallet\Traits\CanConfirm;
 
 use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
+
+use Codebyray\ReviewRateable\Traits\ReviewRateable;
 
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 
 use App\Enum\Role;
+use App\Enum\StatisticType;
 
 /**
  * @property int $id
@@ -40,6 +49,8 @@ use App\Enum\Role;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $authoredReviews
+ * @property-read int|null $authored_reviews_count
  * @property-read non-empty-string $balance
  * @property-read int $balance_int
  * @property-read \Bavix\Wallet\Models\Wallet $wallet
@@ -62,8 +73,12 @@ use App\Enum\Role;
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $receivedTransfers
  * @property-read int|null $received_transfers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $reviews
+ * @property-read int|null $reviews_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read int|null $roles_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Statistical> $statistics
+ * @property-read int|null $statistics_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Thread> $threads
  * @property-read int|null $threads_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transaction> $transactions
@@ -99,10 +114,10 @@ use App\Enum\Role;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements Wallet, FilamentUser
+class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, Confirmable, MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanRedeemVouchers, LogsActivity;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanConfirm, CanRedeemVouchers, ReviewRateable, LogsActivity, CanResetPassword;
 
     /**
      * The attributes that are mass assignable.
@@ -126,6 +141,16 @@ class User extends Authenticatable implements Wallet, FilamentUser
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    /**
+     * Additional attributes to append to array / JSON representations.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'avatar_url',
+        'partner_profile_name',
     ];
 
     /**
@@ -172,13 +197,32 @@ class User extends Authenticatable implements Wallet, FilamentUser
      */
     public function getFilamentAvatarUrl(): ?string
     {
-        if ($this->avatar) {
-            return asset($this->avatar);
-        }
-
-        return null;
+        return $this->avatar_url;
     }
 
+    /**
+     * Accessor for the user's avatar URL that supports both stored paths and external URLs.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (empty($this->avatar)) {
+            return null;
+        }
+
+        if (Str::startsWith($this->avatar, ['http://', 'https://'])) {
+            return $this->avatar;
+        }
+
+        return asset('storage/' . ltrim($this->avatar, '/'));
+    }
+
+    /**
+     * Accessor to expose the partner profile name (if any) to front-end consumers.
+     */
+    public function getPartnerProfileNameAttribute(): ?string
+    {
+        return $this->partnerProfile?->partner_name;
+    }
 
     //model boot method
     protected static function booted(): void
@@ -203,6 +247,11 @@ class User extends Authenticatable implements Wallet, FilamentUser
     }
 
     //model relationships
+    public function statistics()
+    {
+        return $this->hasMany(Statistical::class, 'user_id');
+    }
+
     public function partnerProfile()
     {
         return $this->hasOne(PartnerProfile::class);
@@ -226,5 +275,13 @@ class User extends Authenticatable implements Wallet, FilamentUser
     public function partnerBillsDetails()
     {
         return $this->hasMany(PartnerBillDetail::class, 'partner_id');
+    }
+
+    /**
+     * Reviews authored by this user (as the writer), not the reviews received about this user.
+     */
+    public function authoredReviews()
+    {
+        return $this->hasMany(\Codebyray\ReviewRateable\Models\Review::class, 'user_id');
     }
 }

@@ -42,7 +42,7 @@ class PartnerBillTest extends Command
 
         // Fetch all event IDs and partner category IDs for user ID 2
         $events = Event::all()->pluck('id')->toArray();
-        $PartnerCategoryIds = User::find(2)->partnerServices()->pluck('id')->toArray();
+        $PartnerCategoryIds = User::find(2)->partnerServices()->pluck('category_id')->toArray();
 
         if (empty($events)) {
             $this->error('No events found in the database.');
@@ -73,7 +73,7 @@ class PartnerBillTest extends Command
                 'final_total' => fake()->randomFloat(2, 50, 500),
                 'event_id' => fake()->randomElement($events),
                 'client_id' => 3,
-                'partner_id' => 2,
+                'partner_id' => null,
                 'category_id' => fake()->randomElement($PartnerCategoryIds),
                 'note' => fake()->sentence(),
                 'status' => PartnerBillStatus::PENDING,
@@ -82,7 +82,7 @@ class PartnerBillTest extends Command
             $createdBills[] = $bill->code;
 
             // Trigger the event
-            NewPartnerBillCreated::dispatch($bill);
+            // NewPartnerBillCreated::dispatch($bill);
 
             $this->line("Created partner bill: {$bill->code}");
         }

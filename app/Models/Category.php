@@ -10,6 +10,9 @@ use Spatie\Sluggable\SlugOptions;
 
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
+use Spatie\Image\Enums\CropPosition;
 
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -34,8 +37,6 @@ use Spatie\Activitylog\LogOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
  * @property-read Category|null $parent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerCategory> $partnerCategories
- * @property-read int|null $partner_categories_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RentProduct> $rentProducts
  * @property-read int|null $rent_products_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category newModelQuery()
@@ -81,6 +82,26 @@ class Category extends Model implements HasMedia
     }
 
     /**
+     * Summary of registerMediaConversions
+     * @param Media|null $media
+     * @return void
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(300)
+            ->height(300)
+            ->sharpen(10)
+            ->queued();
+
+        $this->addMediaConversion('mobile_optimized')
+            ->width(320)
+            ->height(240)
+            ->crop(320, 240, CropPosition::Center)
+            ->queued();
+    }
+
+    /**
      * Summary of getActivitylogOptions
      * @return LogOptions
      */
@@ -91,11 +112,6 @@ class Category extends Model implements HasMedia
     }
 
     //model helper method
-    public function hasPartnerCategories()
-    {
-        return $this->partnerCategories()->exists();
-    }
-
     public function hasRentProducts()
     {
         return $this->rentProducts()->exists();
@@ -120,11 +136,6 @@ class Category extends Model implements HasMedia
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
-    }
-
-    public function partnerCategories()
-    {
-        return $this->hasMany(PartnerCategory::class);
     }
 
     public function rentProducts()

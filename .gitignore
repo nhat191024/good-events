@@ -6,6 +6,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage
 /vendor
 .env
 .env.backup
@@ -21,5 +22,13 @@ yarn-error.log
 /.idea
 /.nova
 /.vscode
+/.pnpm-store
 /.zed
-"laradumps.yaml" 
+laradumps.yaml
+/dumb
+.fuse_hidden*
+.dev-kit
+docker-compose-local.yml
+pnpm-workspace.yaml
+/worktrees/
+.rnd

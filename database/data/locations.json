@@ -1,32 +1,72 @@
 [
     {
-        "name": "Hà Nội"
+        "name": "Hà Nội",
+        "code": "HN",
+        "codename": "Hà Nội",
+        "type": "Thành phố",
+        "phone_code": "24"
     },
     {
-        "name": "Hồ Chí Minh"
+        "name": "Hồ Chí Minh",
+        "code": "HCM",
+        "codename": "Hồ Chí Minh",
+        "type": "Thành phố",
+        "phone_code": "28"
     },
     {
-        "name": "Đà Nẵng"
+        "name": "Đà Nẵng",
+        "code": "DN",
+        "codename": "Đà Nẵng",
+        "type": "Thành phố",
+        "phone_code": "236"
     },
     {
-        "name": "Hải Phòng"
+        "name": "Hải Phòng",
+        "code": "HP",
+        "codename": "Hải Phòng",
+        "type": "Thành phố",
+        "phone_code": "225"
     },
     {
-        "name": "Cần Thơ"
+        "name": "Cần Thơ",
+        "code": "CT",
+        "codename": "Cần Thơ",
+        "type": "Thành phố",
+        "phone_code": "292"
     },
     {
-        "name": "Nha Trang"
+        "name": "Nha Trang",
+        "code": "NT",
+        "codename": "Nha Trang",
+        "type": "Thành phố",
+        "phone_code": "258"
     },
     {
-        "name": "Huế"
+        "name": "Huế",
+        "code": "HUE",
+        "codename": "Huế",
+        "type": "Thành phố",
+        "phone_code": "234"
     },
     {
-        "name": "Vũng Tàu"
+        "name": "Vũng Tàu",
+        "code": "VT",
+        "codename": "Vũng Tàu",
+        "type": "Thành phố",
+        "phone_code": "254"
     },
     {
-        "name": "Phú Quốc"
+        "name": "Phú Quốc",
+        "code": "PQ",
+        "codename": "Phú Quốc",
+        "type": "Thành phố",
+        "phone_code": "297"
     },
     {
-        "name": "Đà Lạt"
+        "name": "Đà Lạt",
+        "code": "DL",
+        "codename": "Đà Lạt",
+        "type": "Thành phố",
+        "phone_code": "263"
     }
 ]

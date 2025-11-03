@@ -7,6 +7,10 @@ use App\Enum\PartnerServiceStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -14,15 +18,17 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property int $category_id
  * @property int $user_id
- * @property string $status
+ * @property PartnerServiceStatus $status
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\PartnerCategory $category
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerMedia> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read int|null $media_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerMedia> $serviceMedia
+ * @property-read int|null $service_media_count
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService newQuery()
@@ -39,9 +45,9 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService withoutTrashed()
  * @mixin \Eloquent
  */
-class PartnerService extends Model
+class PartnerService extends Model implements HasMedia
 {
-    use SoftDeletes, LogsActivity;
+    use SoftDeletes, InteractsWithMedia, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -53,6 +59,53 @@ class PartnerService extends Model
         'user_id',
         'status',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => PartnerServiceStatus::class,
+        ];
+    }
+
+    /**
+     * The model's validation rules.
+     *
+     * @var array<string, mixed>
+     */
+    public static array $rules = [
+        'category_id' => 'required|exists:partner_categories,id',
+        'user_id' => 'required|exists:users,id',
+        'status' => 'required|string|in:pending,approved,rejected',
+    ];
+
+
+    /**
+     * Register media collections for partner service
+     * @return void
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('service_images')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp']);
+    }
+
+    /**
+     * Summary of registerMediaConversions
+     * @param Media|null $media
+     * @return void
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(300)
+            ->height(300)
+            ->sharpen(10);
+    }
 
     /**
      * Summary of getActivitylogOptions
@@ -91,7 +144,7 @@ class PartnerService extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function media()
+    public function serviceMedia()
     {
         return $this->hasMany(PartnerMedia::class, 'partner_service_id');
     }

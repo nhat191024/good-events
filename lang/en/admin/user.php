@@ -6,11 +6,11 @@ return [
         'label' => [
             'name' => 'Name',
             'avatar' => 'Avatar',
-            'email' => 'Email address',
-            'country_code' => 'Country code',
-            'phone' => 'Phone number',
+            'email' => 'Email Address',
+            'country_code' => 'Country Code',
+            'phone' => 'Phone Number',
             'password' => 'Password',
-            'email_verified_at' => 'Email verified at',
+            'email_verified_at' => 'Email Verified At',
         ],
 
         'placeholder' => [
@@ -20,5 +20,8 @@ return [
             'phone' => 'Enter phone number',
             'password' => 'Enter password',
         ],
-    ]
+    ],
+
+    'ban_title' => 'Ban User',
+    'ban_description' => 'Are you sure you want to ban this user?',
 ];

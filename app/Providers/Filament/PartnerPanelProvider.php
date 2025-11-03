@@ -8,15 +8,23 @@ use Filament\Pages\Dashboard;
 
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
+use Filament\Enums\ThemeMode;
 
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
+
+use App\Filament\Partner\Widgets\PartnerStatisticsWidget;
+use App\Filament\Partner\Widgets\PartnerRevenueChart;
+use App\Filament\Partner\Widgets\PartnerTopServicesWidget;
 
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 
+use Filament\Actions\Action;
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
@@ -34,10 +42,29 @@ class PartnerPanelProvider extends PanelProvider
             ->id('partner')
             ->path('partner')
             ->login()
+            ->emailVerification()
+            ->passwordReset()
+
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Rose
             ])
             ->maxContentWidth(Width::Full)
+
+            ->userMenuItems([
+                Action::make('balance')
+                    ->label(function () {
+                        $user = Auth::user();
+                        $balance = $user ? $user->balanceInt : 0;
+                        return __('global.balance') . ': ' . number_format($balance, 0) . ' ' . __('global.currency');
+                    })
+                    ->disabled(true)
+                    ->icon('heroicon-o-currency-dollar'),
+                'profile' => fn(Action $action) => $action->url(route('filament.partner.pages.profile-settings')),
+            ])
+
+            ->databaseNotifications()
+            ->lazyLoadedDatabaseNotifications(true)
+            ->databaseNotificationsPolling('30s')
 
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
             ->discoverPages(in: app_path('Filament/Partner/Pages'), for: 'App\Filament\Partner\Pages')
@@ -45,13 +72,16 @@ class PartnerPanelProvider extends PanelProvider
 
             ->viteTheme('resources/css/filament/partner/theme.css')
 
+            ->defaultThemeMode(ThemeMode::Light)
+
             ->pages([
                 Dashboard::class,
             ])
 
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                PartnerStatisticsWidget::class,
+                PartnerRevenueChart::class,
+                PartnerTopServicesWidget::class,
             ])
 
             ->middleware([

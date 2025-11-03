@@ -28,12 +28,12 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
     protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::USER_MANAGEMENT;
 
     public static function getModelLabel(): string
     {
-        return __('admin\user.user');
+        return __('admin.user.user');
     }
 
     public static function form(Schema $schema): Schema

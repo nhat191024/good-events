@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+use Spatie\Tags\HasTags;
+
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -48,7 +50,7 @@ use Spatie\Activitylog\LogOptions;
  */
 class RentProduct extends Model implements HasMedia
 {
-    use SoftDeletes, HasSlug, InteractsWithMedia, LogsActivity;
+    use SoftDeletes, HasSlug, HasTags, InteractsWithMedia, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
