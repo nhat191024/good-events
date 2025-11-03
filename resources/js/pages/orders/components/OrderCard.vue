@@ -43,13 +43,13 @@ function goToChat(thread_id: number) {
         >
             Đang xem
         </span>
-        
+
         <div class="px-4 py-2 md:py-4">
             <div class="flex items-start gap-3 h-full">
                 <div
                     class="flex flex-col overflow-visible place-items-center h-full">
                     <div class="h-12 w-12 grid rounded-full overflow-visible bg-muted place-items-center ring-2 ring-primary/10">
-                        <img :src="getImg(props.category?.image)" alt="org" class="h-full w-full object-cover" />
+                        <img :src="getImg(props.category?.image)" alt="org" class="h-full w-full object-cover rounded-full" />
                     </div>
                     <div v-if="props.status == OrderStatus.CONFIRMED || props.status == OrderStatus.IN_JOB" class="h-12 w-12 grid rounded-full overflow-visible place-items-center">
                         <span
@@ -59,7 +59,7 @@ function goToChat(thread_id: number) {
                             <MessageCircle class="h-4 w-4" aria-hidden="true" />
                         </span>
                     </div>
-                    
+
                     <div v-if="props.partners.count>0 && props.status == OrderStatus.PENDING" class="h-12 w-12 grid rounded-full overflow-visible place-items-center">
                         <span class="text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm justify-self-start">{{ props.partners.count }}</span>
                     </div>

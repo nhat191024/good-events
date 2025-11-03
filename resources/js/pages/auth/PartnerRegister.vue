@@ -9,7 +9,7 @@ import FormGroupLayout from '@/pages/booking/layout/FormGroup.vue'
 import FormItemLayout from '@/pages/booking/layout/FormItem.vue'
 import SelectBox from '@/components/Select.vue'
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3'
-import { LoaderCircle } from 'lucide-vue-next'
+import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next'
 import { reactive, ref, watch, computed } from 'vue'
 import { route } from 'ziggy-js'
 import type { Province, Ward, WardTypeSelectBox } from '@/types/database'
@@ -44,6 +44,10 @@ const wardList = ref<WardTypeSelectBox[]>([])
 const loadingWards = ref(false)
 const wardsError = ref('')
 const lastProvinceProcessed = ref<string | null>(null)
+const showPassword = ref(false)
+const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value
+}
 
 watch(
     () => location.provinceId,
@@ -148,15 +152,33 @@ function submit() {
 
                 <div class="grid gap-2">
                     <Label for="password">Mật khẩu</Label>
-                    <Input id="password" type="password" required :tabindex="5" autocomplete="new-password"
-                        v-model="form.password" placeholder="Nhập mật khẩu" />
+                    <div class="relative">
+                        <Input id="password" :type="showPassword ? 'text' : 'password'" required :tabindex="5"
+                            autocomplete="new-password" v-model="form.password" placeholder="Nhập mật khẩu"
+                            class="pr-10" />
+                        <button type="button"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground focus:outline-none"
+                            :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" :tabindex="6"
+                            @click="togglePasswordVisibility">
+                            <component :is="showPassword ? EyeOff : Eye" class="w-4 h-4" />
+                        </button>
+                    </div>
                     <InputError :message="form.errors.password" />
                 </div>
 
                 <div class="grid gap-2">
                     <Label for="password_confirmation">Xác nhận mật khẩu</Label>
-                    <Input id="password_confirmation" type="password" required :tabindex="6" autocomplete="new-password"
-                        v-model="form.password_confirmation" placeholder="Nhập lại mật khẩu" />
+                    <div class="relative">
+                        <Input id="password_confirmation" :type="showPassword ? 'text' : 'password'" required
+                            :tabindex="7" autocomplete="new-password" v-model="form.password_confirmation"
+                            placeholder="Nhập lại mật khẩu" class="pr-10" />
+                        <button type="button"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground focus:outline-none"
+                            :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" :tabindex="8"
+                            @click="togglePasswordVisibility">
+                            <component :is="showPassword ? EyeOff : Eye" class="w-4 h-4" />
+                        </button>
+                    </div>
                     <InputError :message="form.errors.password_confirmation" />
                 </div>
 

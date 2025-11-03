@@ -244,6 +244,11 @@ class PartnerBill extends Model implements HasMedia
                 $existingCompletedOrdersStat->save();
             }
         }
+
+        $thread = Thread::find($partnerBill->thread_id);
+        if ($thread) {
+            $thread->delete();
+        }
     }
 
     /**
@@ -279,6 +284,11 @@ class PartnerBill extends Model implements HasMedia
                 $existingCancelledOrdersStat->save();
             }
         }
+
+        $thread = Thread::find($partnerBill->thread_id);
+        if ($thread) {
+            $thread->delete();
+        }
     }
 
     /**
@@ -307,12 +317,6 @@ class PartnerBill extends Model implements HasMedia
             'thread_id' => $thread->id,
             'user_id' => $partnerBill->partner_id,
             'last_read' => null
-        ]);
-
-        Message::create([
-            'thread_id' => $thread->id,
-            'user_id' => 1, //system user
-            'body' => __("global.system_message.order_confirmed", ['code' => $partnerBill->code])
         ]);
 
         $partnerBill->thread_id = $thread->id;

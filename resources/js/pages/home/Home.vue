@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import HeroBanner from './partials/HeroBanner.vue';
-import PartnerCategoryIcons from './partials/PartnerCategoryIcons.vue';
+import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 import CategorySection from './partials/CategorySection.vue';
 import Footer from './partials/Footer.vue';
 import { PartnerCategory } from '@/types/database';
@@ -15,6 +15,40 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const categories = [
+    {
+        id: 1,
+        name: 'Sự kiện',
+        slug: 'su-kien',
+        icon: 'mdi:flower',
+        image: '/images/logo-su-kien.webp',
+        href: route('home')
+    },
+    {
+        id: 2,
+        name: 'Tài liệu',
+        slug: 'tai-lieu',
+        icon: 'mdi:book-open',
+        image: '/images/logo-tai-lieu.webp',
+        href: route('asset.home')
+    },
+    {
+        id: 3,
+        name: 'Thiết bị',
+        slug: 'tim-khach-san',
+        icon: 'mdi:bed',
+        image: '/images/logo-loa-dai.webp',
+        href: route('rent.home')
+    },
+    {
+        id: 4,
+        name: 'Khách sạn',
+        slug: 'khach-san',
+        icon: 'mdi:bag-personal',
+        image: '/images/logo_khach_san.webp',
+    },
+];
 
 const search = ref('');
 
@@ -37,7 +71,7 @@ const filteredPartnerCategories = computed(() => {
     <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
 
         <HeroBanner v-model="search" />
-        <PartnerCategoryIcons />
+        <PartnerCategoryIcons :categories="categories" />
         <!-- Partner Categories Sections -->
         <div class="container mx-auto px-4 py-8 space-y-12">
             <!-- Loop through event categories and display partner categories for each -->

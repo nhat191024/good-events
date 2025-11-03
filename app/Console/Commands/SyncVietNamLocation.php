@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-
+use Illuminate\Support\Facades\Http;
 use App\Models\Location;
 
 class SyncVietNamLocation extends Command
@@ -31,8 +31,15 @@ class SyncVietNamLocation extends Command
         //note depth=2 for province and ward
         //v2 for new vietnam location from 07/2025
 
-        $response = file_get_contents('https://provinces.open-api.vn/api/v2?depth=2');
-        $locations = json_decode($response, true);
+        $response = Http::withoutVerifying()
+            ->get('https://provinces.open-api.vn/api/v2', ['depth' => 2]);
+
+        if ($response->failed()) {
+            $this->error('Failed to fetch location data from API.');
+            return Command::FAILURE;
+        }
+
+        $locations = $response->json();
 
         //data example
         // {

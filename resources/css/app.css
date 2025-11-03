@@ -80,6 +80,9 @@
 
     /* background */
     --color-background-framer: #f4f4f4;
+
+    /* new breakpoint */
+    --breakpoint-xs: 425px;
 }
 
 /*

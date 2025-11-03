@@ -35,14 +35,14 @@ class CategoryController extends Controller
                         $query->orderBy('min_price')
                             ->limit(8)
                             ->with('media');
-                    }
+                    },
                 ])
                 ->whereNull('parent_id')
                 ->orderBy('name')
                 ->get();
 
             // Chuẩn hóa dữ liệu gửi sang Inertia (tránh gửi cả model kèm thuộc tính không cần)
-            $expireAt = now()->addMinutes(5);
+            $expireAt = now()->addMinutes(60);
 
             $payload = [
                 'parent' => [],
@@ -78,7 +78,7 @@ class CategoryController extends Controller
 
     private function getTemporaryImageUrl($model, $expireAt)
     {
-        if (!method_exists($model, 'getFirstTemporaryUrl')) {
+        if (! method_exists($model, 'getFirstTemporaryUrl')) {
             return null;
         }
 

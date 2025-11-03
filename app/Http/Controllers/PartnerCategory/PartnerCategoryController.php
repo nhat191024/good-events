@@ -4,7 +4,6 @@ namespace App\Http\Controllers\PartnerCategory;
 
 use App\Http\Controllers\Controller;
 use App\Models\PartnerCategory;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PartnerCategoryController extends Controller
@@ -24,7 +23,7 @@ class PartnerCategoryController extends Controller
             ->get(['id', 'name', 'slug', 'min_price', 'max_price']);
 
         $category = $item->parent;
-        $expireAt = now()->addMinutes(5);
+        $expireAt = now()->addMinutes(60);
 
         return Inertia::render('partner-categories/Show', [
             'item' => [
@@ -36,7 +35,7 @@ class PartnerCategoryController extends Controller
                 'description' => $item->description,
                 'updated_human' => $item->updated_at?->diffForHumans(),
                 // Ảnh từ media library nếu có
-                'image' => $this->getTemporaryImageUrl($item, $expireAt)
+                'image' => $this->getTemporaryImageUrl($item, $expireAt),
             ],
             'category' => $category ? [
                 'id' => $category->id,
@@ -50,7 +49,7 @@ class PartnerCategoryController extends Controller
                     'slug' => $r->slug,
                     'min_price' => $r->min_price,
                     'max_price' => $r->max_price,
-                    'image' => $this->getTemporaryImageUrl($r, $expireAt)
+                    'image' => $this->getTemporaryImageUrl($r, $expireAt),
                 ];
             }),
         ]);
@@ -58,7 +57,7 @@ class PartnerCategoryController extends Controller
 
     private function getTemporaryImageUrl($model, $expireAt)
     {
-        if (!method_exists($model, 'getFirstTemporaryUrl')) {
+        if (! method_exists($model, 'getFirstTemporaryUrl')) {
             return null;
         }
 

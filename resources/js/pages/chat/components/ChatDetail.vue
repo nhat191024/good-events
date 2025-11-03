@@ -237,21 +237,29 @@
         <!-- header -->
         <div class="border-b border-gray-200 bg-gray-50">
             <div class="flex items-center justify-between p-4">
-                <div class="flex items-center gap-3">
-                    <button class="p-2 md:hidden hover:bg-gray-200 rounded" @click="emit('back')" aria-label="back">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <button class="p-2 md:hidden hover:bg-gray-200 rounded flex-shrink-0" @click="emit('back')" aria-label="back">
                         <ArrowLeft class="h-4 w-4" />
                     </button>
 
-                    <div>
-                        <h2 class="font-medium text-gray-900">
+                    <div class="min-w-0 flex-1">
+                        <h2 class="font-medium text-gray-900 truncate">
                             {{ thread?.subject || currentThread?.subject || 'Không có tiêu đề' }}
                         </h2>
-                        <p v-if="thread?.participants" class="text-xs text-gray-600">
-                            {{thread.participants.map(p => p.name).join(', ')}}
+                        <p v-if="thread?.participants" class="text-xs text-gray-600 truncate">
+                            Người tham gia: {{thread.participants.map(p => p.name).join(', ')}}
                         </p>
+                        <p v-if="thread?.bill" class="mt-2 text-xs text-gray-600 truncate">
+                            Thông tin đơn hàng:
+                        </p>
+                        <div v-if="thread?.bill" class="text-xs text-gray-600">
+                            Sự kiện: {{ thread.bill.event_name || 'N/A' }} <br />
+                            Thời gian: {{ thread.bill.datetime || 'N/A' }} <br />
+                            Địa điểm: {{ thread.bill.address || 'N/A' }}
+                        </div>
                     </div>
                 </div>
-                <button class="p-2 hover:bg-gray-200 rounded" aria-label="more">
+                <button class="p-2 hover:bg-gray-200 rounded md:hidden flex-shrink-0" @click="emit('toggleMobileMenu')" aria-label="Toggle menu">
                     <MoreVertical class="h-4 w-4" />
                 </button>
             </div>
@@ -270,17 +278,17 @@
                     <b>Bảo mật thông tin: </b>Vui lòng không chia sẻ số điện thoại, zalo hay thông tin
                     cá nhân khác để đảm bảo an toàn cho chính bạn.
                     giao dịch qua ứng dụng : mọi thỏa thuận về giá cả, công việc phát sinh hoặc
-                    thay đổi lịch hẹn đều cần được xác nhận trên ứng dụng 
+                    thay đổi lịch hẹn đều cần được xác nhận trên ứng dụng
                 </p>
 
                 <p>
-                    <b>Đảm bảo quyền lợi: </b>sukientot.com chỉ bảo vệ và hỗ trợ các vấn đề 
+                    <b>Đảm bảo quyền lợi: </b>sukientot.com chỉ bảo vệ và hỗ trợ các vấn đề
                     (bảo hành, khiếu nại) dựa trên các giao dịch được ghi nhận chính thức trên
                     ứng dụng.
                 </p>
-                
+
                 <p>
-                    <b>Báo cáo vi phạm:</b> Nếu CTV sukientot.com có bất kỳ yêu cầu giao dịch 
+                    <b>Báo cáo vi phạm:</b> Nếu CTV sukientot.com có bất kỳ yêu cầu giao dịch
                     riêng nào, hãy báo cáo ngay cho chúng tôi qua hotline <b>0393719095</b>.
                 </p>
 
