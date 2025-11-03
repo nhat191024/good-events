@@ -2,34 +2,33 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\Log;
+
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\Services\QuickBookingService;
-use App\Http\Requests\Client\BookingRequest;
+
 use App\Http\Requests\Client\OrderHistory\CancelOrderRequest;
 use App\Http\Requests\Client\OrderHistory\ConfirmPartnerRequest;
+
 use App\Http\Resources\OrderHistory\PartnerBillDetailResource;
 use App\Http\Resources\OrderHistory\PartnerBillHistoryResource;
-use App\Models\Event;
-use App\Models\Location;
-use App\Models\PartnerBill;
-use App\Models\PartnerCategory;
+use App\Http\Resources\OrderHistory\PartnerBillResource;
+
 use App\Notifications\OrderCancelled;
-use App\Notifications\OrderCompleted;
-use App\Notifications\OrderCreated;
 use App\Notifications\OrderStatusChanged;
 use App\Notifications\PartnerAcceptedOrder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use App\Http\Resources\OrderHistory\PartnerBillResource;
+
+use App\Models\Voucher;
+use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 use App\Models\User;
-use App\Models\Voucher;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
+
+use Inertia\Inertia;
+
 
 class OrderController extends Controller
 {
