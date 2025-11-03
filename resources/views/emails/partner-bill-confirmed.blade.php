@@ -247,7 +247,7 @@
                 <div class="info-row">
                     <span class="info-label">{{ __('emails.common.status') }}:</span>
                     <span class="info-value">
-                        <span class="status-badge status-paid">{{ __('emails.common.status_paid') }}</span>
+                        <span class="status-badge status-paid">{{ __('emails.common.status_confirmed') }}</span>
                     </span>
                 </div>
                 <div class="info-row">
