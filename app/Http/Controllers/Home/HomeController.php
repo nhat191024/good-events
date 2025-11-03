@@ -14,7 +14,7 @@ class HomeController extends Controller
      */
     public function index(): Response
     {
-        $expireAt = now()->addMinutes(5);
+        $expireAt = now()->addMinutes(60);
 
         // Eager load event categories with their children and media
         $eventCategories = PartnerCategory::whereNull('parent_id')
@@ -24,7 +24,7 @@ class HomeController extends Controller
                     $query->orderBy('min_price')
                         ->limit(8)
                         ->with('media'); // Eager load media for children
-                }
+                },
             ])
             ->orderBy('name')
             ->get();
@@ -40,7 +40,7 @@ class HomeController extends Controller
                     'description' => $pc->description,
                     'min_price' => $pc->min_price,
                     'max_price' => $pc->max_price,
-                    'image' => $this->getTemporaryImageUrl($pc, $expireAt)
+                    'image' => $this->getTemporaryImageUrl($pc, $expireAt),
                 ];
             });
         }
@@ -53,7 +53,7 @@ class HomeController extends Controller
 
     private function getTemporaryImageUrl($model, $expireAt)
     {
-        if (!method_exists($model, 'getFirstTemporaryUrl')) {
+        if (! method_exists($model, 'getFirstTemporaryUrl')) {
             return null;
         }
 
