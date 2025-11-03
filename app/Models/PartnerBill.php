@@ -309,12 +309,6 @@ class PartnerBill extends Model implements HasMedia
             'last_read' => null
         ]);
 
-        Message::create([
-            'thread_id' => $thread->id,
-            'user_id' => 1, //system user
-            'body' => __("global.system_message.order_confirmed", ['code' => $partnerBill->code])
-        ]);
-
         $partnerBill->thread_id = $thread->id;
         $partnerBill->saveQuietly();
 
