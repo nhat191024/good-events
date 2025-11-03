@@ -43,8 +43,8 @@ const locationsFilter = ref<string[]>([])
 //! change the status group display priority here 
 const STATUS_ORDER: Array<ClientOrder['status']> = [
     OrderStatus.PENDING,
-    OrderStatus.IN_JOB,
     OrderStatus.CONFIRMED,
+    OrderStatus.IN_JOB,
     OrderStatus.CANCELLED,
     OrderStatus.COMPLETED,
     OrderStatus.EXPIRED,
@@ -56,8 +56,8 @@ const STATUS_RANK: Record<string, number> = STATUS_ORDER.reduce(
 )
 
 function baseCompare(a: ClientOrder, b: ClientOrder) {
-    if (sortBy.value === 'newest') return Date.parse(b.updated_at) - Date.parse(a.updated_at)
-    if (sortBy.value === 'oldest') return Date.parse(a.updated_at) - Date.parse(b.updated_at)
+    if (sortBy.value === 'newest') return Date.parse(a.start_time) - Date.parse(b.start_time)
+    if (sortBy.value === 'oldest') return Date.parse(b.start_time) - Date.parse(a.start_time)
 
     if (sortBy.value === 'most-applicants') {
         const ca = a.partners?.count ?? 0
