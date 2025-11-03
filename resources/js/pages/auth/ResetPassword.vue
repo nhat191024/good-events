@@ -70,9 +70,9 @@
                     <InputError :message="errors.password_confirmation" />
                 </div>
 
-                <Button type="submit" class="w-full mt-4" :disabled="processing">
+                <Button type="submit" class="w-full mt-4 font-bold text-white" :disabled="processing">
                     <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
-                    Đặt lại mật khẩu
+                    Đặt lại mật khẩu!
                 </Button>
             </div>
         </Form>
