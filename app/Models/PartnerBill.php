@@ -244,6 +244,11 @@ class PartnerBill extends Model implements HasMedia
                 $existingCompletedOrdersStat->save();
             }
         }
+
+        $thread = Thread::find($partnerBill->thread_id);
+        if ($thread) {
+            $thread->delete();
+        }
     }
 
     /**
@@ -278,6 +283,11 @@ class PartnerBill extends Model implements HasMedia
                 $existingCancelledOrdersStat->metrics_value = $cancelledPercentage;
                 $existingCancelledOrdersStat->save();
             }
+        }
+
+        $thread = Thread::find($partnerBill->thread_id);
+        if ($thread) {
+            $thread->delete();
         }
     }
 
