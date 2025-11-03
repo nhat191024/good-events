@@ -47,8 +47,8 @@ class DatabaseSeeder extends Seeder
             ClientSeeder::class,
             // New comprehensive data seeders (order matters)
             StatisticalSeeder::class,
-            PartnerBillSeeder::class,
-            ReviewSeeder::class,
+            // PartnerBillSeeder::class,
+            // ReviewSeeder::class,
         ]);
     }
 }
