@@ -4,7 +4,7 @@ use App\Http\Controllers\Client\OrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
-    Route::prefix("don-hang-cua-toi")->name('client-orders.')->group(function () {
+    Route::prefix('don-hang-cua-toi')->name('client-orders.')->group(function () {
         Route::get(
             '/',
             [OrderController::class, 'index']
@@ -34,10 +34,12 @@ Route::middleware('auth')->group(function () {
             '/validate-voucher',
             [OrderController::class, 'validateVoucher']
         )->name('validate-voucher');
-        
+
         Route::post(
             '/get-voucher-discount-amount',
             [OrderController::class, 'getVoucherDiscountAmount']
         )->name('get-voucher-discount-amount');
+
+        require __DIR__.'/asset-order-history.php';
     });
 });

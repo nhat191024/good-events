@@ -24,7 +24,8 @@ export function calculateEstimatedPrice(startTime: string, endTime: string, minP
 }
 
 export function formatDate(iso: string): string {
-    const date = new Date(iso)
+    const date = parseIsoToDate(iso)
+    if (!date) return ''
 
     // thứ trong tuần
     const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
@@ -39,16 +40,37 @@ export function formatDate(iso: string): string {
 }
 
 export function formatTime(iso: string): string {
-    const [_, timePart] = iso.split('T')
+    const date = parseIsoToDate(iso)
+    if (date) {
+        return date.toLocaleTimeString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        })
+    }
+
+    const [, timePart] = iso.split('T')
+    if (!timePart) return ''
     const [hh, mm] = timePart.split(':')
-    return `${hh}:${mm}`
+    return hh && mm ? `${hh}:${mm}` : ''
 }
 
 export function formatTimeRange(startIso: string, endIso: string): string {
-    return `${formatTime(startIso)} - ${formatTime(endIso)}`
+    const start = formatTime(startIso)
+    const end = formatTime(endIso)
+    if (!start && !end) return ''
+    if (!start) return end
+    if (!end) return start
+    return `${start} - ${end}`
 }
 
 export function formatPrice(value: number | string): string {
     const num = Math.floor(Number(value)) // ép về số nguyên
     return new Intl.NumberFormat('vi-VN').format(num)
+}
+
+function parseIsoToDate(iso: string): Date | null {
+    if (!iso) return null
+    const date = new Date(iso)
+    return Number.isNaN(date.getTime()) ? null : date
 }

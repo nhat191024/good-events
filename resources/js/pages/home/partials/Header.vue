@@ -154,8 +154,8 @@ onUnmounted(() => {
                     <!-- Nav items (đậm, hover không đổi kích thước) -->
                     <nav class="flex items-center md:gap-3 lg:gap-6">
                         <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Sự Kiện</Link>
-                        <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Vật Tư</Link>
-                        <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
+                        <Link :href="route('asset.home')" class="font-semibold text-black hover:text-black/80">Vật Tư</Link>
+                        <Link :href="route('rent.home')" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
                         <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Khách sạn</Link>
                     </nav>
                 </div>
