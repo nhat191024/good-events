@@ -128,6 +128,12 @@ class ChatController extends Controller
                 'participants.user' => function ($query) {
                     $query->select('id', 'name');
                 },
+                'bill' => function ($query) {
+                    $query->select('id', 'thread_id', 'event_id', 'custom_event', 'date', 'start_time', 'address');
+                },
+                'bill.event' => function ($query) {
+                    $query->select('id', 'name');
+                },
             ])
             ->latest('updated_at');
 
@@ -180,6 +186,14 @@ class ChatController extends Controller
                     'body' => $thread->latestMessage->body,
                     'created_at' => $thread->latestMessage->created_at->toIso8601String(),
                 ] : null,
+                'bill' => $thread->bill ? [
+                    'id' => $thread->bill->id,
+                    'event_name' => $thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event,
+                    'datetime' => $thread->bill->date && $thread->bill->start_time
+                        ? $thread->bill->date->format('d/m/Y') . ' ' . $thread->bill->start_time->format('H:i')
+                        : null,
+                    'address' => $thread->bill->address,
+                ] : null,
             ];
         });
 
@@ -191,7 +205,14 @@ class ChatController extends Controller
 
     private function getMessages(int $threadId, int $page): array
     {
-        $thread = Thread::find($threadId);
+        $thread = Thread::with([
+            'bill' => function ($query) {
+                $query->select('id', 'thread_id', 'event_id', 'custom_event', 'date', 'start_time', 'address');
+            },
+            'bill.event' => function ($query) {
+                $query->select('id', 'name');
+            },
+        ])->find($threadId);
         $thread?->markAsRead(Auth::id());
 
         if (!$thread) {
@@ -257,6 +278,14 @@ class ChatController extends Controller
                         'name' => $participant->user->name,
                     ];
                 })->values(),
+                'bill' => $thread->bill ? [
+                    'id' => $thread->bill->id,
+                    'event_name' => $thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event,
+                    'datetime' => $thread->bill->date && $thread->bill->start_time
+                        ? $thread->bill->date->format('d/m/Y') . ' ' . $thread->bill->start_time->format('H:i')
+                        : null,
+                    'address' => $thread->bill->address,
+                ] : null,
             ],
         ];
     }

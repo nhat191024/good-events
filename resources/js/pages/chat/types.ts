@@ -21,6 +21,7 @@ export interface Thread {
     other_participants: Participant[]
     participants: Participant[]
     latest_message: LatestMessage | null
+    bill: Bill | null
 }
 
 export interface Message {
@@ -33,6 +34,13 @@ export interface Message {
     user: User
 }
 
+export interface Bill {
+    id: number
+    event_name: string | null
+    datetime: string | null
+    address: string | null
+}
+
 export interface ThreadDetail {
     id: number
     subject: string
@@ -40,6 +48,7 @@ export interface ThreadDetail {
     is_unread: boolean
     other_participants: Participant[]
     participants: Participant[]
+    bill: Bill | null
 }
 
 export interface BroadcastMessagePayload {
