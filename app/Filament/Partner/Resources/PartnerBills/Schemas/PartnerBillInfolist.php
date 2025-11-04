@@ -3,6 +3,7 @@
 namespace App\Filament\Partner\Resources\PartnerBills\Schemas;
 
 use App\Enum\PartnerBillStatus;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
@@ -89,6 +90,18 @@ class PartnerBillInfolist
                             ->weight('bold')
                             ->color('success'),
                     ]),
+
+                Section::make(__('partner/bill.arrival_photo'))
+                    ->schema([
+                        ImageEntry::make('arrival_photo')
+                            ->label(__('partner/bill.arrival_photo'))
+                            ->disk('public')
+                            ->getStateUsing(fn($record) => $record->getFirstMedia('arrival_photo')?->getUrl())
+                            ->imageSize(400)
+                            ->square()
+                            ->openUrlInNewTab(),
+                    ])
+                    ->visible(fn($record) => $record->getFirstMedia('arrival_photo') !== null),
 
                 Section::make(__('partner/bill.notes'))
                     ->schema([
