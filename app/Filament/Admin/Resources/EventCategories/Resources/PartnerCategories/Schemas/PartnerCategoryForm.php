@@ -20,10 +20,6 @@ class PartnerCategoryForm
                 TextInput::make('name')
                     ->label(__('admin/partnerCategory.fields.name'))
                     ->required(),
-                TextInput::make('slug')
-                    ->label(__('admin/partnerCategory.fields.slug'))
-                    ->placeholder(__('admin/partnerCategory.placeholders.slug'))
-                    ->disabled(),
                 Select::make('parent_id')
                     ->label(__('admin/partnerCategory.fields.parent_id'))
                     ->searchable()
@@ -41,6 +37,11 @@ class PartnerCategoryForm
                         PartnerCategory::find($value)?->name
                     )
                     ->required(),
+                TextInput::make('slug')
+                    ->label(__('admin/partnerCategory.fields.slug'))
+                    ->placeholder(__('admin/partnerCategory.placeholders.slug'))
+                    ->disabled()
+                    ->columnSpanFull(),
                 TextInput::make('min_price')
                     ->label(__('admin/partnerCategory.fields.min_price'))
                     ->numeric()
