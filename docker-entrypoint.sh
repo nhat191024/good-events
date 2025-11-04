@@ -40,7 +40,7 @@ php artisan filament:optimize
 echo "Fixing nginx client_body_temp_path permissions..."
 mkdir -p /var/lib/nginx/tmp/client_body
 chown -R www-data:www-data /var/lib/nginx/tmp
-chmod -R 700 /var/lib/nginx/tmp/client_body
+chmod -R 755 /var/lib/nginx/tmp/client_body
 
 echo "Laravel application setup completed!"
 
