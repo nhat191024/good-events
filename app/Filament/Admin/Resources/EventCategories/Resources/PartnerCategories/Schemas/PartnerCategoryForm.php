@@ -2,10 +2,13 @@
 
 namespace App\Filament\Admin\Resources\EventCategories\Resources\PartnerCategories\Schemas;
 
+use App\Models\PartnerCategory;
+
 use Filament\Schemas\Schema;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class PartnerCategoryForm
@@ -21,6 +24,23 @@ class PartnerCategoryForm
                     ->label(__('admin/partnerCategory.fields.slug'))
                     ->placeholder(__('admin/partnerCategory.placeholders.slug'))
                     ->disabled(),
+                Select::make('parent_id')
+                    ->label(__('admin/partnerCategory.fields.parent_id'))
+                    ->searchable()
+                    ->getSearchResultsUsing(
+                        fn(string $search): array =>
+                        PartnerCategory::query()
+                            ->whereNull('parent_id')
+                            ->where('name', 'like', "%{$search}%")
+                            ->limit(50)
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    )
+                    ->getOptionLabelUsing(
+                        callback: fn($value): ?string =>
+                        PartnerCategory::find($value)?->name
+                    )
+                    ->required(),
                 TextInput::make('min_price')
                     ->label(__('admin/partnerCategory.fields.min_price'))
                     ->numeric()
