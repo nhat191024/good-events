@@ -118,6 +118,7 @@ return [
     'click_to_upload_photo' => 'Click to upload photo',
     'max_5mb' => 'Max 5MB',
     'arrival_photo_description' => 'This photo will be used as proof that you have arrived at the event location.',
+    'no_arrival_photo' => 'No arrival photo',
 
     // Completion photo translations (for complete order)
     'completion_photo' => 'Completion Photo',

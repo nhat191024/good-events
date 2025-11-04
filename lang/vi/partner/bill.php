@@ -118,6 +118,7 @@ return [
     'click_to_upload_photo' => 'Nhấp để tải lên ảnh',
     'max_5mb' => 'Tối đa 5MB',
     'arrival_photo_description' => 'Ảnh này sẽ được sử dụng làm bằng chứng xác nhận bạn đã đến địa điểm tổ chức sự kiện.',
+    'no_arrival_photo' => 'Chưa có ảnh xác nhận',
 
     // Completion photo translations (for complete order)
     'completion_photo' => 'Ảnh xác nhận hoàn thành',
