@@ -19,6 +19,7 @@ class AdminSeeder extends Seeder
         User::factory()->withRole(Role::ADMIN)->create([
             'name' => 'Admin User',
             'email' => 'admin@gmail.com',
+            'password' => env('ADMIN_PASSWORD'),
         ]);
     }
 }
