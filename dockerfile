@@ -1,42 +1,52 @@
-FROM php:8.4-apache
+FROM php:8.4-fpm-alpine3.22
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    libzip-dev \
-    libpng-dev \
-    libpq-dev \
-    nodejs \
-    npm \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libwebp-dev \
-    libicu-dev \
-    supervisor \
-    procps \
-    curl \
-    unzip \
+RUN apk add --no-cache \
+        bash \
+        git \
+        supervisor \
+        procps \
+        curl \
+        unzip \
+        nodejs \
+        npm \
+        nginx \
+        icu-libs \
+        libzip \
+        libpng \
+        libjpeg-turbo \
+        libwebp \
+        freetype \
+        python3 \
+        make \
+        g++ \
+    && apk add --no-cache --virtual .php-build-deps \
+        autoconf \
+        icu-dev \
+        libzip-dev \
+        zlib-dev \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        libwebp-dev \
+        freetype-dev \
+        oniguruma-dev \
+        linux-headers \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install zip pdo_mysql gd bcmath intl pcntl exif \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apk del .php-build-deps
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Enable Apache modules
-RUN a2enmod rewrite headers
-
-# Copy Apache configuration
-COPY 000-default-redirect.conf /etc/apache2/sites-available/000-default.conf
+# Configure Nginx
+RUN sed -i 's/^user nginx;/user www-data;/' /etc/nginx/nginx.conf \
+    && mkdir -p /run/nginx
+COPY nginx/default.conf /etc/nginx/http.d/default.conf
 
 # Copy PHP custom configuration
 COPY docker-php-custom.ini /usr/local/etc/php/conf.d/custom.ini
-
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 # Copy and install PHP dependencies
 COPY composer.json composer.lock ./
