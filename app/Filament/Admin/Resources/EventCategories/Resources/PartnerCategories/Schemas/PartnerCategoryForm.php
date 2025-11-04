@@ -36,6 +36,7 @@ class PartnerCategoryForm
                         callback: fn($value): ?string =>
                         PartnerCategory::find($value)?->name
                     )
+                    ->default(fn($livewire) => $livewire->getParentRecord()?->id)
                     ->required(),
                 TextInput::make('slug')
                     ->label(__('admin/partnerCategory.fields.slug'))
