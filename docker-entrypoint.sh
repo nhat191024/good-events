@@ -10,13 +10,13 @@ sleep 2
 echo "Generating application key..."
 php artisan key:generate --force
 
-#run migrations
+# run migrations
 php artisan migrate --force
 
-#run storage link
+# run storage link
 php artisan storage:link
 
-#run npm build
+# run npm build
 echo "building assets..."
 npm run build
 
@@ -35,6 +35,12 @@ php artisan route:cache
 php artisan view:cache
 php artisan event:cache
 php artisan filament:optimize
+
+# fix nginx tmp dir permission
+echo "Fixing nginx client_body_temp_path permissions..."
+mkdir -p /var/lib/nginx/tmp/client_body
+chown -R www-data:www-data /var/lib/nginx/tmp
+chmod -R 700 /var/lib/nginx/tmp/client_body
 
 echo "Laravel application setup completed!"
 
