@@ -11,6 +11,11 @@ class CreatePartnerCategory extends CreateRecord
 {
     protected static string $resource = PartnerCategoryResource::class;
 
+    public function getTitle(): string
+    {
+        return __('admin/partnerCategory.create_partner_category');
+    }
+
     public function getBreadcrumbs(): array
     {
         return [
