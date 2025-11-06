@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onBeforeUnmount, computed, watch, type Ref, type Component } from 'vue';
-import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, Shield, LogOut } from 'lucide-vue-next';
+import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, Shield, LogOut, FileCheck } from 'lucide-vue-next';
 
 import DropdownMenuItems from '../components/DropdownMenuItems.vue';
 
@@ -79,6 +79,12 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
         label: 'Đơn hàng của tôi',
         route: () => route('client-orders.dashboard'),
         icon: ClipboardList,
+        external: false
+    },
+    {
+        label: 'File đã mua',
+        route: () => route('client-orders.asset.dashboard'),
+        icon: FileCheck,
         external: false
     },
     {

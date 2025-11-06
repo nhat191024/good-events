@@ -26,9 +26,6 @@
                     <h2 class="line-clamp-2 text-base font-semibold text-gray-900">
                         {{ item.name }}
                     </h2>
-                    <p class="line-clamp-2 text-sm text-gray-500">
-                        {{ item.description || 'Vật tư sự kiện chất lượng cao, sẵn sàng cho thuê.' }}
-                    </p>
                     <div class="mt-auto flex items-center justify-between pt-2">
                         <span class="text-lg font-semibold text-primary-700">{{ item.priceText }}</span>
                         <Link

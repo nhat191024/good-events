@@ -9,7 +9,7 @@
 
         <div v-if="descriptionToShow" class="prose prose-sm max-w-none text-gray-700">
             <p v-for="(paragraph, index) in descriptionParagraphs" :key="index" class="whitespace-pre-line">
-                {{ paragraph }}
+                <template v-html="paragraph"></template>
             </p>
         </div>
 

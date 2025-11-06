@@ -40,7 +40,7 @@
                     <div
                         class="items-center flex grow-0 shrink-0 basis-auto gap-[5px] h-min overflow-visible p-0 relative w-full">
                         <div class="outline-0 flex flex-col justify-center shrink-0 transform-none grow-0 basis-auto h-auto relative text-wrap w-full break-words">
-                            <h3 v-text="props.description" class="font-lexend md:text-md text-xs text-center text-gray-600"></h3>
+                            <h3 v-text="''" class="font-lexend md:text-md text-xs text-center text-gray-600"></h3>
                         </div>
                     </div>
                 </div>

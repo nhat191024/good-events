@@ -16,7 +16,6 @@
                 <div class="overflow-y-scroll">
                     <p class="text-[0.75rem] sm:text-[0.80rem] md:text-[1rem]">
                         <span class="font-semibold block">{{ truncatedName }}</span>
-                        <span v-if="cardItem.description" class="block mt-1">{{ truncatedDescription }}</span>
                     </p>
                 </div>
                 <div class="card-actions justify-end mt-auto pt-2"></div>

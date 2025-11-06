@@ -118,10 +118,6 @@ function triggerRepay() {
                         </p>
                     </div>
 
-                    <p v-if="descriptionPreview" class="text-sm leading-relaxed text-gray-600 line-clamp-4">
-                        {{ descriptionPreview }}
-                    </p>
-
                     <div class="grid gap-3 rounded-2xl bg-gray-50 p-4 text-sm text-gray-700 sm:grid-cols-2">
                         <div class="flex flex-col gap-1">
                             <span class="text-xs uppercase tracking-wide text-gray-500">Ngày tạo</span>

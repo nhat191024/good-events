@@ -1,7 +1,7 @@
 <template>
     <Head :title="pageTitle" />
 
-    <ClientHeaderLayout :background-class-names="'bg-blue-100'">
+    <ClientHeaderLayout>
         <section class="bg-white pb-16 pt-6">
             <div class="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
                 <PurchaseBreadcrumbs :file-product="props.fileProduct" />
@@ -27,7 +27,9 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
+
+import { hideLoading, showLoading } from '@/composables/useLoading';
 
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import { formatPrice } from '@/lib/helper';
@@ -100,10 +102,31 @@ function formatCurrency(value: number) {
 }
 
 function submit() {
+    const loadingPromise = showLoading({ title: 'Đang xử lý đơn hàng', message: 'Chúng tôi đang xác nhận thanh toán…' });
+    let dismissed = false;
+    const closeLoading = (result: boolean) => {
+        if (!dismissed) {
+            hideLoading(result);
+            dismissed = true;
+        }
+    };
+
     form.post(route('asset.buy.confirm'), {
         onSuccess: () => {
             form.reset('note');
+            closeLoading(true);
+            router.visit(route('client-orders.asset.dashboard'));
         },
+        onError: () => {
+            closeLoading(false);
+        },
+        onFinish: () => {
+            closeLoading(false);
+        },
+    });
+
+    loadingPromise.finally(() => {
+        // ensure promise chain settled before leaving scope
     });
 }
 
