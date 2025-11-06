@@ -77,6 +77,7 @@ class UsersTable
                     ->modalDescription(__('admin/user.ban_description'))
                     ->modalSubmitActionLabel(__('global.ban'))
                     ->successNotificationTitle(__('admin/user.ban_success_message')),
+                RestoreAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
