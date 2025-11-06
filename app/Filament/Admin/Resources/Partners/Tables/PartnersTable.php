@@ -134,7 +134,8 @@ class PartnersTable
                     ->label(__('global.ban'))
                     ->modalHeading(__('admin/user.ban_title'))
                     ->modalDescription(__('admin/user.ban_description'))
-                    ->modalSubmitActionLabel(__('global.ban')),
+                    ->modalSubmitActionLabel(__('global.ban'))
+                    ->successNotificationTitle(__('admin/user.ban_success_message')),
                 RestoreAction::make(),
             ])
             ->toolbarActions([
