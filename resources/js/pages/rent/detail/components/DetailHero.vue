@@ -48,9 +48,6 @@
                 <h1 class="text-2xl font-semibold text-gray-900">
                     {{ rentProduct.name }}
                 </h1>
-                <p v-if="rentProduct.description" class="text-sm text-gray-500">
-                    {{ rentProduct.description }}
-                </p>
                 <dl class="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500">
                     <div>
                         <dt class="font-medium text-gray-700">Cập nhật</dt>
