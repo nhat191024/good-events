@@ -17,6 +17,7 @@ export interface ClientOrder {
     start_time: string
     end_time: string
     total: number | null
+    arrival_photo: string | null
     final_total: number | null
     note: string
     status: OrderStatus
