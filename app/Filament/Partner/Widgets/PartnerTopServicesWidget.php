@@ -10,41 +10,52 @@ use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 
 class PartnerTopServicesWidget extends TableWidget
 {
     protected int | string | array $columnSpan = 'full';
+
+    protected $popularCategories = null;
 
     protected function getTableHeading(): ?string
     {
         return 'Dịch vụ phổ biến';
     }
 
+    protected function getPopularCategories()
+    {
+        if ($this->popularCategories === null) {
+            $this->popularCategories = DB::table('partner_bills')
+                ->select([
+                    'category_id',
+                    DB::raw('COUNT(*) as order_count'),
+                    DB::raw('SUM(final_total) as total_revenue'),
+                    DB::raw('MAX(created_at) as latest_order')
+                ])
+                ->where('partner_id', Auth::id())
+                ->where('status', '=', 'completed')
+                ->groupBy('category_id')
+                ->orderBy('order_count', 'desc')
+                ->limit(5)
+                ->get()
+                ->keyBy('category_id');
+        }
+
+        return $this->popularCategories;
+    }
+
     public function table(Table $table): Table
     {
-        // Sử dụng raw query để tránh conflict với GROUP BY
-        $popularCategories = DB::table('partner_bills')
-            ->select([
-                'category_id',
-                DB::raw('COUNT(*) as order_count'),
-                DB::raw('SUM(final_total) as total_revenue'),
-                DB::raw('MAX(created_at) as latest_order')
-            ])
-            ->where('partner_id', Auth::id())
-            ->where('status', '!=', 'cancelled')
-            ->groupBy('category_id')
-            ->orderBy('order_count', 'desc')
-            ->limit(5)
-            ->get();
-
+        $popularCategories = $this->getPopularCategories();
         $categoryIds = $popularCategories->pluck('category_id')->toArray();
 
         if (empty($categoryIds)) {
-            // Nếu không có dữ liệu, trả về query rỗng
             return $table
                 ->query(\App\Models\PartnerCategory::query()->whereRaw('1 = 0'))
                 ->columns($this->getTableColumns())
+                ->emptyStateHeading('Chưa có dịch vụ phổ biến')
+                ->emptyStateDescription('Các dịch vụ phổ biến sẽ hiển thị khi bạn có đơn hàng hoàn thành.')
+                ->searchable(false)
                 ->paginated(false);
         }
 
@@ -55,33 +66,19 @@ class PartnerTopServicesWidget extends TableWidget
                     ->orderByRaw("FIELD(id, " . implode(',', $categoryIds) . ")")
             )
             ->columns($this->getTableColumns())
+            ->emptyStateHeading('Chưa có dịch vụ phổ biến')
+            ->emptyStateDescription('Các dịch vụ phổ biến sẽ hiển thị khi bạn có đơn hàng hoàn thành.')
+            ->searchable(false)
             ->paginated(false);
     }
 
     protected function getTableColumns(): array
     {
-        // Cache dữ liệu thống kê trong 15 phút
-        $popularCategories = Cache::remember("partner_top_services_" . Auth::id(), 900, function () {
-            return DB::table('partner_bills')
-                ->select([
-                    'category_id',
-                    DB::raw('COUNT(*) as order_count'),
-                    DB::raw('SUM(final_total) as total_revenue'),
-                    DB::raw('MAX(created_at) as latest_order')
-                ])
-                ->where('partner_id', Auth::id())
-                ->where('status', '!=', 'cancelled')
-                ->groupBy('category_id')
-                ->orderBy('order_count', 'desc')
-                ->limit(5)
-                ->get()
-                ->keyBy('category_id');
-        });
+        $popularCategories = $this->getPopularCategories();
 
         return [
             TextColumn::make('name')
                 ->label('Danh mục dịch vụ')
-                ->searchable()
                 ->sortable(),
 
             TextColumn::make('order_count')
