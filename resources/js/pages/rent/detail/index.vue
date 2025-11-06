@@ -1,7 +1,7 @@
 <template>
     <Head :title="pageTitle" />
 
-    <ClientHeaderLayout :background-class-names="'bg-blue-100'">
+    <ClientHeaderLayout>
         <section class="bg-white pb-16 pt-6">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
                 <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
