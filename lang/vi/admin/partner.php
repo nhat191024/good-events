@@ -39,4 +39,6 @@ return [
     'notifications.deposit_success.title' => 'Nạp tiền thành công',
     'notifications.deposit_success.body' => 'Đã nạp :amount VND vào ví của :partner',
     'notifications.deposit_error.title' => 'Lỗi nạp tiền',
+
+    'ban_success_message' => 'Người dùng đã bị cấm thành công.',
 ];

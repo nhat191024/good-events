@@ -39,4 +39,6 @@ return [
     'notifications.deposit_success.title' => 'Deposit Successful',
     'notifications.deposit_success.body' => 'Deposited :amount VND to :partner\'s wallet',
     'notifications.deposit_error.title' => 'Deposit Error',
+
+    'ban_success_message' => 'Người dùng đã bị cấm thành công.',
 ];
