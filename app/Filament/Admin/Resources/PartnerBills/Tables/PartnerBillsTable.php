@@ -55,10 +55,17 @@ class PartnerBillsTable
                     ->label(__('admin/partnerBill.fields.final_total'))
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('event.name')
+                TextColumn::make('event_name')
                     ->label(__('admin/partnerBill.fields.event'))
-                    ->searchable()
-                    ->sortable(),
+                    ->getStateUsing(fn(PartnerBill $record): string => $record->event?->name ?? $record->custom_event ?? 'N/A')
+                    ->searchable(query: function ($query, string $search): void {
+                        $query->whereHas('event', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        })->orWhere('custom_event', 'like', "%{$search}%");
+                    })
+                    ->sortable(query: function ($query, string $direction): void {
+                        $query->orderByRaw("COALESCE((SELECT name FROM events WHERE events.id = partner_bills.event_id), custom_event) {$direction}");
+                    }),
                 TextColumn::make('client.name')
                     ->label(__('admin/partnerBill.fields.client'))
                     ->searchable()
