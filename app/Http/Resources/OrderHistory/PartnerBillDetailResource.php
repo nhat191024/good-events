@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\OrderHistory;
 
+use App\Helper\TemporaryImage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

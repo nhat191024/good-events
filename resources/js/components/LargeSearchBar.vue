@@ -43,7 +43,7 @@
 
 <template>
     <div class="bg-white h-full w-full rounded-2xl shadow-lg border border-gray-200 flex items-center overflow-visible p-0 relative">
-        <div class="md:pl-[25px] pl-[9px] items-center flex gap-[10px] h-[40px] overflow-visible relative w-[5%]">
+        <div class="z-10 md:px-[15px] px-[9px] items-center flex gap-[10px] h-[40px] overflow-visible relative w-[5%]">
             <div class="w-[24px] cursor-pointer h-[40px] relative" @click="handleSearch">
                 <div class="h-full flex rounded w-full items-center">
                     <Icon :name="'search'" :class="'relative text-black w-[19px] h-[19px]'"/>
@@ -62,7 +62,7 @@
                         @keyup.enter="handleSearch"
                     />
                 </div>
-                <div class="flex h-[40px] md:w-[20%] w-[30%]" v-if="showSearchBtn">
+                <div class="flex h-[40px] md:w-[30%] w-[30%]" v-if="showSearchBtn">
                     <Button
                         type="submit"
                         variant="default"

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\FileProductController;
 use App\Http\Controllers\Home\AssetHomeController;
@@ -34,4 +35,10 @@ Route::prefix('/thue-vat-tu')->name('rent.')->group(function () {
     Route::get('/kham-pha', [RentController::class, 'rentDiscover'])->name('discover');
     Route::get('/kham-pha/danh-muc/{category_slug}', [RentController::class, 'rentCategory'])->name('category');
     Route::get('/kham-pha/danh-muc/{category_slug}/chi-tiet/{rent_product_slug}', [RentController::class, 'rentDetail'])->name('show');
+});
+
+Route::prefix('/dia-diem-to-chuc-su-kien')->name('blog.')->group(function () {
+    Route::get('/', [BlogController::class, 'blogDiscover'])->name('discover');
+    Route::get('/danh-muc/{category_slug}', [BlogController::class, 'blogCategory'])->name('category');
+    Route::get('/danh-muc/{category_slug}/{blog_slug}', [BlogController::class, 'blogDetail'])->name('show');
 });

@@ -3,9 +3,11 @@ export interface CardItemProps {
     name: string;
     slug: string;
     image?: string | null;
+    description?: string | null;
 }
 
 export interface Props {
     cardItem: CardItemProps
     routeHref: string
+    showInfo?: boolean
 }

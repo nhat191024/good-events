@@ -58,9 +58,9 @@ class RentProductForm
                     ->placeholder(__('admin/rentProduct.placeholders.description'))
                     ->required()
                     ->columnSpanFull(),
-                SpatieMediaLibraryFileUpload::make('images')
+                SpatieMediaLibraryFileUpload::make('thumbnails')
                     ->label(__('admin/rentProduct.fields.image'))
-                    ->collection('images')
+                    ->collection('thumbnails')
                     ->required()
                     ->image()
                     ->multiple()

@@ -61,7 +61,7 @@ onBeforeUnmount(() => {
             <div v-if="isOpen"
                 class="absolute left-0 mt-2 w-64 rounded-lg shadow-lg bg-white ring-1 ring-primary-200 ring-opacity-5 z-100">
                 <div class="py-1">
-                    <Link v-for="item in menuItems" :key="item.slug" :href="item.route?route(item.route, { slug: item.slug }):'#'"
+                    <Link v-for="item in menuItems" :key="item.slug" :href="item.route??'#'"
                         @click="closeMenu"
                         class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-0">
                     <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

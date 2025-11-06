@@ -46,7 +46,7 @@ const categories = [
         name: 'Khách sạn',
         slug: 'khach-san',
         icon: 'mdi:bag-personal',
-        image: '/images/logo_khach_san.webp',
+        image: route('blog.discover')
     },
 ];
 
