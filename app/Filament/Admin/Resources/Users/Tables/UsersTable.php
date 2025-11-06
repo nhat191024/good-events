@@ -4,9 +4,11 @@ namespace App\Filament\Admin\Resources\Users\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+
+use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
 
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
@@ -74,6 +76,7 @@ class UsersTable
                     ->modalHeading(__('admin/user.ban_title'))
                     ->modalDescription(__('admin/user.ban_description'))
                     ->modalSubmitActionLabel(__('global.ban'))
+                    ->successNotificationTitle(__('admin/user.ban_success_message')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
