@@ -15,8 +15,8 @@ class EditPartner extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
-            ForceDeleteAction::make(),
+            DeleteAction::make()
+                ->label(__('global.ban')),
             RestoreAction::make(),
         ];
     }
