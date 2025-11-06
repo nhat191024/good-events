@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
+            $table->integer('order')->default(0);
             $table->foreignId('parent_id')->nullable()->constrained('partner_categories')->nullOnDelete();
             $table->double('min_price')->nullable();
             $table->double('max_price')->nullable();
