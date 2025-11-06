@@ -56,8 +56,11 @@ class ListWallets extends ListRecords
         $oldBalance = $user->balanceInt;
         $transaction = $user->deposit($amount, ['reason' => 'Nạp tiền vào ví qua QR', 'transaction_codes' => $id, 'old_balance' => $oldBalance], false);
 
+        $timestamp = time();
+        $billId = $transaction->id . $timestamp;
+
         $data = [
-            'billId' => "{$transaction->id}1010",
+            'billId' => $billId,
             'billCode' => $id,
             'amount' => $amount,
             'buyerName' => $user->name,
