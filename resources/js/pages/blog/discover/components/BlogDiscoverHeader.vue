@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <div class="h-min w-min max-w-xl lg:w-auto">
+        <div class="h-min w-full max-w-xl">
             <LargeSearchBar
                 :model-value="searchTerm"
                 :placeholder="searchPlaceholder"
