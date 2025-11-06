@@ -35,6 +35,14 @@ class ServiceRegistrationResource extends Resource
         return __('admin/partnerService.singular');
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::$model::query()
+            ->where('status', '=', 'pending')
+            ->count();
+        return $count > 0 ? (string)$count : null;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ServiceRegistrationForm::configure($schema);
