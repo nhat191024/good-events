@@ -26,6 +26,25 @@
     const messagesCurrentPage = ref(1)
     const isSending = ref(false)
 
+    let activeChannelThreadId: number | null = null
+    let activeChannel: any = null
+
+    function leaveActiveChannel() {
+        if (!echo || activeChannelThreadId === null) {
+            return
+        }
+
+        try {
+            activeChannel?.stopListening?.('SendMessage')
+            echo.leave(`thread.${activeChannelThreadId}`)
+        } catch (error) {
+            console.error(`❌ Error leaving thread.${activeChannelThreadId}:`, error)
+        } finally {
+            activeChannel = null
+            activeChannelThreadId = null
+        }
+    }
+
     const currentThread = computed(() => {
         return threads.value.find(t => t.id === props.threadId)
     })
@@ -144,6 +163,14 @@
             return
         }
 
+        if (activeChannelThreadId === threadId) {
+            return
+        }
+
+        if (activeChannelThreadId !== null) {
+            leaveActiveChannel()
+        }
+
         try {
             const channel = echo.private(`thread.${threadId}`)
 
@@ -160,21 +187,31 @@
             channel.error((error: any) => {
                 console.error(`❌ Subscription error for thread.${threadId}:`, error)
             })
+
+            activeChannel = channel
+            activeChannelThreadId = threadId
         } catch (error) {
             console.error('❌ Error subscribing to thread:', error)
         }
     }
 
     function handleBroadcastMessage(payload: BroadcastMessagePayload) {
-        const threadId = payload.message.thread_id
-        const senderId = payload.sender_id
+        const threadId = Number(payload.message.thread_id)
+        const senderId = Number(payload.sender_id)
+        const activeThreadId = Number(props.threadId)
 
-        if (senderId === currentUserId.value) return
+        if (Number.isFinite(senderId) && senderId === currentUserId.value) {
+            return
+        }
 
-        if (threadId === props.threadId) {
+        if (!Number.isFinite(threadId) || !Number.isFinite(activeThreadId)) {
+            return
+        }
+
+        if (threadId === activeThreadId) {
             const newMsg: Message = {
                 id: payload.message.id,
-                thread_id: payload.message.thread_id,
+                thread_id: threadId,
                 user_id: payload.message.user_id,
                 body: payload.message.body,
                 created_at: payload.message.created_at,
@@ -226,9 +263,7 @@
     })
 
     onUnmounted(() => {
-        if (echo && props.threadId) {
-            echo.leave(`thread.${props.threadId}`)
-        }
+        leaveActiveChannel()
     })
 </script>
 
