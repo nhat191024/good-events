@@ -22,4 +22,10 @@ return [
     'buttons' => [
         'save_changes' => 'Lưu thay đổi',
     ],
+
+    'notifications' => [
+        'update_success_title' => 'Cập nhật hồ sơ thành công',
+        'update_error_title' => 'Lỗi khi cập nhật hồ sơ',
+        'update_error_body' => 'Vui lòng thử lại sau.',
+    ],
 ];
