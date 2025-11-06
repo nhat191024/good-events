@@ -150,9 +150,7 @@ const breadcrumbs = computed(() => {
             <section class="mx-auto px-4 mt-1 md:mt-2 mb-3">
                 <div class="border rounded-2xl p-3 md:p-4 bg-white shadow-md">
                     <h2 class="font-semibold mb-2">Mô tả chi tiết</h2>
-                    <p class="text-gray-700 whitespace-pre-line">
-                        {{ props.item.description || 'Chưa có mô tả.' }}
-                    </p>
+                    <p class="text-gray-700 whitespace-pre-line" v-html="props.item.description || 'Chưa có mô tả.'"></p>
                 </div>
             </section>
 
