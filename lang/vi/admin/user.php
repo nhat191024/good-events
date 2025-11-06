@@ -24,4 +24,6 @@ return [
 
     'ban_title' => 'Cấm người dùng',
     'ban_description' => 'Bạn có chắc chắn muốn cấm người dùng này không?',
+
+    'ban_success_message' => 'Người dùng đã bị cấm thành công.',
 ];
