@@ -82,6 +82,12 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
         external: false
     },
     {
+        label: 'File đã mua',
+        route: () => route('client-orders.asset.dashboard'),
+        icon: ClipboardList,
+        external: false
+    },
+    {
         label: 'Nhắn tin',
         route: () => route('chat.index'),
         icon: MessageSquare,
