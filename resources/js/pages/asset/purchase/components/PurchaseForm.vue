@@ -78,7 +78,7 @@
                 Quay lại
             </Button>
             <Button type="submit" class="text-sm font-semibold text-white" :disabled="props.form.processing">
-                Hoàn tất đăng ký
+                Thanh toán
             </Button>
         </div>
     </form>
