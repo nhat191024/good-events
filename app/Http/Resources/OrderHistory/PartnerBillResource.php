@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\OrderHistory;
 
+use App\Helper\TemporaryImage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,6 +24,7 @@ class PartnerBillResource extends JsonResource
             'total' => $this->total,
             'final_total' => $this->final_total,
             'note' => $this->note,
+            'arrival_photo' => TemporaryImage::getTemporaryImageUrl($this, $expireAt,'arrival_photo'),
             'status' => $this->status,
             'thread_id' => $this->thread_id,
             'created_at' => $this->created_at,
@@ -35,13 +37,13 @@ class PartnerBillResource extends JsonResource
                     'name' => $cat->name,
                     'max_price' => $cat->max_price,
                     'min_price' => $cat->min_price,
-                    'image' => $this->getTemporaryImageUrl($cat, $expireAt),
+                    'image' => TemporaryImage::getTemporaryImageUrl($cat, $expireAt),
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,
                         fn () => [
                             'id' => $cat->parent->id,
                             'name' => $cat->parent->name,
-                            'image' => $this->getTemporaryImageUrl($cat->parent, $expireAt),
+                            'image' => TemporaryImage::getTemporaryImageUrl($cat->parent, $expireAt),
                         ]
                     ),
                 ];
@@ -88,20 +90,5 @@ class PartnerBillResource extends JsonResource
             }),
             'review' => $review,
         ];
-    }
-
-    private function getTemporaryImageUrl($model, $expireAt)
-    {
-        if (! $model || ! method_exists($model, 'getFirstTemporaryUrl')) {
-            return null;
-        }
-
-        try {
-            return $model->getFirstTemporaryUrl($expireAt, 'images');
-        } catch (\Throwable $e) {
-            return method_exists($model, 'getFirstMediaUrl')
-                ? $model->getFirstMediaUrl('images')
-                : null;
-        }
     }
 }

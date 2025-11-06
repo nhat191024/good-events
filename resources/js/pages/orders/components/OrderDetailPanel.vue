@@ -9,6 +9,7 @@ import { computed, ref } from 'vue';
 import ReloadButton from './ReloadButton.vue';
 import { debounce } from '../helper';
 import { cn } from '@/lib/utils';
+import ArrivalPhotoModal from './ArrivalPhotoModal.vue'
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
@@ -56,9 +57,17 @@ const classIfBookedPartnerFound = computed(()=>{
     return (bookedPartner && props.mode === 'current' && (props.order?.status==OrderStatus.CONFIRMED || props.order?.status==OrderStatus.IN_JOB)) ? 'hidden' : '';
 });
 
+const shouldShowArrivalPhoto = computed(() => Boolean(props.order?.arrival_photo))
+
+const arrivalPhotoAlt = computed(() => {
+    if (!props.order?.code) return 'Arrival Photo'
+    return `Ảnh xác nhận đối tác đã đến cho đơn ${props.order.code}`
+})
+
 function emitConfirmChoosePartnerWithVoucher(partner?: Partner | null | undefined, total?: number | null | undefined) {
     emit('confirm-choose-partner', partner, total, voucher_code.value)
 }
+
 
 </script>
 
@@ -110,6 +119,12 @@ function emitConfirmChoosePartnerWithVoucher(partner?: Partner | null | undefine
                         <!-- </div> -->
                     </div>
                 </div>
+                <ArrivalPhotoModal
+                    v-if="shouldShowArrivalPhoto"
+                    class="mt-4"
+                    :arrival-photo="order?.arrival_photo"
+                    :alt-text="arrivalPhotoAlt"
+                />
                 <BookingSummaryCard v-model="voucher_code" @view-partner-profile="emit('view-partner-profile', $event)" :mode="props.mode" :booked-partner="bookedPartner" :order="props.order" class="mt-6" @cancel-order="emit('cancel-order')" />
 
             </template>

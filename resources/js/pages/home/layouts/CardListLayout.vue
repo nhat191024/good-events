@@ -20,7 +20,6 @@
 import { cn } from '@/lib/utils';
 import { Link } from '@inertiajs/vue3';
 
-
 interface Props {
     name: string;
     showSection: true

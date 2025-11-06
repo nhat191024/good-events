@@ -24,10 +24,10 @@ withDefaults(defineProps<Props>(), {
 });
 
 const menuItems = [
-    { name: 'Sự kiện', slug: 'home', route: null },
-    { name: 'Vật tư', slug: 'supply', route: null },
-    { name: 'Tài liệu', slug: 'document', route: null },
-    { name: 'Khách sạn', slug: 'blog', route: null }
+    { name: 'Sự kiện', slug: 'home', route: route('home') },
+    { name: 'Vật tư', slug: 'supply', route: route('rent.home') },
+    { name: 'Tài liệu', slug: 'document', route: route('asset.home') },
+    { name: 'Khách sạn', slug: 'blog', route: route('blog.discover') }
 ];
 
 
@@ -154,9 +154,9 @@ onUnmounted(() => {
                     <!-- Nav items (đậm, hover không đổi kích thước) -->
                     <nav class="flex items-center md:gap-3 lg:gap-6">
                         <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Sự Kiện</Link>
-                        <Link :href="route('asset.home')" class="font-semibold text-black hover:text-black/80">Vật Tư</Link>
-                        <Link :href="route('rent.home')" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
-                        <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Khách sạn</Link>
+                        <Link :href="route('rent.home')" class="font-semibold text-black hover:text-black/80">Vật Tư</Link>
+                        <Link :href="route('asset.home')" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
+                        <Link :href="route('blog.discover')" class="font-semibold text-black hover:text-black/80">Khách sạn</Link>
                     </nav>
                 </div>
 
@@ -171,7 +171,7 @@ onUnmounted(() => {
                             stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         <path d="M15.5 10.5v3m-1.5-1.5h3" stroke="white" stroke-width="2" stroke-linecap="round" />
                     </svg>
-                    <span class="hidden sm:inline">Đặt show nhanh</span>
+                    <span class="hidden sm:inline">Đặt show</span>
                     </Link>
                     <DropdownMenu />
                     <NotificationPopover

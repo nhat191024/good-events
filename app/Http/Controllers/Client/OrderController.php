@@ -276,7 +276,7 @@ class OrderController extends Controller
             return self::voucherFail(__('Đối tác không tồn tại'));
 
         $partnerBillDetail = PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
-            ->orWhere('partner_id', $partner->id)->first();
+            ->where('partner_id', $partner->id)->first();
         if (!$partnerBillDetail)
             return self::voucherFail(__('Đối tác không tồn tại'));
 
@@ -289,7 +289,7 @@ class OrderController extends Controller
             return self::voucherFail(__($result->message));
 
         $discount = $voucher->getDiscountAmount($partnerBillDetail->total);
-
+        
         return (object) [
             'status' => true,
             'message' => 'Voucher này khả dụng!',

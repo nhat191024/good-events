@@ -9,33 +9,13 @@ Route::prefix('tai-lieu')->name('asset.')->group(function () {
         [AssetOrderController::class, 'index']
     )->name('dashboard');
 
-    // Route::get(
-    //     '/{bill}/details',
-    //     [AssetOrderController::class, 'getDetails']
-    // )->name('details');
+    Route::get(
+        '/{bill}/details',
+        [AssetOrderController::class, 'show']
+    )->whereNumber('bill')->name('details');
 
-    // Route::post(
-    //     '/cancel-order',
-    //     [AssetOrderController::class, 'cancelOrder']
-    // )->name('cancel');
-
-    // Route::post(
-    //     '/choose-partner',
-    //     [AssetOrderController::class, 'confirmChoosePartner']
-    // )->name('confirm-partner');
-
-    // Route::post(
-    //     '/submit-review',
-    //     [AssetOrderController::class, 'submitReview']
-    // )->name('submit-review');
-
-    // Route::post(
-    //     '/validate-voucher',
-    //     [AssetOrderController::class, 'validateVoucher']
-    // )->name('validate-voucher');
-
-    // Route::post(
-    //     '/get-voucher-discount-amount',
-    //     [AssetOrderController::class, 'getVoucherDiscountAmount']
-    // )->name('get-voucher-discount-amount');
+    Route::post(
+        '/{bill}/repay',
+        [AssetOrderController::class, 'repay']
+    )->whereNumber('bill')->name('repay');
 });

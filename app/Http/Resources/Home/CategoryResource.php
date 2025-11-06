@@ -18,7 +18,7 @@ class CategoryResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'image' => TemporaryImage::getTemporaryImageUrl($this, $expireAt, 'thumb'),
+            'image' => TemporaryImage::getTemporaryImageUrl($this, $expireAt, 'images'),
             'parent' => $this->when(
                 $this->relationLoaded('parent') && $this->parent,
                 fn () => [
@@ -26,25 +26,6 @@ class CategoryResource extends JsonResource
                     'name' => $this->parent->name,
                 ]
             ),
-            
-            // 'category' => $this->whenLoaded('category', function () use ($expireAt) {
-            //     $cat = $this->category;
-
-            //     return [
-            //         'id' => $cat->id,
-            //         'name' => $cat->name,
-            //         'image' => TemporaryImage::getTemporaryImageUrl($cat, $expireAt, 'thumbnails'),
-            //         'parent' => $this->when(
-            //             $cat->relationLoaded('parent') && $cat->parent,
-            //             fn () => [
-            //                 'id' => $cat->parent->id,
-            //                 'name' => $cat->parent->name,
-            //                 'image' => $this->getTemporaryImageUrl($cat->parent, $expireAt),
-            //             ]
-            //         ),
-            //     ];
-            // }),
-            // }),
         ];
     }
 }
