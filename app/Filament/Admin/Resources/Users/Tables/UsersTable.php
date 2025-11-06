@@ -67,7 +67,8 @@ class UsersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('trashed'),
             ])
             ->recordActions([
                 EditAction::make(),
