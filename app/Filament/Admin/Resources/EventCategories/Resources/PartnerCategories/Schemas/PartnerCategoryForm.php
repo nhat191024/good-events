@@ -7,7 +7,7 @@ use App\Models\PartnerCategory;
 use Filament\Schemas\Schema;
 
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
@@ -57,7 +57,7 @@ class PartnerCategoryForm
                     ->image()
                     ->maxFiles(1)
                     ->columnSpanFull(),
-                Textarea::make('description')
+                RichEditor::make('description')
                     ->label(__('admin/partnerCategory.fields.description'))
                     ->columnSpanFull(),
             ]);
