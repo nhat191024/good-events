@@ -49,7 +49,7 @@ const props = defineProps({
     },
     customPlaceholder: {
         type: String,
-        default: 'Tự nhập chữ tùy chỉnh...'
+        default: 'Nhập sự kiện tùy chỉnh...'
     }
 })
 
