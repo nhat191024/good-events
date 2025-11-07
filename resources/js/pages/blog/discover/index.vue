@@ -1,8 +1,11 @@
 <template>
     <Head :title="pageTitle" />
 
-    <ClientHeaderLayout>
-        <section class="bg-white pb-12 pt-6">
+<ClientHeaderLayout>
+        <motion.section
+            :initial="sectionMotion.initial"
+            :animate="sectionMotion.animate"
+            class="bg-white pb-12 pt-6">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
                 <BlogDiscoverHeader
                     :is-category-page="isCategoryPage"
@@ -27,13 +30,14 @@
                     @change="changePage"
                 />
             </div>
-        </section>
+        </motion.section>
     </ClientHeaderLayout>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
@@ -138,6 +142,20 @@ function changePage(page: number): void {
     );
 }
 
+const sectionMotion = {
+    initial: {
+        opacity: 0.5,
+        y: 24,
+    },
+    animate: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.6,
+            ease: 'easeOut',
+        },
+    },
+} as const;
+
 export type { DiscoverPageProps };
 </script>
-
