@@ -91,7 +91,6 @@ class EventCategoriesTable
                 ]),
             ])
             ->defaultSort('order', 'asc')
-            ->reorderable('order')
-        ;
+            ->reorderable('order');
     }
 }
