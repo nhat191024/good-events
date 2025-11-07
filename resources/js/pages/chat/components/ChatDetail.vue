@@ -79,7 +79,6 @@ async function loadThread(threadId: number) {
         await nextTick();
         scrollToBottom();
 
-        // Subscribe to real-time updates
         subscribeToThread(threadId);
     } catch (error) {
         console.error('Error loading thread:', error);
@@ -132,7 +131,6 @@ async function sendMessage() {
         });
 
         if (response.data.success) {
-            // Add message immediately to UI
             const newMsg: Message = response.data.message;
             messages.value.push(newMsg);
 
@@ -141,7 +139,6 @@ async function sendMessage() {
         }
     } catch (error) {
         console.error('Error sending message:', error);
-        // Restore message on error
         newMessage.value = messageBody;
     } finally {
         isSending.value = false;
@@ -182,12 +179,10 @@ function subscribeToThread(threadId: number) {
             handleBroadcastMessage(payload);
         });
 
-        // Listen for subscription success
         channel.subscribed(() => {
             //
         });
 
-        // Listen for subscription errors
         channel.error((error: any) => {
             console.error(`❌ Subscription error for thread.${threadId}:`, error);
         });
