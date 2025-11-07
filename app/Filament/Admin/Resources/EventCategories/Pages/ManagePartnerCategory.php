@@ -32,13 +32,17 @@ class ManagePartnerCategory extends ManageRelatedRecords
         ];
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            CreateAction::make()
+                ->label(__('admin/partnerCategory.create_partner_category')),
+        ];
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn($query) => $query->with('media')->withExists('partnerServices')->withTrashed())
-            ->headerActions([
-                CreateAction::make()
-                    ->label(__('admin/partnerCategory.create_partner_category')),
-            ]);
+            ->modifyQueryUsing(fn($query) => $query->with('media')->withExists('partnerServices')->withTrashed());
     }
 }
