@@ -20,6 +20,7 @@ return [
         'name' => 'Name',
         'parent_id' => 'Parent Category',
         'slug' => 'Slug',
+        'order' => 'Order',
         'min_price' => 'Minimum Price',
         'max_price' => 'Maximum Price',
 
