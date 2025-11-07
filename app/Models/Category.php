@@ -21,6 +21,7 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property string $name
  * @property string $slug
+ * @property string $type
  * @property int $order
  * @property int|null $parent_id
  * @property string|null $description
