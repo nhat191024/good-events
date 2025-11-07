@@ -10,6 +10,7 @@ return [
     'fields' => [
         'name' => 'Category Name',
         'slug' => 'Slug',
+        'order' => 'Order',
         'image' => 'Image',
         'parents' => 'Parent Categories',
         'children' => 'Child Categories',
