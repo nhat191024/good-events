@@ -235,7 +235,7 @@
 <template>
     <div class="flex flex-col h-full bg-white">
         <!-- header -->
-        <div class="border-b border-gray-200 bg-gray-50">
+        <div class="border-b border-gray-200 bg-gray-50 fixed top-16 left-0 w-full z-10">
             <div class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-3 min-w-0 flex-1">
                     <button class="p-2 md:hidden hover:bg-gray-200 rounded flex-shrink-0" @click="emit('back')" aria-label="back">
