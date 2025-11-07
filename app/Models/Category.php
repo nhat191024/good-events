@@ -68,6 +68,7 @@ class Category extends Model implements HasMedia
     protected $fillable = [
         'name',
         'slug',
+        'type',
         'order',
         'parent_id',
         'description',
