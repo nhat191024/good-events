@@ -1,35 +1,87 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 
+const accentMotion = {
+    initial: { scaleX: 0, opacity: 0 },
+    visible: { scaleX: 1, opacity: 1 },
+    transition: { duration: 0.5, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.2 },
+} as const;
+
+const downloadMotion = {
+    initial: { opacity: 0.5, y: 24 },
+    visible: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.25 },
+} as const;
+
+const downloadButtonInteractions = {
+    hover: {
+        scale: 1.04,
+        transition: { type: 'spring', duration: 0.5, bounce: 0.32 },
+    },
+    tap: {
+        scale: 0.97,
+        transition: { type: 'spring', duration: 0.45, bounce: 0.25 },
+    },
+} as const;
+
+const footerContentMotion = {
+    initial: { opacity: 0.5, y: 30 },
+    visible: { opacity: 1, y: 0 },
+    transition: { duration: 0.65, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.25 },
+} as const;
+
+const infoMotion = {
+    initial: { opacity: 0.5, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, ease: 'easeOut', delay: 0.1 },
+    viewport: { once: true, amount: 0.2 },
+} as const;
+
+const badgeMotion = {
+    initial: { opacity: 0.5, scale: 0.9 },
+    visible: { opacity: 1, scale: 1 },
+    transition: { duration: 0.45, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.2 },
+} as const;
 </script>
 
 <template>
     <!-- Accent line (chỉ 1 line đỏ mỏng) -->
-    <div class="w-full h-[2px] bg-[#ED3B50]"></div>
+    <motion.div class="w-full h-[2px] bg-[#ED3B50]" :initial="accentMotion.initial" :while-in-view="accentMotion.visible"
+        :viewport="accentMotion.viewport" :transition="accentMotion.transition"></motion.div>
 
     <!-- App Download strip -->
-    <div class="bg-white">
+    <motion.div class="bg-white" :initial="downloadMotion.initial" :while-in-view="downloadMotion.visible"
+        :viewport="downloadMotion.viewport" :transition="downloadMotion.transition">
         <div
             class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <h3 class="text-black font-semibold text-lg">Tải ứng dụng Sukientot</h3>
             <div class="flex items-center gap-3">
                 <!-- App Store Button -->
-                <a href="#" class="block" aria-label="Tải trên App Store">
+                <motion.a href="#" class="block" aria-label="Tải trên App Store"
+                    :while-hover="downloadButtonInteractions.hover" :while-tap="downloadButtonInteractions.tap">
                     <img src="/images/download_on_appstore.png" alt="Download on the App Store"
                         class="h-[100] w-[135px] object-contain align-middle" loading="lazy" />
-                </a>
+                </motion.a>
                 <!-- Google Play Button -->
-                <a href="#" class="block" aria-label="Tải trên Google Play">
+                <motion.a href="#" class="block" aria-label="Tải trên Google Play"
+                    :while-hover="downloadButtonInteractions.hover" :while-tap="downloadButtonInteractions.tap">
                     <img src="/images/get_on_googleplay.png" alt="Get it on Google Play"
                         class="h-[200] w-[170px] object-contain align-middle" loading="lazy" />
-                </a>
+                </motion.a>
             </div>
         </div>
-    </div>
+    </motion.div>
 
     <!-- Main Footer (không có line separator) -->
     <footer class="bg-white md:py-12 py-2">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+            :initial="footerContentMotion.initial" :while-in-view="footerContentMotion.visible"
+            :viewport="footerContentMotion.viewport" :transition="footerContentMotion.transition">
             <div class="grid grid-cols-2 md:grid-cols-6 gap-8">
                 <!-- Logo -->
                 <Link :href="route('home')" class="col-span-2 md:col-span-1">
@@ -89,7 +141,9 @@ import { Link } from '@inertiajs/vue3';
 
             <!-- Company Info -->
             <div class="mt-12 flex flex-col lg:flex-row justify-between items-start lg:items-center">
-                <div class="text-xs text-gray-600 space-y-1 max-w-4xl">
+                <motion.div class="text-xs text-gray-600 space-y-1 max-w-4xl" :initial="infoMotion.initial"
+                    :while-in-view="infoMotion.visible" :viewport="infoMotion.viewport"
+                    :transition="infoMotion.transition">
                     <p>
                         <strong>CÔNG TY TNHH SUKIENTOT</strong> - Người đại diện theo pháp luật: Nguyễn Sự Kiện; GPĐKKD:
                         0124356787 do Sở KH &amp; ĐT TP.HCM cấp ngày 11/01/2025;
@@ -104,14 +158,16 @@ import { Link } from '@inertiajs/vue3';
                         Chịu trách nhiệm nội dung: Trần Kiên Trí. Chính sách sử dụng. Địa chỉ: Tầng 69, Tòa nhà OIA, Số
                         69 đường Trần Tôn, Phường Mỹ Tân, Thành phố Hồ Chí Minh, Việt Nam.
                     </p>
-                </div>
+                </motion.div>
 
                 <!-- Certification Badge -->
-                <div class="mt-4 lg:mt-0 flex-shrink-0">
+                <motion.div class="mt-4 lg:mt-0 flex-shrink-0" :initial="badgeMotion.initial"
+                    :while-in-view="badgeMotion.visible" :viewport="badgeMotion.viewport"
+                    :transition="badgeMotion.transition">
                     <img src="/images/gov.webp" alt="Đã đăng ký Bộ Công Thương" class="h-20 w-[150px] object-contain"
                         loading="lazy" />
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     </footer>
 </template>
