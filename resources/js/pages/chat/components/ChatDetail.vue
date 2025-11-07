@@ -270,10 +270,18 @@ onUnmounted(() => {
     <div class="flex h-full flex-col bg-white">
         <!-- header -->
         <div class="border-b border-gray-200 bg-gray-50">
-            <div class="flex items-start justify-between p-4">
+            <div class="p-4">
+                <button
+                    class="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 md:hidden"
+                    @click="emit('toggleMobileMenu')"
+                    aria-label="Toggle menu"
+                >
+                    <ArrowLeft class="h-4 w-4" />
+                    <span>Trở lại</span>
+                </button>
                 <div class="flex flex-1 flex-shrink items-center gap-3 not-odd:min-w-0">
                     <div class="min-w-0 flex-1">
-                        <h2 class="font-medium text-gray-900 break-words">
+                        <h2 class="font-medium break-words text-gray-900">
                             {{ thread?.subject || currentThread?.subject || 'Không có tiêu đề' }}
                         </h2>
                         <p v-if="thread?.participants" class="text-xs text-gray-600">
@@ -287,14 +295,6 @@ onUnmounted(() => {
                         </div>
                     </div>
                 </div>
-                <button
-                    class="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 md:hidden"
-                    @click="emit('toggleMobileMenu')"
-                    aria-label="Toggle menu"
-                >
-                    <ArrowLeft class="h-4 w-4" />
-                    <span>Trở lại</span>
-                </button>
             </div>
         </div>
 
