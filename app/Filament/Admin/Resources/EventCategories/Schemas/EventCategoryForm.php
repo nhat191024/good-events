@@ -27,7 +27,7 @@ class EventCategoryForm
                     ->image()
                     ->maxFiles(1)
                     ->columnSpanFull(),
-            RichEditor::make('description')
+                RichEditor::make('description')
                     ->label(__('admin/partnerCategory.fields.description'))
                     ->columnSpanFull(),
             ]);
