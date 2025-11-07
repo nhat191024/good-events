@@ -100,30 +100,28 @@
             @if ($selectedThreadId)
                 <!-- Chat Header -->
                 <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0 flex-1">
-                            <h3 class="truncate text-lg font-semibold text-gray-900 dark:text-white">
-                                {{ $selectedThread->subject ?: 'Không có tiêu đề' }}
-                            </h3>
-                            @if ($selectedThread->participants->isNotEmpty())
-                                <p class="truncate text-sm text-gray-600 dark:text-gray-400">
-                                    Người tham gia: {{ $selectedThread->participants->pluck('name')->filter()->join(', ') }}
-                                </p>
-                            @endif
-                            <p class="mt-2 truncate text-sm text-gray-600 dark:text-gray-400">
-                                Thông tin đơn hàng:
+                    <button class="focus:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-200/70 focus:outline-none focus:ring-2 focus:ring-offset-2 lg:hidden dark:text-gray-300 dark:hover:bg-gray-700" type="button"
+                        wire:click="showThreadList">
+                        <x-filament::icon class="h-4 w-4" icon="heroicon-m-arrow-left" />
+                        Trở lại
+                    </button>
+                    <div class="min-w-0 flex-1">
+                        <h3 class="truncate text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ $selectedThread->subject ?: 'Không có tiêu đề' }}
+                        </h3>
+                        @if ($selectedThread->participants->isNotEmpty())
+                            <p class="truncate text-sm text-gray-600 dark:text-gray-400">
+                                Người tham gia: {{ $selectedThread->participants->pluck('name')->filter()->join(', ') }}
                             </p>
-                            <div class="truncate text-sm text-gray-600 dark:text-gray-400">
-                                Sự kiện: {{ $selectedThread->bill->event_name ?? 'N/A' }} <br />
-                                Thời gian: {{ $selectedThread->bill->datetime ?? 'N/A' }} <br />
-                                Địa điểm: {{ $selectedThread->bill->address ?? 'N/A' }}
-                            </div>
+                        @endif
+                        <p class="mt-2 truncate text-sm text-gray-600 dark:text-gray-400">
+                            Thông tin đơn hàng:
+                        </p>
+                        <div class="truncate text-sm text-gray-600 dark:text-gray-400">
+                            Sự kiện: {{ $selectedThread->bill->event_name ?? 'N/A' }} <br />
+                            Thời gian: {{ $selectedThread->bill->datetime ?? 'N/A' }} <br />
+                            Địa điểm: {{ $selectedThread->bill->address ?? 'N/A' }}
                         </div>
-                        <button class="focus:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-200/70 focus:outline-none focus:ring-2 focus:ring-offset-2 lg:hidden dark:text-gray-300 dark:hover:bg-gray-700" type="button"
-                            wire:click="showThreadList">
-                            <x-filament::icon class="h-4 w-4" icon="heroicon-m-arrow-left" />
-                            Trở lại
-                        </button>
                     </div>
                 </div>
 
