@@ -35,7 +35,7 @@ class BlogCategoryResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('admin/category.blog_singular');
+        return __('admin/category.singulars.blog');
     }
 
     public static function form(Schema $schema): Schema
