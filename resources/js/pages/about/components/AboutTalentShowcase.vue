@@ -10,23 +10,37 @@
                     </p>
                 </div>
                 <div class="grid flex-1 gap-4 sm:grid-cols-2">
-                    <article
-                        v-for="category in categories"
+                    <motion.article
+                        v-for="(category, index) in categories"
                         :key="category.title"
-                        class="rounded-3xl border border-slate-100 bg-slate-50/80 p-5 shadow-sm shadow-black/[0.03]">
+                        class="rounded-3xl border border-slate-100 bg-slate-50/80 p-5 shadow-sm shadow-black/[0.03]"
+                        :initial="cardMotion.initial"
+                        :while-in-view="cardMotion.visible"
+                        :viewport="cardMotion.viewport"
+                        :transition="getCardTransition(index)"
+                        :while-hover="cardInteractions.hover"
+                        :while-tap="cardInteractions.tap"
+                    >
                         <h3 class="text-lg font-semibold text-slate-900">{{ category.title }}</h3>
                         <p class="mt-2 text-sm text-slate-600">
                             {{ category.description }}
                         </p>
                         <div class="mt-3 flex flex-wrap gap-2">
-                            <span
-                                v-for="tag in category.tags"
+                            <motion.span
+                                v-for="(tag, tagIndex) in category.tags"
                                 :key="tag"
-                                class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600">
+                                class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600"
+                                :initial="tagMotion.initial"
+                                :while-in-view="tagMotion.visible"
+                                :viewport="tagMotion.viewport"
+                                :transition="getTagTransition(tagIndex)"
+                                :while-hover="tagInteractions.hover"
+                                :while-tap="tagInteractions.tap"
+                            >
                                 {{ tag }}
-                            </span>
+                            </motion.span>
                         </div>
-                    </article>
+                    </motion.article>
                 </div>
             </div>
         </div>
@@ -34,6 +48,7 @@
 </template>
 
 <script setup lang="ts">
+import { motion } from 'motion-v';
 interface TalentCategory {
     title: string;
     description: string;
@@ -43,4 +58,51 @@ interface TalentCategory {
 defineProps<{
     categories: TalentCategory[];
 }>();
+
+const cardMotion = {
+    initial: { opacity: 0, y: 35 },
+    visible: { opacity: 1, y: 0 },
+    transition: { duration: 0.55, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.3 },
+} as const;
+
+const cardInteractions = {
+    hover: {
+        scale: 1.02,
+        y: -5,
+        transition: { type: 'spring', duration: 0.5, bounce: 0.35 },
+    },
+    tap: {
+        scale: 0.97,
+        transition: { type: 'spring', duration: 0.4, bounce: 0.25 },
+    },
+} as const;
+
+const tagMotion = {
+    initial: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 },
+    transition: { duration: 0.4, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.3 },
+} as const;
+
+const tagInteractions = {
+    hover: {
+        scale: 1.05,
+        transition: { type: 'spring', duration: 0.45, bounce: 0.35 },
+    },
+    tap: {
+        scale: 0.95,
+        transition: { type: 'spring', duration: 0.35, bounce: 0.25 },
+    },
+} as const;
+
+const getCardTransition = (index: number) => ({
+    ...cardMotion.transition,
+    delay: Math.min(index * 0.08, 0.35),
+});
+
+const getTagTransition = (index: number) => ({
+    ...tagMotion.transition,
+    delay: Math.min(index * 0.04, 0.24),
+});
 </script>
