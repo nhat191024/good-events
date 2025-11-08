@@ -20,7 +20,6 @@ class EditBlogCategoryChildren extends EditRecord
             DeleteAction::make()
                 ->label(__('global.hidden')),
             RestoreAction::make(),
-
         ];
     }
 
