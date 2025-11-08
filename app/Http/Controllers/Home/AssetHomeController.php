@@ -26,17 +26,19 @@ class AssetHomeController extends Controller
     {
         $page = max(1, (int) $request->query('page', 1));
 
-        $fileProducts = FileProduct::with('category.parent', 'category', 'tags','media')
+        $fileProducts = FileProduct::with('category.parent', 'category', 'tags', 'media')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
         $tags = Taggable::getModelTags('FileProduct');
-        $categories = Category::limit(15)->get();
-        // dd(['fileProducts' => FileProductResource::collection($fileProducts)], $fileProducts);
+        $categories = Category::limit(15)
+            ->where('type', 'design')
+            ->orderBy('order', 'asc')
+            ->get();
+
         return Inertia::render('home/AssetHome', [
             'fileProducts' => FileProductResource::collection($fileProducts),
             'tags' => TagResource::collection($tags),
             'categories' => CategoryResource::collection($categories),
         ]);
     }
-
 }
