@@ -9,6 +9,9 @@ return [
         'name' => 'Tên ứng dụng',
         'logo' => 'Logo ứng dụng',
         'favicon' => 'Favicon',
+        'partner_banner' => 'Hình ảnh biểu ngữ đối tác',
+        'design_banner' => 'Hình ảnh biểu ngữ thiết kế',
+        'rental_banner' => 'Hình ảnh biểu ngữ cho thuê vật tư',
 
         'minimum_balance' => 'Số dư tối thiểu',
         'fee_percentage' => 'Phần trăm phí',
