@@ -28,7 +28,10 @@ class RentHomeController extends Controller
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
         $tags = Taggable::getModelTags('RentProduct');
-        $categories = Category::limit(15)->get();
+        $categories = Category::limit(15)
+            ->where('type', 'rental')
+            ->orderBy('order', 'asc')
+            ->get();
 
         return Inertia::render('home/RentHome', [
             'rentProducts' => RentProductResource::collection($rentProducts),
