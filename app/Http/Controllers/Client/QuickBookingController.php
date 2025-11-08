@@ -44,6 +44,7 @@ class QuickBookingController extends Controller
 
         $partnerCategories = PartnerCategory::where('parent_id', '=', null)
             ->with('media')
+            ->orderBy('order', 'asc')
             ->get()
             ->map(function ($category) use ($expireAt) {
                 return [
@@ -78,7 +79,11 @@ class QuickBookingController extends Controller
         $partnerCategory = PartnerCategory::where('slug', $partner_category_slug)
             ->with([
                 'media',
-                'children.media',
+                'children' => function ($query) {
+                    $query->orderBy('order', 'asc')
+                        ->limit(8)
+                        ->with('media');
+                },
             ])
             ->first();
 
@@ -228,18 +233,18 @@ class QuickBookingController extends Controller
 
         $wardItem = $provinceItem->wards()->find($wardId);
         if (! $wardItem) {
-            return back()->withErrors(['ward_id' => 'Vui lòng chọn đúng phường/xã của tỉnh '.$provinceItem->name.'.']);
+            return back()->withErrors(['ward_id' => 'Vui lòng chọn đúng phường/xã của tỉnh ' . $provinceItem->name . '.']);
         }
 
         $user = Auth::user();
-        $address = $locationDetail.', '.$wardItem->name.', '.$provinceItem->name;
+        $address = $locationDetail . ', ' . $wardItem->name . ', ' . $provinceItem->name;
         $phone = $user->phone;
         $clientId = $user->id;
         // $phone = '0987765431';
         // $clientId = 1;
 
         $newBill = PartnerBill::create([
-            'code' => 'PB'.rand(10000, 999999),
+            'code' => 'PB' . rand(10000, 999999),
             'address' => $address,
             'phone' => $phone,
             'date' => $orderDate,
