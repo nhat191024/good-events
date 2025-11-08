@@ -2,11 +2,10 @@
 return [
     'plural' => 'Danh mục',
     'singular' => 'Danh mục',
-    'blog_singular' => 'Danh mục blog',
 
     'singulars' => [
         'blog' => 'Danh mục blog',
-        'asset' => 'Danh mục thiết kế',
+        'design' => 'Danh mục thiết kế',
         'rental' => 'Danh mục cho thuê',
     ],
 

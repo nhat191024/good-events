@@ -2,11 +2,10 @@
 return [
     'plural' => 'Categories',
     'singular' => 'Category',
-    'blog_singular' => 'Blog Category',
 
     'singulars' => [
         'blog' => 'Blog Category',
-        'asset' => 'Asset Category',
+        'design' => 'Design Category',
         'rental' => 'Rental Category',
     ],
 
