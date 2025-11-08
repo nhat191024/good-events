@@ -17,7 +17,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
 
-
 class BlogCategoryChildrensTable
 {
     public static function configure(Table $table): Table
