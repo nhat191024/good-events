@@ -10,16 +10,23 @@
                     </p>
                 </div>
                 <div class="flex-1 space-y-6">
-                    <article
-                        v-for="milestone in milestones"
+                    <motion.article
+                        v-for="(milestone, index) in milestones"
                         :key="milestone.year"
-                        class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+                        class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+                        :initial="cardMotion.initial"
+                        :while-in-view="cardMotion.visible"
+                        :viewport="cardMotion.viewport"
+                        :transition="getCardTransition(index)"
+                        :while-hover="cardInteractions.hover"
+                        :while-tap="cardInteractions.tap"
+                    >
                         <p class="text-sm font-semibold uppercase tracking-widest text-indigo-200">{{ milestone.year }}</p>
                         <h3 class="mt-2 text-2xl font-semibold">{{ milestone.title }}</h3>
                         <p class="mt-3 text-base text-slate-200">
                             {{ milestone.description }}
                         </p>
-                    </article>
+                    </motion.article>
                 </div>
             </div>
         </div>
@@ -27,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import { motion } from 'motion-v';
 interface Milestone {
     year: string;
     title: string;
@@ -36,4 +44,28 @@ interface Milestone {
 defineProps<{
     milestones: Milestone[];
 }>();
+
+const cardMotion = {
+    initial: { opacity: 0, x: 40 },
+    visible: { opacity: 1, x: 0 },
+    transition: { duration: 0.6, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.3 },
+} as const;
+
+const cardInteractions = {
+    hover: {
+        scale: 1.02,
+        y: -6,
+        transition: { type: 'spring', duration: 0.5, bounce: 0.35 },
+    },
+    tap: {
+        scale: 0.97,
+        transition: { type: 'spring', duration: 0.4, bounce: 0.25 },
+    },
+} as const;
+
+const getCardTransition = (index: number) => ({
+    ...cardMotion.transition,
+    delay: Math.min(index * 0.08, 0.4),
+});
 </script>
