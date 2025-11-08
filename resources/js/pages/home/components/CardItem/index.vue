@@ -1,6 +1,8 @@
 <template>
     <Link :href="routeHref" class="block h-full">
-        <div
+        <motion.div
+            :initial="cardMotion.initial"
+            :animate="cardMotion.animate"
             class="card bg-base-100 shadow-sm group relative overflow-hidden cursor-pointer rounded-md">
             <figure class="relative aspect-[4/3]">
                 <img
@@ -20,7 +22,7 @@
                 </div>
                 <div class="card-actions justify-end mt-auto pt-2"></div>
             </div>
-        </div>
+        </motion.div>
     </Link>
 </template>
 
@@ -29,6 +31,7 @@ import { computed, ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { Props } from './types';
 import { getImg } from '@/pages/booking/helper';
+import { motion } from 'motion-v';
 
 const props = withDefaults(defineProps<Props>(),{
     showInfo: true
@@ -58,5 +61,23 @@ const handleImageError = (event: Event) => {
     target.onerror = null;
     currentImage.value = placeholderImage;
 };
+
+const cardMotion = {
+    initial: {
+        opacity: 0.5,
+        y: 30,
+        scale: 0.97,
+    },
+    animate: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            delay: 0.5,
+            duration: 0.5,
+            ease: 'easeOut',
+        },
+    },
+} as const;
 
 </script>

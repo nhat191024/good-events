@@ -4,6 +4,7 @@ import { ClientOrderDetail, Partner } from '../types';
 import { formatPrice } from '@/lib/helper';
 import { router } from '@inertiajs/core';
 import { getImg } from '@/pages/booking/helper';
+import { motion } from 'motion-v';
 
 const props = withDefaults(defineProps<ClientOrderDetail & {
     showButtons?: boolean
@@ -20,10 +21,34 @@ function goToPartnerProfile() {
     if (!props.partner) return
     emit('view-partner-profile', props.partner.id)
 }
+
+const cardMotion = {
+    initial: { opacity: 0.5, y: 5 },
+    visible: { opacity: 1, y: 0 },
+    transition: { duration: 0.3, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.3 },
+} as const;
+
+const actionInteractions = {
+    hover: {
+        scale: 1.03,
+        transition: { type: 'spring', duration: 0.65, bounce: 0.3 },
+    },
+    tap: {
+        scale: 0.96,
+        transition: { type: 'spring', duration: 0.6, bounce: 0.2 },
+    },
+} as const;
 </script>
 
 <template>
-    <div class="transition-all duration-200 border-2 rounded-xl bg-card hover:shadow-lg hover:border-primary/20">
+    <motion.div
+        class="transition-all duration-200 border-2 rounded-xl bg-card hover:shadow-lg hover:border-primary/20"
+        :initial="cardMotion.initial"
+        :while-in-view="cardMotion.visible"
+        :viewport="cardMotion.viewport"
+        :transition="cardMotion.transition"
+    >
         <div class="p-2 md:p-4">
             <div class="flex gap-6">
                 <!-- content -->
@@ -76,17 +101,20 @@ function goToPartnerProfile() {
                     </div>
                     <!-- actions -->
                     <div class="flex items-end sm:gap-2 gap-1 justify-end">
-                        <button @click="goToPartnerProfile()"
-                            class="cursor-pointer h-10 rounded-md border border-primary-700 text-primary-700 text-sm md:text-md bg-transparent md:px-6 px-2 hover:bg-primary/5">
+                        <motion.button @click="goToPartnerProfile()" type="button"
+                            class="cursor-pointer h-10 rounded-md border border-primary-700 text-primary-700 text-sm md:text-md bg-transparent md:px-6 px-2 hover:bg-primary/5"
+                            :while-hover="actionInteractions.hover" :while-tap="actionInteractions.tap">
                             Hồ sơ
-                        </button>
-                        <button v-if="showButtons" @click="emit('confirm-choose-partner', props.partner, props.total)"
-                            class="cursor-pointer h-10 rounded-md bg-primary-700 text-white md:px-6 px-3 text-md md:text-md">
+                        </motion.button>
+                        <motion.button v-if="showButtons" type="button"
+                            @click="emit('confirm-choose-partner', props.partner, props.total)"
+                            class="cursor-pointer h-10 rounded-md bg-primary-700 text-white md:px-6 px-3 text-md md:text-md"
+                            :while-hover="actionInteractions.hover" :while-tap="actionInteractions.tap">
                             Chọn đối tác
-                        </button>
+                        </motion.button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </motion.div>
 </template>

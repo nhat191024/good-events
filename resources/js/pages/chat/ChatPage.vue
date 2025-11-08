@@ -79,7 +79,7 @@ function handleToggleMobileMenu() {
 
 <template>
     <ClientAppHeaderLayout :show-footer="false">
-        <div class="flex w-full overflow-hidden" style="height: calc(100vh - 4rem)">
+        <div class="flex w-full overflow-hidden" style="height: calc(98vh - 4rem)">
             <div :class="sidebarClass">
                 <ChatSidebar
                     :selected-thread-id="selectedThreadId"

@@ -101,9 +101,9 @@ const breadcrumbs = computed(() => {
                                     {{ props.category?.name }}
                                 </div>
                             </div>
-                            <button class="px-3 py-1.5 rounded-full ring-1 ring-gray-200 hover:ring-[#ED3B50] text-xs">
+                            <!-- <button class="px-3 py-1.5 rounded-full ring-1 ring-gray-200 hover:ring-[#ED3B50] text-xs">
                                 ♡ Lưu
-                            </button>
+                            </button> -->
                         </div>
 
                         <!-- price -->

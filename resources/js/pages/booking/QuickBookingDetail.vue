@@ -103,6 +103,7 @@
     const subtitle = `Bạn đang tìm '${partnerCategory.name}' - '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin và mô tả rõ sự kiện của bạn dưới đây nhé`
 
     const form = useForm<PartnerBillForm>(initial)
+    const isCustomEvent = ref(Boolean(initial.custom_event))
 
     watch(() => form.data(), (val) => {
         try {
@@ -111,6 +112,20 @@
             console.error('cannot write ls', e)
         }
     }, { deep: true })
+
+    function handleCustomOption(selected: boolean) {
+        isCustomEvent.value = selected
+        if (!selected) {
+            form.custom_event = null
+        }
+    }
+
+    watch(() => form.event_id, (val) => {
+        if (val) {
+            isCustomEvent.value = false
+            form.custom_event = null
+        }
+    })
 
     async function submit() {
         const ok = await confirm({
@@ -167,6 +182,7 @@
     function clearStorage() {
         localStorage.removeItem(LS_KEY)
         form.reset('order_date','start_time','end_time','province_id','ward_id','event_id','category_id','location_detail','note')
+        isCustomEvent.value = false
     }
 </script>
 
@@ -198,12 +214,15 @@
                         <SelectBox
                             :id="'select-event-type'"
                             v-model="form.event_id"
-                            :custom-value="form.custom_event"
-                            @update:custom-value="val => form.custom_event = val"
                             :options="eventList"
                             :allow-custom="true"
+                            @custom-option-selected="handleCustomOption"
                             placeholder="Chọn nội dung sự kiện..."
                         />
+                    </FormItemLayout>
+                    <FormItemLayout v-if="isCustomEvent" :for-id="'event-custom'" :label="'Nội dung sự kiện (Tùy chọn)'" :error="form.errors.custom_event">
+                        <Input placeholder="VD: Tổ chức thăm lăng bác" :id="'event-custom'" v-model="form.custom_event"
+                            class="text-black" />
                     </FormItemLayout>
                 </FormGroupLayout>
 

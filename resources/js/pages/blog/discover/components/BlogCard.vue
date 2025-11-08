@@ -1,5 +1,14 @@
 <template>
-    <Link :href="detailHref" class="group relative block overflow-hidden rounded-3xl" :class="variantClass">
+    <motion.div
+        class="h-full"
+        :initial="cardMotion.initial"
+        :while-in-view="cardMotion.visible"
+        :viewport="cardMotion.viewport"
+        :transition="cardMotion.transition"
+        :while-hover="cardInteractions.hover"
+        :while-tap="cardInteractions.tap"
+    >
+        <Link :href="detailHref" class="h-full group relative block overflow-hidden rounded-3xl" :class="variantClass">
         <div class="absolute inset-0">
             <img
                 v-if="blog.thumbnail"
@@ -29,13 +38,15 @@
                 <span>Đọc thêm</span>
                 <span aria-hidden="true" class="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </div>
-        </div>
-    </Link>
+            </div>
+        </Link>
+    </motion.div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 import type { BlogSummary } from '../../types';
 
 type Variant = 'featured' | 'secondary' | 'compact';
@@ -80,5 +91,22 @@ const titleClass = computed(() => {
 const excerptClass = computed(() => (props.variant === 'featured' ? 'text-base text-white/80 line-clamp-3' : 'text-sm text-white/80 line-clamp-2'));
 
 const dateLabel = computed(() => props.blog.published_human ?? props.blog.published_at ?? '');
-</script>
 
+const cardMotion = {
+    initial: { opacity: 0.5, y: 36 },
+    visible: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.35 },
+} as const;
+
+const cardInteractions = {
+    hover: {
+        scale: 1.02,
+        transition: { type: 'spring', duration: 0.5, bounce: 0.35 },
+    },
+    tap: {
+        scale: 0.98,
+        transition: { type: 'spring', duration: 0.45, bounce: 0.25 },
+    },
+} as const;
+</script>
