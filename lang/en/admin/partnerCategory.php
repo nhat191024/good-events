@@ -1,6 +1,6 @@
 <?php
 return [
-    'singular' => 'Partner',
+    'singular' => 'Partner Category',
     'plural' => 'Partner Categories',
 
     'manage_event_categories' => 'Manage :name',
