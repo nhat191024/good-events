@@ -23,7 +23,6 @@ use Filament\Resources\ParentResourceRegistration;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-
 class BlogCategoryChildrenResource extends Resource
 {
     protected static ?string $model = Category::class;
