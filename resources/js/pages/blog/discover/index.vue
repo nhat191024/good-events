@@ -81,7 +81,7 @@ const pageTitle = computed(() => {
     return `${props.category.name} - Blog gợi ý địa điểm`;
 });
 
-const headingText = computed(() => (props.category ? props.category.name : 'Blog gợi ý địa điểm tổ chức'));
+const headingText = computed(() => (props.category ? props.category.name : 'Khám phá những địa điểm tổ chức sự kiện tốt nhất'));
 
 const totalItems = computed(() => props.blogs?.meta?.total ?? props.blogs?.data?.length ?? 0);
 
