@@ -14,7 +14,7 @@ class ListEventCategories extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label(__('admin/partnerCategory.actions.create')),
+                ->label(__('global.create'))
         ];
     }
 }
