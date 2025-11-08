@@ -16,7 +16,8 @@ class EditBlogCategory extends EditRecord
     {
         return [
             DeleteAction::make()
-                ->label(__('global.hidden')),
+                ->label(__('global.hidden'))
+                ->disabled(fn($record): bool => $record->children()->exists()),
             RestoreAction::make(),
         ];
     }
