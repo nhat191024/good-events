@@ -3,7 +3,7 @@
 
     <ClientAppHeaderLayout :background-class-names="'bg-blue-100'">
 
-        <HeroBanner :header-text="'Khám phá kho tài liệu thiết kế mới'" v-model="search" 
+        <HeroBanner :header-text="'Trải nghiệm kho tài liệu thiết kế Sukientot mới'" v-model="search" 
             :bg-color-class="'bg-[linear-gradient(180deg,#6bafff_0%,rgb(129,187,255)_51.50151983037725%,rgba(74,144,226,0)_100%)]'"
         />
 
