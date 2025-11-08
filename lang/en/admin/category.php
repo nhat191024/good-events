@@ -4,9 +4,9 @@ return [
     'singular' => 'Category',
 
     'singulars' => [
-        'blog' => 'Blog Category',
-        'design' => 'Design Category',
-        'rental' => 'Rental Category',
+        'blog' => 'Blog',
+        'design' => 'Design',
+        'rental' => 'Rental',
     ],
 
     'cannot_hidden_category_has_children' => 'Cannot hide category because it has child categories.',
