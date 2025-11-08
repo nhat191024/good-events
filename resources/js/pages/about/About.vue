@@ -320,22 +320,22 @@ const timeline: Milestone[] = [
 
 const teamMembers: TeamMember[] = [
     {
-        name: 'Nguyễn Minh Châu',
+        name: 'Nguyễn Văn A',
         role: 'CEO & Co-founder',
         description: '15 năm kinh nghiệm tư vấn giải pháp event cho doanh nghiệp F&B và bán lẻ.',
     },
     {
-        name: 'Đặng Thảo',
+        name: 'Nguyễn Văn B',
         role: 'Head of Operations',
         description: 'Người đứng sau hệ thống quy trình giúp đội ngũ đối tác phối hợp trơn tru.',
     },
     {
-        name: 'Lê Duy',
+        name: 'Nguyễn Văn C',
         role: 'Lead Product Designer',
         description: 'Thiết kế trải nghiệm liền mạch dựa trên insight thực tế từ khách hàng.',
     },
     {
-        name: 'Phạm Gia Huy',
+        name: 'Nguyễn Văn D',
         role: 'Partnership Manager',
         description: 'Xây dựng mạng lưới đối tác chất lượng thông qua chính sách minh bạch.',
     },
