@@ -4,7 +4,7 @@
     <ClientAppHeaderLayout :background-class-names="'bg-green-100'">
 
         <HeroBanner
-            :header-text="'Giải pháp thuê vật tư sự kiện nhanh chóng'"
+            :header-text="'Thuê vật tư, loa đài ánh sáng cho sự kiện nhanh chóng'"
             v-model="search"
             :bg-color-class="'bg-[linear-gradient(180deg,#4ade80_0%,rgb(134,239,172)_51.5%,rgba(74,222,128,0)_100%)]'"
         />
