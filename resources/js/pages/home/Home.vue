@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { motion } from 'motion-v';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import HeroBanner from './partials/HeroBanner.vue';
 import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
@@ -90,6 +90,26 @@ const categoryMotions = computed(() => props.eventCategories.map((_, index) => (
         <HeroBanner v-model="search" />
         
         <PartnerCategoryIcons :categories="categories" />
+
+        <section class="px-4 py-6">
+            <div
+                class="mx-auto flex w-full max-w-6xl flex-col gap-6 rounded-3xl bg-gradient-to-r from-primary-400 via-primary-300 to-pink-300 p-6 text-white shadow-lg shadow-indigo-500/30 lg:flex-row lg:items-center lg:justify-between">
+                <div class="space-y-2">
+                    <p class="text-sm font-semibold uppercase tracking-widest text-white/80">Sukientot.com</p>
+                    <h2 class="text-2xl font-bold leading-snug lg:text-3xl">Đặt show biểu diễn chỉ với một cú nhấp</h2>
+                    <p class="text-sm text-white/90">
+                        Tìm hiểu cách chúng tôi kết nối chú hề, MC, ảo thuật gia, workshop và mascot cho mọi sự kiện trong 30 giây.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <Link
+                        :href="route('about.index')"
+                        class="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-sm shadow-black/10 transition hover:translate-y-0.5">
+                        Tìm hiểu thêm
+                    </Link>
+                </div>
+            </div>
+        </section>
         
         <!-- Partner Categories Sections -->
         <div class="container mx-auto px-4 py-8 space-y-12">
