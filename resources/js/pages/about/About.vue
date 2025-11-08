@@ -2,22 +2,93 @@
     <Head title="Về chúng tôi - Sukientot" />
 
     <ClientHeaderLayout>
-        <div class="bg-white">
-            <AboutHero :content="heroContent" :highlights="heroHighlights" :service-pills="servicePills" />
-            <AboutOverview :sections="overviewSections" />
-            <AboutAudience :audiences="audiences" />
-            <AboutTalentShowcase :categories="talentCategories" />
-            <AboutVisionMission :vision="vision" :mission-points="missionPoints" />
-            <AboutMission :principles="operatingPrinciples" :commitments="platformCommitments" />
-            <AboutValues :values="coreValues" />
-            <AboutStats :stats="stats" />
-            <AboutTimeline :milestones="timeline" />
-            <AboutTeam :members="teamMembers" />
+        <div class="bg-primary-50">
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(0)"
+            >
+                <AboutHero :content="heroContent" :highlights="heroHighlights" :service-pills="servicePills" />
+            </motion.section>
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(1)"
+            >
+                <AboutOverview :sections="overviewSections" />
+            </motion.section>
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(2)"
+            >
+                <AboutAudience :audiences="audiences" />
+            </motion.section>
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(3)"
+            >
+                <AboutTalentShowcase :categories="talentCategories" />
+            </motion.section>
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(4)"
+            >
+                <AboutVisionMission :vision="vision" :mission-points="missionPoints" />
+            </motion.section>
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(5)"
+            >
+                <AboutMission :principles="operatingPrinciples" :commitments="platformCommitments" />
+            </motion.section>
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(6)"
+            >
+                <AboutValues :values="coreValues" />
+            </motion.section>
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(7)"
+            >
+                <AboutStats :stats="stats" />
+            </motion.section>
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(8)"
+            >
+                <AboutTimeline :milestones="timeline" />
+            </motion.section>
+            <motion.section
+                :initial="sectionMotion.initial"
+                :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport"
+                :transition="getSectionTransition(9)"
+            >
+                <AboutTeam :members="teamMembers" />
+            </motion.section>
         </div>
     </ClientHeaderLayout>
 </template>
 
 <script setup lang="ts">
+import { motion } from 'motion-v';
 import { Head } from '@inertiajs/vue3';
 
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
@@ -51,9 +122,21 @@ interface TeamMember {
     description: string;
 }
 
+const sectionMotion = {
+    initial: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.2 },
+} as const;
+
+const getSectionTransition = (index: number) => ({
+    duration: 0.6,
+    ease: 'easeOut',
+    delay: Math.min(index * 0.08, 0.4),
+});
+
 const heroContent = {
     eyebrow: 'Sàn TMĐT nhân sự sự kiện',
-    title: 'Đặt chú hề – ảo thuật – MC cho sinh nhật chỉ trong 30 giây',
+    title: 'Đặt lịch tổ chức sự kiện',
     description:
         'Sukientot.com là nền tảng kết nối khách hàng có nhu cầu tổ chức sự kiện với đội ngũ nhân sự biểu diễn chuyên nghiệp. Từ đặt lịch, kết nối, vận hành đến đánh giá đều diễn ra trên một giao diện thân thiện, tươi vui và chuẩn mực.',
     subheading: 'Danh mục nổi bật',
