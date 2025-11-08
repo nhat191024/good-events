@@ -21,12 +21,12 @@ class HomeController extends Controller
             ->with([
                 'media',
                 'children' => function ($query) {
-                    $query->orderBy('min_price')
+                    $query->orderBy('order', 'asc')
                         ->limit(8)
-                        ->with('media'); // Eager load media for children
+                        ->with('media');
                 },
             ])
-            ->orderBy('name')
+            ->orderBy('order', 'asc')
             ->get();
 
         // Transform partner categories
