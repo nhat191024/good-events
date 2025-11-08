@@ -1,7 +1,15 @@
 <template>
     <section class="bg-slate-50">
         <div class="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-            <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg shadow-black/[0.04]">
+            <motion.div
+                class="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg shadow-black/[0.04]"
+                :initial="cardMotion.initial"
+                :while-in-view="cardMotion.visible"
+                :viewport="cardMotion.viewport"
+                :transition="cardMotion.transition"
+                :while-hover="cardInteractions.hover"
+                :while-tap="cardInteractions.tap"
+            >
                 <div class="grid gap-8 lg:grid-cols-5">
                     <div class="space-y-3 lg:col-span-2">
                         <p class="text-sm font-semibold uppercase tracking-wide text-indigo-600">Gửi yêu cầu</p>
@@ -70,20 +78,24 @@
                                 class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                             />
                         </label>
-                        <button
+                        <motion.button
                             type="submit"
-                            class="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-indigo-500">
+                            class="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-base font-semibold text-white"
+                            :while-hover="buttonInteractions.hover"
+                            :while-tap="buttonInteractions.tap"
+                        >
                             Gửi thông tin
-                        </button>
+                        </motion.button>
                         <p v-if="submitted" class="text-sm text-emerald-600">Cảm ơn bạn! Chúng tôi sẽ liên hệ sớm nhất.</p>
                     </form>
                 </div>
-            </div>
+            </motion.div>
         </div>
     </section>
 </template>
 
 <script setup lang="ts">
+import { motion } from 'motion-v';
 import { reactive, ref } from 'vue';
 
 interface TopicOption {
@@ -115,4 +127,35 @@ function submitForm(): void {
         submitted.value = false;
     }, 4000);
 }
+
+const cardMotion = {
+    initial: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.3 },
+} as const;
+
+const cardInteractions = {
+    hover: {
+        scale: 1.01,
+        y: -4,
+        transition: { type: 'spring', duration: 0.55, bounce: 0.3 },
+    },
+    tap: {
+        scale: 0.99,
+        transition: { type: 'spring', duration: 0.4, bounce: 0.2 },
+    },
+} as const;
+
+const buttonInteractions = {
+    hover: {
+        scale: 1.02,
+        y: -2,
+        transition: { type: 'spring', duration: 0.45, bounce: 0.3 },
+    },
+    tap: {
+        scale: 0.96,
+        transition: { type: 'spring', duration: 0.35, bounce: 0.25 },
+    },
+} as const;
 </script>
