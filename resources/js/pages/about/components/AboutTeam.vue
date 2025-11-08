@@ -3,9 +3,9 @@
         <div class="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
             <div class="text-center">
                 <p class="text-sm font-semibold uppercase tracking-wide text-indigo-600">Đội ngũ</p>
-                <h2 class="mt-3 text-3xl font-bold text-slate-900">Những người đứng sau Sukientot</h2>
+                <h2 class="mt-3 text-3xl font-bold text-slate-900">Những thành viên tại Sukientot</h2>
                 <p class="mx-auto mt-4 max-w-2xl text-base text-slate-600">
-                    Kết hợp chuyên môn về sự kiện, công nghệ và vận hành để mang tới trải nghiệm nhất quán cho khách hàng.
+                    Kết hợp chuyên môn về sự kiện, công nghệ và vận hành để mang tới trải nghiệm tốt cho khách hàng.
                 </p>
             </div>
 
