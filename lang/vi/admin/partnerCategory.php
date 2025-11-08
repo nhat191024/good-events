@@ -1,6 +1,6 @@
 <?php
 return [
-    'singular' => 'Danh mục đối tác',
+    'singular' => 'Đối tác',
     'plural' => 'Danh mục đối tác',
 
     'manage_event_categories' => 'Quản lý danh mục :name',
