@@ -29,7 +29,7 @@ class EditBlogCategoryChildren extends EditRecord
             BlogCategoryResource::getIndexUrl() => __('admin/category.singulars.blog'),
             $this->getParentRecord()->name,
             ManageBlogCategoryChildren::getUrl([$this->getParentRecord()->id]) => __('admin/category.children_category'),
-            __('global.create'),
+            __('global.edit'),
         ];
     }
 }
