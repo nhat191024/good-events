@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Models\PartnerCategory;
+use App\Settings\AppSettings;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -12,7 +13,7 @@ class HomeController extends Controller
     /**
      * Show the home page.
      */
-    public function index(): Response
+    public function index(AppSettings $settings): Response
     {
         $expireAt = now()->addMinutes(60);
 
@@ -48,6 +49,10 @@ class HomeController extends Controller
         return Inertia::render('home/Home', [
             'eventCategories' => $eventCategories,
             'partnerCategories' => $partnerCategories,
+            'settings' => [
+                'app_name' => $settings->app_name,
+                'app_partner_banner' => $settings->app_partner_banner,
+            ],
         ]);
     }
 

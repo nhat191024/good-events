@@ -14,6 +14,10 @@ import { createSearchFilter } from '@/lib/search-filter';
 interface Props {
     eventCategories: PartnerCategory[];
     partnerCategories: { [key: number]: PartnerCategory[] };
+    settings: {
+        app_name: string;
+        app_partner_banner: string | null;
+    };
 }
 
 const props = defineProps<Props>();
@@ -88,12 +92,16 @@ const categoryMotions = computed(() => props.eventCategories.map((_, index) => (
 
     <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
 
-        <HeroBanner v-model="search" />
-        
+        <HeroBanner
+            v-model="search"
+            :header-text="'Thuê đối tác xịn. Sự kiện thêm vui'"
+            :header-banner-img="settings.app_partner_banner || '/images/banner-image.webp'"
+        />
+
         <PartnerCategoryIcons :categories="categories" />
 
         <HomeCtaBanner />
-        
+
         <!-- Partner Categories Sections -->
         <div class="container mx-auto px-4 py-8 space-y-12">
             <!-- Loop through event categories and display partner categories for each -->

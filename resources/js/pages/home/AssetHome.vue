@@ -3,7 +3,10 @@
 
     <ClientAppHeaderLayout :background-class-names="'bg-blue-100'">
 
-        <HeroBanner :header-text="'Trải nghiệm kho tài liệu thiết kế Sukientot mới'" v-model="search" 
+        <HeroBanner
+            :header-text="'Trải nghiệm kho tài liệu thiết kế'"
+            v-model="search"
+            :header-banner-img="settings.app_design_banner || '/images/banner-image.webp'"
             :bg-color-class="'bg-[linear-gradient(180deg,#6bafff_0%,rgb(129,187,255)_51.50151983037725%,rgba(74,144,226,0)_100%)]'"
         />
 
@@ -85,6 +88,10 @@ interface Props {
     fileProducts: Paginated<FileProduct>;
     tags: Paginated<Tag>;
     categories: Paginated<Category>;
+    settings: {
+        app_name: string;
+        app_design_banner: string | null;
+    };
 }
 
 const props = defineProps<Props>();

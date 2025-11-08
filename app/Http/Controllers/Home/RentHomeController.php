@@ -9,6 +9,7 @@ use App\Http\Resources\Home\TagResource;
 use App\Models\Category;
 use App\Models\RentProduct;
 use App\Models\Taggable;
+use App\Settings\AppSettings;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,7 +21,7 @@ class RentHomeController extends Controller
     /**
      * Show the home page.
      */
-    public function index(Request $request): Response
+    public function index(Request $request, AppSettings $settings): Response
     {
         $page = max(1, (int) $request->query('page', 1));
 
@@ -37,6 +38,10 @@ class RentHomeController extends Controller
             'rentProducts' => RentProductResource::collection($rentProducts),
             'tags' => TagResource::collection($tags),
             'categories' => CategoryResource::collection($categories),
+            'settings' => [
+                'app_name' => $settings->app_name,
+                'app_rental_banner' => $settings->app_rental_banner,
+            ],
         ]);
     }
 }

@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\FileProduct;
 use App\Models\Tag;
 use App\Models\Taggable;
+use App\Settings\AppSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -22,7 +23,7 @@ class AssetHomeController extends Controller
     /**
      * Show the home page.
      */
-    public function index(Request $request): Response
+    public function index(Request $request, AppSettings $settings): Response
     {
         $page = max(1, (int) $request->query('page', 1));
 
@@ -39,6 +40,10 @@ class AssetHomeController extends Controller
             'fileProducts' => FileProductResource::collection($fileProducts),
             'tags' => TagResource::collection($tags),
             'categories' => CategoryResource::collection($categories),
+            'settings' => [
+                'app_name' => $settings->app_name,
+                'app_design_banner' => $settings->app_design_banner,
+            ],
         ]);
     }
 }
