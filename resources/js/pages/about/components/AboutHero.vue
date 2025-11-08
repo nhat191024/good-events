@@ -23,12 +23,12 @@
                 </div>
                 <div class="flex flex-wrap gap-3">
                     <Link
-                        :href="route('register')"
+                        :href="route('login')"
                         class="inline-flex items-center justify-center rounded-2xl bg-sky-600 px-6 py-3 text-base font-semibold text-white shadow-sm shadow-sky-600/30 transition hover:bg-sky-500">
                         Đăng ký ngay
                     </Link>
                     <Link
-                        :href="route('register')"
+                        :href="route('login')"
                         class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-6 py-3 text-base font-semibold text-slate-700 transition hover:border-slate-300">
                         Tặng Voucher bạn mới
                     </Link>
