@@ -11,6 +11,7 @@ import { onMounted } from 'vue';
 interface Props {
     showBannerBackground?: boolean;
     showFooter?: boolean;
+    showNav?: boolean;
     backgroundClassNames?: string;
     breadcrumbs?: BreadcrumbItemType[];
 }
@@ -18,6 +19,7 @@ interface Props {
 withDefaults(defineProps<Props>(), {
     showBannerBackground: () => true,
     showFooter: () => true,
+    showNav: () => true,
     breadcrumbs: () => [],
 });
 
@@ -28,8 +30,8 @@ onMounted(() => {
 </script>
 
 <template>
-    <Header :background-class-names="backgroundClassNames" />
-    <main class="pt-16">
+    <Header v-if="showNav" :background-class-names="backgroundClassNames" />
+    <main :class="showNav?'pt-16':'pt-0'">
         <div class="h-full bg-white">
             <AppContent>
                 <!-- the red bg banner on top of the page -->

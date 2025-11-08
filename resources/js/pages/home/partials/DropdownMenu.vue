@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onBeforeUnmount, computed, watch, type Ref, type Component } from 'vue';
-import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, Shield, LogOut, FileCheck } from 'lucide-vue-next';
+import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, Shield, LogOut, FileCheck, PhoneCall, Info } from 'lucide-vue-next';
 
 import DropdownMenuItems from '../components/DropdownMenuItems.vue';
 
@@ -100,9 +100,15 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
         external: false
     },
     {
-        label: 'Trợ giúp',
-        route: () => route('home'),
-        icon: HelpCircle,
+        label: 'Liên hệ',
+        route: () => route('contact.index'),
+        icon: PhoneCall,
+        external: false
+    },
+    {
+        label: 'Về chúng tôi',
+        route: () => route('about.index'),
+        icon: Info,
         external: false
     },
     {
@@ -130,9 +136,21 @@ const loggedOutMenuItems: MenuItem[] = [
         external: false
     },
     {
-        label: 'Trợ giúp',
+        label: 'Khám phá nhân sự',
         route: () => route('home'),
         icon: HelpCircle,
+        external: false
+    },
+    {
+        label: 'Về chúng tôi',
+        route: () => route('about.index'),
+        icon: Info,
+        external: false
+    },
+    {
+        label: 'Liên hệ',
+        route: () => route('contact.index'),
+        icon: PhoneCall,
         external: false
     },
     {

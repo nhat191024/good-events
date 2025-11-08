@@ -54,7 +54,7 @@ const reloadOrderDetails = debounce(() => {
 }, 5000)
 
 const classIfBookedPartnerFound = computed(()=>{
-    return (bookedPartner && props.mode === 'current' && (props.order?.status==OrderStatus.CONFIRMED || props.order?.status==OrderStatus.IN_JOB)) ? 'hidden' : '';
+    return (bookedPartner.value && props.mode === 'current' && (props.order?.status==OrderStatus.CONFIRMED || props.order?.status==OrderStatus.IN_JOB)) ? 'hidden' : '';
 });
 
 const shouldShowArrivalPhoto = computed(() => Boolean(props.order?.arrival_photo))

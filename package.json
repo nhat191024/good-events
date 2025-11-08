@@ -44,6 +44,7 @@
         "laravel-echo": "^2.2.4",
         "laravel-vite-plugin": "^2.0.1",
         "lucide-vue-next": "^0.468.0",
+        "motion-v": "^1.7.4",
         "pusher-js": "^8.4.0",
         "reka-ui": "^2.5.0",
         "tailwind-merge": "^3.3.1",

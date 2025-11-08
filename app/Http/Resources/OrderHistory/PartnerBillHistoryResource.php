@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\OrderHistory;
 
+use App\Helper\TemporaryImage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +48,7 @@ class PartnerBillHistoryResource extends JsonResource
             "total" => $this->total,
             "final_total" => $this->final_total,
             "note" => $this->note,
+            'arrival_photo' => TemporaryImage::getTemporaryImageUrl($this, $expireAt,'arrival_photo'),
             "status" => $this->status,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
