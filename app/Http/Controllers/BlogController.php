@@ -59,7 +59,7 @@ class BlogController extends Controller
             ->latest('created_at')
             ->take(6)
             ->get();
-            
+
         return Inertia::render('blog/Detail', [
             'blog' => BlogDetailResource::make($blog)->resolve($request),
             'related' => BlogResource::collection($related),
@@ -102,8 +102,8 @@ class BlogController extends Controller
         $categories = Category::query()
             ->select(['id', 'name', 'slug', 'parent_id', 'description'])
             ->with(['parent:id,name,slug'])
-            ->whereHas('blogs')
-            ->orderBy('name')
+            ->where('type', 'blog')
+            ->orderBy('order', 'asc')
             ->get();
 
         return Inertia::render('blog/Discover', [
