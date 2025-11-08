@@ -2,6 +2,13 @@
 return [
     'plural' => 'Danh mục',
     'singular' => 'Danh mục',
+    'blog_singular' => 'Danh mục blog',
+
+    'singulars' => [
+        'blog' => 'Danh mục blog',
+        'asset' => 'Danh mục thiết kế',
+        'rental' => 'Danh mục cho thuê',
+    ],
 
     'cannot_hidden_category_has_children' => 'Không thể ẩn danh mục vì danh mục này có danh mục con.',
     'manage_children_categories' => 'Quản lý danh mục con của :name',

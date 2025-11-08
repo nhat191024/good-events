@@ -2,6 +2,13 @@
 return [
     'plural' => 'Categories',
     'singular' => 'Category',
+    'blog_singular' => 'Blog Category',
+
+    'singulars' => [
+        'blog' => 'Blog Category',
+        'asset' => 'Asset Category',
+        'rental' => 'Rental Category',
+    ],
 
     'cannot_hidden_category_has_children' => 'Cannot hide category because it has child categories.',
     'manage_children_categories' => 'Manage child categories of :name',
