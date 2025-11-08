@@ -11,12 +11,11 @@ use Filament\Resources\Pages\EditRecord;
 class EditDesignCategory extends EditRecord
 {
     protected static string $resource = DesignCategoryResource::class;
-
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
-            ForceDeleteAction::make(),
+            DeleteAction::make()
+                ->label(__('global.hidden')),
             RestoreAction::make(),
         ];
     }
