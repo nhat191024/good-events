@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\EventCategories\Pages;
 
 use App\Filament\Admin\Resources\EventCategories\EventCategoryResource;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditEventCategory extends EditRecord
@@ -16,6 +17,7 @@ class EditEventCategory extends EditRecord
             DeleteAction::make()
                 ->label(__('global.hidden'))
                 ->disabled(fn($record): bool => $record->children()->exists()),
+            RestoreAction::make(),
         ];
     }
 
