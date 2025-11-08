@@ -9,10 +9,17 @@
                 </p>
             </div>
             <div class="mt-10 grid gap-6 lg:grid-cols-3">
-                <article
-                    v-for="audience in audiences"
+                <motion.article
+                    v-for="(audience, index) in audiences"
                     :key="audience.title"
-                    class="rounded-3xl border border-white bg-white p-6 shadow-sm shadow-black/[0.03]">
+                    class="rounded-3xl border border-white bg-white p-6 shadow-sm shadow-black/[0.03]"
+                    :initial="cardMotion.initial"
+                    :while-in-view="cardMotion.visible"
+                    :viewport="cardMotion.viewport"
+                    :transition="getCardTransition(index)"
+                    :while-hover="cardInteractions.hover"
+                    :while-tap="cardInteractions.tap"
+                >
                     <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">{{ audience.category }}</p>
                     <h3 class="mt-2 text-xl font-semibold text-slate-900">{{ audience.title }}</h3>
                     <p class="mt-2 text-sm text-slate-600">
@@ -27,13 +34,14 @@
                             <span>{{ benefit }}</span>
                         </li>
                     </ul>
-                </article>
+                </motion.article>
             </div>
         </div>
     </section>
 </template>
 
 <script setup lang="ts">
+import { motion } from 'motion-v';
 interface Audience {
     category: string;
     title: string;
@@ -44,4 +52,28 @@ interface Audience {
 defineProps<{
     audiences: Audience[];
 }>();
+
+const cardMotion = {
+    initial: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 },
+    transition: { duration: 0.55, ease: 'easeOut' },
+    viewport: { once: true, amount: 0.3 },
+} as const;
+
+const cardInteractions = {
+    hover: {
+        scale: 1.02,
+        y: -6,
+        transition: { type: 'spring', duration: 0.5, bounce: 0.35 },
+    },
+    tap: {
+        scale: 0.97,
+        transition: { type: 'spring', duration: 0.4, bounce: 0.25 },
+    },
+} as const;
+
+const getCardTransition = (index: number) => ({
+    ...cardMotion.transition,
+    delay: Math.min(index * 0.07, 0.35),
+});
 </script>
