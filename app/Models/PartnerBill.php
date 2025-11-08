@@ -188,25 +188,24 @@ class PartnerBill extends Model implements HasMedia
         $partnerId = $partnerBill->partner_id;
         $clientId = $partnerBill->client_id;
 
-        //update number of customer statistic for partner
-        $existingStat = Statistical::where('user_id', $partnerId)
-            ->where('metrics_name', StatisticType::NUMBER_CUSTOMER->value)
-            ->first();
+        // Fetch all relevant statistics in one query
+        $allStats = Statistical::whereIn('user_id', [$clientId])
+            ->whereIn('metrics_name', [
+                StatisticType::NUMBER_CUSTOMER->value,
+                StatisticType::ORDERS_PLACED->value,
+            ])
+            ->get()
+            ->groupBy('user_id');
 
-        if ($existingStat) {
-            $existingStat->metrics_value = (int)$existingStat->metrics_value + 1;
-            $existingStat->save();
-        }
-
-        //update orders placed statistic for both partner and client
-        foreach ([$partnerId, $clientId] as $userId) {
-            $existingClientStat = Statistical::where('user_id', $userId)
-                ->where('metrics_name', StatisticType::ORDERS_PLACED->value)
-                ->first();
-
-            if ($existingClientStat) {
-                $existingClientStat->metrics_value = (int)$existingClientStat->metrics_value + 1;
-                $existingClientStat->save();
+        // Update orders placed statistic for both partner and client
+        foreach ([$clientId] as $userId) {
+            $userStats = $allStats->get($userId);
+            if ($userStats) {
+                $ordersPlacedStat = $userStats->where('metrics_name', StatisticType::ORDERS_PLACED->value)->first();
+                if ($ordersPlacedStat) {
+                    $ordersPlacedStat->metrics_value = (int)$ordersPlacedStat->metrics_value + 1;
+                    $ordersPlacedStat->save();
+                }
             }
         }
 
@@ -223,26 +222,50 @@ class PartnerBill extends Model implements HasMedia
         $clientId = $partnerBill->client_id;
         $finalTotal = $partnerBill->final_total;
 
-        //update total spent statistic for client
-        $existingClientStat = Statistical::where('user_id', $clientId)
-            ->where('metrics_name', StatisticType::TOTAL_SPENT->value)
-            ->first();
+        // Fetch all relevant statistics in one query for partner
+        $partnerStats = Statistical::where('user_id', $partnerId)
+            ->whereIn('metrics_name', [
+                StatisticType::REVENUE_GENERATED->value,
+                StatisticType::NUMBER_CUSTOMER->value,
+                StatisticType::COMPLETED_ORDERS->value,
+            ])
+            ->get()
+            ->keyBy('metrics_name');
 
-        if ($existingClientStat) {
-            $existingClientStat->metrics_value = (float)$existingClientStat->metrics_value + (float)$finalTotal;
-            $existingClientStat->save();
+        // Update partner statistics
+        if ($stat = $partnerStats->get(StatisticType::REVENUE_GENERATED->value)) {
+            $stat->metrics_value = (float)$stat->metrics_value + (float)$finalTotal;
+            $stat->save();
         }
 
-        //update completed orders statistic for both partner and client
-        foreach ([$partnerId, $clientId] as $userId) {
-            $existingCompletedOrdersStat = Statistical::where('user_id', $userId)
-                ->where('metrics_name', StatisticType::COMPLETED_ORDERS->value)
-                ->first();
+        if ($stat = $partnerStats->get(StatisticType::NUMBER_CUSTOMER->value)) {
+            $stat->metrics_value = (int)$stat->metrics_value + 1;
+            $stat->save();
+        }
 
-            if ($existingCompletedOrdersStat) {
-                $existingCompletedOrdersStat->metrics_value = (int)$existingCompletedOrdersStat->metrics_value + 1;
-                $existingCompletedOrdersStat->save();
-            }
+        if ($stat = $partnerStats->get(StatisticType::COMPLETED_ORDERS->value)) {
+            $stat->metrics_value = (int)$stat->metrics_value + 1;
+            $stat->save();
+        }
+
+        // Fetch all relevant statistics in one query for client
+        $clientStats = Statistical::where('user_id', $clientId)
+            ->whereIn('metrics_name', [
+                StatisticType::TOTAL_SPENT->value,
+                StatisticType::COMPLETED_ORDERS->value,
+            ])
+            ->get()
+            ->keyBy('metrics_name');
+
+        // Update client statistics
+        if ($stat = $clientStats->get(StatisticType::TOTAL_SPENT->value)) {
+            $stat->metrics_value = (float)$stat->metrics_value + (float)$finalTotal;
+            $stat->save();
+        }
+
+        if ($stat = $clientStats->get(StatisticType::COMPLETED_ORDERS->value)) {
+            $stat->metrics_value = (int)$stat->metrics_value + 1;
+            $stat->save();
         }
 
         $thread = Thread::find($partnerBill->thread_id);
@@ -259,29 +282,38 @@ class PartnerBill extends Model implements HasMedia
         $partnerId = $partnerBill->partner_id;
         $clientId = $partnerBill->client_id;
 
-        //update cancelled orders percentage statistic for both partner and client
+        // Fetch all relevant statistics for both partner and client in one query
+        $allStats = Statistical::whereIn('user_id', [$partnerId, $clientId])
+            ->whereIn('metrics_name', [
+                StatisticType::ORDERS_PLACED->value,
+                StatisticType::COMPLETED_ORDERS->value,
+                StatisticType::CANCELLED_ORDERS_PERCENTAGE->value,
+            ])
+            ->get()
+            ->groupBy('user_id');
+
+        // Update cancelled orders percentage statistic for both partner and client
         foreach ([$partnerId, $clientId] as $userId) {
-            $totalOrdersStat = Statistical::where('user_id', $userId)
-                ->where('metrics_name', StatisticType::ORDERS_PLACED->value)
-                ->first();
+            $userStats = $allStats->get($userId);
+            if (!$userStats) {
+                continue;
+            }
 
-            $completedOderStat = Statistical::where('user_id', $userId)
-                ->where('metrics_name', StatisticType::COMPLETED_ORDERS->value)
-                ->first();
+            $userStatsKeyed = $userStats->keyBy('metrics_name');
 
-            $existingCancelledOrdersStat = Statistical::where('user_id', $userId)
-                ->where('metrics_name', StatisticType::CANCELLED_ORDERS_PERCENTAGE->value)
-                ->first();
+            $totalOrdersStat = $userStatsKeyed->get(StatisticType::ORDERS_PLACED->value);
+            $completedOrdersStat = $userStatsKeyed->get(StatisticType::COMPLETED_ORDERS->value);
+            $cancelledOrdersPercentageStat = $userStatsKeyed->get(StatisticType::CANCELLED_ORDERS_PERCENTAGE->value);
 
-            if ($existingCancelledOrdersStat) {
+            if ($cancelledOrdersPercentageStat) {
                 $totalOrders = $totalOrdersStat ? (float)$totalOrdersStat->metrics_value : 0;
-                $completedOrders = $completedOderStat ? (float)$completedOderStat->metrics_value : 0;
+                $completedOrders = $completedOrdersStat ? (float)$completedOrdersStat->metrics_value : 0;
 
                 $cancelledOrders = max($totalOrders - $completedOrders, 0);
                 $cancelledPercentage = $totalOrders > 0 ? round(($cancelledOrders / $totalOrders) * 100, 2) : 0;
 
-                $existingCancelledOrdersStat->metrics_value = $cancelledPercentage;
-                $existingCancelledOrdersStat->save();
+                $cancelledOrdersPercentageStat->metrics_value = $cancelledPercentage;
+                $cancelledOrdersPercentageStat->save();
             }
         }
 

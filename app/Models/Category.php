@@ -21,6 +21,7 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property string $name
  * @property string $slug
+ * @property int $order
  * @property int|null $parent_id
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -67,6 +68,7 @@ class Category extends Model implements HasMedia
     protected $fillable = [
         'name',
         'slug',
+        'order',
         'parent_id',
         'description',
     ];

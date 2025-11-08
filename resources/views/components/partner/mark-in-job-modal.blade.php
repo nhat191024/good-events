@@ -21,9 +21,10 @@
     }
 }" x-show="showMarkInJobModal" style="display: none;" @click.self="closeModals()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
     x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-    <div class="relative max-w-md rounded-xl border border-gray-200 bg-white p-6 shadow-2xl dark:bg-gray-800" @click.stop x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+    <div class="relative max-w-md mx-4 max-h-[90vh] flex flex-col rounded-xl border border-gray-200 bg-white shadow-2xl dark:bg-gray-800" @click.stop x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">
         {{-- Header --}}
+        <div class="flex-shrink-0 p-6 pb-0">
         <div class="mb-4 flex items-start justify-between">
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
@@ -39,8 +40,10 @@
                 </svg>
             </button>
         </div>
+        </div>
 
-        {{-- Content --}}
+        {{-- Content with scroll --}}
+        <div class="flex-1 overflow-y-auto px-6">
         <div class="mb-6 space-y-4">
             <div class="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
                 <div class="flex items-center gap-3">
@@ -81,7 +84,7 @@
 
                     {{-- Photo Preview --}}
                     <div class="relative" x-show="hasPhoto" x-cloak>
-                        <img class="h-48 w-full rounded-lg border border-gray-300 object-cover dark:border-gray-600" x-bind:src="photoPreview" alt="Preview" />
+                        <img class="h-48 w-full rounded-lg border border-gray-300 object-cover dark:border-gray-600" x-bind:src="photoPreview" alt="Preview" style="max-height: 200px;" />
                         <button class="absolute right-2 top-2 rounded-full bg-red-500 p-1.5 text-white shadow-lg transition-colors hover:bg-red-600" type="button" @click="clearPhoto()">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -99,8 +102,10 @@
                 </p>
             </div>
         </div>
+        </div>
 
         {{-- Actions --}}
+        <div class="flex-shrink-0 p-6 pt-0">
         <div class="flex gap-3">
             <button class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" type="button"
                 @click="closeModals(); clearPhoto()">
@@ -119,6 +124,7 @@
                     {{ __('global.processing') }}...
                 </span>
             </button>
+        </div>
         </div>
     </div>
 </div>

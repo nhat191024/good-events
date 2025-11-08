@@ -17,11 +17,27 @@ const props = defineProps<Props>();
 const threads = ref<Thread[]>(props.initialThreads);
 const hasMoreThreads = ref(props.hasMoreThreads);
 
-const isValidThreadId = computed(() => {
-    return threads.value.some((thread) => thread.id == props.initialSelectedChatId);
+const initialThreadId = computed<number | null>(() => {
+    if (props.initialSelectedChatId === null || props.initialSelectedChatId === undefined) {
+        return null;
+    }
+
+    const parsed = Number(props.initialSelectedChatId);
+
+    return Number.isFinite(parsed) ? parsed : null;
 });
 
-const selectedThreadId = ref<number | null>(isValidThreadId.value ? (props.initialSelectedChatId as number) : null);
+const hasValidInitialThread = computed(() => {
+    const threadId = initialThreadId.value;
+
+    if (threadId === null) {
+        return false;
+    }
+
+    return threads.value.some((thread) => thread.id === threadId);
+});
+
+const selectedThreadId = ref<number | null>(hasValidInitialThread.value ? initialThreadId.value : null);
 
 const isMobileMenuOpen = ref(false);
 

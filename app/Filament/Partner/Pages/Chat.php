@@ -27,7 +27,7 @@ class Chat extends Page
 
     protected static ?string $navigationLabel = 'Chat';
 
-    protected static ?string $title = 'Tin nhắn';
+    protected static ?string $title = '';
 
     public static function getNavigationBadge(): ?string
     {

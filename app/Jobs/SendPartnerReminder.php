@@ -43,13 +43,11 @@ class SendPartnerReminder implements ShouldQueue
             $client = User::find($clientId);
 
             //send notification
-            $partner->notify(
-                Notification::make()
-                    ->title(__('notification.partner_show_reminder_title', ['code' => $this->partnerBill->code]))
-                    ->body(__('notification.partner_show_reminder_body', ['code' => $this->partnerBill->code, 'start_time' => $eventDateTime]))
-                    ->warning()
-                    ->send()
-            );
+            Notification::make()
+                ->title(__('notification.partner_show_reminder_title', ['code' => $this->partnerBill->code]))
+                ->body(__('notification.partner_show_reminder_body', ['code' => $this->partnerBill->code, 'start_time' => $eventDateTime]))
+                ->warning()
+                ->sendToDatabase($partner);
 
             $this->mailService->sendUpcomingEventReminder($this->partnerBill);
         } else {

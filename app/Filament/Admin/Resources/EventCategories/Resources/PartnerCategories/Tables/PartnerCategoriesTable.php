@@ -23,6 +23,8 @@ class PartnerCategoriesTable
     {
         return $table
             ->columns([
+                TextColumn::make('order')
+                    ->label(__('admin/partnerCategory.fields.order')),
                 SpatieMediaLibraryImageColumn::make('media')
                     ->label(__('admin/partnerCategory.fields.image'))
                     ->collection('images')
@@ -79,6 +81,8 @@ class PartnerCategoriesTable
                 BulkActionGroup::make([
                     //
                 ]),
-            ]);
+            ])
+            ->defaultSort('order', 'asc')
+            ->reorderable('order');
     }
 }

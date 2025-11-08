@@ -181,13 +181,13 @@ class ProfileSettings extends Page implements HasForms
             }
 
             Notification::make()
-                ->title('Profile updated successfully!')
+                ->title(__('profile.notifications.update_success_title'))
                 ->success()
                 ->send();
         } catch (\Exception $e) {
             Notification::make()
-                ->title('Error updating profile')
-                ->body('Please try again later.')
+                ->title(__('profile.notifications.update_error_title'))
+                ->body(__('profile.notifications.update_error_body'))
                 ->danger()
                 ->send();
         }

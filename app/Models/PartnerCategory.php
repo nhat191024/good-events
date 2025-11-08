@@ -21,6 +21,7 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property string $name
  * @property string $slug
+ * @property int $order
  * @property int|null $parent_id
  * @property float|null $min_price
  * @property float|null $max_price
@@ -67,6 +68,7 @@ class PartnerCategory extends Model implements HasMedia
     protected $fillable = [
         'name',
         'slug',
+        'order',
         'parent_id',
         'min_price',
         'max_price',
