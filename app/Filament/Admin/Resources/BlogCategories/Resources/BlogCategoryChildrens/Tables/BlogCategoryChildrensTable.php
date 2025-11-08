@@ -35,12 +35,6 @@ class BlogCategoryChildrensTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label(__('admin/category.fields.slug')),
-                TextColumn::make('children_exists')
-                    ->label(__('admin/category.fields.children'))
-                    ->state(fn($record) => $record->children_exists)
-                    ->formatStateUsing(fn($state): string => $state ? __('global.exists') : __('global.no'))
-                    ->color(fn($state): string => $state ? 'success' : 'danger')
-                    ->badge(),
                 TextColumn::make('description')
                     ->label(__('admin/category.fields.description'))
                     ->html()
