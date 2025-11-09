@@ -7,6 +7,10 @@ use Illuminate\Support\ServiceProvider;
 
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 
+use App\Settings\AppSettings;
+
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\View;
 use Inertia\Inertia;
 use Vite;
 
@@ -23,13 +27,13 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot(AppSettings $settings): void
     {
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch
                 ->locales(['vi', 'en']); // also accepts a closure
         });
-
+        
         Inertia::share([
             'flash' => function () {
                 return [
@@ -37,10 +41,22 @@ class AppServiceProvider extends ServiceProvider
                     'error'   => session('error'),
                 ];
             },
+            'app_settings'  => fn () => $this->getSettingsArray($settings)
         ]);
+
+        View::share('settings', $this->getSettingsArray($settings));
 
         // if ($this->app->environment('production') || $this->app->environment('testing')) {
         //     URL::forceScheme('https');
         // }
+    }
+
+    private function getSettingsArray(AppSettings $settings)
+    {
+        return [
+            'app_name' => $settings->app_name,
+            'app_logo' => $settings->app_logo,
+            'app_favicon' => $settings->app_favicon,
+        ];
     }
 }
