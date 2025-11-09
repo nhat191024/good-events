@@ -18,17 +18,10 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        if (Location::count() == 0) {
-            $this->command->info('Location table is empty. Syncing Viet Nam locations...');
-            //run location sync command
-            Artisan::call('app:sync-viet-nam-location');
-        } else {
-            $this->command->info('Location table already has data. Skipping location sync.');
-        }
-
         if (env('APP_ENV') === 'production' || env('APP_ENV') === 'testing') {
             $this->command->info('Production environment detected. Skipping seeders that may affect production data.');
             $this->call([
+                LocationSeeder::class,
                 RoleSeeder::class,
                 AdminSeeder::class,
             ]);
