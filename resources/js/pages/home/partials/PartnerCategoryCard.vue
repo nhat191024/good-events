@@ -15,7 +15,7 @@
                 </div>
                 <!-- Placeholder image -->
                 <div class="aspect-square bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
-                    <img :src="partnerCategory.image || `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(partnerCategory.name)}`"
+                    <img :src="getImg(partnerCategory.image)"
                         :alt="partnerCategory.name" class="w-full h-full object-cover" />
                 </div>
             </div>
@@ -34,6 +34,7 @@
 import { Link } from '@inertiajs/vue3';
 import { PartnerCategory } from '@/types/database';
 import { motion } from 'motion-v';
+import { getImg } from '@/pages/booking/helper';
 
 interface Props {
     partnerCategory: PartnerCategory & { image?: string | null };
