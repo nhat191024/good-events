@@ -1,6 +1,13 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { getImg } from '@/pages/booking/helper';
+import { AppSettings } from '@/types';
+import { Link, usePage } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
+import { computed } from 'vue';
+
+const page = usePage()
+
+const settings = computed(() => page.props.app_settings as AppSettings)
 
 const accentMotion = {
     initial: { scaleX: 0, opacity: 0 },
@@ -85,7 +92,7 @@ const badgeMotion = {
             <div class="grid grid-cols-2 md:grid-cols-6 gap-8">
                 <!-- Logo -->
                 <Link :href="route('home')" class="col-span-2 md:col-span-1">
-                    <img src="/images/logo.svg" alt="Sukientot" class="h-26 w-26 rounded-full object-contain" />
+                    <img :src="getImg(`/storage/${settings.app_logo}`)" alt="Sukientot" class="h-26 w-26 rounded-full object-contain" />
                 </Link>
 
                 <!-- Sự kiện -->
