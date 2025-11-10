@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
             $switch
                 ->locales(['vi', 'en']); // also accepts a closure
         });
-        
+
         Inertia::share([
             'flash' => function () {
                 return [
@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
                     'error'   => session('error'),
                 ];
             },
-            'app_settings'  => fn () => $this->getSettingsArray($settings)
+            'app_settings'  => fn() => $this->getSettingsArray($settings)
         ]);
 
         View::share('settings', $this->getSettingsArray($settings));
@@ -53,10 +53,18 @@ class AppServiceProvider extends ServiceProvider
 
     private function getSettingsArray(AppSettings $settings)
     {
-        return [
-            'app_name' => $settings->app_name,
-            'app_logo' => $settings->app_logo,
-            'app_favicon' => $settings->app_favicon,
-        ];
+        try {
+            return [
+                'app_name'    => $settings->app_name,
+                'app_logo'    => $settings->app_logo,
+                'app_favicon' => $settings->app_favicon,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'app_name'    => config('app.name'),
+                'app_logo'    => null,
+                'app_favicon' => null,
+            ];
+        }
     }
 }
