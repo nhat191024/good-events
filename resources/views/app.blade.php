@@ -30,14 +30,12 @@
         }
     </style>
 
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+    <title inertia>{{ $settings['app_name'] }}</title>
 
-    <!-- <link rel="icon" href="/favicon.ico" sizes="any">
-    <link type="image/svg+xml" rel="icon" href="/favicon.svg"> -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     @if (!empty($settings['app_favicon']))
-        <link rel="icon" href="{{ asset('storage/' . $settings['app_favicon']) }}" sizes="any">
+        <link rel="icon" href="{{ asset($settings['app_favicon']) }}" sizes="any">
     @endif
 
     <link rel="preconnect" href="https://fonts.bunny.net">

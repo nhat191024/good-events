@@ -5,7 +5,7 @@
         <HeroBanner
             :header-text="'Thuê vật tư, loa đài ánh sáng'"
             v-model="search"
-            :header-banner-img="settings.app_rental_banner ? getImg(`/storage/${settings.app_rental_banner}`) : '/images/banner-image.webp'"
+            :header-banner-img="settings.app_rental_banner ? getImg(`/${settings.app_rental_banner}`) : '/images/banner-image.webp'"
             :bg-color-class="'bg-[linear-gradient(180deg,#4ade80_0%,rgb(134,239,172)_51.5%,rgba(74,222,128,0)_100%)]'"
         />
 

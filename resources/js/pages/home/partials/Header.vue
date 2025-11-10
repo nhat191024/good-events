@@ -148,7 +148,7 @@ console.log('app settings', settings);
                     <HamburgerMenu class="block md:hidden" :menu-items="menuItems" />
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center md:gap-2 gap-1">
-                    <img :src="getImg(`/storage/${settings.app_logo}`)" alt="Sukientot"
+                    <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot"
                         class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
                     <span
                         class="font-bold tracking-tight text-black uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>

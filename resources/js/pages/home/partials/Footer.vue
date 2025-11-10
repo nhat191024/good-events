@@ -92,7 +92,7 @@ const badgeMotion = {
             <div class="grid grid-cols-2 md:grid-cols-6 gap-8">
                 <!-- Logo -->
                 <Link :href="route('home')" class="col-span-2 md:col-span-1">
-                    <img :src="getImg(`/storage/${settings.app_logo}`)" alt="Sukientot" class="h-26 w-26 rounded-full object-contain" />
+                    <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot" class="h-26 w-26 rounded-full object-contain" />
                 </Link>
 
                 <!-- Sự kiện -->
