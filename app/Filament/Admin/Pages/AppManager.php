@@ -58,7 +58,7 @@ class AppManager extends SettingsPage
                             ->visibility('public')
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? $state : ($record?->app_logo ?? null);
+                                return filled($state) ? '/storage/' . $state : ($record?->app_logo ?? null);
                             }),
 
                         FileUpload::make('app_favicon')
@@ -69,7 +69,7 @@ class AppManager extends SettingsPage
                             ->visibility('public')
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? $state : ($record?->app_favicon ?? null);
+                                return filled($state) ? '/storage/' . $state : ($record?->app_favicon ?? null);
                             }),
 
                         FileUpload::make('app_partner_banner')
@@ -81,7 +81,7 @@ class AppManager extends SettingsPage
                             ->columnSpanFull()
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? $state : ($record?->app_partner_banner ?? null);
+                                return filled($state) ? '/storage/' . $state : ($record?->app_partner_banner ?? null);
                             }),
 
                         FileUpload::make('app_design_banner')
@@ -93,7 +93,7 @@ class AppManager extends SettingsPage
                             ->columnSpanFull()
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? $state : ($record?->app_design_banner ?? null);
+                                return filled($state) ? '/storage/' . $state : ($record?->app_design_banner ?? null);
                             }),
 
                         FileUpload::make('app_rental_banner')
@@ -105,7 +105,7 @@ class AppManager extends SettingsPage
                             ->columnSpanFull()
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? $state : ($record?->app_rental_banner ?? null);
+                                return filled($state) ? '/storage/' . $state : ($record?->app_rental_banner ?? null);
                             }),
                     ]),
             ]);
