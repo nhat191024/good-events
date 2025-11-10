@@ -10,6 +10,7 @@ import Footer from './partials/Footer.vue';
 import HomeCtaBanner from './components/HomeCtaBanner.vue';
 import { PartnerCategory } from '@/types/database';
 import { createSearchFilter } from '@/lib/search-filter';
+import { getImg } from '../booking/helper';
 
 interface Props {
     eventCategories: PartnerCategory[];
@@ -95,7 +96,7 @@ const categoryMotions = computed(() => props.eventCategories.map((_, index) => (
         <HeroBanner
             v-model="search"
             :header-text="'Thuê đối tác xịn. Sự kiện thêm vui'"
-            :header-banner-img="settings.app_partner_banner || '/images/banner-image.webp'"
+            :header-banner-img="settings.app_partner_banner ? getImg(`/storage/${settings.app_partner_banner}`) : '/images/banner-image.webp'"
         />
 
         <PartnerCategoryIcons :categories="categories" />

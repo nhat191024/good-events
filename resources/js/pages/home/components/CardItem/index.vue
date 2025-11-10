@@ -6,7 +6,7 @@
             class="card bg-base-100 shadow-sm group relative overflow-hidden cursor-pointer rounded-md">
             <figure class="relative aspect-[4/3]">
                 <img
-                    :src="currentImage"
+                    :src="getImg(currentImage)"
                     :alt="cardItem.name"
                     loading="lazy"
                     class="w-full h-full object-cover lazy-image"

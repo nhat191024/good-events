@@ -12,7 +12,7 @@
         <div class="absolute inset-0">
             <img
                 v-if="blog.thumbnail"
-                :src="blog.thumbnail"
+                :src="getImg(blog.thumbnail)"
                 :alt="blog.title"
                 class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
@@ -48,6 +48,7 @@ import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 import type { BlogSummary } from '../../types';
+import { getImg } from '@/pages/booking/helper';
 
 type Variant = 'featured' | 'secondary' | 'compact';
 

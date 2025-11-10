@@ -6,7 +6,7 @@
         <HeroBanner
             :header-text="'Trải nghiệm kho tài liệu thiết kế'"
             v-model="search"
-            :header-banner-img="settings.app_design_banner || '/images/banner-image.webp'"
+            :header-banner-img="settings.app_design_banner ? getImg(`/storage/${settings.app_design_banner}`) : '/images/banner-image.webp'"
             :bg-color-class="'bg-[linear-gradient(180deg,#6bafff_0%,rgb(129,187,255)_51.50151983037725%,rgba(74,144,226,0)_100%)]'"
         />
 
@@ -83,6 +83,7 @@ import { createSearchFilter } from '@/lib/search-filter';
 
 import CardItem from './components/CardItem/index.vue';
 import { Button } from '@/components/ui/button';
+import { getImg } from '../booking/helper';
 
 interface Props {
     fileProducts: Paginated<FileProduct>;

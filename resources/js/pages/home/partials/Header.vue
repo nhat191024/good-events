@@ -7,6 +7,8 @@ import NotificationPopover from '@/components/notification/NotificationPopover.v
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useEcho, useEchoNotification } from '@laravel/echo-vue';
 import axios from 'axios';
+import { getImg } from '@/pages/booking/helper';
+import { AppSettings } from '@/types';
 
 interface Props {
     // showBannerBackground?: boolean;
@@ -15,6 +17,8 @@ interface Props {
 }
 
 const page = usePage()
+
+const settings = computed(() => page.props.app_settings as AppSettings)
 const user = page.props.auth?.user
 
 withDefaults(defineProps<Props>(), {
@@ -128,6 +132,7 @@ onUnmounted(() => {
     if (pollTimer) window.clearInterval(pollTimer)
     aborter?.abort()
 })
+console.log('app settings', settings);
 
 </script>
 
@@ -143,7 +148,7 @@ onUnmounted(() => {
                     <HamburgerMenu class="block md:hidden" :menu-items="menuItems" />
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center md:gap-2 gap-1">
-                    <img src="/images/logo.svg" alt="Sukientot"
+                    <img :src="getImg(`/storage/${settings.app_logo}`)" alt="Sukientot"
                         class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
                     <span
                         class="font-bold tracking-tight text-black uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
