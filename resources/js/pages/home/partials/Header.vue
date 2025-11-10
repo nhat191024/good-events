@@ -132,7 +132,6 @@ onUnmounted(() => {
     if (pollTimer) window.clearInterval(pollTimer)
     aborter?.abort()
 })
-console.log('app settings', settings);
 
 </script>
 
