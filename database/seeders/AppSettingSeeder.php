@@ -19,7 +19,7 @@ class AppSettingSeeder extends Seeder
         //spatie app settings seeder example
         $settings = app(AppSettings::class);
         $settings->app_name = 'Sự Kiện Tốt';
-        $settings->app_logo = 'images/logo.png';
+        $settings->app_logo = 'images/logo.svg';
         $settings->app_favicon = 'images/favicon.ico';
         $settings->save();
     }
