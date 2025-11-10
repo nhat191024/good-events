@@ -9,6 +9,8 @@ use App\Models\Location;
 
 class LocationSeeder extends Seeder
 {
+    use WithoutModelEvents;
+
     /**
      * Run the database seeds.
      */
