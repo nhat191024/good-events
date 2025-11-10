@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
                 LocationSeeder::class,
                 RoleSeeder::class,
                 AdminSeeder::class,
+                AppSettingSeeder::class,
             ]);
             return;
         }
