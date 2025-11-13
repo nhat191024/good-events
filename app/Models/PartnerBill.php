@@ -161,6 +161,7 @@ class PartnerBill extends Model implements HasMedia
                 PartnerBillStatus::COMPLETED => static::handleCompletedStatus($partnerBill),
                 PartnerBillStatus::CANCELLED => static::handleCancelledStatus($partnerBill),
                 PartnerBillStatus::CONFIRMED => static::handleConfirmedStatus($partnerBill),
+                PartnerBillStatus::PENDING => static::handlePendingStatus($partnerBill),
                 default => null,
             };
 
@@ -211,6 +212,26 @@ class PartnerBill extends Model implements HasMedia
 
         // Clear widget caches
         PartnerWidgetCacheService::clearPartnerCaches($partnerId);
+    }
+
+    /**
+     * Handle pending bill status
+     */
+    protected static function handlePendingStatus(PartnerBill $partnerBill): void
+    {
+        //if admin rollback to pending from confirmed or in_job
+        if ($partnerBill->thread_id) {
+            $thread = Thread::find($partnerBill->thread_id);
+            if ($thread) {
+                $thread->delete();
+                $partnerBill->thread_id = null;
+            }
+
+            $partnerBill->total = null;
+            $partnerBill->final_total = null;
+            $partnerBill->partner_id = null;
+            $partnerBill->saveQuietly();
+        }
     }
 
     /**
