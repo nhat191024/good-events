@@ -46,7 +46,9 @@ class PartnerCategoriesTable
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('description')
-                    ->label(__('admin/partnerCategory.fields.description')),
+                    ->label(__('admin/partnerCategory.fields.description'))
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->label(__('admin/partnerCategory.fields.deleted_at'))
                     ->dateTime()
