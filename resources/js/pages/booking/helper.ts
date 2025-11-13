@@ -9,7 +9,7 @@ export function getImg(media: string | undefined | null): string {
         return placeHolder
     }
 
-    const hasExtension = /\.[a-zA-Z0-9]+$/.test(media)
+    const hasExtension = /\.[a-zA-Z0-9]+($|\?.*)/.test(media)
 
     if (!hasExtension) {
         return placeHolder
