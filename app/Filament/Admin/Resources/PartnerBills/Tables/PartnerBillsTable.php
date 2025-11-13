@@ -108,46 +108,27 @@ class PartnerBillsTable
                 //
             ])
             ->recordActions([
-                Action::make('changeStatus')
-                    ->label(__('admin/partnerBill.actions.change_status'))
-                    ->icon('heroicon-o-arrows-right-left')
-                    ->color('warning')
-                    ->schema([
-                        Select::make('status')
-                            ->label(__('admin/partnerBill.fields.status'))
-                            ->options([
-                                PartnerBillStatus::PENDING->value => PartnerBillStatus::PENDING->label(),
-                                PartnerBillStatus::CONFIRMED->value => PartnerBillStatus::CONFIRMED->label(),
-                                PartnerBillStatus::IN_JOB->value => PartnerBillStatus::IN_JOB->label(),
-                                PartnerBillStatus::COMPLETED->value => PartnerBillStatus::COMPLETED->label(),
-                                PartnerBillStatus::EXPIRED->value => PartnerBillStatus::EXPIRED->label(),
-                                PartnerBillStatus::CANCELLED->value => PartnerBillStatus::CANCELLED->label(),
-                            ])
-                            ->default(fn(PartnerBill $record): string => $record->status->value)
-                            ->required()
-                            ->native(false),
-                    ])
-                    ->action(function (PartnerBill $record, array $data): void {
-                        $oldStatus = $record->status->label();
+                Action::make('cancelBill')
+                    ->label(__('admin/partnerBill.actions.cancel_bill'))
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn(PartnerBill $record): bool => $record->status === PartnerBillStatus::CONFIRMED)
+                    ->requiresConfirmation()
+                    ->modalHeading(__('admin/partnerBill.actions.cancel_bill_heading'))
+                    ->modalDescription(__('admin/partnerBill.actions.cancel_bill_description'))
+                    ->action(function (PartnerBill $record): void {
                         $record->update([
-                            'status' => PartnerBillStatus::from($data['status']),
+                            'status' => PartnerBillStatus::CANCELLED,
                         ]);
-                        $newStatus = $record->status->label();
 
                         Notification::make()
-                            ->title(__('admin/partnerBill.notifications.status_changed'))
-                            ->body(__('admin/partnerBill.notifications.status_changed_body', [
+                            ->title(__('admin/partnerBill.notifications.bill_cancelled'))
+                            ->body(__('admin/partnerBill.notifications.bill_cancelled_body', [
                                 'code' => $record->code,
-                                'old_status' => $oldStatus,
-                                'new_status' => $newStatus,
                             ]))
                             ->success()
                             ->send();
-                    })
-                    ->modalHeading(__('admin/partnerBill.actions.change_status'))
-                    ->modalDescription(__('admin/partnerBill.actions.change_status_description'))
-                    ->modalSubmitActionLabel(__('admin/partnerBill.actions.update'))
-                    ->modalWidth('md'),
+                    }),
                 Action::make('viewArrivalPhoto')
                     ->label(__('admin/partnerBill.fields.arrival_photo'))
                     ->icon('heroicon-o-photo')
