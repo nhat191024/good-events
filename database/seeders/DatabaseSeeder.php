@@ -34,12 +34,11 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             // CategorySeeder::class,
             PartnerCategorySeeder::class,
-            // LocationSeeder::class,
+            LocationSeeder::class,
             EventSeeder::class,
             TestAccountSeeder::class,
             PartnerSeeder::class,
             ClientSeeder::class,
-            // New comprehensive data seeders (order matters)
             StatisticalSeeder::class,
             // PartnerBillSeeder::class,
             // ReviewSeeder::class,
