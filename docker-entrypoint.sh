@@ -11,10 +11,10 @@ echo "Generating application key..."
 php artisan key:generate --force
 
 # run migrations
-php artisan migrate --force
+# php artisan migrate --force
 
 # run seeders
-php artisan db:seed --force
+# php artisan db:seed --force
 
 # run storage link
 php artisan storage:link
