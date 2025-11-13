@@ -48,9 +48,6 @@ class PartnerBillInfolist
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextEntry::make('phone')
-                                    ->label(__('partner/bill.phone'))
-                                    ->icon('heroicon-o-phone'),
                                 TextEntry::make('address')
                                     ->label(__('partner/bill.address'))
                                     ->icon('heroicon-o-map-pin'),
