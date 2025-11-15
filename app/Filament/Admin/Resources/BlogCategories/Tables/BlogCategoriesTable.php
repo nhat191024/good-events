@@ -25,8 +25,6 @@ class BlogCategoriesTable
     {
         return $table
             ->columns([
-                TextColumn::make('order')
-                    ->label(__('admin/category.fields.order')),
                 SpatieMediaLibraryImageColumn::make('media')
                     ->label(__('admin/category.fields.image'))
                     ->collection('images')
@@ -43,10 +41,21 @@ class BlogCategoriesTable
                     ->formatStateUsing(fn($state): string => $state ? __('global.exists') : __('global.no'))
                     ->color(fn($state): string => $state ? 'success' : 'danger')
                     ->badge(),
+                TextColumn::make('type')
+                    ->label(__('admin/category.fields.type'))
+                    ->badge()
+                    ->formatStateUsing(fn($state) => match ($state) {
+                        'good_location' => __('admin/category.category_options.good_location'),
+                        'vocational_knowledge' => __('admin/category.category_options.vocational_knowledge'),
+                        'event_organization_guide' => __('admin/category.category_options.event_organization_guide'),
+                        default => $state,
+                    })
+                    ->sortable(),
                 TextColumn::make('description')
                     ->label(__('admin/category.fields.description'))
                     ->html()
-                    ->limit(50),
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->label(__('admin/category.fields.deleted_at'))
                     ->dateTime()
@@ -90,8 +99,6 @@ class BlogCategoriesTable
                     RestoreBulkAction::make()
                         ->label(__('global.restore')),
                 ]),
-            ])
-            ->defaultSort('order', 'asc')
-            ->reorderable('order');
+            ]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\BlogCategories\Schemas;
 use Filament\Schemas\Schema;
 
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
@@ -18,9 +19,19 @@ class BlogCategoryForm
                     ->label(__('admin/category.fields.name'))
                     ->placeholder(__('admin/category.placeholders.name'))
                     ->required(),
+                Select::make('type')
+                    ->label(__('admin/category.fields.type'))
+                    ->options([
+                        'good_location' => __('admin/category.category_options.good_location'),
+                        'vocational_knowledge' => __('admin/category.category_options.vocational_knowledge'),
+                        'event_organization_guide' => __('admin/category.category_options.event_organization_guide'),
+                    ])
+                    ->native(false)
+                    ->required(),
                 TextInput::make('slug')
                     ->label(__('admin/category.fields.slug'))
                     ->placeholder(__('admin/category.placeholders.slug'))
+                    ->columnSpanFull()
                     ->disabled(),
                 RichEditor::make('description')
                     ->label(__('admin/category.fields.description'))
