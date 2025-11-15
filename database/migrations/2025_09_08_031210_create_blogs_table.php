@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('content');
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->string('slug');
+            $table->string('video_url')->nullable();
+            $table->foreignId('location_id')->nullable()->constrained()->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

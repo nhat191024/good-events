@@ -60,6 +60,8 @@ class Blog extends Model implements HasMedia
         'user_id',
         'category_id',
         'slug',
+        'video_url',
+        'location_id',
     ];
 
     /**
