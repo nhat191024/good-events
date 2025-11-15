@@ -73,7 +73,7 @@ class BlogCategoryResource extends Resource
             ])
             ->with(['media'])
             ->withExists('children')
-            ->where('type', '=', 'blog')
+            ->whereIn('type', ['good_location', 'vocational_knowledge', 'event_organization_guide'])
             ->whereNull('parent_id');
     }
 
