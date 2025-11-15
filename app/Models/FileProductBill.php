@@ -15,7 +15,7 @@ use App\Enum\FileProductBillStatus;
  * @property int $client_id
  * @property float $total
  * @property float|null $final_total
- * @property string $status
+ * @property FileProductBillStatus $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities

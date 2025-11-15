@@ -21,6 +21,7 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property string $name
  * @property string $slug
+ * @property string $type
  * @property int $order
  * @property int|null $parent_id
  * @property float|null $min_price
@@ -49,8 +50,10 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereMaxPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereMinPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereParentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withoutTrashed()

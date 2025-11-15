@@ -51,8 +51,10 @@ use App\Enum\StatisticType;
  * @property-read int|null $activities_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $authoredReviews
  * @property-read int|null $authored_reviews_count
+ * @property-read string|null $avatar_url
  * @property-read non-empty-string $balance
  * @property-read int $balance_int
+ * @property-read string|null $partner_profile_name
  * @property-read \Bavix\Wallet\Models\Wallet $wallet
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Message> $messages
  * @property-read int|null $messages_count

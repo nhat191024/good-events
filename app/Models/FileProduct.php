@@ -28,6 +28,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property-read \App\Models\Category $category
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \Spatie\Tags\Tag> $tags
+ * @property-read int|null $tags_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct onlyTrashed()
@@ -41,7 +43,13 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct withAllTagsOfAnyType($tags)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct withAnyTagsOfAnyType($tags)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct withAnyTagsOfType(array|string $type)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct withoutTrashed()
  * @mixin \Eloquent
  */

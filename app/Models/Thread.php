@@ -15,6 +15,7 @@ use Cmgmyr\Messenger\Models\Message;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\PartnerBill|null $bill
  * @property-read mixed $latest_message
  * @property-read Message|null $latestMessage
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Message> $messages
