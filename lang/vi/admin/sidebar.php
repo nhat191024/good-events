@@ -1,6 +1,7 @@
 <?php
 return [
     'products' => 'Sản phẩm',
+    'blog' => 'Bài viết',
     'user_management' => 'Quản lý người dùng',
     'billing' => 'Quản lý đơn hàng',
     'settings' => 'Cài đặt',
