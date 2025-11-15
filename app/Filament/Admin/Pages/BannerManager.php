@@ -33,6 +33,10 @@ class BannerManager extends Page implements HasForms
 
     public ?array $data = [];
 
+    public Banner $partnerBanner;
+    public Banner $designBanner;
+    public Banner $rentalBanner;
+
     public static function getNavigationLabel(): string
     {
         return __('admin/setting.banner');
@@ -45,7 +49,15 @@ class BannerManager extends Page implements HasForms
 
     public function mount(): void
     {
-        $this->form->fill();
+        $this->partnerBanner = Banner::firstOrCreate(['type' => 'partner']);
+        $this->designBanner = Banner::firstOrCreate(['type' => 'design']);
+        $this->rentalBanner = Banner::firstOrCreate(['type' => 'rental']);
+
+        $this->form->fill([
+            'banners' => $this->partnerBanner->getMedia('banners'),
+            'design' => $this->designBanner->getMedia('banners'),
+            'rental' => $this->rentalBanner->getMedia('banners'),
+        ]);
     }
 
     public function form(Schema $schema): Schema
@@ -62,7 +74,7 @@ class BannerManager extends Page implements HasForms
                                     ->multiple()
                                     ->maxFiles(20)
                                     ->collection('banners')
-                                    ->model(Banner::where('type', 'partner')->firstOrCreate(['type' => 'partner']))
+                                    ->model($this->partnerBanner)
                                     ->reorderable()
                                     ->visibility('public')
                                     ->columnSpanFull()
@@ -77,7 +89,7 @@ class BannerManager extends Page implements HasForms
                                     ->multiple()
                                     ->maxFiles(20)
                                     ->collection('banners')
-                                    ->model(Banner::where('type', 'design')->firstOrCreate(['type' => 'design']))
+                                    ->model($this->designBanner)
                                     ->reorderable()
                                     ->visibility('public')
                                     ->columnSpanFull()
@@ -92,7 +104,7 @@ class BannerManager extends Page implements HasForms
                                     ->multiple()
                                     ->maxFiles(20)
                                     ->collection('banners')
-                                    ->model(Banner::where('type', 'rental')->firstOrCreate(['type' => 'rental']))
+                                    ->model($this->rentalBanner)
                                     ->reorderable()
                                     ->visibility('public')
                                     ->columnSpanFull()
@@ -106,6 +118,8 @@ class BannerManager extends Page implements HasForms
 
     public function save(): void
     {
+        $this->form->getState();
+
         Notification::make()
             ->title(__('admin/setting.saved'))
             ->success()
