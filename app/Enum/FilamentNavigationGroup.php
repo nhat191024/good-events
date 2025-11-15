@@ -6,8 +6,9 @@ use Filament\Support\Contracts\HasLabel;
 
 enum FilamentNavigationGroup implements HasLabel
 {
-    case PRODUCTS;
     case CATEGORIES;
+    case PRODUCTS;
+    case BLOG;
     case USER_MANAGEMENT;
     case BILLING;
     case SYSTEM;
@@ -17,6 +18,7 @@ enum FilamentNavigationGroup implements HasLabel
     {
         return match ($this) {
             self::PRODUCTS => __('admin/sidebar.products'),
+            self::BLOG => __('admin/sidebar.blog'),
             self::USER_MANAGEMENT => __('admin/sidebar.user_management'),
             self::BILLING => __('admin/sidebar.billing'),
             self::SETTINGS => __('admin/sidebar.settings'),
