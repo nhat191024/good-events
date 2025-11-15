@@ -20,10 +20,17 @@ return [
         'image' => 'Image',
         'parents' => 'Parent Categories',
         'children' => 'Child Categories',
+        'type' => 'Category Type',
         'description' => 'Description',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
         'deleted_at' => 'Deleted At',
+    ],
+
+    'category_options' => [
+        'good_location' => 'Good Location',
+        'vocational_knowledge' => 'Vocational Knowledge',
+        'event_organization_guide' => 'Event Organization Guide',
     ],
 
     'placeholders' => [

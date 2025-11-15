@@ -20,10 +20,17 @@ return [
         'image' => 'Hình ảnh',
         'parents' => 'Danh mục cha',
         'children' => 'Danh mục con',
+        'type' => 'Loại danh mục',
         'description' => 'Mô tả',
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
         'deleted_at' => 'Ngày xóa',
+    ],
+
+    'category_options' => [
+        'good_location' => 'Địa điểm tốt',
+        'vocational_knowledge' => 'kiến thức nghề',
+        'event_organization_guide' => 'hướng dẫn tổ chức sự kiện',
     ],
 
     'placeholders' => [
