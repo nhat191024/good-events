@@ -23,7 +23,7 @@ class CreateBlogCategoryChildren extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['type'] = 'blog';
+        $data['type'] = $this->getParentRecord()->type;
 
         return $data;
     }
