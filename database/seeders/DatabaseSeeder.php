@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
                 RoleSeeder::class,
                 AdminSeeder::class,
                 AppSettingSeeder::class,
+                BannerSeeder::class,
             ]);
             return;
         }
@@ -40,6 +41,8 @@ class DatabaseSeeder extends Seeder
             PartnerSeeder::class,
             ClientSeeder::class,
             StatisticalSeeder::class,
+            AppSettingSeeder::class,
+            BannerSeeder::class,
             // PartnerBillSeeder::class,
             // ReviewSeeder::class,
         ]);
