@@ -27,9 +27,18 @@ class BlogForm
                 Select::make('category_id')
                     ->label(__('admin/blog.fields.category_id'))
                     ->searchable()
+                    ->options(
+                        fn() => Category::query()
+                            ->whereIn('type', ['good_location', 'vocational_knowledge', 'event_organization_guide'])
+                            ->orderBy('created_at', 'desc')
+                            ->limit(10)
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    )
                     ->getSearchResultsUsing(
                         fn(string $search): array =>
                         Category::query()
+                            ->whereIn('type', ['good_location', 'vocational_knowledge', 'event_organization_guide'])
                             ->where('name', 'like', "%{$search}%")
                             ->limit(50)
                             ->pluck('name', 'id')
