@@ -30,7 +30,6 @@ class BlogForm
                     ->getSearchResultsUsing(
                         fn(string $search): array =>
                         Category::query()
-                            ->whereNotNull('parent_id')
                             ->where('name', 'like', "%{$search}%")
                             ->limit(50)
                             ->pluck('name', 'id')
