@@ -18,8 +18,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-
 class AppManager extends SettingsPage
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
@@ -50,6 +48,21 @@ class AppManager extends SettingsPage
                             ->columnSpanFull()
                             ->required(),
 
+                        TextInput::make('app_partner_title')
+                            ->label(__(__('admin/setting.fields.titles.partner')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('app_design_title')
+                            ->label(__(__('admin/setting.fields.titles.design')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('app_rental_title')
+                            ->label(__(__('admin/setting.fields.titles.rental')))
+                            ->columnSpanFull()
+                            ->required(),
+
                         FileUpload::make('app_logo')
                             ->label(__(__('admin/setting.fields.logo')))
                             ->image()
@@ -70,42 +83,6 @@ class AppManager extends SettingsPage
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
                                 return filled($state) ? '/storage/' . $state : ($record?->app_favicon ?? null);
-                            }),
-
-                        FileUpload::make('app_partner_banner')
-                            ->label(__(__('admin/setting.fields.partner_banner')))
-                            ->image()
-                            ->directory('uploads/app')
-                            ->disk('public')
-                            ->visibility('public')
-                            ->columnSpanFull()
-                            ->dehydrated(fn($state) => filled($state))
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? '/storage/' . $state : ($record?->app_partner_banner ?? null);
-                            }),
-
-                        FileUpload::make('app_design_banner')
-                            ->label(__(__('admin/setting.fields.design_banner')))
-                            ->image()
-                            ->directory('uploads/app')
-                            ->disk('public')
-                            ->visibility('public')
-                            ->columnSpanFull()
-                            ->dehydrated(fn($state) => filled($state))
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? '/storage/' . $state : ($record?->app_design_banner ?? null);
-                            }),
-
-                        FileUpload::make('app_rental_banner')
-                            ->label(__(__('admin/setting.fields.rental_banner')))
-                            ->image()
-                            ->directory('uploads/app')
-                            ->disk('public')
-                            ->visibility('public')
-                            ->columnSpanFull()
-                            ->dehydrated(fn($state) => filled($state))
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? '/storage/' . $state : ($record?->app_rental_banner ?? null);
                             }),
                     ]),
             ]);
