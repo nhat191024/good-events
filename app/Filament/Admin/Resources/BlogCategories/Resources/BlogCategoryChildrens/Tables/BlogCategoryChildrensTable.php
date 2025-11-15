@@ -23,8 +23,6 @@ class BlogCategoryChildrensTable
     {
         return $table
             ->columns([
-                TextColumn::make('order')
-                    ->label(__('admin/category.fields.order')),
                 SpatieMediaLibraryImageColumn::make('media')
                     ->label(__('admin/category.fields.image'))
                     ->collection('images')
@@ -76,8 +74,6 @@ class BlogCategoryChildrensTable
                     RestoreBulkAction::make()
                         ->label(__('global.restore')),
                 ]),
-            ])
-            ->defaultSort('order', 'asc')
-            ->reorderable('order');
+            ]);
     }
 }
