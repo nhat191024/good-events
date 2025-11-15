@@ -103,6 +103,17 @@ class Blog extends Model implements HasMedia
             ->logOnlyDirty();
     }
 
+    /*
+    * Register the media collections for the model.
+    */
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('images')
+            ->useDisk('public')
+            ->withResponsiveImages();
+    }
+
     //model relationships
     public function author()
     {
@@ -112,5 +123,10 @@ class Blog extends Model implements HasMedia
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class, 'location_id');
     }
 }
