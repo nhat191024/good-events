@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
 /**
  * @property int $id
  * @property string $type
@@ -31,11 +33,32 @@ class Banner extends Model implements HasMedia
         'type',
     ];
 
+    /**
+     * Summary of registerMediaCollections
+     * @return void
+     */
     public function registerMediaCollections(): void
     {
         $this
             ->addMediaCollection('banners')
-            ->useDisk('public')
-            ->withResponsiveImages();
+            ->useDisk('public');
+    }
+
+    /**
+     * Summary of registerMediaConversions
+     * @param \Spatie\MediaLibrary\MediaCollections\Models\Media|null $media
+     * @return void
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this
+            ->addMediaConversion('thumb')
+            ->width(368)
+            ->height(232)
+            ->sharpen(10)
+            ->withResponsiveImages()
+            ->format('webp')
+            ->optimize()
+            ->queued();
     }
 }
