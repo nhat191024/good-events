@@ -23,7 +23,7 @@ class Taggable extends Model
     protected $table = 'taggables';
 
     /**
-     * Get all tags that belongs to a model type. 
+     * Get all tags that belongs to a model type.
      * EXAMPLE: $tags = Taggable::getModelTags('FileProduct');
      * @param string $modelName - model name, eg: 'User', 'Category', 'Product'
      * @return Collection
@@ -32,10 +32,10 @@ class Taggable extends Model
     {
         $tagIds = DB::table('taggables')
             ->where('taggable_type', 'App\Models\\'.$modelName)
-            ->select('taggable_id')
+            ->select('tag_id')
             ->distinct()
             ->get()
-            ->pluck('taggable_id');
+            ->pluck('tag_id');
 
         $tags = Tag::whereIn('id', $tagIds)->get();
 
