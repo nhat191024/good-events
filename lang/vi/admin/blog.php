@@ -19,6 +19,7 @@ return [
         'id' => 'ID',
         'thumbnail' => 'Hình đại diện',
         'title' => 'Tiêu đề',
+        'video_url' => 'Link video',
         'slug' => 'Đường dẫn tĩnh',
         'tags' => 'Thẻ',
         'city' => 'Thành phố',
@@ -33,6 +34,7 @@ return [
 
     'placeholders' => [
         'title' => 'Nhập tiêu đề bài viết',
+        'video_url' => 'Nhập URL video',
         'slug' => 'Đường dẫn tĩnh sẽ được tự động tạo',
         'tags' => 'Nhập tên thẻ để tìm kiếm và nhấn enter để thêm',
         'city' => 'Chọn thành phố',

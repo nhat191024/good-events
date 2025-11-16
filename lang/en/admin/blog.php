@@ -19,6 +19,7 @@ return [
         'id' => 'ID',
         'thumbnail' => 'Thumbnail',
         'title' => 'Title',
+        'video_url' => 'Video URL',
         'slug' => 'Slug',
         'tags' => 'Tags',
         'city' => 'City',
@@ -33,6 +34,7 @@ return [
 
     'placeholders' => [
         'title' => 'Enter the blog title',
+        'video_url' => 'Enter the video URL',
         'slug' => 'The slug will be generated automatically',
         'tags' => 'Type tag names to search and press enter to add',
         'city' => 'Select city',
