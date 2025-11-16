@@ -3,12 +3,26 @@ return [
     'singular' => 'Bài viết',
     'plural' => 'Bài viết',
 
+    'singulars' => [
+        'good_location' => 'Địa điểm tốt',
+        'vocational_knowledge' => 'Kiến thức nghề',
+        'event_organization_guide' => 'Hướng dẫn tổ chức sự kiện',
+    ],
+
+    'plurals' => [
+        'good_location' => 'Bài viết địa điểm tốt',
+        'vocational_knowledge' => 'Bài viết kiến thức nghề',
+        'event_organization_guide' => 'Bài viết hướng dẫn tổ chức sự kiện',
+    ],
+
     'fields' => [
         'id' => 'ID',
         'thumbnail' => 'Hình đại diện',
         'title' => 'Tiêu đề',
         'slug' => 'Đường dẫn tĩnh',
         'tags' => 'Thẻ',
+        'city' => 'Thành phố',
+        'ward' => 'Phường/Xã',
         'content' => 'Nội dung',
         'category_id' => 'Danh mục',
         'author_id' => 'Tác giả',
@@ -21,6 +35,8 @@ return [
         'title' => 'Nhập tiêu đề bài viết',
         'slug' => 'Đường dẫn tĩnh sẽ được tự động tạo',
         'tags' => 'Nhập tên thẻ để tìm kiếm và nhấn enter để thêm',
+        'city' => 'Chọn thành phố',
+        'ward' => 'Chọn phường/xã',
         'content' => 'Nhập nội dung bài viết ở đây...',
     ],
 ];
