@@ -5,7 +5,7 @@
         <motion.section
             :initial="sectionMotion.initial"
             :animate="sectionMotion.animate"
-            class="bg-white pb-12 pt-6">
+            class="bg-white pb-12 pt-6 w-full">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
                 <BlogDiscoverHeader
                     :is-category-page="isCategoryPage"
@@ -77,7 +77,7 @@ const isCategoryPage = computed(() => Boolean(props.category));
 const activeCategorySlug = computed(() => props.category?.slug ?? null);
 
 const pageTitle = computed(() => {
-    if (!props.category) return 'Blog gợi ý địa điểm - Sukientot';
+    if (!props.category) return 'Blog gợi ý địa điểm';
     return `${props.category.name} - Blog gợi ý địa điểm`;
 });
 
