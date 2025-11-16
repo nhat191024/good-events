@@ -1,8 +1,5 @@
 <?php
 return [
-    'singular' => 'Bài viết',
-    'plural' => 'Bài viết',
-
     'singulars' => [
         'good_location' => 'Địa điểm tốt',
         'vocational_knowledge' => 'Kiến thức nghề',

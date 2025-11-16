@@ -1,8 +1,5 @@
 <?php
 return [
-    'singular' => 'Rent Product',
-    'plural' => 'Rent Products',
-
     'singulars' => [
         'good_location' => 'Good Location',
         'vocational_knowledge' => 'Vocational Knowledge',
