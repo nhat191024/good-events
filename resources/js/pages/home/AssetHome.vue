@@ -1,5 +1,5 @@
 <template>
-    <Head class="font-lexend" title="Kho tài liệu thiết kế - Sukientot" />
+    <Head class="font-lexend" title="Kho tài liệu thiết kế" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-blue-100'">
 

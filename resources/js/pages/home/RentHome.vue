@@ -1,5 +1,5 @@
 <template>
-    <Head class="font-lexend" title="Thuê vật tư sự kiện - Sukientot" />
+    <Head class="font-lexend" title="Thuê vật tư sự kiện" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-green-100'">
         <HeroBanner
