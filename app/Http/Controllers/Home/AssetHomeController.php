@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Home;
 
-use App\Http\Resources\Home\FileProductResource;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Home\AppBannerResource;
 use App\Http\Resources\Home\CategoryResource;
+use App\Http\Resources\Home\FileProductResource;
 use App\Http\Resources\Home\TagResource;
+use App\Models\Banner;
 use App\Models\Category;
 use App\Models\FileProduct;
 use App\Models\Tag;
@@ -30,6 +32,9 @@ class AssetHomeController extends Controller
         $fileProducts = FileProduct::with('category.parent', 'category', 'tags', 'media')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
+        $appDesignBanner = optional(Banner::where('type', 'design')->first())
+            ?->getMedia('banners') ?? collect();
+
         $tags = Taggable::getModelTags('FileProduct');
         $categories = Category::limit(15)
             ->where('type', 'design')
@@ -42,7 +47,7 @@ class AssetHomeController extends Controller
             'categories' => CategoryResource::collection($categories),
             'settings' => [
                 'app_name' => $settings->app_name,
-                'app_design_banner' => $settings->app_design_banner,
+                'banner_images' => AppBannerResource::collection($appDesignBanner),
             ],
         ]);
     }

@@ -114,7 +114,7 @@ watch(
 const isCategoryPage = computed(() => Boolean(props.category));
 
 const pageTitle = computed(() => {
-    if (!props.category) return 'Khám phá vật tư sự kiện - Sukientot';
+    if (!props.category) return 'Khám phá vật tư sự kiện';
     return `${props.category.name} - Thuê vật tư Sukientot`;
 });
 

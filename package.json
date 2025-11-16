@@ -47,6 +47,7 @@
         "motion-v": "^1.7.4",
         "pusher-js": "^8.4.0",
         "reka-ui": "^2.5.0",
+        "swiper": "^12.0.3",
         "tailwind-merge": "^3.3.1",
         "tailwindcss": "^4.1.13",
         "tw-animate-css": "^1.3.8",

@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
@@ -150,6 +151,31 @@ class OrderController extends Controller
     {
         $bill_id = $request->input('order_id');
         $bill = PartnerBill::findOrFail($bill_id);
+
+        if ($bill->status != PartnerBillStatus::PENDING) return;
+
+        if ($bill->date && $bill->start_time) {
+            $tz = config('app.timezone') ?: 'UTC';
+
+            try {
+                $startDate = $bill->date->format('Y-m-d');
+                $startTime = $bill->start_time->format('H:i');
+                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $startDate . ' ' . $startTime, $tz);
+            } catch (\Throwable $exception) {
+                $startDateTime = null;
+            }
+
+            if ($startDateTime) {
+                $cutoff = $startDateTime->copy()->subHours(8);
+                $now = Carbon::now($tz);
+
+                if ($now->greaterThanOrEqualTo($cutoff)) {
+                    throw ValidationException::withMessages([
+                        'order_id' => 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.',
+                    ]);
+                }
+            }
+        }
 
         $bill->status = PartnerBillStatus::CANCELLED;
         $bill->save();
