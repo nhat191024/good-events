@@ -6,7 +6,7 @@
         <HeroBanner
             :header-text="'Trải nghiệm kho tài liệu thiết kế'"
             v-model="search"
-            :header-banner-img="settings.app_design_banner ? getImg(`/${settings.app_design_banner}`) : '/images/banner-image.webp'"
+            :banner-images="heroBannerImages"
             :bg-color-class="'bg-[linear-gradient(180deg,#6bafff_0%,rgb(129,187,255)_51.50151983037725%,rgba(74,144,226,0)_100%)]'"
         />
 
@@ -83,7 +83,13 @@ import { createSearchFilter } from '@/lib/search-filter';
 
 import CardItem from './components/CardItem/index.vue';
 import { Button } from '@/components/ui/button';
-import { getImg } from '../booking/helper';
+interface BannerImage {
+    image_tag?: string | null;
+}
+
+interface BannerImageWrapper {
+    data: BannerImage[];
+}
 
 interface Props {
     fileProducts: Paginated<FileProduct>;
@@ -91,13 +97,15 @@ interface Props {
     categories: Paginated<Category>;
     settings: {
         app_name: string;
-        app_design_banner: string | null;
+        banner_images: BannerImageWrapper;
     };
 }
 
 const props = defineProps<Props>();
 
 const search = ref('');
+
+const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
 
 // console.log('file products ',props.fileProducts.data);
 // console.log('tags ',props.tags.data);
