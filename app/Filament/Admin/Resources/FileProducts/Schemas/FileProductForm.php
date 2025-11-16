@@ -21,10 +21,18 @@ class FileProductForm
                 Select::make('category_id')
                     ->label(__('admin/fileProduct.fields.category_id'))
                     ->searchable()
+                    ->options(
+                        fn() => Category::query()
+                            ->whereType('design')
+                            ->orderBy('created_at', 'desc')
+                            ->limit(10)
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    )
                     ->getSearchResultsUsing(
                         fn(string $search): array =>
                         Category::query()
-                            ->whereNotNull('parent_id')
+                            ->whereType('design')
                             ->where('name', 'like', "%{$search}%")
                             ->limit(50)
                             ->pluck('name', 'id')
