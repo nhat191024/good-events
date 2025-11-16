@@ -9,6 +9,7 @@ use Spatie\Tags\HasTags;
 
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -112,6 +113,23 @@ class Blog extends Model implements HasMedia
             ->addMediaCollection('images')
             ->useDisk('public')
             ->withResponsiveImages();
+    }
+
+    /**
+     * Summary of registerMediaConversions
+     * @param Media|null $media
+     * @return void
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(300)
+            ->height(300)
+            ->sharpen(10)
+            ->withResponsiveImages()
+            ->format('webp')
+            ->optimize()
+            ->queued();
     }
 
     //model relationships
