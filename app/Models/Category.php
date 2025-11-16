@@ -98,12 +98,18 @@ class Category extends Model implements HasMedia
             ->width(300)
             ->height(300)
             ->sharpen(10)
+            ->withResponsiveImages()
+            ->format('webp')
+            ->optimize()
             ->queued();
 
         $this->addMediaConversion('mobile_optimized')
             ->width(320)
             ->height(240)
             ->crop(320, 240, CropPosition::Center)
+            ->withResponsiveImages()
+            ->format('webp')
+            ->optimize()
             ->queued();
     }
 
