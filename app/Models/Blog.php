@@ -110,9 +110,8 @@ class Blog extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this
-            ->addMediaCollection('images')
-            ->useDisk('public')
-            ->withResponsiveImages();
+            ->addMediaCollection('thumbnail')
+            ->useDisk('public');
     }
 
     /**
