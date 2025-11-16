@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained()->restrictOnDelete();
             $table->string('title');
-            $table->text('content');
+            $table->text('content')->nullable();
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->string('slug');
             $table->string('video_url')->nullable();
