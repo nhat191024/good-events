@@ -3,23 +3,40 @@ return [
     'singular' => 'Rent Product',
     'plural' => 'Rent Products',
 
+    'singulars' => [
+        'good_location' => 'Good Location',
+        'vocational_knowledge' => 'Vocational Knowledge',
+        'event_organization_guide' => 'Event Organization Guide',
+    ],
+
+    'plurals' => [
+        'good_location' => 'Good Location Posts',
+        'vocational_knowledge' => 'Vocational Knowledge Posts',
+        'event_organization_guide' => 'Event Organization Guide Posts',
+    ],
+
     'fields' => [
         'id' => 'ID',
-        'name' => 'Name',
+        'thumbnail' => 'Thumbnail',
+        'title' => 'Title',
         'slug' => 'Slug',
-        'description' => 'Description',
-        'price_per_day' => 'Price Per Day',
-        'available_quantity' => 'Available Quantity',
+        'tags' => 'Tags',
+        'city' => 'City',
+        'ward' => 'Ward',
+        'content' => 'Content',
+        'category_id' => 'Category',
+        'author_id' => 'Author',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
         'deleted_at' => 'Deleted At',
     ],
 
     'placeholders' => [
-        'name' => 'Enter the name of the rent product',
+        'title' => 'Enter the blog title',
         'slug' => 'The slug will be generated automatically',
-        'description' => 'Enter a detailed description of the rent product',
-        'price_per_day' => 'Enter the rental price per day',
-        'available_quantity' => 'Enter the available quantity for rent',
+        'tags' => 'Type tag names to search and press enter to add',
+        'city' => 'Select city',
+        'ward' => 'Select ward',
+        'content' => 'Enter the blog content here...',
     ],
 ];
