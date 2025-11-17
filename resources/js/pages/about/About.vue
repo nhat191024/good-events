@@ -1,5 +1,5 @@
 <template>
-    <Head title="Về chúng tôi - Sukientot" />
+    <Head title="Về chúng tôi" />
 
     <ClientHeaderLayout>
         <div class="bg-primary-50">

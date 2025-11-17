@@ -3,26 +3,45 @@
 namespace App\Helper;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class TemporaryImage extends JsonResource
 {
     /**
-     * Get image helper for spatie media library, if cannot get the img with temporary method, returns the original file path
+     * Get image helper for Spatie media library. If fetching a temporary url fails, fall back to the standard stored url.
+     *
      * @param mixed $model
      * @param mixed $expireAt
-     * @param mixed $collectionName
+     * @param string $collectionName
+     * @param string|null $conversionName
      * @return string|null
      */
-    public static function getTemporaryImageUrl($model, $expireAt, $collectionName = 'images'): string | null
+    public static function getTemporaryImageUrl($model, $expireAt, $collectionName = 'images', ?string $conversionName = null): string | null
     {
-        try {
-            return $model->getFirstTemporaryUrl($expireAt, $collectionName);
-        } catch (\Throwable $e) {
+        $conversion = $conversionName ?? '';
+
+        if ($model instanceof Media) {
             try {
-                return $model->getFirstMediaUrl($collectionName);
-            } catch (\Throwable $th) {
-                return null;
+                return $model->getTemporaryUrl($expireAt, $conversion);
+            } catch (\Throwable $e) {
+                return $model->getUrl($conversion);
             }
         }
+
+        if (method_exists($model, 'getFirstTemporaryUrl')) {
+            try {
+                return $model->getFirstTemporaryUrl($expireAt, $collectionName, $conversion);
+            } catch (\Throwable $e) {
+                try {
+                    return $conversion
+                        ? $model->getFirstMediaUrl($collectionName, $conversion)
+                        : $model->getFirstMediaUrl($collectionName);
+                } catch (\Throwable $th) {
+                    return null;
+                }
+            }
+        }
+
+        return null;
     }
 }

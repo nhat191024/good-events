@@ -95,7 +95,7 @@ const priceText = computed(() => formatCurrency(priceNumber.value));
 
 const productThumbnail = computed(() => props.fileProduct.image ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(props.fileProduct.name)}&background=2563EB&color=ffffff&size=256`);
 
-const pageTitle = computed(() => `Thanh toán ${props.fileProduct.name} - Sukientot`);
+const pageTitle = computed(() => `Thanh toán ${props.fileProduct.name}`);
 
 function formatCurrency(value: number) {
     return `${formatPrice(value)} đ`;

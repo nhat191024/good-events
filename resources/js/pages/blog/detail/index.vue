@@ -2,8 +2,8 @@
     <Head :title="pageTitle" />
 
     <ClientHeaderLayout>
-        <section class="bg-white pb-16 pt-6">
-            <div class="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
+        <section class="bg-white pb-16 pt-6 w-full">
+            <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
                 <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
                     <ul class="flex flex-wrap items-center gap-2">
                         <li>

@@ -6,18 +6,25 @@ import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import HeroBanner from './partials/HeroBanner.vue';
 import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 import CategorySection from './partials/CategorySection.vue';
-import Footer from './partials/Footer.vue';
 import HomeCtaBanner from './components/HomeCtaBanner.vue';
 import { PartnerCategory } from '@/types/database';
 import { createSearchFilter } from '@/lib/search-filter';
-import { getImg } from '../booking/helper';
+
+interface BannerImage {
+    responsive_image?: string | null;
+}
+
+interface BannerImageWrapper {
+  data: BannerImage[];
+}
 
 interface Props {
     eventCategories: PartnerCategory[];
     partnerCategories: { [key: number]: PartnerCategory[] };
     settings: {
         app_name: string;
-        app_partner_banner: string | null;
+        hero_title: string;
+        banner_images: BannerImageWrapper;
     };
 }
 
@@ -53,11 +60,19 @@ const categories = [
         name: 'Khách sạn',
         slug: 'khach-san',
         icon: 'mdi:bag-personal',
-        image: route('blog.discover')
+        href: route('blog.discover')
     },
 ];
 
 const search = ref('');
+
+console.log('lmao',props.settings);
+
+
+const heroBannerImages = computed(() => {
+    const images = props.settings.banner_images.data ?? [];
+    return images;
+});
 
 const filteredPartnerCategories = computed(() => {
     if (!search.value.trim()) return props.partnerCategories
@@ -82,21 +97,21 @@ const categoryMotions = computed(() => props.eventCategories.map((_, index) => (
             delay: 0.5 + index * 0.1,
             duration: 0.6,
             ease: 'easeOut',
-        },
+        }, 
     },
 })))
 </script>
 
 <template>
 
-    <Head class="font-lexend" title="Trang chủ - Sukientot" />
+    <Head class="font-lexend" title="Trang chủ" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
 
         <HeroBanner
             v-model="search"
-            :header-text="'Thuê đối tác xịn. Sự kiện thêm vui'"
-            :header-banner-img="settings.app_partner_banner ? getImg(`/${settings.app_partner_banner}`) : '/images/banner-image.webp'"
+            :header-text="settings.hero_title ?? 'Thuê đối tác xịn. Sự kiện thêm vui'"
+            :banner-images="heroBannerImages"
         />
 
         <PartnerCategoryIcons :categories="categories" />

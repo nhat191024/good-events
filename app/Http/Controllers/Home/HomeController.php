@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Home\AppBannerResource;
+use App\Models\Banner;
 use App\Models\PartnerCategory;
 use App\Settings\AppSettings;
 use Inertia\Inertia;
@@ -15,9 +17,11 @@ class HomeController extends Controller
      */
     public function index(AppSettings $settings): Response
     {
+
         $expireAt = now()->addMinutes(60);
 
-        // Eager load event categories with their children and media
+        $app_partner_banner = Banner::where('type', 'partner')->first()->getMedia('banners');
+
         $eventCategories = PartnerCategory::whereNull('parent_id')
             ->with([
                 'media',
@@ -46,12 +50,15 @@ class HomeController extends Controller
             });
         }
 
+        $bannerImages = AppBannerResource::collection($app_partner_banner);
+
         return Inertia::render('home/Home', [
             'eventCategories' => $eventCategories,
             'partnerCategories' => $partnerCategories,
             'settings' => [
                 'app_name' => $settings->app_name,
-                'app_partner_banner' => $settings->app_partner_banner,
+                'banner_images' => $bannerImages,
+                'hero_title' => $settings->app_partner_title,
             ],
         ]);
     }

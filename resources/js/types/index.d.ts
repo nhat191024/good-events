@@ -43,9 +43,6 @@ export interface AppSettings {
     app_name: string;
     app_logo?: string | null;
     app_favicon?: string | null;
-    app_partner_banner?: string | null;
-    app_design_banner?: string | null;
-    app_rental_banner?: string | null;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
