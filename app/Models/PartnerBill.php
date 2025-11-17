@@ -186,32 +186,38 @@ class PartnerBill extends Model implements HasMedia
         $mailService = new PartnerBillMailService();
         $mailService->sendOrderReceivedNotification($partnerBill);
 
-        $partnerId = $partnerBill->partner_id;
         $clientId = $partnerBill->client_id;
 
-        // Fetch all relevant statistics in one query
-        $allStats = Statistical::whereIn('user_id', [$clientId])
-            ->whereIn('metrics_name', [
-                StatisticType::NUMBER_CUSTOMER->value,
-                StatisticType::ORDERS_PLACED->value,
-            ])
-            ->get()
-            ->groupBy('user_id');
+        $stats = Statistical::whereUserId($clientId)
+            ->whereMetricsName(StatisticType::ORDERS_PLACED->value)
+            ->first();
 
-        // Update orders placed statistic for both partner and client
-        foreach ([$clientId] as $userId) {
-            $userStats = $allStats->get($userId);
-            if ($userStats) {
-                $ordersPlacedStat = $userStats->where('metrics_name', StatisticType::ORDERS_PLACED->value)->first();
-                if ($ordersPlacedStat) {
-                    $ordersPlacedStat->metrics_value = (int)$ordersPlacedStat->metrics_value + 1;
-                    $ordersPlacedStat->save();
-                }
-            }
+        // Update client statistics
+        if ($stats) {
+            $stats->metrics_value = (int)$stats->metrics_value + 1;
+            $stats->save();
         }
 
-        // Clear widget caches
-        PartnerWidgetCacheService::clearPartnerCaches($partnerId);
+        //create thread for communication
+        $partnerCategoryName = $partnerBill->category ? $partnerBill->category->name : 'General';
+        $thread = Thread::create([
+            'subject' => "$partnerBill->code - $partnerCategoryName"
+        ]);
+
+        Participant::create([
+            'thread_id' => $thread->id,
+            'user_id' => 1, //system user
+            'last_read' => now(),
+        ]);
+
+        Participant::create([
+            'thread_id' => $thread->id,
+            'user_id' => $partnerBill->client_id,
+            'last_read' => null
+        ]);
+
+        $partnerBill->thread_id = $thread->id;
+        $partnerBill->saveQuietly();
     }
 
     /**
@@ -349,31 +355,11 @@ class PartnerBill extends Model implements HasMedia
      */
     protected static function handleConfirmedStatus(PartnerBill $partnerBill): void
     {
-        $partnerCategoryName = $partnerBill->category ? $partnerBill->category->name : 'General';
-        $thread = Thread::create([
-            'subject' => "$partnerBill->code - $partnerCategoryName"
-        ]);
-
         Participant::create([
-            'thread_id' => $thread->id,
-            'user_id' => 1, //system user
-            'last_read' => now(),
-        ]);
-
-        Participant::create([
-            'thread_id' => $thread->id,
-            'user_id' => $partnerBill->client_id,
-            'last_read' => null
-        ]);
-
-        Participant::create([
-            'thread_id' => $thread->id,
+            'thread_id' => $partnerBill->thread_id,
             'user_id' => $partnerBill->partner_id,
             'last_read' => null
         ]);
-
-        $partnerBill->thread_id = $thread->id;
-        $partnerBill->saveQuietly();
 
         $mailService = new PartnerBillMailService();
         $mailService->sendOrderConfirmedNotification($partnerBill);
