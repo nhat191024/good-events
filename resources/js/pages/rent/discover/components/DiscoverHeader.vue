@@ -5,7 +5,7 @@
                 <ul class="flex items-center gap-2">
                     <li>
                         <Link :href="route('rent.home')" class="hover:text-primary-800">
-                            Kho thuê vật tư
+                            Kho thuê thiết bị
                         </Link>
                     </li>
                     <li v-if="isCategoryPage" aria-hidden="true" class="text-primary-400">›</li>
@@ -50,7 +50,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
     categoryName: null,
-    searchPlaceholder: 'Tìm kiếm vật tư sự kiện...',
+    searchPlaceholder: 'Tìm kiếm thiết bị sự kiện...',
 });
 
 const emit = defineEmits<{
