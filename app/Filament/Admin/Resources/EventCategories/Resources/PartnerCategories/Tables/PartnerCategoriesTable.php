@@ -29,8 +29,8 @@ class PartnerCategoriesTable
                     ->label(__('admin/partnerCategory.fields.image'))
                     ->collection('images')
                     ->circular()
-                    ->imageSize(60),
-                // ->conversion('thumb'),
+                    ->imageSize(60)
+                    ->conversion('thumb'),
                 TextColumn::make('name')
                     ->label(__('admin/partnerCategory.fields.name'))
                     ->searchable(),
