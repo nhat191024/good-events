@@ -42,5 +42,15 @@ return [
     'filter' => [
         'hidden_include' => 'Include hidden records',
         'hidden_only' => 'Only hidden records'
-    ]
+    ],
+
+    'role' => [
+        'admin' => 'Admin',
+        'super_admin' => 'Super Admin',
+        'partner' => 'Partner',
+        'client' => 'Client',
+        'human_resource_manager' => 'Human Resource Manager',
+        'design_manager' => 'Design Manager',
+        'rental_manager' => 'Rental Manager',
+    ],
 ];

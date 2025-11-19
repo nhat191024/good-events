@@ -44,5 +44,15 @@ return [
     'filter' => [
         'hidden_include' => 'Bao gồm bản ghi bị ẩn',
         'hidden_only' => 'Chỉ bản ghi bị ẩn'
-    ]
+    ],
+
+    'role' => [
+        'admin' => 'Quản trị viên',
+        'super_admin' => 'Siêu quản trị viên',
+        'partner' => 'Đối tác',
+        'client' => 'Khách hàng',
+        'human_resource_manager' => 'Quản lý đối tác',
+        'design_manager' => 'Quản lý thiết kế',
+        'rental_manager' => 'Quản lý cho thuê vật tư',
+    ],
 ];
