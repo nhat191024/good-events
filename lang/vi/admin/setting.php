@@ -13,8 +13,11 @@ return [
 
     'banners' => [
         'partner' => 'Đối tác',
+        'mobile_partner' => 'Đối tác (di động)',
         'design' => 'Thiết kế',
+        'mobile_design' => 'Thiết kế (di động)',
         'rental' => 'Vật tư cho thuê',
+        'mobile_rental' => 'Vật tư cho thuê (di động)',
     ],
 
     'fields' => [
@@ -30,7 +33,9 @@ return [
 
         'banners' => [
             'partner' => 'Biểu ngữ đối tác',
+            'mobile_partner' => 'Biểu ngữ đối tác (di động)',
             'design' => 'Biểu ngữ thiết kế',
+            'mobile_design' => 'Biểu ngữ thiết kế (di động)',
             'rental' => 'Biểu ngữ vật tư cho thuê',
 
             'helper_text' => 'Tải lên các hình ảnh biểu ngữ để hiển thị trên trang tương ứng.',
