@@ -27,6 +27,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 use Jacobtims\FilamentLogger\FilamentLoggerPlugin;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 
 use App\Filament\Admin\Widgets\AdminStatisticsWidget;
 use App\Filament\Admin\Widgets\AdminRevenueChart;
@@ -63,6 +64,7 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->plugins([
+                FilamentShieldPlugin::make(),
                 FilamentLoggerPlugin::make(),
             ])
 
