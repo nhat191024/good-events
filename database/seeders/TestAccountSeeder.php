@@ -18,7 +18,7 @@ class TestAccountSeeder extends Seeder
     {
         //move test accounts from other seeders to here for easier management
 
-        User::factory()->withRole(Role::ADMIN)->create([
+        User::factory()->withRole(Role::SUPER_ADMIN)->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
         ]);
