@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\CategoryType;
 use App\Http\Controllers\Blog\BaseBlogPageController;
 use App\Http\Resources\Home\BlogDetailResource;
 use App\Http\Resources\Home\BlogResource;
@@ -15,7 +16,7 @@ use Inertia\Response;
 
 class BlogController extends BaseBlogPageController
 {
-    private const BLOG_TYPE = 'good_location';
+    private const BLOG_TYPE = CategoryType::GOOD_LOCATION->value;
 
     public function blogDiscover(Request $request): Response
     {

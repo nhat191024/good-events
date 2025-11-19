@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Blog;
 
+use App\Enum\CategoryType;
 use App\Http\Resources\Home\BlogResource;
 use App\Http\Resources\Home\CategoryResource;
 use App\Models\Blog;
@@ -12,7 +13,7 @@ use Inertia\Response;
 
 class VocationalKnowledgeController extends BaseBlogPageController
 {
-    private const BLOG_TYPE = 'vocational_knowledge';
+    private const BLOG_TYPE = CategoryType::VOCATIONAL_KNOWLEDGE->value;
 
     public function index(Request $request): Response
     {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Blog;
 
+use App\Enum\CategoryType;
 use App\Http\Resources\Home\BlogDetailResource;
 use App\Http\Resources\Home\BlogResource;
 use App\Http\Resources\Home\CategoryResource;
@@ -13,7 +14,7 @@ use Inertia\Response;
 
 class EventOrganizationGuideController extends BaseBlogPageController
 {
-    private const BLOG_TYPE = 'event_organization_guide';
+    private const BLOG_TYPE = CategoryType::EVENT_ORGANIZATION_GUIDE->value;
 
     public function index(Request $request): Response
     {
