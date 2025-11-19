@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Users;
 
-use App\Models\User;
+use App\Models\Customer;
 
 use BackedEnum;
 use UnitEnum;
@@ -26,7 +26,7 @@ use App\Enum\FilamentNavigationGroup;
 
 class UserResource extends Resource
 {
-    protected static ?string $model = User::class;
+    protected static ?string $model = Customer::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
     protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::USER_MANAGEMENT;
