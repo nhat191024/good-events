@@ -49,7 +49,7 @@ class PartnerResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with('partnerProfile', 'roles')
+            ->with(['partnerProfile', 'roles', 'wallet'])
             ->whereHas('roles', function ($query) {
                 $query->where('name', Role::PARTNER);
             });
