@@ -3,6 +3,8 @@
 namespace App\Filament\Admin\Resources\RentalCategories\Pages;
 
 use App\Filament\Admin\Resources\RentalCategories\RentalCategoryResource;
+use App\Enum\CategoryType;
+
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateRentalCategory extends CreateRecord
@@ -11,7 +13,7 @@ class CreateRentalCategory extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['type'] = 'rental';
+        $data['type'] = CategoryType::RENTAL->value;
 
         return $data;
     }

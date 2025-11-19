@@ -9,6 +9,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
+use App\Enum\CategoryType;
+
 class BlogCategoryForm
 {
     public static function configure(Schema $schema): Schema
@@ -22,9 +24,9 @@ class BlogCategoryForm
                 Select::make('type')
                     ->label(__('admin/category.fields.type'))
                     ->options([
-                        'good_location' => __('admin/category.category_options.good_location'),
-                        'vocational_knowledge' => __('admin/category.category_options.vocational_knowledge'),
-                        'event_organization_guide' => __('admin/category.category_options.event_organization_guide'),
+                        CategoryType::GOOD_LOCATION->value => __('admin/category.category_options.good_location'),
+                        CategoryType::VOCATIONAL_KNOWLEDGE->value => __('admin/category.category_options.vocational_knowledge'),
+                        CategoryType::EVENT_ORGANIZATION_GUIDE->value => __('admin/category.category_options.event_organization_guide'),
                     ])
                     ->native(false)
                     ->required(),

@@ -4,6 +4,8 @@ namespace App\Filament\Admin\Resources\BlogCategories\Tables;
 
 use App\Filament\Admin\Resources\BlogCategories\BlogCategoryResource;
 
+use App\Enum\CategoryType;
+
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
@@ -45,9 +47,9 @@ class BlogCategoriesTable
                     ->label(__('admin/category.fields.type'))
                     ->badge()
                     ->formatStateUsing(fn($state) => match ($state) {
-                        'good_location' => __('admin/category.category_options.good_location'),
-                        'vocational_knowledge' => __('admin/category.category_options.vocational_knowledge'),
-                        'event_organization_guide' => __('admin/category.category_options.event_organization_guide'),
+                        CategoryType::GOOD_LOCATION->value => __('admin/category.category_options.good_location'),
+                        CategoryType::VOCATIONAL_KNOWLEDGE->value => __('admin/category.category_options.vocational_knowledge'),
+                        CategoryType::EVENT_ORGANIZATION_GUIDE->value => __('admin/category.category_options.event_organization_guide'),
                         default => $state,
                     })
                     ->sortable(),
