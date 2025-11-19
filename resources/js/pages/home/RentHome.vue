@@ -1,5 +1,5 @@
 <template>
-    <Head class="font-lexend" title="Thuê vật tư sự kiện" />
+    <Head class="font-lexend" title="Thuê thiết bị sự kiện" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-green-100'">
         <HeroBanner
@@ -22,7 +22,7 @@
             </Link>
         </div>
 
-        <CardListLayout :href="route('rent.discover')" :name="'Vật tư nổi bật gần đây'" :show-section="true">
+        <CardListLayout :href="route('rent.discover')" :name="'Thiết bị nổi bật gần đây'" :show-section="true">
             <CardItem
                 v-for="item in rentProductList"
                 :key="item.id"
@@ -33,7 +33,7 @@
 
         <div class="flex w-full flex-wrap justify-center gap-2 bg-white pb-6">
             <Link :href="route('rent.discover')">
-                <Button :size="'default'" :variant="'outline'" :class="'hover:bg-primary-50'"> Xem thêm vật tư khác </Button>
+                <Button :size="'default'" :variant="'outline'" :class="'hover:bg-primary-50'"> Xem thêm thiết bị khác </Button>
             </Link>
         </div>
     </ClientAppHeaderLayout>
@@ -80,7 +80,7 @@ const props = defineProps<Props>();
 const search = ref('');
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
-const heroHeaderText = computed(() => props.settings.hero_title ?? 'Thuê vật tư, loa đài ánh sáng');
+const heroHeaderText = computed(() => props.settings.hero_title ?? 'Thuê thiết bị, loa đài ánh sáng');
 
 const filteredRentProducts = computed(() => {
     const data = props.rentProducts.data ?? [];

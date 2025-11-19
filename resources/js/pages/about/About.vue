@@ -327,7 +327,7 @@ const teamMembers: TeamMember[] = [
     {
         name: 'Nguyễn Văn B',
         role: 'Head of Operations',
-        description: 'Người đứng sau hệ thống quy trình giúp đội ngũ đối tác phối hợp trơn tru.',
+        description: 'Người đứng sau hệ thống quy trình giúp đội ngũ nhân sự phối hợp trơn tru.',
     },
     {
         name: 'Nguyễn Văn C',
@@ -337,7 +337,7 @@ const teamMembers: TeamMember[] = [
     {
         name: 'Nguyễn Văn D',
         role: 'Partnership Manager',
-        description: 'Xây dựng mạng lưới đối tác chất lượng thông qua chính sách minh bạch.',
+        description: 'Xây dựng mạng lưới nhân sự chất lượng thông qua chính sách minh bạch.',
     },
 ];
 </script>

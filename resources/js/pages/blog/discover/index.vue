@@ -1,7 +1,7 @@
 <template>
     <Head :title="pageTitle" />
 
-<ClientHeaderLayout>
+    <ClientHeaderLayout>
         <motion.section
             :initial="sectionMotion.initial"
             :animate="sectionMotion.animate"
@@ -17,12 +17,25 @@
                     @search="submitSearch"
                 />
 
+                <BlogLocationFilterBar
+                    :provinces="provinceOptions"
+                    :province-id="selectedProvinceId"
+                    :districts="districtOptions"
+                    :district-id="selectedDistrictId"
+                    :loading="loadingWards"
+                    @update:province-id="handleProvinceChange"
+                    @update:district-id="handleDistrictChange"
+                    @clear="clearLocationFilters"
+                />
+
                 <BlogCategoryFilters
                     :categories="categoryOptions"
                     :active-slug="activeCategorySlug"
+                    all-route-name="blog.discover"
+                    category-route-name="blog.category"
                 />
 
-                <BlogGrid :blogs="props.blogs?.data ?? []" />
+                <BlogGrid :blogs="displayedBlogs" />
 
                 <BlogPagination
                     v-if="pagination"
@@ -45,9 +58,14 @@ import BlogCategoryFilters from './components/BlogCategoryFilters.vue';
 import BlogDiscoverHeader from './components/BlogDiscoverHeader.vue';
 import BlogGrid from './components/BlogGrid.vue';
 import BlogPagination from './components/BlogPagination.vue';
+import BlogLocationFilterBar from './components/BlogLocationFilterBar.vue';
+
+import { createSearchFilter } from '@/lib/search-filter';
+import { useWards } from '@/helper/useWards';
 
 import type { BlogFilters, BlogSummary } from '../types';
 import type { Category } from '@/pages/home/types';
+import type { Province } from '@/types/database';
 
 type ResourceCollection<T> = { data?: T[] | null };
 
@@ -56,21 +74,58 @@ export interface DiscoverPageProps {
     categories?: ResourceCollection<Category> | Paginated<Category> | Category[];
     category?: Category | null;
     filters?: BlogFilters;
+    locations?: {
+        provinces?: Province[];
+    };
 }
 
 const props = withDefaults(defineProps<DiscoverPageProps>(), {
     categories: undefined,
     category: null,
     filters: () => ({}),
+    locations: () => ({
+        provinces: [],
+    }),
 });
 
 const searchTerm = ref(props.filters?.q ?? '');
+const selectedProvinceId = ref<string | null>(props.filters?.province_id ? String(props.filters?.province_id) : null);
+const selectedDistrictId = ref<string | null>(props.filters?.district_id ? String(props.filters?.district_id) : null);
 
 watch(
     () => props.filters?.q,
     (next) => {
         searchTerm.value = next ?? '';
     }
+);
+
+watch(
+    () => props.filters?.province_id,
+    (next) => {
+        selectedProvinceId.value = next ? String(next) : null;
+    },
+    { immediate: true }
+);
+
+watch(
+    () => props.filters?.district_id,
+    (next) => {
+        selectedDistrictId.value = next ? String(next) : null;
+    },
+    { immediate: true }
+);
+
+const { provinceId: wardsProvinceId, wardList, loadingWards } = useWards({ auto: true });
+
+watch(
+    () => selectedProvinceId.value,
+    (next, prev) => {
+        if (next !== prev) {
+            selectedDistrictId.value = null;
+        }
+        wardsProvinceId.value = next;
+    },
+    { immediate: true }
 );
 
 const isCategoryPage = computed(() => Boolean(props.category));
@@ -83,7 +138,27 @@ const pageTitle = computed(() => {
 
 const headingText = computed(() => (props.category ? props.category.name : 'Khám phá những địa điểm tổ chức sự kiện tốt nhất'));
 
-const totalItems = computed(() => props.blogs?.meta?.total ?? props.blogs?.data?.length ?? 0);
+const normalizedSearchTerm = computed(() => searchTerm.value.trim());
+const normalizedServerQuery = computed(() => (props.filters?.q ?? '').trim());
+const isLiveSearch = computed(
+    () => normalizedSearchTerm.value !== '' && normalizedSearchTerm.value !== normalizedServerQuery.value
+);
+
+const displayedBlogs = computed(() => {
+    const items = props.blogs?.data ?? [];
+    const query = normalizedSearchTerm.value;
+    if (!query) return items;
+
+    const filter = createSearchFilter<BlogSummary>(['title', 'slug', 'excerpt', 'category.name'], query);
+    return items.filter(filter);
+});
+
+const totalItems = computed(() => {
+    if (isLiveSearch.value) {
+        return displayedBlogs.value.length;
+    }
+    return props.blogs?.meta?.total ?? props.blogs?.data?.length ?? 0;
+});
 
 const subHeadingText = computed(() => {
     if (props.category) {
@@ -92,7 +167,7 @@ const subHeadingText = computed(() => {
     return `${totalItems.value} gợi ý được tuyển chọn giúp bạn chuẩn bị sự kiện chu đáo.`;
 });
 
-const pagination = computed(() => props.blogs?.meta ?? null);
+const pagination = computed(() => (isLiveSearch.value ? null : props.blogs?.meta ?? null));
 
 function toArray<T>(input: ResourceCollection<T> | Paginated<T> | T[] | undefined): T[] {
     if (!input) return [];
@@ -105,6 +180,22 @@ function toArray<T>(input: ResourceCollection<T> | Paginated<T> | T[] | undefine
 }
 
 const categoryOptions = computed(() => toArray<Category>(props.categories));
+const provinceOptions = computed<Province[]>(() => props.locations?.provinces ?? []);
+const districtOptions = computed(() =>
+    wardList.value.map((item) => ({
+        name: item.name,
+        value: item.value ?? '',
+    }))
+);
+
+function buildQueryParams(additional: Record<string, unknown> = {}) {
+    const base = {
+        q: normalizedServerQuery.value !== '' ? normalizedServerQuery.value : undefined,
+        province_id: selectedProvinceId.value ?? undefined,
+        district_id: selectedDistrictId.value ?? undefined,
+    };
+    return { ...base, ...additional };
+}
 
 function submitSearch(term: string): void {
     const normalized = term.trim();
@@ -114,7 +205,7 @@ function submitSearch(term: string): void {
     router.get(
         route(routeName, routeParams),
         {
-            q: normalized !== '' ? normalized : undefined,
+            ...buildQueryParams({ q: normalized !== '' ? normalized : undefined }),
         },
         {
             preserveState: true,
@@ -129,17 +220,37 @@ function changePage(page: number): void {
     const routeName = activeCategorySlug.value ? 'blog.category' : 'blog.discover';
     const routeParams = activeCategorySlug.value ? { category_slug: activeCategorySlug.value } : {};
 
-    router.get(
-        route(routeName, routeParams),
-        {
-            page,
-            q: searchTerm.value.trim() !== '' ? searchTerm.value.trim() : undefined,
-        },
-        {
-            preserveState: true,
-            preserveScroll: true,
-        }
-    );
+    router.get(route(routeName, routeParams), { ...buildQueryParams({ page }) }, { preserveState: true, preserveScroll: true });
+}
+
+function handleProvinceChange(value: string | null): void {
+    selectedProvinceId.value = value;
+    selectedDistrictId.value = null;
+    applyLocationFilter();
+}
+
+function handleDistrictChange(value: string | null): void {
+    selectedDistrictId.value = value;
+    applyLocationFilter();
+}
+
+function clearLocationFilters(): void {
+    if (!selectedProvinceId.value && !selectedDistrictId.value) {
+        return;
+    }
+    selectedProvinceId.value = null;
+    selectedDistrictId.value = null;
+    applyLocationFilter();
+}
+
+function applyLocationFilter(): void {
+    const routeName = activeCategorySlug.value ? 'blog.category' : 'blog.discover';
+    const routeParams = activeCategorySlug.value ? { category_slug: activeCategorySlug.value } : {};
+
+    router.get(route(routeName, routeParams), buildQueryParams(), {
+        preserveState: true,
+        preserveScroll: true,
+    });
 }
 
 const sectionMotion = {

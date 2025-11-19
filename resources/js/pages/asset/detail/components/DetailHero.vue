@@ -68,7 +68,7 @@
                 <p class="text-sm font-medium text-primary-800">Giá trọn gói</p>
                 <p class="mt-1 text-3xl font-semibold text-primary-900">{{ priceText }}</p>
                 <p class="mt-1 text-xs text-primary-700/70">
-                    Bao gồm đầy đủ file thiết kế chất lượng cao cùng tài liệu hướng dẫn triển khai.
+                    Bao gồm đầy đủ file thiết kế chất lượng cao cùng thiết kế hướng dẫn triển khai.
                 </p>
             </div>
 
@@ -89,6 +89,12 @@
                 >
                     Mua ngay
                 </Link>
+                <a
+                    :href="`tel:0901234567`"
+                    class="inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                >
+                    Gọi: 0901 234 567
+                </a>
                 <!-- <Button variant="outline" class="w-full border-primary-100 text-primary-700 hover:border-primary-200 hover:text-primary-900">
                     Thêm vào danh sách yêu thích
                 </Button> -->

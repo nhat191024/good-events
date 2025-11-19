@@ -2,7 +2,7 @@
     <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
         <ul class="flex items-center gap-2">
             <li>
-                <Link :href="route('asset.home')" class="hover:text-primary-800">Kho tài liệu</Link>
+                <Link :href="route('asset.home')" class="hover:text-primary-800">Kho thiết kế</Link>
             </li>
             <li>
                 <span aria-hidden="true" class="px-1 text-primary-400">›</span>

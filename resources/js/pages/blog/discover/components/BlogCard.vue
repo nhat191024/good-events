@@ -52,19 +52,24 @@ import { getImg } from '@/pages/booking/helper';
 
 type Variant = 'featured' | 'secondary' | 'compact';
 
-const props = withDefaults(defineProps<{ blog: BlogSummary; variant?: Variant }>(), {
-    variant: 'compact',
-});
+const props = withDefaults(
+    defineProps<{ blog: BlogSummary; variant?: Variant; detailRouteName?: string; fallbackRouteName?: string }>(),
+    {
+        variant: 'compact',
+        detailRouteName: 'blog.show',
+        fallbackRouteName: 'blog.discover',
+    }
+);
 
 const detailHref = computed(() => {
     const categorySlug = props.blog.category?.slug;
     if (categorySlug) {
-        return route('blog.show', {
+        return route(props.detailRouteName, {
             category_slug: categorySlug,
             blog_slug: props.blog.slug,
         });
     }
-    return route('blog.discover');
+    return route(props.fallbackRouteName);
 });
 
 const variantClass = computed(() => {

@@ -114,19 +114,19 @@ watch(
 const isCategoryPage = computed(() => Boolean(props.category));
 
 const pageTitle = computed(() => {
-    if (!props.category) return 'Khám phá tài liệu';
-    return `${props.category.name} - Kho tài liệu`;
+    if (!props.category) return 'Khám phá thiết kế';
+    return `${props.category.name} - Kho thiết kế`;
 });
 
-const headingText = computed(() => (props.category ? props.category.name : 'Khám phá kho tài liệu'));
+const headingText = computed(() => (props.category ? props.category.name : 'Khám phá kho thiết kế'));
 
 const totalItems = computed(() => props.fileProducts?.meta?.total ?? props.fileProducts?.data?.length ?? 0);
 
 const subHeadingText = computed(() => {
     if (props.category) {
-        return `${totalItems.value} tài liệu trong danh mục này.`;
+        return `${totalItems.value} thiết kế trong danh mục này.`;
     }
-    return `${totalItems.value} tài liệu được biên tập bởi đội ngũ Sukientot.`;
+    return `${totalItems.value} thiết kế được biên tập bởi đội ngũ Sukientot.`;
 });
 
 function toArray<T>(input: ResourceCollection<T> | Paginated<T> | T[] | undefined): T[] {

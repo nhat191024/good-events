@@ -1,5 +1,5 @@
 <template>
-    <Head class="font-lexend" title="Kho tài liệu thiết kế" />
+    <Head class="font-lexend" title="Kho thiết kế thiết kế" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-blue-100'">
 
@@ -38,7 +38,7 @@
             </motion.div>
         </motion.div>
 
-        <CardListLayout :href="route('asset.discover')" :name="'Tài liệu mới gần đây'" :show-section="true">
+        <CardListLayout :href="route('asset.discover')" :name="'Thiết kế mới gần đây'" :show-section="true">
             <CardItem v-for="item in fileProductList"
                 :route-href="route('asset.show', { file_product_slug: item.slug, category_slug: item.category.slug })"
                 :key="item.id" :card-item="item || []" />
@@ -107,7 +107,7 @@ const props = defineProps<Props>();
 const search = ref('');
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
-const heroHeaderText = computed(() => props.settings.hero_title ?? 'Trải nghiệm kho tài liệu thiết kế');
+const heroHeaderText = computed(() => props.settings.hero_title ?? 'Trải nghiệm kho thiết kế thiết kế');
 
 // console.log('file products ',props.fileProducts.data);
 // console.log('tags ',props.tags.data);

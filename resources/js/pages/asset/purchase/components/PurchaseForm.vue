@@ -2,7 +2,7 @@
     <form class="space-y-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm" @submit.prevent="emit('submit')">
         <header class="space-y-1">
             <h1 class="text-2xl font-semibold text-gray-900">Thông tin người mua</h1>
-            <p class="text-sm text-gray-500">Vui lòng điền đầy đủ thông tin để Sukientot liên hệ và gửi tài liệu.</p>
+            <p class="text-sm text-gray-500">Vui lòng điền đầy đủ thông tin để Sukientot liên hệ và gửi thiết kế.</p>
         </header>
 
         <div class="grid gap-4 md:grid-cols-2">

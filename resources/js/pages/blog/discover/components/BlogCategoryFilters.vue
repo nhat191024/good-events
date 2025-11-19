@@ -18,7 +18,7 @@
             :while-tap="filterInteractions.tap"
         >
             <Link
-                :href="route('blog.discover')"
+                :href="route(allRouteName)"
                 class="rounded-full border px-4 py-2 text-sm font-medium transition"
                 :class="allActive ? 'border-primary-500 bg-primary-500 text-white shadow-sm' : 'border-gray-200 text-gray-700 hover:border-primary-400 hover:text-primary-600'"
                 :aria-current="allActive ? 'page' : undefined"
@@ -39,7 +39,7 @@
             :while-tap="filterInteractions.tap"
         >
             <Link
-                :href="route('blog.category', { category_slug: category.slug })"
+                :href="route(categoryRouteName, { category_slug: category.slug })"
                 class="rounded-full border px-4 py-2 text-sm font-medium transition"
                 :class="category.slug === activeSlug ? 'border-primary-500 bg-primary-500 text-white shadow-sm' : 'border-gray-200 text-gray-700 hover:border-primary-400 hover:text-primary-600'"
                 :aria-current="category.slug === activeSlug ? 'page' : undefined"
@@ -56,15 +56,17 @@ import { Link } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 import type { Category } from '@/pages/home/types';
 
-const props = withDefaults(defineProps<{ categories: Category[]; activeSlug?: string | null }>(), {
+const props = withDefaults(defineProps<{ categories: Category[]; activeSlug?: string | null; allRouteName?: string; categoryRouteName?: string }>(), {
     categories: () => [],
     activeSlug: null,
+    allRouteName: 'blog.discover',
+    categoryRouteName: 'blog.category',
 });
 
 const hasCategories = computed(() => props.categories.length > 0);
 const allActive = computed(() => !props.activeSlug);
 
-const { categories, activeSlug } = toRefs(props);
+const { categories, activeSlug, allRouteName, categoryRouteName } = toRefs(props);
 
 const navMotion = {
     initial: { opacity: 0.5, y: 16 },

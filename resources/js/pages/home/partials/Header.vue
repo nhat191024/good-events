@@ -9,6 +9,7 @@ import { useEcho, useEchoNotification } from '@laravel/echo-vue';
 import axios from 'axios';
 import { getImg } from '@/pages/booking/helper';
 import { AppSettings } from '@/types';
+import { motion } from 'motion-v';
 
 interface Props {
     // showBannerBackground?: boolean;
@@ -28,11 +29,19 @@ withDefaults(defineProps<Props>(), {
 });
 
 const menuItems = [
-    { name: 'Sự kiện', slug: 'home', route: route('home') },
-    { name: 'Vật tư', slug: 'supply', route: route('rent.home') },
-    { name: 'Tài liệu', slug: 'document', route: route('asset.home') },
-    { name: 'Khách sạn', slug: 'blog', route: route('blog.discover') }
+    { name: 'Nhân sự', slug: 'home', route: route('home') },
+    { name: 'Thiết bị sự kiện', slug: 'supply', route: route('rent.home') },
+    { name: 'Thiết kế ', slug: 'document', route: route('asset.home') },
+    { name: 'Địa điểm tổ chức', slug: 'blog', route: route('blog.discover') },
+    { name: 'Hướng dẫn tổ chức', slug: 'guides', route: route('blog.guides.discover') },
+    { name: 'Kiến thức nghề', slug: 'knowledge', route: route('blog.knowledge.discover') },
 ];
+
+const navLinkMotion = {
+    hover: { translateY: -2, scale: 1.02 },
+    tap: { scale: 0.98 },
+    transition: { type: 'spring', stiffness: 260, damping: 22 },
+} as const;
 
 
 type NotiItem = {
@@ -141,10 +150,10 @@ onUnmounted(() => {
         'fixed top-0 left-0 w-full z-50 transition-all duration-300',
         isFloating ? 'shadow-md bg-white/30 backdrop-blur-md' : backgroundClassNames + ' backdrop-blur-md'
     ]">
-        <div class="sm:px-4 lg:px-8 mx-auto">
-            <div class="flex items-center justify-between h-16 md:px-3 px-1">
-                <div class="flex items-center md:gap-3 gap-1">
-                    <HamburgerMenu class="block md:hidden" :menu-items="menuItems" />
+        <div class="md:px-2 lg:px-2 mx-auto">
+            <div class="flex items-center justify-between h-16 md:px-3 px-1 gap-1">
+                <div class="flex items-center gap-2">
+                    <HamburgerMenu class="block lg:hidden" :menu-items="menuItems" />
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center md:gap-2 gap-1">
                     <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot"
@@ -154,21 +163,35 @@ onUnmounted(() => {
                     </Link>
                 </div>
 
-                <div class="hidden md:flex items-center gap-8">
+                <div class="hidden lg:flex items-center gap-8">
                     <!-- Nav items (đậm, hover không đổi kích thước) -->
-                    <nav class="flex items-center md:gap-3 lg:gap-6">
-                        <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Sự Kiện</Link>
-                        <Link :href="route('rent.home')" class="font-semibold text-black hover:text-black/80">Vật Tư</Link>
-                        <Link :href="route('asset.home')" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
-                        <Link :href="route('blog.discover')" class="font-semibold text-black hover:text-black/80">Khách sạn</Link>
+                    <nav class="flex items-center gap-3">
+                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
+                            <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Nhân sự</Link>
+                        </motion.div>
+                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
+                            <Link :href="route('rent.home')" class="font-semibold text-black hover:text-black/80">Thiết Bị</Link>
+                        </motion.div>
+                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
+                            <Link :href="route('asset.home')" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
+                        </motion.div>
+                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
+                            <Link :href="route('blog.discover')" class="font-semibold text-black hover:text-black/80">Địa điểm</Link>
+                        </motion.div>
+                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
+                            <Link :href="route('blog.guides.discover')" class="font-semibold text-black hover:text-black/80">Hướng dẫn</Link>
+                        </motion.div>
+                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
+                            <Link :href="route('blog.knowledge.discover')" class="font-semibold text-black hover:text-black/80">Kiến thức nghề</Link>
+                        </motion.div>
                     </nav>
                 </div>
 
                 <!-- RIGHT: actions -->
-                <div class="flex items-center md:gap-3 gap-1">
+                <div class="flex items-center gap-1">
                     <!-- Pill: Đặt show nhanh -->
                     <Link :href="route('quick-booking.choose-category')"
-                        class="inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-4 sm:px-5 py-2 h-10 text-white font-semibold shadow-md shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
+                    class="inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path
                             d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"

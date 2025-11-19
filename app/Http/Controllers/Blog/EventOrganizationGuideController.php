@@ -1,29 +1,27 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Blog;
 
 use App\Enum\CategoryType;
-use App\Http\Controllers\Blog\BaseBlogPageController;
 use App\Http\Resources\Home\BlogDetailResource;
 use App\Http\Resources\Home\BlogResource;
 use App\Http\Resources\Home\CategoryResource;
 use App\Models\Blog;
 use App\Models\Category;
-use App\Models\Location;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class BlogController extends BaseBlogPageController
+class EventOrganizationGuideController extends BaseBlogPageController
 {
-    private const BLOG_TYPE = CategoryType::GOOD_LOCATION->value;
+    private const BLOG_TYPE = CategoryType::EVENT_ORGANIZATION_GUIDE->value;
 
-    public function blogDiscover(Request $request): Response
+    public function index(Request $request): Response
     {
-        return $this->renderDiscoverPage($request, null);
+        return $this->renderGuidePage($request, null);
     }
 
-    public function blogCategory(Request $request, string $categorySlug): Response
+    public function category(Request $request, string $categorySlug): Response
     {
         $category = Category::query()
             ->select(['id', 'name', 'slug', 'parent_id', 'description'])
@@ -32,10 +30,10 @@ class BlogController extends BaseBlogPageController
             ->where('type', self::BLOG_TYPE)
             ->firstOrFail();
 
-        return $this->renderDiscoverPage($request, $category);
+        return $this->renderGuidePage($request, $category);
     }
 
-    public function blogDetail(Request $request, string $categorySlug, string $blogSlug): Response
+    public function show(Request $request, string $categorySlug, string $blogSlug): Response
     {
         $blog = Blog::query()
             ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'created_at', 'updated_at'])
@@ -75,11 +73,9 @@ class BlogController extends BaseBlogPageController
         ]);
     }
 
-    private function renderDiscoverPage(Request $request, ?Category $category = null): Response
+    private function renderGuidePage(Request $request, ?Category $category = null): Response
     {
         $search = trim((string) $request->query('q', ''));
-        $provinceId = $this->normalizeId($request->query('province_id'));
-        $districtId = $this->normalizeId($request->query('district_id'));
 
         $query = Blog::query()
             ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'created_at'])
@@ -105,11 +101,6 @@ class BlogController extends BaseBlogPageController
             });
         }
 
-        $locationIds = $this->resolveLocationFilter($provinceId, $districtId);
-        if ($locationIds !== null) {
-            $query->whereIn('location_id', $locationIds);
-        }
-
         $blogs = $this->paginateBlogs($query, $request);
 
         $categories = Category::query()
@@ -119,75 +110,24 @@ class BlogController extends BaseBlogPageController
             ->orderBy('order', 'asc')
             ->get();
 
-        $provinces = Location::query()
-            ->whereNull('parent_id')
-            ->select(['id', 'name'])
-            ->orderBy('name')
-            ->get();
-
-        return Inertia::render('blog/Discover', [
+        return Inertia::render('blog/Guide', [
             'blogs' => BlogResource::collection($blogs),
             'categories' => CategoryResource::collection($categories),
             'category' => $category ? CategoryResource::make($category)->resolve($request) : null,
             'filters' => [
                 'q' => $search !== '' ? $search : null,
-                'province_id' => $provinceId,
-                'district_id' => $districtId,
-            ],
-            'locations' => [
-                'provinces' => $provinces,
             ],
         ]);
-    }
-
-    private function resolveLocationFilter(?int $provinceId, ?int $districtId): ?array
-    {
-        if ($districtId) {
-            return [$districtId];
-        }
-
-        if ($provinceId) {
-            $ids = Location::query()
-                ->select('id')
-                ->where(function ($builder) use ($provinceId) {
-                    $builder->where('id', $provinceId)
-                        ->orWhere('parent_id', $provinceId);
-                })
-                ->pluck('id')
-                ->all();
-
-            if (empty($ids)) {
-                return [$provinceId];
-            }
-
-            return array_unique(array_merge([$provinceId], $ids));
-        }
-
-        return null;
-    }
-
-    private function normalizeId(mixed $value): ?int
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (is_numeric($value)) {
-            $intValue = (int) $value;
-            return $intValue > 0 ? $intValue : null;
-        }
-
-        return null;
     }
 
     private function detailContext(): array
     {
         return [
-            'breadcrumbLabel' => 'Blog địa điểm',
-            'discoverRouteName' => 'blog.discover',
-            'categoryRouteName' => 'blog.category',
-            'detailRouteName' => 'blog.show',
-            'pageTitleSuffix' => 'Blog địa điểm Sukientot',
+            'breadcrumbLabel' => 'Blog hướng dẫn',
+            'discoverRouteName' => 'blog.guides.discover',
+            'categoryRouteName' => 'blog.guides.category',
+            'detailRouteName' => 'blog.guides.show',
+            'pageTitleSuffix' => 'Blog hướng dẫn Sukientot',
         ];
     }
 }

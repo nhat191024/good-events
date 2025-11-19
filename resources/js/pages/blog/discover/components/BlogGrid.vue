@@ -7,6 +7,7 @@
                 :blog="featured"
                 variant="featured"
                 class="lg:col-span-2"
+                :detail-route-name="detailRouteName"
             />
 
             <div class="flex flex-col gap-6" v-if="secondary.length">
@@ -15,6 +16,7 @@
                     :key="item.id"
                     :blog="item"
                     variant="secondary"
+                    :detail-route-name="detailRouteName"
                 />
             </div>
             <div v-else class="hidden lg:block" />
@@ -26,6 +28,7 @@
                 :key="item.id"
                 :blog="item"
                 variant="compact"
+                :detail-route-name="detailRouteName"
             />
         </div>
     </div>
@@ -39,8 +42,9 @@ import { computed } from 'vue';
 import BlogCard from './BlogCard.vue';
 import type { BlogSummary } from '../../types';
 
-const props = withDefaults(defineProps<{ blogs?: BlogSummary[] }>(), {
+const props = withDefaults(defineProps<{ blogs?: BlogSummary[]; detailRouteName?: string }>(), {
     blogs: () => [],
+    detailRouteName: 'blog.show',
 });
 
 const hasBlogs = computed(() => props.blogs.length > 0);
@@ -49,4 +53,3 @@ const featured = computed(() => props.blogs[0] ?? null);
 const secondary = computed(() => props.blogs.slice(1, 3));
 const remainder = computed(() => props.blogs.slice(3));
 </script>
-
