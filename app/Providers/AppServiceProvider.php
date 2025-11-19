@@ -2,17 +2,16 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 
+use App\Enum\Role;
 use App\Settings\AppSettings;
 
-use Illuminate\Support\Facades\App;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
-use Inertia\Inertia;
-use Vite;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(AppSettings $settings): void
     {
+        //use if super admin can't access everything
+        // Gate::before(function ($user, $ability) {
+        //     return $user->hasRole(Role::SUPER_ADMIN->value) ? true : null;
+        // });
+
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch
                 ->locales(['vi', 'en']); // also accepts a closure
@@ -45,10 +49,6 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         View::share('settings', $this->getSettingsArray($settings));
-
-        // if ($this->app->environment('production') || $this->app->environment('testing')) {
-        //     URL::forceScheme('https');
-        // }
     }
 
     private function getSettingsArray(AppSettings $settings)
