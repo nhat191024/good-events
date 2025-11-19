@@ -23,6 +23,7 @@ use Bavix\Wallet\Traits\CanConfirm;
 use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
 
 use Codebyray\ReviewRateable\Traits\ReviewRateable;
+use Codebyray\ReviewRateable\Models\Review;
 
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -32,7 +33,6 @@ use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 
 use App\Enum\Role;
-use App\Enum\StatisticType;
 
 /**
  * @property int $id
@@ -185,9 +185,9 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($panel->getId() === 'admin' && $this->hasRole(Role::ADMIN)) {
+        if ($panel->getId() === 'admin' && $this->hasAnyRole([Role::ADMIN, 'super_admin'])) { // Thêm Role::MANAGER hoặc các role khác vào đây
             return true;
-        } else if ($panel->getId() === 'partner' && $this->hasRole(Role::PARTNER)) {
+        } elseif ($panel->getId() === 'partner' && $this->hasRole(Role::PARTNER)) {
             return true;
         }
         return false;
@@ -284,6 +284,6 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
      */
     public function authoredReviews()
     {
-        return $this->hasMany(\Codebyray\ReviewRateable\Models\Review::class, 'user_id');
+        return $this->hasMany(Review::class, 'user_id');
     }
 }
