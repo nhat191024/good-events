@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+Route::get('/api/home/event-categories', [HomeController::class, 'loadMoreCategories'])
+    ->name('home.event-categories');
+
+Route::get('/su-kien/danh-muc/{category_slug}', [HomeController::class, 'showCategory'])
+    ->where('category_slug', '[A-Za-z0-9-]+')
+    ->name('home.category');
+
 // Trang “Danh mục cha”: slug là slug của category KHÔNG có parent_id
 Route::get('/danh-muc/{slug}', [CategoryController::class, 'showParent'])
     ->where('slug', '[A-Za-z0-9-]+')

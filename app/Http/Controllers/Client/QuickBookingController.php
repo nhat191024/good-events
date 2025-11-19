@@ -40,7 +40,7 @@ class QuickBookingController extends Controller
      */
     public function chooseCategory(Request $request)
     {
-        $expireAt = now()->addMinutes(60);
+        $expireAt = now()->addMinutes(3600);
 
         $partnerCategories = PartnerCategory::where('parent_id', '=', null)
             ->with('media')
@@ -74,7 +74,7 @@ class QuickBookingController extends Controller
      */
     public function choosePartnerCategory(string $partner_category_slug)
     {
-        $expireAt = now()->addMinutes(60);
+        $expireAt = now()->addMinutes(3600);
 
         $partnerCategory = PartnerCategory::where('slug', $partner_category_slug)
             ->with([
@@ -138,7 +138,7 @@ class QuickBookingController extends Controller
      */
     public function fillOrderInfo(string $partner_category_slug, string $partner_child_category_slug)
     {
-        $expireAt = now()->addMinutes(60);
+        $expireAt = now()->addMinutes(3600);
 
         $partnerCategory = PartnerCategory::where('slug', $partner_category_slug)
             ->with(['media', 'children.media'])

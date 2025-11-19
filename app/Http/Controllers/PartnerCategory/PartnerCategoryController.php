@@ -23,7 +23,7 @@ class PartnerCategoryController extends Controller
             ->get(['id', 'name', 'slug', 'min_price', 'max_price']);
 
         $category = $item->parent;
-        $expireAt = now()->addMinutes(60);
+        $expireAt = now()->addMinutes(3600);
 
         return Inertia::render('partner-categories/Show', [
             'item' => [

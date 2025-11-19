@@ -42,7 +42,7 @@ class CategoryController extends Controller
                 ->get();
 
             // Chuẩn hóa dữ liệu gửi sang Inertia (tránh gửi cả model kèm thuộc tính không cần)
-            $expireAt = now()->addMinutes(60);
+            $expireAt = now()->addMinutes(3600);
 
             $payload = [
                 'parent' => [],

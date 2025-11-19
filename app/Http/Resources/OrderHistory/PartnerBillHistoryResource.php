@@ -12,7 +12,7 @@ class PartnerBillHistoryResource extends JsonResource
 {
     public function toArray(Request $request)
     {
-        $expireAt = now()->addMinutes(60 * 24);
+        $expireAt = now()->addMinutes(200 * 24);
         $review = null;
 
         if ($request->user()) {

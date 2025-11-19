@@ -4,7 +4,7 @@
     <ClientAppHeaderLayout :background-class-names="'bg-blue-100'">
 
         <HeroBanner
-            :header-text="'Trải nghiệm kho tài liệu thiết kế'"
+            :header-text="heroHeaderText"
             v-model="search"
             :banner-images="heroBannerImages"
             :bg-color-class="'bg-[linear-gradient(180deg,#6bafff_0%,rgb(129,187,255)_51.50151983037725%,rgba(74,144,226,0)_100%)]'"
@@ -98,6 +98,7 @@ interface Props {
     settings: {
         app_name: string;
         banner_images: BannerImageWrapper;
+        hero_title?: string | null;
     };
 }
 
@@ -106,6 +107,7 @@ const props = defineProps<Props>();
 const search = ref('');
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
+const heroHeaderText = computed(() => props.settings.hero_title ?? 'Trải nghiệm kho tài liệu thiết kế');
 
 // console.log('file products ',props.fileProducts.data);
 // console.log('tags ',props.tags.data);
