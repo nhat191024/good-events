@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Blog\BaseBlogPageController;
 use App\Http\Resources\Home\BlogDetailResource;
 use App\Http\Resources\Home\BlogResource;
 use App\Http\Resources\Home\CategoryResource;
 use App\Models\Blog;
 use App\Models\Category;
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class BlogController extends Controller
+class BlogController extends BaseBlogPageController
 {
-    private const BLOGS_PER_PAGE = 9;
+    private const BLOG_TYPE = 'good_location';
 
     public function blogDiscover(Request $request): Response
     {
@@ -26,6 +28,7 @@ class BlogController extends Controller
             ->select(['id', 'name', 'slug', 'parent_id', 'description'])
             ->with(['parent:id,name,slug'])
             ->where('slug', $categorySlug)
+            ->where('type', self::BLOG_TYPE)
             ->firstOrFail();
 
         return $this->renderDiscoverPage($request, $category);
@@ -34,7 +37,7 @@ class BlogController extends Controller
     public function blogDetail(Request $request, string $categorySlug, string $blogSlug): Response
     {
         $blog = Blog::query()
-            ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'created_at', 'updated_at'])
+            ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'created_at', 'updated_at'])
             ->with([
                 'category:id,name,slug,parent_id',
                 'category.parent:id,name,slug',
@@ -42,18 +45,22 @@ class BlogController extends Controller
                 'media',
                 'tags',
             ])
-            ->whereHas('category', fn ($builder) => $builder->where('slug', $categorySlug))
+            ->where('type', self::BLOG_TYPE)
+            ->whereHas('category', fn ($builder) => $builder
+                ->where('slug', $categorySlug)
+                ->where('type', self::BLOG_TYPE))
             ->where('slug', $blogSlug)
             ->firstOrFail();
 
         $related = Blog::query()
-            ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'created_at'])
+            ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'created_at'])
             ->with([
                 'category:id,name,slug,parent_id',
                 'category.parent:id,name,slug',
                 'author:id,name',
                 'media',
             ])
+            ->where('type', self::BLOG_TYPE)
             ->where('category_id', $blog->category_id)
             ->whereKeyNot($blog->getKey())
             ->latest('created_at')
@@ -63,23 +70,26 @@ class BlogController extends Controller
         return Inertia::render('blog/Detail', [
             'blog' => BlogDetailResource::make($blog)->resolve($request),
             'related' => BlogResource::collection($related),
+            'context' => $this->detailContext(),
         ]);
     }
 
     private function renderDiscoverPage(Request $request, ?Category $category = null): Response
     {
         $search = trim((string) $request->query('q', ''));
-        $page = max(1, (int) $request->query('page', 1));
+        $provinceId = $this->normalizeId($request->query('province_id'));
+        $districtId = $this->normalizeId($request->query('district_id'));
 
         $query = Blog::query()
-            ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'created_at'])
+            ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'created_at'])
             ->with([
                 'category:id,name,slug,parent_id',
                 'category.parent:id,name,slug',
                 'author:id,name',
                 'media',
                 'tags',
-            ]);
+            ])
+            ->where('type', self::BLOG_TYPE);
 
         if ($category) {
             $categoryIds = $this->categoryAndDescendantIds($category);
@@ -94,16 +104,24 @@ class BlogController extends Controller
             });
         }
 
-        $blogs = $query
-            ->orderByDesc('created_at')
-            ->paginate(self::BLOGS_PER_PAGE, ['*'], 'page', $page)
-            ->withQueryString();
+        $locationIds = $this->resolveLocationFilter($provinceId, $districtId);
+        if ($locationIds !== null) {
+            $query->whereIn('location_id', $locationIds);
+        }
+
+        $blogs = $this->paginateBlogs($query, $request);
 
         $categories = Category::query()
             ->select(['id', 'name', 'slug', 'parent_id', 'description'])
             ->with(['parent:id,name,slug'])
-            ->where('type', 'blog')
+            ->where('type', self::BLOG_TYPE)
             ->orderBy('order', 'asc')
+            ->get();
+
+        $provinces = Location::query()
+            ->whereNull('parent_id')
+            ->select(['id', 'name'])
+            ->orderBy('name')
             ->get();
 
         return Inertia::render('blog/Discover', [
@@ -112,23 +130,63 @@ class BlogController extends Controller
             'category' => $category ? CategoryResource::make($category)->resolve($request) : null,
             'filters' => [
                 'q' => $search !== '' ? $search : null,
+                'province_id' => $provinceId,
+                'district_id' => $districtId,
+            ],
+            'locations' => [
+                'provinces' => $provinces,
             ],
         ]);
     }
 
-    /**
-     * @return array<int, int>
-     */
-    private function categoryAndDescendantIds(Category $category): array
+    private function resolveLocationFilter(?int $provinceId, ?int $districtId): ?array
     {
-        $ids = [$category->getKey()];
+        if ($districtId) {
+            return [$districtId];
+        }
 
-        $children = Category::query()
-            ->select(['id'])
-            ->where('parent_id', $category->getKey())
-            ->pluck('id')
-            ->all();
+        if ($provinceId) {
+            $ids = Location::query()
+                ->select('id')
+                ->where(function ($builder) use ($provinceId) {
+                    $builder->where('id', $provinceId)
+                        ->orWhere('parent_id', $provinceId);
+                })
+                ->pluck('id')
+                ->all();
 
-        return array_values(array_unique(array_merge($ids, $children)));
+            if (empty($ids)) {
+                return [$provinceId];
+            }
+
+            return array_unique(array_merge([$provinceId], $ids));
+        }
+
+        return null;
+    }
+
+    private function normalizeId(mixed $value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            $intValue = (int) $value;
+            return $intValue > 0 ? $intValue : null;
+        }
+
+        return null;
+    }
+
+    private function detailContext(): array
+    {
+        return [
+            'breadcrumbLabel' => 'Blog địa điểm',
+            'discoverRouteName' => 'blog.discover',
+            'categoryRouteName' => 'blog.category',
+            'detailRouteName' => 'blog.show',
+            'pageTitleSuffix' => 'Blog địa điểm Sukientot',
+        ];
     }
 }
