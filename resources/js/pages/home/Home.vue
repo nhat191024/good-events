@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { motion } from 'motion-v';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import axios from 'axios';
 import { Head } from '@inertiajs/vue3';
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import HeroBanner from './partials/HeroBanner.vue';
@@ -10,6 +10,8 @@ import HomeCtaBanner from './components/HomeCtaBanner.vue';
 import { PartnerCategory } from '@/types/database';
 import { createSearchFilter } from '@/lib/search-filter';
 
+type ParentCategory = PartnerCategory & { total_children_count?: number };
+
 interface BannerImage {
     responsive_image?: string | null;
 }
@@ -18,17 +20,26 @@ interface BannerImageWrapper {
   data: BannerImage[];
 }
 
+interface PaginationMeta {
+    total: number;
+    initialLimit: number;
+    batchSize: number;
+    childLimit: number;
+}
+
 interface Props {
-    eventCategories: PartnerCategory[];
+    eventCategories: ParentCategory[];
     partnerCategories: { [key: number]: PartnerCategory[] };
+    pagination: PaginationMeta;
     settings: {
         app_name: string;
-        hero_title: string;
+        hero_title?: string | null;
         banner_images: BannerImageWrapper;
     };
 }
 
 const props = defineProps<Props>();
+const pagination = computed(() => props.pagination);
 
 const categories = [
     {
@@ -66,40 +77,109 @@ const categories = [
 
 const search = ref('');
 
-console.log('lmao',props.settings);
-
-
 const heroBannerImages = computed(() => {
     const images = props.settings.banner_images.data ?? [];
     return images;
 });
 
-const filteredPartnerCategories = computed(() => {
-    if (!search.value.trim()) return props.partnerCategories
-    const filter = createSearchFilter(['name', 'slug'], search.value.trim())
-    const result: Record<number, PartnerCategory[]> = {}
-    for (const catId in props.partnerCategories) {
-        const arr = props.partnerCategories[catId].filter(filter)
-        if (arr.length) result[Number(catId)] = arr
-    }
-    return result
-})
+const eventCategoryList = ref<ParentCategory[]>([...props.eventCategories]);
+const partnerCategoriesStore = ref<Record<number, PartnerCategory[]>>({ ...props.partnerCategories });
 
-const categoryMotions = computed(() => props.eventCategories.map((_, index) => ({
-    initial: {
-        opacity: 0.5,
-        y: 35,
-    },
-    animate: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            delay: 0.5 + index * 0.1,
-            duration: 0.6,
-            ease: 'easeOut',
-        }, 
-    },
-})))
+const filteredPartnerCategories = computed(() => {
+    const source = partnerCategoriesStore.value;
+    if (!search.value.trim()) return source;
+    const filter = createSearchFilter(['name', 'slug'], search.value.trim());
+    const result: Record<number, PartnerCategory[]> = {};
+    for (const catId in source) {
+        const arr = source[catId].filter(filter);
+        if (arr.length) result[Number(catId)] = arr;
+    }
+    return result;
+});
+
+const isLoadingMore = ref(false);
+const loadMoreTrigger = ref<HTMLElement | null>(null);
+let observer: IntersectionObserver | null = null;
+
+const hasMoreCategories = computed(() => eventCategoryList.value.length < props.pagination.total);
+
+const loadMoreCategories = async () => {
+    if (isLoadingMore.value || !hasMoreCategories.value) return;
+    isLoadingMore.value = true;
+    try {
+        const { data } = await axios.get(route('home.event-categories'), {
+            params: {
+                offset: eventCategoryList.value.length,
+                limit: props.pagination.batchSize,
+            },
+        });
+        eventCategoryList.value = [...eventCategoryList.value, ...data.eventCategories];
+        partnerCategoriesStore.value = {
+            ...partnerCategoriesStore.value,
+            ...data.partnerCategories,
+        };
+    } catch (error) {
+        console.error('Failed to load more categories', error);
+    } finally {
+        isLoadingMore.value = false;
+    }
+};
+
+const cleanupObserver = () => {
+    if (observer) {
+        observer.disconnect();
+        observer = null;
+    }
+};
+
+const initObserver = () => {
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) return;
+    if (!loadMoreTrigger.value) return;
+    cleanupObserver();
+    observer = new IntersectionObserver(
+        (entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+                loadMoreCategories();
+            }
+        },
+        { rootMargin: '200px' }
+    );
+    observer.observe(loadMoreTrigger.value);
+};
+
+onMounted(() => {
+    initObserver();
+});
+
+watch(() => loadMoreTrigger.value, () => {
+    initObserver();
+});
+
+watch(hasMoreCategories, (value) => {
+    if (value) {
+        initObserver();
+    } else {
+        cleanupObserver();
+    }
+});
+
+watch(
+    () => props.eventCategories,
+    (newEventCategories) => {
+        eventCategoryList.value = [...newEventCategories];
+    }
+);
+
+watch(
+    () => props.partnerCategories,
+    (newPartnerCategories) => {
+        partnerCategoriesStore.value = { ...newPartnerCategories };
+    }
+);
+
+onBeforeUnmount(() => {
+    cleanupObserver();
+});
 </script>
 
 <template>
@@ -118,14 +198,27 @@ const categoryMotions = computed(() => props.eventCategories.map((_, index) => (
 
         <HomeCtaBanner />
 
-        <!-- Partner Categories Sections -->
         <div class="container mx-auto px-4 py-8 space-y-12">
-            <!-- Loop through event categories and display partner categories for each -->
-            <motion.div v-for="(eventCategory, index) in eventCategories" :key="eventCategory.id"
-                :initial="categoryMotions[index]?.initial" :animate="categoryMotions[index]?.animate">
-                <CategorySection :category-name="eventCategory.name"
+            <div v-for="eventCategory in eventCategoryList" :key="eventCategory.id">
+                <CategorySection :category-name="eventCategory.name" :category-slug="eventCategory.slug"
+                    :has-more-children="eventCategory.total_children_count > pagination.childLimit"
                     :partner-categories="filteredPartnerCategories[eventCategory.id] || []" />
-            </motion.div>
+            </div>
+            <div v-if="hasMoreCategories" ref="loadMoreTrigger"
+                class="flex w-full items-center justify-center py-8 text-sm text-gray-500">
+                <template v-if="isLoadingMore">
+                    <svg class="mr-2 h-5 w-5 animate-spin text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" aria-hidden="true">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    Đang tải thêm danh mục...
+                </template>
+                <span v-else>Cuộn xuống để xem thêm danh mục</span>
+            </div>
+            <p v-else class="text-center text-sm text-gray-500">Đã hiển thị tất cả danh mục.</p>
         </div>
     </ClientAppHeaderLayout>
 </template>
