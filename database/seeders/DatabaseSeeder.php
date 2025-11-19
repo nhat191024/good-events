@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
                 AdminSeeder::class,
                 AppSettingSeeder::class,
                 BannerSeeder::class,
+                ShieldSeeder::class,
             ]);
             return;
         }
@@ -45,6 +46,7 @@ class DatabaseSeeder extends Seeder
             BannerSeeder::class,
             // PartnerBillSeeder::class,
             // ReviewSeeder::class,
+            ShieldSeeder::class,
         ]);
     }
 }
