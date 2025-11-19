@@ -7,6 +7,8 @@ use Illuminate\Database\Seeder;
 
 use App\Models\Banner;
 
+use App\Enum\BannerType;
+
 class BannerSeeder extends Seeder
 {
     use WithoutModelEvents;
@@ -15,10 +17,10 @@ class BannerSeeder extends Seeder
      */
     public function run(): void
     {
-        $bannerTypes = ['partner', 'design', 'rental'];
-        foreach ($bannerTypes as $type) {
-            Banner::create([
-                'type' => $type,
+
+        foreach (BannerType::cases() as $type) {
+            Banner::firstOrCreate([
+                'type' => $type->value,
             ]);
         }
     }
