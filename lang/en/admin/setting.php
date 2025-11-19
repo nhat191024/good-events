@@ -11,6 +11,15 @@ return [
 
     'saved' => 'Settings have been saved successfully!',
 
+    'banners' => [
+        'partner' => 'Partner',
+        'mobile_partner' => 'Partner (Mobile)',
+        'design' => 'Design',
+        'mobile_design' => 'Design (Mobile)',
+        'rental' => 'Rental Supplies',
+        'mobile_rental' => 'Rental Supplies (Mobile)',
+    ],
+
     'fields' => [
         'name' => 'Application Name',
         'logo' => 'Application Logo',
@@ -24,8 +33,11 @@ return [
 
         'banners' => [
             'partner' => 'Partner Banners',
+            'mobile_partner' => 'Partner Banners (Mobile)',
             'design' => 'Design Banners',
+            'mobile_design' => 'Design Banners (Mobile)',
             'rental' => 'Rental Supplies Banners',
+            'mobile_rental' => 'Rental Supplies Banners (Mobile)',
 
             'helper_text' => 'Upload banner images to display on the respective pages.',
         ],
