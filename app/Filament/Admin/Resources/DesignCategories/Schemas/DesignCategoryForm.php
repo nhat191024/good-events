@@ -31,6 +31,7 @@ class DesignCategoryForm
                     ->collection('images')
                     ->image()
                     ->maxFiles(1)
+                    ->visibility('public')
                     ->columnSpanFull(),
             ]);
     }
