@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\VocationalKnowledge;
 
-use App\Models\Blog;
+use App\Models\VocationalKnowledge;
 
 use BackedEnum;
 use UnitEnum;
@@ -26,7 +26,7 @@ use App\Enum\FilamentNavigationGroup;
 
 class VocationalKnowledgeResource extends Resource
 {
-    protected static ?string $model = Blog::class;
+    protected static ?string $model = VocationalKnowledge::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
     protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::BLOG;
