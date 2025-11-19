@@ -53,12 +53,12 @@ class Banner extends Model implements HasMedia
     {
         $this
             ->addMediaConversion('thumb')
-            ->width(736)
-            ->height(420)
-            ->sharpen(10)
+            ->width(700)
+            ->height(700)
+            ->sharpen(20)
             ->withResponsiveImages()
             ->format('webp')
-            ->optimize()
+            // ->optimize()
             ->queued();
     }
 }
