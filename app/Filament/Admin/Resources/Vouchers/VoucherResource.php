@@ -20,14 +20,14 @@ use Filament\Tables\Table;
 
 use Illuminate\Database\Eloquent\Builder;
 
-use App\Enum\FilamentNavigationGroup;
+use App\Enum\NavigationGroup;
 
 class VoucherResource extends Resource
 {
     protected static ?string $model = Voucher::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::SYSTEM;
+        protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM->value;
 
     public static function getModelLabel(): string
     {
