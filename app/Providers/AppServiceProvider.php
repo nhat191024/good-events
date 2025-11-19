@@ -17,6 +17,15 @@ use Illuminate\Support\Facades\Gate;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
 
+use Spatie\Tags\Tag;
+use App\Policies\TagPolicy;
+
+use BeyondCode\Vouchers\Models\Voucher;
+use App\Policies\VoucherPolicy;
+
+use Spatie\Activitylog\Models\Activity;
+use App\Policies\ActivityPolicy;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -32,6 +41,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(AppSettings $settings): void
     {
+        $policies = [
+            Tag::class => TagPolicy::class,
+            Voucher::class => VoucherPolicy::class,
+            Activity::class => ActivityPolicy::class,
+        ];
+
+        //manually register policies - why? idk
+        foreach ($policies as $model => $policy) {
+            Gate::policy($model, $policy);
+        }
+
         //use if super admin can't access everything
         // Gate::before(function ($user, $ability) {
         //     return $user->hasRole(Role::SUPER_ADMIN->value) ? true : null;
