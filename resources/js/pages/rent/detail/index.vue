@@ -7,7 +7,7 @@
                 <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
                     <ul class="flex flex-wrap items-center gap-2">
                         <li>
-                            <Link :href="route('rent.home')" class="hover:text-primary-800">Kho thuê vật tư</Link>
+                            <Link :href="route('rent.home')" class="hover:text-primary-800">Kho thuê thiết bị</Link>
                         </li>
                         <li v-if="categorySlug" class="flex items-center gap-2">
                             <span aria-hidden="true" class="text-primary-400">›</span>
@@ -17,7 +17,7 @@
                         </li>
                         <li class="flex items-center gap-2">
                             <span aria-hidden="true" class="text-primary-400">›</span>
-                            <span class="text-primary-800">Chi tiết vật tư</span>
+                            <span class="text-primary-800">Chi tiết thiết bị</span>
                         </li>
                     </ul>
                 </nav>
@@ -130,7 +130,7 @@ const relatedItems = computed(() => toArray<RentProduct>(props.related));
 
 const categorySlug = computed(() => props.rentProduct.category?.slug ?? null);
 
-const pageTitle = computed(() => `${props.rentProduct.name} - Thuê vật tư Sukientot`);
+const pageTitle = computed(() => `${props.rentProduct.name} - Thuê thiết bị Sukientot`);
 
 const computedMeta = computed(() => {
     const meta: Array<{ label: string; value: string }> = [];
