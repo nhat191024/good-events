@@ -21,7 +21,7 @@ php artisan storage:link
 
 # run npm build
 echo "building assets..."
-npm run build
+npm run build:ssr
 
 # Set proper permissions
 echo "Setting permissions..."
