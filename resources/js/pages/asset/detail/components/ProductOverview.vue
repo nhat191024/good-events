@@ -3,7 +3,7 @@
         <header class="space-y-2">
             <h2 class="text-xl font-semibold text-gray-900">Mô tả chi tiết</h2>
             <p class="text-sm text-gray-500">
-                Khám phá nội dung và các ưu điểm nổi bật của gói tài liệu.
+                Khám phá nội dung và các ưu điểm nổi bật của gói thiết kế.
             </p>
         </header>
 
@@ -42,7 +42,7 @@
         </section>
 
         <section v-if="includedFiles.length" class="space-y-4">
-            <h3 class="text-base font-semibold text-gray-900">Tài liệu đi kèm</h3>
+            <h3 class="text-base font-semibold text-gray-900">Thiết kế đi kèm</h3>
             <ul class="grid gap-3 md:grid-cols-2">
                 <li
                     v-for="file in includedFiles"
