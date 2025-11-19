@@ -56,6 +56,7 @@ class PartnerCategoryForm
                     ->collection('images')
                     ->image()
                     ->maxFiles(1)
+                    ->visibility('public')
                     ->columnSpanFull(),
                 RichEditor::make('description')
                     ->label(__('admin/partnerCategory.fields.description'))
