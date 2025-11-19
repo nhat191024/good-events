@@ -4,8 +4,8 @@
             <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
                 <ul class="flex items-center gap-2">
                     <li>
-                        <Link :href="route('blog.discover')" class="hover:text-primary-800">
-                            Blog địa điểm
+                        <Link :href="route(breadcrumbRouteName)" class="hover:text-primary-800">
+                            {{ breadcrumbLabel }}
                         </Link>
                     </li>
                     <template v-if="isCategoryPage">
@@ -54,11 +54,15 @@ interface Props {
     searchTerm: string;
     totalItems: number;
     searchPlaceholder?: string;
+    breadcrumbLabel?: string;
+    breadcrumbRouteName?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     categoryName: null,
     searchPlaceholder: 'Tìm kiếm địa điểm tổ chức sự kiện...',
+    breadcrumbLabel: 'Blog địa điểm',
+    breadcrumbRouteName: 'blog.discover',
 });
 
 const emit = defineEmits<{
@@ -66,5 +70,5 @@ const emit = defineEmits<{
     search: [value: string];
 }>();
 
-const { isCategoryPage, categoryName, headingText, subHeadingText, searchTerm, totalItems, searchPlaceholder } = toRefs(props);
+const { isCategoryPage, categoryName, headingText, subHeadingText, searchTerm, totalItems, searchPlaceholder, breadcrumbLabel, breadcrumbRouteName } = toRefs(props);
 </script>

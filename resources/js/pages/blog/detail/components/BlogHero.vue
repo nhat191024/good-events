@@ -56,12 +56,14 @@ import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import type { BlogDetail } from '../../types';
 
-const props = defineProps<{ blog: BlogDetail }>();
+const props = withDefaults(defineProps<{ blog: BlogDetail; categoryRouteName?: string }>(), {
+    categoryRouteName: 'blog.category',
+});
 
 const categoryLink = computed(() => {
     const categorySlug = props.blog.category?.slug;
     if (!categorySlug) return null;
-    return route('blog.category', { category_slug: categorySlug });
+    return route(props.categoryRouteName, { category_slug: categorySlug });
 });
 
 const displayTags = computed(() => props.blog.tags ?? []);
@@ -80,4 +82,3 @@ const formattedPublishedDate = computed(() => {
     }
 });
 </script>
-

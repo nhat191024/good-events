@@ -1,7 +1,7 @@
 <template>
     <footer class="flex flex-col items-center justify-between gap-4 border-t border-gray-100 pt-6 text-sm text-gray-600 sm:flex-row">
         <div>
-            Trang {{ pagination.current_page }} / {{ pagination.last_page }} — {{ pagination.total }} tài liệu
+            Trang {{ pagination.current_page }} / {{ pagination.last_page }} — {{ pagination.total }} thiết kế
         </div>
         <div class="flex items-center gap-2">
             <Button

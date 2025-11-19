@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\Blog\EventOrganizationGuideController;
+use App\Http\Controllers\Blog\VocationalKnowledgeController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\FileProductController;
 use App\Http\Controllers\Home\AssetHomeController;
@@ -48,4 +50,15 @@ Route::prefix('/dia-diem-to-chuc-su-kien')->name('blog.')->group(function () {
     Route::get('/', [BlogController::class, 'blogDiscover'])->name('discover');
     Route::get('/danh-muc/{category_slug}', [BlogController::class, 'blogCategory'])->name('category');
     Route::get('/danh-muc/{category_slug}/{blog_slug}', [BlogController::class, 'blogDetail'])->name('show');
+});
+
+Route::prefix('/huong-dan-to-chuc-su-kien')->name('blog.guides.')->group(function () {
+    Route::get('/', [EventOrganizationGuideController::class, 'index'])->name('discover');
+    Route::get('/danh-muc/{category_slug}', [EventOrganizationGuideController::class, 'category'])->name('category');
+    Route::get('/danh-muc/{category_slug}/{blog_slug}', [EventOrganizationGuideController::class, 'show'])->name('show');
+});
+
+Route::prefix('/kien-thuc-nghe')->name('blog.knowledge.')->group(function () {
+    Route::get('/', [VocationalKnowledgeController::class, 'index'])->name('discover');
+    Route::get('/danh-muc/{category_slug}', [VocationalKnowledgeController::class, 'category'])->name('category');
 });

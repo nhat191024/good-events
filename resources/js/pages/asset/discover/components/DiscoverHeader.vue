@@ -5,7 +5,7 @@
                 <ul class="flex items-center gap-2">
                     <li>
                         <Link :href="route('asset.home')" class="hover:text-primary-800">
-                            Kho tài liệu
+                            Kho thiết kế
                         </Link>
                     </li>
                     <li v-if="isCategoryPage" aria-hidden="true" class="text-primary-400">›</li>
@@ -50,7 +50,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
     categoryName: null,
-    searchPlaceholder: 'Tìm kiếm theo tên tài liệu...',
+    searchPlaceholder: 'Tìm kiếm theo tên thiết kế...',
 });
 
 const emit = defineEmits<{

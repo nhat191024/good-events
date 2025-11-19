@@ -4,7 +4,7 @@
             v-if="!products.length"
             class="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center text-sm text-gray-500"
         >
-            Không tìm thấy vật tư nào khớp với bộ lọc hiện tại.
+            Không tìm thấy thiết bị nào khớp với bộ lọc hiện tại.
         </div>
 
         <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

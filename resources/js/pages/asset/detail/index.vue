@@ -7,7 +7,7 @@
                 <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
                     <ul class="flex flex-wrap items-center gap-2">
                         <li>
-                            <Link :href="route('asset.home')" class="hover:text-primary-800">Kho tài liệu</Link>
+                            <Link :href="route('asset.home')" class="hover:text-primary-800">Kho thiết kế</Link>
                         </li>
                         <li v-if="categorySlug" class="flex items-center gap-2">
                             <span aria-hidden="true" class="text-primary-400">›</span>
@@ -17,7 +17,7 @@
                         </li>
                         <li class="flex items-center gap-2">
                             <span aria-hidden="true" class="text-primary-400">›</span>
-                            <span class="text-primary-800">Chi tiết tài liệu</span>
+                            <span class="text-primary-800">Chi tiết thiết kế</span>
                         </li>
                     </ul>
                 </nav>
@@ -146,7 +146,7 @@ const relatedItems = computed(() => toArray<FileProduct>(props.related));
 
 const categorySlug = computed(() => props.fileProduct.category?.slug ?? null);
 
-const pageTitle = computed(() => `${props.fileProduct.name} - Kho tài liệu Sukientot`);
+const pageTitle = computed(() => `${props.fileProduct.name} - Kho thiết kế Sukientot`);
 
 const computedMeta = computed(() => {
     const meta: Array<{ label: string; value: string }> = [];

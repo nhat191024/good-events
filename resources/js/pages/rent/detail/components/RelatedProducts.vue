@@ -2,11 +2,11 @@
     <section v-if="items.length" class="space-y-5 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10">
         <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h3 class="text-xl font-semibold text-gray-900">Vật tư liên quan</h3>
+                <h3 class="text-xl font-semibold text-gray-900">Thiết bị liên quan</h3>
                 <p class="text-sm text-gray-500">Tham khảo thêm các lựa chọn phù hợp với sự kiện của bạn.</p>
             </div>
             <Link :href="route('rent.discover')" class="text-sm font-semibold text-primary-600 hover:text-primary-700">
-                Xem tất cả vật tư →
+                Xem tất cả thiết bị →
             </Link>
         </header>
 
@@ -65,7 +65,7 @@ const normalizedItems = computed(() =>
         return {
             id: item.id,
             name: item.name,
-            categoryName: item.category?.name ?? 'Vật tư sự kiện',
+            categoryName: item.category?.name ?? 'Thiết bị sự kiện',
             priceText,
             href,
             card: {

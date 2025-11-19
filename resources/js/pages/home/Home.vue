@@ -35,6 +35,7 @@ interface Props {
         app_name: string;
         hero_title?: string | null;
         banner_images: BannerImageWrapper;
+        mobile_banner_images: BannerImageWrapper;
     };
 }
 
@@ -44,7 +45,7 @@ const pagination = computed(() => props.pagination);
 const categories = [
     {
         id: 1,
-        name: 'Sự kiện',
+        name: 'Nhân sự',
         slug: 'su-kien',
         icon: 'mdi:flower',
         image: '/images/logo-su-kien.webp',
@@ -52,7 +53,7 @@ const categories = [
     },
     {
         id: 2,
-        name: 'Tài liệu',
+        name: 'Thiết kế',
         slug: 'tai-lieu',
         icon: 'mdi:book-open',
         image: '/images/logo-tai-lieu.webp',
@@ -60,7 +61,7 @@ const categories = [
     },
     {
         id: 3,
-        name: 'Thiết bị',
+        name: 'Thiết bị SK',
         slug: 'tim-khach-san',
         icon: 'mdi:bed',
         image: '/images/logo-loa-dai.webp',
@@ -68,10 +69,24 @@ const categories = [
     },
     {
         id: 4,
-        name: 'Khách sạn',
+        name: 'Địa điểm',
         slug: 'khach-san',
         icon: 'mdi:bag-personal',
         href: route('blog.discover')
+    },
+    {
+        id: 5,
+        name: 'Hướng dẫn',
+        slug: 'huong-dan',
+        icon: 'mdi:bag-personal',
+        href: route('blog.guides.discover')
+    },
+    {
+        id: 6,
+        name: 'Kiến thức',
+        slug: 'kien-thuc',
+        icon: 'mdi:bag-personal',
+        href: route('blog.knowledge.discover')
     },
 ];
 
@@ -81,6 +96,21 @@ const heroBannerImages = computed(() => {
     const images = props.settings.banner_images.data ?? [];
     return images;
 });
+
+const heroBannerMobileImages = computed(() => {
+    const images = props.settings.mobile_banner_images.data ?? [];
+    return images;
+});
+
+const MOBILE_BREAKPOINT_PX = 768;
+const isMobile = ref(false);
+const updateIsMobile = () => {
+    if (typeof window === 'undefined') {
+        isMobile.value = false;
+        return;
+    }
+    isMobile.value = window.innerWidth <= MOBILE_BREAKPOINT_PX;
+};
 
 const eventCategoryList = ref<ParentCategory[]>([...props.eventCategories]);
 const partnerCategoriesStore = ref<Record<number, PartnerCategory[]>>({ ...props.partnerCategories });
@@ -147,8 +177,20 @@ const initObserver = () => {
     observer.observe(loadMoreTrigger.value);
 };
 
+const registerResizeListener = () => {
+    if (typeof window === 'undefined') return;
+    updateIsMobile();
+    window.addEventListener('resize', updateIsMobile);
+};
+
+const unregisterResizeListener = () => {
+    if (typeof window === 'undefined') return;
+    window.removeEventListener('resize', updateIsMobile);
+};
+
 onMounted(() => {
     initObserver();
+    registerResizeListener();
 });
 
 watch(() => loadMoreTrigger.value, () => {
@@ -179,6 +221,7 @@ watch(
 
 onBeforeUnmount(() => {
     cleanupObserver();
+    unregisterResizeListener();
 });
 </script>
 
@@ -191,7 +234,7 @@ onBeforeUnmount(() => {
         <HeroBanner
             v-model="search"
             :header-text="settings.hero_title ?? 'Thuê đối tác xịn. Sự kiện thêm vui'"
-            :banner-images="heroBannerImages"
+            :banner-images="isMobile ? heroBannerMobileImages : heroBannerImages"
         />
 
         <PartnerCategoryIcons :categories="categories" />

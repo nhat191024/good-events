@@ -21,6 +21,8 @@ class BlogDetailResource extends JsonResource
             'title' => $this->title,
             'slug' => $this->slug,
             'content' => $this->content,
+            'type' => $this->type,
+            'video_url' => $this->video_url,
             'excerpt' => $plainContent->limit(160)->toString(),
             'published_at' => optional($this->created_at)->toIso8601String(),
             'published_human' => optional($this->created_at)->translatedFormat('d M Y'),

@@ -6,7 +6,7 @@
                 <p class="text-sm text-gray-500">Những gợi ý phù hợp với nhu cầu thiết kế của bạn.</p>
             </div>
             <Link :href="route('asset.discover')" class="text-sm font-semibold text-primary-600 hover:text-primary-700">
-                Xem tất cả tài liệu →
+                Xem tất cả thiết kế →
             </Link>
         </header>
 
@@ -65,7 +65,7 @@ const normalizedItems = computed(() =>
         return {
             id: item.id,
             name: item.name,
-            categoryName: item.category?.name ?? 'Tài liệu sự kiện',
+            categoryName: item.category?.name ?? 'Thiết kế sự kiện',
             priceText,
             href,
             card: {
