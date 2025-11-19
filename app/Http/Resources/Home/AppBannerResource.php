@@ -10,7 +10,7 @@ class AppBannerResource extends JsonResource
 {
     public function toArray(Request $request)
     {
-        // $expireAt = now()->addMinutes(60 * 24);
+        // $expireAt = now()->addMinutes(200 * 24);
 
         return [
             'image_tag' => $this->img('thumb')->attributes(['class' => 'w-full h-full object-cover'])->toHtml()
