@@ -6,6 +6,8 @@ use Illuminate\Database\Seeder;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Spatie\Permission\PermissionRegistrar;
 
+use Illuminate\Database\Eloquent\Model;
+
 class ShieldSeeder extends Seeder
 {
     public function run(): void
@@ -15,8 +17,9 @@ class ShieldSeeder extends Seeder
         $rolesWithPermissions = '[{"name":"admin","guard_name":"web","permissions":[]},{"name":"partner","guard_name":"web","permissions":[]},{"name":"client","guard_name":"web","permissions":[]},{"name":"super_admin","guard_name":"web","permissions":["ViewAny:Role","View:Role","Create:Role","Update:Role","Delete:Role","Restore:Role","ForceDelete:Role","ForceDeleteAny:Role","RestoreAny:Role","Replicate:Role","Reorder:Role"]}]';
         $directPermissions = '[]';
 
-        static::makeRolesWithPermissions($rolesWithPermissions);
+        // static::makeRolesWithPermissions($rolesWithPermissions);
         static::makeDirectPermissions($directPermissions);
+        static::setFullAccessToSuperAdminRole();
 
         $this->command->info('Shield Seeding Completed.');
     }
@@ -37,7 +40,7 @@ class ShieldSeeder extends Seeder
 
                 if (! blank($rolePlusPermission['permissions'])) {
                     $permissionModels = collect($rolePlusPermission['permissions'])
-                        ->map(fn ($permission) => $permissionModel::firstOrCreate([
+                        ->map(fn($permission) => $permissionModel::firstOrCreate([
                             'name' => $permission,
                             'guard_name' => $rolePlusPermission['guard_name'],
                         ]))
@@ -63,6 +66,21 @@ class ShieldSeeder extends Seeder
                     ]);
                 }
             }
+        }
+    }
+
+    public static function setFullAccessToSuperAdminRole(): void
+    {
+        /** @var Model $roleModel */
+        $roleModel = Utils::getRoleModel();
+        /** @var Model $permissionModel */
+        $permissionModel = Utils::getPermissionModel();
+
+        $superAdminRole = $roleModel::firstWhere('name', 'super_admin');
+
+        if ($superAdminRole) {
+            $allPermissions = $permissionModel::all();
+            $superAdminRole->syncPermissions($allPermissions);
         }
     }
 }
