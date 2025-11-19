@@ -42,6 +42,10 @@ class Banner extends Model implements HasMedia
         $this
             ->addMediaCollection('banners')
             ->useDisk('public');
+
+        $this
+            ->addMediaCollection('mobile_banners')
+            ->useDisk('public');
     }
 
     /**
@@ -53,6 +57,16 @@ class Banner extends Model implements HasMedia
     {
         $this
             ->addMediaConversion('thumb')
+            ->width(700)
+            ->height(700)
+            ->sharpen(20)
+            ->withResponsiveImages()
+            ->format('webp')
+            // ->optimize()
+            ->queued();
+
+        $this
+            ->addMediaConversion('mobile_thumb')
             ->width(700)
             ->height(700)
             ->sharpen(20)
