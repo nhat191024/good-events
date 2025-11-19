@@ -3,7 +3,6 @@
 namespace App\Filament\Admin\Resources\EventOrganizationGuides\Schemas;
 
 use App\Models\Category;
-use Dom\Text;
 use Filament\Schemas\Schema;
 
 use Filament\Forms\Components\TextInput;
@@ -21,22 +20,14 @@ class EventOrganizationGuideForm
                 TextInput::make('title')
                     ->label(__('admin/blog.fields.title'))
                     ->placeholder(__('admin/blog.placeholders.title'))
-                    ->required(),
-                TextInput::make('slug')
-                    ->label(__('admin/blog.fields.slug'))
-                    ->placeholder(__('admin/blog.placeholders.slug'))
-                    ->disabled(),
-                TextInput::make('video_url')
-                    ->label(__('admin/blog.fields.video_url'))
-                    ->placeholder(__('admin/blog.placeholders.video_url'))
-                    ->url()
+                    ->columnSpanFull()
                     ->required(),
                 Select::make('category_id')
                     ->label(__('admin/blog.fields.category_id'))
                     ->searchable()
                     ->options(
                         fn() => Category::query()
-                            ->whereType('event_organization_guide')
+                            ->whereType('vocational_knowledge')
                             ->orderBy('created_at', 'desc')
                             ->limit(10)
                             ->pluck('name', 'id')
@@ -45,7 +36,7 @@ class EventOrganizationGuideForm
                     ->getSearchResultsUsing(
                         fn(string $search): array =>
                         Category::query()
-                            ->whereType('event_organization_guide')
+                            ->whereType('vocational_knowledge')
                             ->where('name', 'like', "%{$search}%")
                             ->limit(50)
                             ->pluck('name', 'id')
@@ -56,12 +47,20 @@ class EventOrganizationGuideForm
                         Category::find($value)?->name
                     )
                     ->required(),
-
+                TextInput::make('slug')
+                    ->label(__('admin/blog.fields.slug'))
+                    ->placeholder(__('admin/blog.placeholders.slug'))
+                    ->disabled(),
                 SpatieTagsInput::make('tags')
                     ->label(__('admin/blog.fields.tags'))
                     ->placeholder(__('admin/blog.placeholders.tags'))
                     ->required()
                     ->columnSpanFull(),
+                RichEditor::make('content')
+                    ->label(__('admin/blog.fields.content'))
+                    ->placeholder(__('admin/blog.placeholders.content'))
+                    ->columnSpanFull()
+                    ->required(),
                 SpatieMediaLibraryFileUpload::make('images')
                     ->label(__('admin/blog.fields.thumbnail'))
                     ->collection('thumbnail')

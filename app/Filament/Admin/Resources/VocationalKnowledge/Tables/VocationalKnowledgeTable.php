@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\VocationalKnowledge\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -68,6 +69,10 @@ class VocationalKnowledgeTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                Action::make('view_video')
+                    ->label('Xem video')
+                    ->url(fn($record) => $record->video_url)
+                    ->openUrlInNewTab(),
                 EditAction::make(),
                 DeleteAction::make()
                     ->label(__('global.hidden')),
