@@ -3,7 +3,7 @@
         <header class="space-y-2">
             <h2 class="text-xl font-semibold text-gray-900">Thông tin chi tiết</h2>
             <p class="text-sm text-gray-500">
-                Tổng quan vật tư và các điểm nổi bật khi thuê tại Sukientot.
+                Tổng quan thiết bị và các điểm nổi bật khi thuê tại Sukientot.
             </p>
         </header>
 
@@ -42,7 +42,7 @@
         </section>
 
         <section v-if="includedItems.length" class="space-y-4">
-            <h3 class="text-base font-semibold text-gray-900">Danh sách vật tư đi kèm</h3>
+            <h3 class="text-base font-semibold text-gray-900">Danh sách thiết bị đi kèm</h3>
             <ul class="grid gap-3 md:grid-cols-2">
                 <li
                     v-for="item in includedItems"
@@ -101,7 +101,7 @@ const metaInformation = computed(() => {
     const meta = [...props.meta];
 
     if (props.rentProduct.total_pages) {
-        meta.push({ label: 'Số trang tài liệu', value: `${props.rentProduct.total_pages} trang` });
+        meta.push({ label: 'Số trang thiết kế', value: `${props.rentProduct.total_pages} trang` });
     }
     if (props.rentProduct.total_files) {
         meta.push({ label: 'Số hạng mục', value: `${props.rentProduct.total_files} hạng mục` });
