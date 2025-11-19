@@ -69,10 +69,7 @@ class BlogCategoryChildrensTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->label(__('global.hidden')),
-                    RestoreBulkAction::make()
-                        ->label(__('global.restore')),
+                    //
                 ]),
             ]);
     }
