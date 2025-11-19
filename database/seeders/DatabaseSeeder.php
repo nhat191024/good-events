@@ -31,7 +31,6 @@ class DatabaseSeeder extends Seeder
                 ShieldSeeder::class,
             ]);
 
-            Artisan::call('shield:super-admin --panel=admin --user=1');
             return;
         }
 
@@ -52,7 +51,5 @@ class DatabaseSeeder extends Seeder
             // ReviewSeeder::class,
             ShieldSeeder::class,
         ]);
-
-        Artisan::call('shield:super-admin --panel=admin --user=1');
     }
 }
