@@ -23,14 +23,14 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-use App\Enum\FilamentNavigationGroup;
+use App\Enum\NavigationGroup;
 
 class CityResource extends Resource
 {
     protected static ?string $model = Location::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::SYSTEM;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM->value;
 
     public static function getModelLabel(): string
     {
