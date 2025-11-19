@@ -29,12 +29,12 @@ withDefaults(defineProps<Props>(), {
 });
 
 const menuItems = [
-    { name: 'Sự kiện', slug: 'home', route: route('home') },
-    { name: 'Vật tư', slug: 'supply', route: route('rent.home') },
-    { name: 'Tài liệu', slug: 'document', route: route('asset.home') },
-    { name: 'Khách sạn', slug: 'blog', route: route('blog.discover') },
-    { name: 'Hướng dẫn', slug: 'guides', route: route('blog.guides.discover') },
-    { name: 'Kiến thức', slug: 'knowledge', route: route('blog.knowledge.discover') },
+    { name: 'Nhân sự', slug: 'home', route: route('home') },
+    { name: 'Thiết bị sự kiện', slug: 'supply', route: route('rent.home') },
+    { name: 'Thiết kế ', slug: 'document', route: route('asset.home') },
+    { name: 'Địa điểm tổ chức', slug: 'blog', route: route('blog.discover') },
+    { name: 'Hướng dẫn tổ chức', slug: 'guides', route: route('blog.guides.discover') },
+    { name: 'Kiến thức nghề', slug: 'knowledge', route: route('blog.knowledge.discover') },
 ];
 
 const navLinkMotion = {
@@ -167,16 +167,16 @@ onUnmounted(() => {
                     <!-- Nav items (đậm, hover không đổi kích thước) -->
                     <nav class="flex items-center gap-3">
                         <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
-                            <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Sự Kiện</Link>
+                            <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Nhân sự</Link>
                         </motion.div>
                         <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
-                            <Link :href="route('rent.home')" class="font-semibold text-black hover:text-black/80">Vật Tư</Link>
+                            <Link :href="route('rent.home')" class="font-semibold text-black hover:text-black/80">Thiết Bị</Link>
                         </motion.div>
                         <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
                             <Link :href="route('asset.home')" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
                         </motion.div>
                         <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
-                            <Link :href="route('blog.discover')" class="font-semibold text-black hover:text-black/80">Khách sạn</Link>
+                            <Link :href="route('blog.discover')" class="font-semibold text-black hover:text-black/80">Địa điểm</Link>
                         </motion.div>
                         <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
                             <Link :href="route('blog.guides.discover')" class="font-semibold text-black hover:text-black/80">Hướng dẫn</Link>
@@ -191,7 +191,7 @@ onUnmounted(() => {
                 <div class="flex items-center gap-1">
                     <!-- Pill: Đặt show nhanh -->
                     <Link :href="route('quick-booking.choose-category')"
-                    class="inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-4 sm:px-5 py-2 h-10 text-white font-semibold shadow-md shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
+                    class="inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path
                             d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
