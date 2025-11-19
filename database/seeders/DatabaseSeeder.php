@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        Artisan::call('shield:generate --all --panel=admin --option=no');
+
         if (env('APP_ENV') === 'production' || env('APP_ENV') === 'testing') {
             $this->command->info('Production environment detected. Skipping seeders that may affect production data.');
             $this->call([
@@ -28,6 +30,8 @@ class DatabaseSeeder extends Seeder
                 BannerSeeder::class,
                 ShieldSeeder::class,
             ]);
+
+            Artisan::call('shield:super-admin --panel=admin --user=1');
             return;
         }
 
@@ -48,5 +52,7 @@ class DatabaseSeeder extends Seeder
             // ReviewSeeder::class,
             ShieldSeeder::class,
         ]);
+
+        Artisan::call('shield:super-admin --panel=admin --user=1');
     }
 }
