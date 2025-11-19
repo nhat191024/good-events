@@ -25,9 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use App\Enum\NavigationGroup;
 
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-
-class CityResource extends Resource implements HasShieldPermissions
+class CityResource extends Resource
 {
     protected static ?string $model = Location::class;
 
@@ -37,13 +35,6 @@ class CityResource extends Resource implements HasShieldPermissions
     public static function getModelLabel(): string
     {
         return __('admin/location.singular');
-    }
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view',
-            'view_any',
-        ];
     }
 
     public static function form(Schema $schema): Schema
