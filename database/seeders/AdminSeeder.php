@@ -22,7 +22,7 @@ class AdminSeeder extends Seeder
             'password' => env('SUPER_ADMIN_PASSWORD'),
         ]);
 
-        User::factory()->create([
+        User::factory()->withRole(Role::ADMIN)->create([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
             'password' => env('ADMIN_PASSWORD'),
