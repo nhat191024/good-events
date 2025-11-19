@@ -5,7 +5,7 @@ namespace App\Filament\Admin\Pages;
 use UnitEnum;
 use BackedEnum;
 
-use App\Enum\FilamentNavigationGroup;
+use App\Enum\NavigationGroup;
 
 use App\Settings\PartnerSettings;
 
@@ -20,7 +20,7 @@ use Filament\Forms\Components\TextInput;
 class PartnerManager extends SettingsPage
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::SETTINGS;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS->value;
 
     protected static string $settings = PartnerSettings::class;
 
