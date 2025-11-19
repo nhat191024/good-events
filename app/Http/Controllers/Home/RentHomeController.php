@@ -18,6 +18,7 @@ use Inertia\Response;
 
 class RentHomeController extends Controller
 {
+
     public const RECORD_PER_PAGE = 20;
 
     /**
@@ -46,6 +47,7 @@ class RentHomeController extends Controller
             'settings' => [
                 'app_name' => $settings->app_name,
                 'banner_images' => AppBannerResource::collection($appRentalBanner),
+                'hero_title' => $settings->app_rental_title,
             ],
         ]);
     }
