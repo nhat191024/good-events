@@ -29,7 +29,8 @@ class DesignCategoryChildrensTable
                     ->label(__('admin/category.fields.image'))
                     ->collection('images')
                     ->circular()
-                    ->imageSize(60),
+                    ->imageSize(60)
+                    ->conversion('thumb'),
                 TextColumn::make('name')
                     ->label(__('admin/category.fields.name'))
                     ->searchable(),
