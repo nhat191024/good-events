@@ -91,7 +91,7 @@ class HomeController extends Controller
                     'description' => $child->description,
                     'min_price' => $child->min_price,
                     'max_price' => $child->max_price,
-                    'image' => $this->getTemporaryImageUrl($child, $expireAt),
+                    'image' => $this->getImageUrl($child),
                 ];
             });
 
@@ -101,7 +101,7 @@ class HomeController extends Controller
                 'name' => $category->name,
                 'slug' => $category->slug,
                 'description' => $category->description,
-                'image' => $this->getTemporaryImageUrl($category, $expireAt),
+                'image' => $this->getImageUrl($category),
                 'total_children' => $children->count(),
             ],
             'partnerCategories' => $children,
@@ -139,7 +139,7 @@ class HomeController extends Controller
                     'description' => $pc->description,
                     'min_price' => $pc->min_price,
                     'max_price' => $pc->max_price,
-                    'image' => $this->getTemporaryImageUrl($pc, $expireAt),
+                    'image' => $this->getImageUrl($pc),
                 ];
             });
         }
@@ -161,18 +161,12 @@ class HomeController extends Controller
         return $this->parentCategoryCount;
     }
 
-    private function getTemporaryImageUrl($model, $expireAt)
+    private function getImageUrl($model)
     {
-        if (! method_exists($model, 'getFirstTemporaryUrl')) {
+        if (! method_exists($model, 'getFirstMediaUrl')) {
             return null;
         }
 
-        try {
-            return $model->getFirstTemporaryUrl($expireAt, 'images');
-        } catch (\Throwable $e) {
-            return method_exists($model, 'getFirstMediaUrl')
-                ? $model->getFirstMediaUrl('images')
-                : null;
-        }
+        return $model->getFirstMediaUrl('images', 'thumb');
     }
 }
