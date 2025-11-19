@@ -114,19 +114,19 @@ watch(
 const isCategoryPage = computed(() => Boolean(props.category));
 
 const pageTitle = computed(() => {
-    if (!props.category) return 'Khám phá vật tư sự kiện';
-    return `${props.category.name} - Thuê vật tư Sukientot`;
+    if (!props.category) return 'Khám phá thiết bị sự kiện';
+    return `${props.category.name} - Thuê thiết bị Sukientot`;
 });
 
-const headingText = computed(() => (props.category ? props.category.name : 'Khám phá kho vật tư sự kiện'));
+const headingText = computed(() => (props.category ? props.category.name : 'Khám phá kho thiết bị sự kiện'));
 
 const totalItems = computed(() => props.rentProducts?.meta?.total ?? props.rentProducts?.data?.length ?? 0);
 
 const subHeadingText = computed(() => {
     if (props.category) {
-        return `${totalItems.value} vật tư trong danh mục này.`;
+        return `${totalItems.value} thiết bị trong danh mục này.`;
     }
-    return `${totalItems.value} vật tư được đội ngũ Sukientot tuyển chọn.`;
+    return `${totalItems.value} thiết bị được đội ngũ Sukientot tuyển chọn.`;
 });
 
 function toArray<T>(input: ResourceCollection<T> | Paginated<T> | T[] | undefined): T[] {
