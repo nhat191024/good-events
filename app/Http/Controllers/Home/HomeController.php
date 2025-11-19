@@ -28,10 +28,9 @@ class HomeController extends Controller
         $expireAt = now()->addMinutes(3600);
 
         $app_partner_banner = Banner::where('type', 'partner')->first()->getMedia('banners');
+        $app_partner_banner_mobile = Banner::where('type', 'mobile_partner')->first()->getMedia('banners');
 
         $initialData = $this->fetchEventCategories(self::INITIAL_EVENT_CATEGORY_LIMIT, 0, $expireAt);
-
-        $bannerImages = AppBannerResource::collection($app_partner_banner);
 
         return Inertia::render('home/Home', [
             'eventCategories' => $initialData['eventCategories'],
@@ -44,7 +43,8 @@ class HomeController extends Controller
             ],
             'settings' => [
                 'app_name' => $settings->app_name,
-                'banner_images' => $bannerImages,
+                'banner_images' => AppBannerResource::collection($app_partner_banner),
+                'mobile_banner_images' => AppBannerResource::collection($app_partner_banner_mobile),
                 'hero_title' => $settings->app_partner_title,
             ],
         ]);
