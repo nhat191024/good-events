@@ -5,7 +5,7 @@ namespace App\Filament\Admin\Pages;
 use UnitEnum;
 use BackedEnum;
 
-use App\Enum\FilamentNavigationGroup;
+use App\Enum\NavigationGroup;
 
 use App\Settings\AppSettings;
 
@@ -21,7 +21,7 @@ use Filament\Forms\Components\FileUpload;
 class AppManager extends SettingsPage
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::SETTINGS;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS->value;
 
     protected static string $settings = AppSettings::class;
 

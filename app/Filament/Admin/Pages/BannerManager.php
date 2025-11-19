@@ -7,7 +7,7 @@ use App\Models\Banner;
 use UnitEnum;
 use BackedEnum;
 
-use App\Enum\FilamentNavigationGroup;
+use App\Enum\NavigationGroup;
 use App\Enum\BannerType;
 
 use Filament\Pages\Page;
@@ -28,7 +28,7 @@ class BannerManager extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::SETTINGS;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS->value;
 
     protected string $view = 'filament.admin.pages.banner-manager';
 
