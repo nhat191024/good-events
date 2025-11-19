@@ -48,6 +48,7 @@ class AssetHomeController extends Controller
             'settings' => [
                 'app_name' => $settings->app_name,
                 'banner_images' => AppBannerResource::collection($appDesignBanner),
+                'hero_title' => $settings->app_design_title,
             ],
         ]);
     }
