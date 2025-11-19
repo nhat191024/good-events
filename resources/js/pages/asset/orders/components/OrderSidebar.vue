@@ -56,7 +56,7 @@ const skeletonItems = computed(() => Array.from({ length: 3 }, (_, index) => ind
             </template>
 
             <p v-else-if="isEmpty" class="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-                Bạn chưa mua tài liệu nào.
+                Bạn chưa mua thiết kế nào.
             </p>
 
             <template v-else>
