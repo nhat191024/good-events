@@ -106,9 +106,9 @@ const badgeMotion = {
                     </ul>
                 </div>
 
-                <!-- Vật tư -->
+                <!-- Thiết bị -->
                 <div>
-                    <h4 class="font-semibold text-gray-900 mb-4">Vật tư</h4>
+                    <h4 class="font-semibold text-gray-900 mb-4">Thiết bị</h4>
                     <ul class="space-y-2">
                         <li><a href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Loa đài</a></li>
                         <li><a href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Ánh sáng</a></li>
@@ -116,9 +116,9 @@ const badgeMotion = {
                     </ul>
                 </div>
 
-                <!-- Tài liệu -->
+                <!-- Thiết kế -->
                 <div>
-                    <h4 class="font-semibold text-gray-900 mb-4">Tài liệu</h4>
+                    <h4 class="font-semibold text-gray-900 mb-4">Thiết kế</h4>
                     <ul class="space-y-2">
                         <li><a href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Banner</a></li>
                         <li><a href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Thiết kế</a></li>
@@ -130,7 +130,7 @@ const badgeMotion = {
                 <div>
                     <h4 class="font-semibold text-gray-900 mb-4">Blog</h4>
                     <ul class="space-y-2">
-                        <li><Link :href="route('blog.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Khách sạn</Link></li>
+                        <li><Link :href="route('blog.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Địa điểm</Link></li>
                         <li><Link :href="route('blog.guides.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Hướng dẫn sự kiện</Link></li>
                         <li><Link :href="route('blog.knowledge.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Kiến thức nghề</Link></li>
                     </ul>
