@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\GoodLocations;
 
-use App\Models\Blog;
+use App\Models\GoodLocation;
 
 use BackedEnum;
 use UnitEnum;
@@ -26,7 +26,7 @@ use App\Enum\FilamentNavigationGroup;
 
 class GoodLocationsResource extends Resource
 {
-    protected static ?string $model = Blog::class;
+    protected static ?string $model = GoodLocation::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
     protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::BLOG;
