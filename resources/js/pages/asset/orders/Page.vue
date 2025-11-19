@@ -1,5 +1,5 @@
 <template>
-    <Head title="Đơn hàng tài liệu" />
+    <Head title="Đơn hàng thiết kế" />
 
     <ClientHeaderLayout>
         <section class="bg-white pb-16 pt-6">
@@ -9,7 +9,7 @@
                         <ul class="flex flex-wrap items-center gap-2">
                             <li>
                                 <Link :href="route('asset.home')" class="hover:text-primary-800">
-                                    Kho tài liệu
+                                    Kho thiết kế
                                 </Link>
                             </li>
                             <li class="flex items-center gap-2">
@@ -22,10 +22,10 @@
                     <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                         <div>
                             <h1 class="font-lexend text-3xl font-semibold text-gray-900">
-                                Quản lý đơn hàng tài liệu
+                                Quản lý đơn hàng thiết kế
                             </h1>
                             <p class="text-sm text-gray-500">
-                                Theo dõi trạng thái thanh toán và tải lại tài liệu bạn đã mua.
+                                Theo dõi trạng thái thanh toán và tải lại thiết kế bạn đã mua.
                             </p>
                         </div>
                     </div>
@@ -60,14 +60,14 @@
                             Bạn chưa có đơn hàng nào
                         </h2>
                         <p class="max-w-md text-sm text-gray-500">
-                            Các đơn tài liệu đã mua sẽ xuất hiện tại đây. Khám phá kho tài liệu và đặt mua tài liệu phù hợp ngay bây giờ.
+                            Các đơn thiết kế đã mua sẽ xuất hiện tại đây. Khám phá kho thiết kế và đặt mua thiết kế phù hợp ngay bây giờ.
                         </p>
                     </div>
                     <Link
                         :href="route('asset.discover')"
                         class="inline-flex h-11 items-center justify-center rounded-xl bg-primary-600 px-6 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
                     >
-                        Khám phá tài liệu
+                        Khám phá thiết kế
                     </Link>
                 </div>
             </div>
@@ -208,7 +208,7 @@ async function fetchOrders(page = 1, append = false) {
             hydrateOrders(pageResponse.props.orders as AssetOrdersPayload, append);
         },
         onError: (error) => {
-            console.error('Không thể tải danh sách đơn hàng tài liệu', error);
+            console.error('Không thể tải danh sách đơn hàng thiết kế', error);
         },
         onFinish: () => {
             loadingOrders.value = false;
