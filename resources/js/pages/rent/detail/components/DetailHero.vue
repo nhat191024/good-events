@@ -76,7 +76,7 @@
                     Gọi ngay: {{ hotlineDisplay }}
                 </a>
                 <p class="text-xs text-gray-500">
-                    Hotline hỗ trợ 24/7 của Sukientot sẵn sàng tư vấn giải pháp thuê vật tư phù hợp cho sự kiện của bạn.
+                    Hotline hỗ trợ 24/7 của Sukientot sẵn sàng tư vấn giải pháp thuê thiết bị phù hợp cho sự kiện của bạn.
                 </p>
             </div>
 
