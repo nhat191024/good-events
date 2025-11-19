@@ -89,6 +89,17 @@ class PartnerCategory extends Model implements HasMedia
     }
 
     /**
+     * Summary of registerMediaCollections
+     * @return void
+     */
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('images')
+            ->useDisk('public');
+    }
+
+    /**
      * Summary of registerMediaConversions
      * @param Media|null $media
      * @return void
@@ -96,21 +107,18 @@ class PartnerCategory extends Model implements HasMedia
     public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumb')
-            ->width(300)
-            ->height(300)
+            ->width(400)
+            ->height(400)
             ->sharpen(10)
             ->withResponsiveImages()
             ->format('webp')
-            ->optimize()
             ->queued();
 
         $this->addMediaConversion('mobile_optimized')
-            ->width(320)
-            ->height(240)
-            ->crop(320, 240, CropPosition::Center)
+            ->width(300)
+            ->height(300)
             ->withResponsiveImages()
             ->format('webp')
-            ->optimize()
             ->queued();
     }
 
