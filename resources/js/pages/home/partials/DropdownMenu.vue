@@ -118,13 +118,13 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
         external: true,
         hoverClass: 'hover:bg-gray-100'
     },
-    {
-        label: 'Trang quản trị',
-        route: () => '/admin/login',
-        icon: Shield,
-        external: true,
-        hoverClass: 'hover:bg-gray-100' // use a regular <a> tag, non inertia
-    },
+    // {
+    //     label: 'Trang quản trị',
+    //     route: () => '/admin/login',
+    //     icon: Shield,
+    //     external: true,
+    //     hoverClass: 'hover:bg-gray-100' // use a regular <a> tag, non inertia
+    // },
 ]);
 
 // Navigation items for logged-out users
@@ -159,12 +159,12 @@ const loggedOutMenuItems: MenuItem[] = [
         icon: Handshake,
         external: true
     },
-    {
-        label: 'Trang quản trị',
-        route: () => '/admin/login',
-        icon: Shield,
-        external: true
-    },
+    // {
+    //     label: 'Trang quản trị',
+    //     route: () => '/admin/login',
+    //     icon: Shield,
+    //     external: true
+    // },
 ];
 </script>
 
