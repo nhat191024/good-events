@@ -126,13 +126,13 @@ const badgeMotion = {
                     </ul>
                 </div>
 
-                <!-- Khách sạn -->
+                <!-- Blog -->
                 <div>
-                    <h4 class="font-semibold text-gray-900 mb-4">Khách sạn</h4>
+                    <h4 class="font-semibold text-gray-900 mb-4">Blog</h4>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Blog</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Tìm nhanh</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Giá tốt</a></li>
+                        <li><Link :href="route('blog.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Khách sạn</Link></li>
+                        <li><Link :href="route('blog.guides.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Hướng dẫn sự kiện</Link></li>
+                        <li><Link :href="route('blog.knowledge.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Kiến thức nghề</Link></li>
                     </ul>
                 </div>
 
