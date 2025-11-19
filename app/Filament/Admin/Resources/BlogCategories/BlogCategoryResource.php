@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\BlogCategories;
 
-use App\Models\Category;
+use App\Models\BlogCategory;
 
 use BackedEnum;
 use UnitEnum;
@@ -28,7 +28,7 @@ use App\Enum\FilamentNavigationGroup;
 
 class BlogCategoryResource extends Resource
 {
-    protected static ?string $model = Category::class;
+    protected static ?string $model = BlogCategory::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::CATEGORIES;
