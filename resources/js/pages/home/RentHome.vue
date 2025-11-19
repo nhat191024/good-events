@@ -3,7 +3,7 @@
 
     <ClientAppHeaderLayout :background-class-names="'bg-green-100'">
         <HeroBanner
-            :header-text="'Thuê vật tư, loa đài ánh sáng'"
+            :header-text="heroHeaderText"
             v-model="search"
             :banner-images="heroBannerImages"
             :bg-color-class="'bg-[linear-gradient(180deg,#4ade80_0%,rgb(134,239,172)_51.5%,rgba(74,222,128,0)_100%)]'"
@@ -71,6 +71,7 @@ interface Props {
     settings: {
         app_name: string;
         banner_images: BannerImageWrapper;
+        hero_title?: string | null;
     };
 }
 
@@ -79,6 +80,7 @@ const props = defineProps<Props>();
 const search = ref('');
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
+const heroHeaderText = computed(() => props.settings.hero_title ?? 'Thuê vật tư, loa đài ánh sáng');
 
 const filteredRentProducts = computed(() => {
     const data = props.rentProducts.data ?? [];
