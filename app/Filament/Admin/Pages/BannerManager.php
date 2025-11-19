@@ -23,9 +23,11 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+
 class BannerManager extends Page implements HasForms
 {
-    use InteractsWithForms;
+    use InteractsWithForms, HasPageShield;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
     protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS->value;
@@ -64,14 +66,14 @@ class BannerManager extends Page implements HasForms
 
         $banners = Banner::with('media')->whereIn('type', $types)->get()->keyBy('type');
 
-        $this->partnerBanner = $banners->get(BannerType::PARTNER->value) ?? tap(Banner::create(['type' => BannerType::PARTNER->value]), fn ($b) => $b->setRelation('media', $b->newCollection()));
-        $this->partnerMobileBanner = $banners->get(BannerType::PARTNER_MOBILE->value) ?? tap(Banner::create(['type' => BannerType::PARTNER_MOBILE->value]), fn ($b) => $b->setRelation('media', $b->newCollection()));
+        $this->partnerBanner = $banners->get(BannerType::PARTNER->value) ?? tap(Banner::create(['type' => BannerType::PARTNER->value]), fn($b) => $b->setRelation('media', $b->newCollection()));
+        $this->partnerMobileBanner = $banners->get(BannerType::PARTNER_MOBILE->value) ?? tap(Banner::create(['type' => BannerType::PARTNER_MOBILE->value]), fn($b) => $b->setRelation('media', $b->newCollection()));
 
-        $this->designBanner = $banners->get(BannerType::DESIGN->value) ?? tap(Banner::create(['type' => BannerType::DESIGN->value]), fn ($b) => $b->setRelation('media', $b->newCollection()));
-        $this->designMobileBanner = $banners->get(BannerType::DESIGN_MOBILE->value) ?? tap(Banner::create(['type' => BannerType::DESIGN_MOBILE->value]), fn ($b) => $b->setRelation('media', $b->newCollection()));
+        $this->designBanner = $banners->get(BannerType::DESIGN->value) ?? tap(Banner::create(['type' => BannerType::DESIGN->value]), fn($b) => $b->setRelation('media', $b->newCollection()));
+        $this->designMobileBanner = $banners->get(BannerType::DESIGN_MOBILE->value) ?? tap(Banner::create(['type' => BannerType::DESIGN_MOBILE->value]), fn($b) => $b->setRelation('media', $b->newCollection()));
 
-        $this->rentalBanner = $banners->get(BannerType::RENTAL->value) ?? tap(Banner::create(['type' => BannerType::RENTAL->value]), fn ($b) => $b->setRelation('media', $b->newCollection()));
-        $this->rentalMobileBanner = $banners->get(BannerType::RENTAL_MOBILE->value) ?? tap(Banner::create(['type' => BannerType::RENTAL_MOBILE->value]), fn ($b) => $b->setRelation('media', $b->newCollection()));
+        $this->rentalBanner = $banners->get(BannerType::RENTAL->value) ?? tap(Banner::create(['type' => BannerType::RENTAL->value]), fn($b) => $b->setRelation('media', $b->newCollection()));
+        $this->rentalMobileBanner = $banners->get(BannerType::RENTAL_MOBILE->value) ?? tap(Banner::create(['type' => BannerType::RENTAL_MOBILE->value]), fn($b) => $b->setRelation('media', $b->newCollection()));
 
         $this->form->fill([
             'partner' => $this->partnerBanner->getMedia('banners'),

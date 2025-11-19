@@ -17,8 +17,12 @@ use Filament\Schemas\Components\Section;
 
 use Filament\Forms\Components\TextInput;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+
 class PartnerManager extends SettingsPage
 {
+    use HasPageShield;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
     protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS->value;
 

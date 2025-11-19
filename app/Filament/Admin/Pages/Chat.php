@@ -2,6 +2,8 @@
 
 namespace App\Filament\Admin\Pages;
 
+use BackedEnum;
+
 use App\Events\SendMessage;
 
 use Carbon\Carbon;
@@ -17,10 +19,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use Livewire\Attributes\On;
 
-use BackedEnum;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class Chat extends Page
 {
+    use HasPageShield;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
     protected string $view = 'filament.partner.pages.chat';

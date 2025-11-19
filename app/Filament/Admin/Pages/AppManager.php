@@ -18,8 +18,12 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+
 class AppManager extends SettingsPage
 {
+    use HasPageShield;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
     protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS->value;
 
