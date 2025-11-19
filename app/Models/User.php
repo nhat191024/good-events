@@ -185,7 +185,13 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($panel->getId() === 'admin' && $this->hasAnyRole([Role::ADMIN, 'super_admin'])) { // Thêm Role::MANAGER hoặc các role khác vào đây
+        if ($panel->getId() === 'admin' && $this->hasAnyRole([
+            Role::SUPER_ADMIN,
+            Role::ADMIN,
+            Role::HUMAN_RESOURCE_MANAGER,
+            Role::DESIGN_MANAGER,
+            Role::RENTAL_MANAGER
+        ])) {
             return true;
         } elseif ($panel->getId() === 'partner' && $this->hasRole(Role::PARTNER)) {
             return true;
