@@ -8,10 +8,14 @@ use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 
 use App\Enum\Role;
 use App\Settings\AppSettings;
+use App\Enum\FilamentNavigationGroup;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Gate;
+
+use Filament\Facades\Filament;
+use Filament\Navigation\NavigationGroup;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +36,11 @@ class AppServiceProvider extends ServiceProvider
         // Gate::before(function ($user, $ability) {
         //     return $user->hasRole(Role::SUPER_ADMIN->value) ? true : null;
         // });
+
+        Filament::registerNavigationGroups([
+            'system'   => NavigationGroup::make(fn() => FilamentNavigationGroup::SYSTEM->getLabel()),
+            'settings' => NavigationGroup::make(fn() => FilamentNavigationGroup::SETTINGS->getLabel()),
+        ]);
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch
