@@ -237,6 +237,13 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             }
         });
 
+        static::updating(function ($user) {
+            if ($user->isDirty('avatar') || empty($user->avatar)) {
+                $name = urlencode($user->name);
+                $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
+            }
+        });
+
         static::deleting(function ($user) {
             $user->partnerProfile()->delete();
             $user->partnerServices()->delete();
