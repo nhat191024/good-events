@@ -3,6 +3,8 @@
 namespace App\Filament\Admin\Resources\DesignCategories\Pages;
 
 use App\Filament\Admin\Resources\DesignCategories\DesignCategoryResource;
+use App\Enum\CategoryType;
+
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateDesignCategory extends CreateRecord
@@ -11,7 +13,7 @@ class CreateDesignCategory extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['type'] = 'design';
+        $data['type'] = CategoryType::DESIGN->value;
 
         return $data;
     }
