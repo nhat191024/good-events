@@ -33,6 +33,8 @@ use App\Filament\Admin\Widgets\AdminStatisticsWidget;
 use App\Filament\Admin\Widgets\AdminRevenueChart;
 use App\Filament\Admin\Widgets\AdminTopPartnersWidget;
 
+use App\Enum\FilamentNavigationGroup;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -46,6 +48,7 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Red,
             ])
             ->maxContentWidth(Width::Full)
+            ->navigationGroups(FilamentNavigationGroup::class)
 
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
@@ -64,7 +67,8 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->plugins([
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->navigationGroup('settings'),
                 FilamentLoggerPlugin::make(),
             ])
 
