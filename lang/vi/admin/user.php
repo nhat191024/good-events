@@ -26,4 +26,6 @@ return [
     'ban_description' => 'Bạn có chắc chắn muốn cấm người dùng này không?',
 
     'ban_success_message' => 'Người dùng đã bị cấm thành công.',
+
+    'cannot_ban_self' => 'Bạn không thể tự cấm chính mình.',
 ];
