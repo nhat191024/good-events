@@ -81,7 +81,13 @@ class AdminsTable
                     ->modalHeading(__('admin/user.ban_title'))
                     ->modalDescription(__('admin/user.ban_description'))
                     ->modalSubmitActionLabel(__('global.ban'))
-                    ->successNotificationTitle(__('admin/user.ban_success_message')),
+                    ->successNotificationTitle(__('admin/user.ban_success_message'))
+                    ->visible(fn(?User $record): bool => auth()->id() !== $record?->id)
+                    ->before(function (User $record): void {
+                        if (auth()->id() === $record->id) {
+                            abort(403, __('admin/user.cannot_ban_self'));
+                        }
+                    }),
                 RestoreAction::make(),
             ])
             ->toolbarActions([
