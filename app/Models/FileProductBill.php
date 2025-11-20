@@ -8,6 +8,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 use App\Enum\FileProductBillStatus;
+use App\Enum\PaymentMethod;
 
 /**
  * @property int $id
@@ -66,6 +67,7 @@ class FileProductBill extends Model
     {
         return [
             'status' => FileProductBillStatus::class,
+            'payment_method' => PaymentMethod::class,
         ];
     }
 
