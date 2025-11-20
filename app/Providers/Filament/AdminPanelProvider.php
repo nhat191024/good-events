@@ -68,7 +68,8 @@ class AdminPanelProvider extends PanelProvider
 
             ->plugins([
                 FilamentShieldPlugin::make()
-                    ->navigationGroup('settings'),
+                    ->navigationGroup('settings')
+                    ->globallySearchable(false),
                 FilamentLoggerPlugin::make(),
             ])
 
