@@ -18,8 +18,13 @@ return new class extends Migration
             $table->foreignId('file_product_id')->constrained('file_products')->restrictOnDelete();
             $table->foreignId('client_id')->constrained('users')->restrictOnDelete();
             $table->double('total');
+            $table->double('tax')->nullable();
             $table->double('final_total')->nullable();
+            $table->integer('tax_number')->nullable();
+            $table->string('company_name')->nullable();
+            $table->text('note')->nullable();
             $table->string('status')->default(FileProductBillStatus::PENDING);
+            $table->string('payment_method');
             $table->timestamps();
         });
     }

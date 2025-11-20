@@ -48,8 +48,13 @@ class FileProductBill extends Model
         'file_product_id',
         'client_id',
         'total',
+        'tax',
         'final_total',
+        'tax_number',
+        'company_name',
+        'note',
         'status',
+        'payment_method',
     ];
 
     /**
