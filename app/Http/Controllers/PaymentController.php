@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Bavix\Wallet\Models\Transaction;
 
+use App\Enum\FileProductBillStatus;
+use App\Models\FileProductBill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,11 +17,39 @@ class PaymentController extends Controller
     {
         // Handle the payment result here
         $orderCode = $request->query('orderCode', 'unknown');
-        $status = $request->query('status', 'unknown');
+        $status = strtoupper((string) $request->query('status', 'unknown'));
+        $billId = (int) $request->query('bill_id', 0);
         $user = Auth::user();
 
         if (!$user) {
             return redirect()->route('login');
+        }
+
+        if ($billId) {
+            $bill = FileProductBill::find($billId);
+
+            if (!$bill || $bill->client_id !== $user->getAuthIdentifier()) {
+                abort(403, 'Bạn không có quyền truy cập đơn hàng này.');
+            }
+
+            if ($status === 'PAID') {
+                $bill->forceFill([
+                    'status' => FileProductBillStatus::PAID,
+                    'final_total' => $bill->final_total ?? $bill->total,
+                ])->save();
+
+                return redirect()
+                    ->route('client-orders.asset.dashboard', ['bill_id' => $bill->getKey()])
+                    ->with('success', 'Thanh toán thành công. Bạn có thể tải tài liệu đã mua.');
+            }
+
+            $bill->forceFill([
+                'status' => FileProductBillStatus::PENDING,
+            ])->save();
+
+            return redirect()
+                ->route('client-orders.asset.dashboard', ['bill_id' => $bill->getKey()])
+                ->with('error', 'Thanh toán không thành công. Đơn hàng vẫn ở trạng thái chờ thanh toán.');
         }
 
         if ($status === 'PAID') {

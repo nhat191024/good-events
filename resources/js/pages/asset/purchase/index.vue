@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 
 import { hideLoading, showLoading } from '@/composables/useLoading';
 
@@ -113,9 +113,7 @@ function submit() {
 
     form.post(route('asset.buy.confirm'), {
         onSuccess: () => {
-            form.reset('note');
             closeLoading(true);
-            router.visit(route('client-orders.asset.dashboard'));
         },
         onError: () => {
             closeLoading(false);
