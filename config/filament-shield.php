@@ -117,18 +117,27 @@ return [
 
     'policies' => [
         'path' => app_path('Policies'),
-        'merge' => true,
+        'merge' => false,
         'generate' => true,
         'methods' => [
-            'viewAny', 'view', 'create', 'update', 'delete', 'restore',
-            'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder',
+            'viewAny',
+            'view',
+            'create',
+            'update',
+            'delete',
+            'restore',
+            // 'forceDelete',
+            // 'forceDeleteAny',
+            // 'restoreAny',
+            // 'replicate',
+            // 'reorder',
         ],
         'single_parameter_methods' => [
             'viewAny',
             'create',
-            'deleteAny',
-            'forceDeleteAny',
-            'restoreAny',
+            // 'deleteAny',
+            // 'forceDeleteAny',
+            // 'restoreAny',
             'reorder',
         ],
     ],
@@ -166,13 +175,47 @@ return [
             \BezhanSalleh\FilamentShield\Resources\Roles\RoleResource::class => [
                 'viewAny',
                 'view',
-                'create',
+                'update',
+            ],
+            \App\Filament\Admin\Resources\Cities\CityResource::class => [
+                'view',
+                'viewAny',
+            ],
+            \App\Filament\Admin\Resources\PartnerBills\PartnerBillResource::class => [
+                'view',
+                'viewAny',
+            ],
+            \App\Filament\Admin\Resources\FileProductBills\FileProductBillResource::class => [
+                'view',
+                'viewAny',
+            ],
+            \App\Filament\Admin\Resources\ServiceRegistrations\ServiceRegistrationResource::class => [
+                'view',
+                'viewAny',
+            ],
+            \Jacobtims\FilamentLogger\Resources\ActivityResource::class => [
+                'viewAny',
+                'view',
+            ],
+            \App\Filament\Admin\Resources\Users\UserResource::class => [
+                'viewAny',
+                'view',
+                'update',
+                'delete',
+            ],
+            \App\Filament\Admin\Resources\Partners\PartnerResource::class => [
+                'viewAny',
+                'view',
                 'update',
                 'delete',
             ],
         ],
         'exclude' => [
-            //
+            \App\Filament\Admin\Resources\Cities\Resources\Locations\LocationResource::class,
+            \App\Filament\Admin\Resources\BlogCategories\Resources\BlogCategoryChildrens\BlogCategoryChildrenResource::class,
+            \App\Filament\Admin\Resources\DesignCategories\Resources\DesignCategoryChildrens\DesignCategoryChildrenResource::class,
+            \App\Filament\Admin\Resources\RentalCategories\Resources\RentalCategoryChildrens\RentalCategoryChildrenResource::class,
+            \App\Filament\Admin\Resources\EventCategories\Resources\PartnerCategories\PartnerCategoryResource::class,
         ],
     ],
 
