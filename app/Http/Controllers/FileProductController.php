@@ -11,14 +11,18 @@ use App\Models\Category;
 use App\Models\FileProduct;
 use App\Models\FileProductBill;
 use App\Models\Taggable;
+use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia\Response as InertiaResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use Throwable;
 
 use function activity;
 
@@ -141,7 +145,7 @@ class FileProductController extends Controller
         ]);
     }
 
-    public function assetConfirmPurchase(Request $request): RedirectResponse
+    public function assetConfirmPurchase(Request $request): RedirectResponse|InertiaResponse|HttpResponse
     {
         $user = Auth::user();
         if (!$user) {
@@ -160,6 +164,11 @@ class FileProductController extends Controller
             'tax_code' => ['nullable', 'string', 'max:100'],
             'note' => ['nullable', 'string', 'max:1000'],
             'payment_method' => ['required', 'string', 'in:' . implode(',', $allowedMethods)],
+        ]);
+
+        \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - validated input', [
+            'user_id' => $user->getAuthIdentifier(),
+            'input' => Arr::except($validated, ['email']), // avoid logging full email if you prefer; adjust as needed
         ]);
 
         $fileProduct = FileProduct::query()
@@ -188,6 +197,13 @@ class FileProductController extends Controller
             ]
         );
 
+        \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - bill created/updated', [
+            'bill_id' => $bill->getKey(),
+            'file_product_id' => $fileProduct->getKey(),
+            'total' => $bill->total,
+            'final_total' => $bill->final_total,
+        ]);
+
         activity('file_product_checkout')
             ->performedOn($bill)
             ->causedBy($user)
@@ -204,9 +220,64 @@ class FileProductController extends Controller
 
         $request->session()->flash('asset_purchase_form', Arr::except($validated, ['slug']));
 
+        $paymentService = app(PaymentService::class);
+        $paymentPayload = [
+            'billId' => $bill->getKey() . time(),
+            'billCode' => 'FPB-' . $bill->getKey(),
+            'amount' => (int) round($bill->final_total ?? $fileProduct->price),
+            'buyerName' => $validated['name'],
+            'buyerEmail' => $validated['email'],
+            'buyerPhone' => $validated['phone'],
+            'items' => [
+                [
+                    'name' => $fileProduct->name,
+                    'price' => (int) round($bill->final_total ?? $fileProduct->price),
+                    'quantity' => 1,
+                ],
+            ],
+            'expiryTime' => intval(now()->addMinutes(10)->timestamp),
+        ];
+
+        \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - payment payload prepared', [
+            'bill_id' => $bill->getKey(),
+            'payment_payload' => Arr::except($paymentPayload, ['buyerEmail', 'buyerPhone']),
+        ]);
+
+        $returnUrl = route('payment.result', ['bill_id' => $bill->getKey()]);
+
+        try {
+            $paymentResponse = $paymentService->processAppointmentPayment(
+                $paymentPayload,
+                'qr_transfer',
+                false,
+                $returnUrl,
+                $returnUrl
+            );
+
+            \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - payment response', [
+                'bill_id' => $bill->getKey(),
+                'response' => is_array($paymentResponse) ? $paymentResponse : (string) $paymentResponse,
+            ]);
+
+            if (isset($paymentResponse['checkoutUrl'])) {
+                \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - redirecting to checkout', [
+                    'checkoutUrl' => $paymentResponse['checkoutUrl'],
+                    'bill_id' => $bill->getKey(),
+                ]);
+
+                return Inertia::location($paymentResponse['checkoutUrl']);
+            }
+        } catch (Throwable $exception) {
+            report($exception);
+            \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - payment exception', [
+                'bill_id' => $bill->getKey(),
+                'error' => $exception->getMessage(),
+            ]);
+        }
+
         return redirect()
             ->route('asset.buy', ['slug' => $fileProduct->slug])
-            ->with('success', 'Thông tin của bạn đã được ghi nhận. Đội ngũ chúng tôi sẽ liên hệ trong thời gian sớm nhất.');
+            ->with('error', 'Không thể khởi tạo thanh toán. Vui lòng thử lại hoặc liên hệ hỗ trợ.');
     }
 
     private function renderDiscoverPage(Request $request, ?Category $category = null): Response|RedirectResponse

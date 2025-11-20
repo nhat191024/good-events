@@ -271,11 +271,12 @@ async function handleRepay(order: AssetOrder) {
 
     try {
         const response = await axios.post(route('client-orders.asset.repay', { bill: order.id }));
-        const payload = (response.data?.order ?? null) as AssetOrder | null;
-        if (payload) {
-            upsertOrder(payload, { select: true });
-            updateQueryParam(payload.id);
-            window.alert('Thanh toán lại thành công! Đơn hàng đã được cập nhật.');
+        const checkoutUrl = response.data?.checkoutUrl as string | undefined;
+
+        if (checkoutUrl) {
+            window.location.href = checkoutUrl;
+        } else {
+            window.alert('Không thể khởi tạo thanh toán lại. Vui lòng thử lại sau.');
         }
     } catch (error: any) {
         const message = error?.response?.data?.message ?? 'Không thể thanh toán lại đơn hàng, vui lòng thử lại sau.';

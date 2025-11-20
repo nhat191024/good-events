@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Enum\FileProductBillStatus;
 use App\Http\Resources\AssetOrder\AssetOrderResource;
 use App\Models\FileProductBill;
+use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class AssetOrderController extends Controller
 {
@@ -40,26 +42,69 @@ class AssetOrderController extends Controller
     {
         $this->authorizeBill($bill, $request);
 
-        $status = $bill->status instanceof FileProductBillStatus
+        $statusEnum = $bill->status instanceof FileProductBillStatus
             ? $bill->status
             : FileProductBillStatus::tryFrom((string) $bill->status);
 
-        if ($status !== FileProductBillStatus::PENDING) {
+        if ($statusEnum !== FileProductBillStatus::PENDING) {
             return response()->json([
                 'message' => __('Đơn hàng đã được thanh toán hoặc không thể thanh toán lại.'),
             ], 422);
         }
 
-        $bill->forceFill([
-            'status' => FileProductBillStatus::PAID,
-            'final_total' => $bill->final_total ?? $bill->total,
-        ])->save();
+        $bill->loadMissing('fileProduct');
+        $fileProduct = $bill->fileProduct;
 
-        $bill->refresh()->load(['fileProduct.media', 'fileProduct.category']);
+        if (!$fileProduct) {
+            return response()->json([
+                'message' => __('Không tìm thấy thông tin sản phẩm cho đơn hàng.'),
+            ], 500);
+        }
+
+        $paymentService = app(PaymentService::class);
+        $amount = (int) round($bill->final_total ?? $bill->total);
+        $orderCode = $bill->getKey() . time();
+
+        $payload = [
+            'billId' => $orderCode,
+            'billCode' => 'FPB-' . $bill->getKey(),
+            'amount' => $amount,
+            'buyerName' => $request->user()?->name,
+            'buyerEmail' => $request->user()?->email,
+            'buyerPhone' => $request->user()?->phone,
+            'items' => [
+                [
+                    'name' => $fileProduct->name,
+                    'price' => $amount,
+                    'quantity' => 1,
+                ],
+            ],
+            'expiryTime' => intval(now()->addMinutes(10)->timestamp),
+        ];
+
+        $returnUrl = route('payment.result', ['bill_id' => $bill->getKey()]);
+
+        try {
+            $paymentResponse = $paymentService->processAppointmentPayment(
+                $payload,
+                'qr_transfer',
+                false,
+                $returnUrl,
+                $returnUrl
+            );
+
+            if (isset($paymentResponse['checkoutUrl'])) {
+                return response()->json([
+                    'checkoutUrl' => $paymentResponse['checkoutUrl'],
+                ]);
+            }
+        } catch (Throwable $exception) {
+            report($exception);
+        }
 
         return response()->json([
-            'order' => AssetOrderResource::make($bill),
-        ]);
+            'message' => __('Không thể khởi tạo lại thanh toán, vui lòng thử lại sau.'),
+        ], 500);
     }
 
     private function getOrders(Request $request): AnonymousResourceCollection|array
