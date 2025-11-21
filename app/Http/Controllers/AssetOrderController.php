@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enum\FileProductBillStatus;
+use App\Enum\PaymentMethod;
 use App\Http\Resources\AssetOrder\AssetOrderResource;
 use App\Models\FileProductBill;
 use App\Services\PaymentService;
@@ -85,9 +86,13 @@ class AssetOrderController extends Controller
         $returnUrl = route('payment.result', ['bill_id' => $bill->getKey()]);
 
         try {
+            $channel = $bill->payment_method instanceof PaymentMethod
+                ? $bill->payment_method->gatewayChannel()
+                : PaymentMethod::QR_TRANSFER->gatewayChannel();
+
             $paymentResponse = $paymentService->processAppointmentPayment(
                 $payload,
-                'qr_transfer',
+                $channel,
                 false,
                 $returnUrl,
                 $returnUrl
