@@ -81,6 +81,7 @@ class FileProductController extends Controller
 
         $isPurchased = false;
         $downloadUrl = null;
+        $downloadZipUrl = null;
 
         if ($user) {
             $isPurchased = FileProductBill::query()
@@ -91,6 +92,14 @@ class FileProductController extends Controller
 
             if ($isPurchased) {
                 $downloadUrl = $this->buildDownloadUrl($fileProduct, $expireAt);
+                $bill = FileProductBill::query()
+                    ->where('file_product_id', $fileProduct->getKey())
+                    ->where('client_id', $user->getAuthIdentifier())
+                    ->where('status', FileProductBillStatus::PAID->value)
+                    ->first();
+                if ($bill) {
+                    $downloadZipUrl = route('client-orders.asset.downloadZip', ['bill' => $bill->getKey()]);
+                }
             }
         }
 
@@ -111,6 +120,7 @@ class FileProductController extends Controller
             'fileProduct' => $fileProductPayload,
             'related' => FileProductResource::collection($related)->resolve($request),
             'downloadUrl' => $downloadUrl,
+            'downloadZipUrl' => $downloadZipUrl,
             'isPurchased' => $isPurchased,
         ]);
     }
