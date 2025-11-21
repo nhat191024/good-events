@@ -9,7 +9,7 @@
                 :viewport="sectionMotion.viewport"
                 :transition="getSectionTransition(0)"
             >
-                <ContactHero />
+                <ContactHero :hotline="settings.contact_hotline" />
             </motion.section>
             <motion.section
                 :initial="sectionMotion.initial"
@@ -40,8 +40,9 @@
 </template>
 
 <script setup lang="ts">
+import { Head, usePage } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
-import { Head } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
@@ -74,26 +75,31 @@ const getSectionTransition = (index: number) => ({
     delay: Math.min(index * 0.08, 0.32),
 });
 
-const contactChannels: ContactChannel[] = [
+const page = usePage();
+
+// Pull server settings passed by the controller
+const settings = computed(() => page.props.app_settings as { contact_hotline?: string | null; contact_email?: string | null });
+
+const contactChannels = computed(() => [
     {
         title: 'Tư vấn sự kiện',
         description: 'Đội ngũ chuyên gia đồng hành từ khâu lập kế hoạch đến triển khai.',
-        detail: 'hotline: 1900 636 902 (7:00 - 22:00)',
+        detail: `hotline: ${settings.value.contact_hotline ?? '1900 636 902'} (7:00 - 22:00)`,
         hint: 'Ưu tiên phản hồi trong 15 phút',
     },
     {
         title: 'Hợp tác đối tác',
         description: 'Kết nối để trở thành nhà cung cấp dịch vụ chính thức của Sukientot.',
-        detail: 'partners@sukientot.vn',
+        detail: settings.value.contact_email ?? 'partners@sukientot.vn',
         hint: 'Chia sẻ hồ sơ năng lực để được duyệt nhanh.',
     },
     {
         title: 'Chăm sóc khách hàng',
         description: 'Giải đáp thắc mắc sử dụng nền tảng và hỗ trợ kỹ thuật.',
-        detail: 'support@sukientot.vn',
+        detail: settings.value.contact_email ?? 'support@sukientot.vn',
         hint: 'Có mặt 24/7 thông qua email và chat.',
     },
-];
+]);
 
 const formTopics = [
     { value: 'demo', label: 'Đặt lịch demo nền tảng' },

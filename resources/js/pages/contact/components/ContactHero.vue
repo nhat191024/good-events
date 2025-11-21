@@ -67,11 +67,14 @@
 
 <script setup lang="ts">
 import { motion } from 'motion-v';
+import { computed } from 'vue';
 
-const heroHighlights = [
-    { label: 'Hotline ưu tiên:', value: '1900 636 902' },
+const props = defineProps<{ hotline?: string | null }>();
+
+const heroHighlights = computed(() => [
+    { label: 'Hotline ưu tiên:', value: props.hotline ?? '1900 636 902' },
     { label: 'Giờ làm việc:', value: '7:00 - 22:00 (T2 - CN)' },
-] as const;
+]);
 
 const textMotion = {
     initial: { opacity: 0, y: 20 },
