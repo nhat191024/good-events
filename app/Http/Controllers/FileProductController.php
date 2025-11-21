@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia\Response as InertiaResponse;
+use Inertia\Response as InertiaResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -49,7 +49,7 @@ class FileProductController extends Controller
     {
         $fileProduct = FileProduct::query()
             ->with(['category.parent', 'tags', 'media'])
-            ->whereHas('category', fn ($builder) => $builder->where('slug', $category_slug))
+            ->whereHas('category', fn($builder) => $builder->where('slug', $category_slug))
             ->where('slug', $file_product_slug)
             ->firstOrFail();
 
@@ -284,7 +284,7 @@ class FileProductController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
         $tagSlugs = collect(Arr::wrap($request->query('tags', [])))
-            ->map(fn ($slug) => trim((string) $slug))
+            ->map(fn($slug) => trim((string) $slug))
             ->filter();
 
         if ($tagSlugs->isEmpty() && $request->filled('tag')) {
@@ -346,7 +346,7 @@ class FileProductController extends Controller
             ->withQueryString();
 
         $categories = Category::query()
-            ->with('parent','media')
+            ->with('parent', 'media')
             ->orderBy('name')
             ->limit(15)
             ->get();
@@ -404,7 +404,7 @@ class FileProductController extends Controller
         $currentTags = [];
         if (isset($currentQuery['tags']) && is_array($currentQuery['tags'])) {
             $currentTags = collect($currentQuery['tags'])
-                ->map(fn ($tag) => trim((string) $tag))
+                ->map(fn($tag) => trim((string) $tag))
                 ->filter()
                 ->values()
                 ->all();
