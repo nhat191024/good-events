@@ -18,4 +18,16 @@ return [
         'paid' => 'Đã thanh toán',
         'cancelled' => 'Đã hủy',
     ],
+
+    'payment_method' => [
+        'qr_transfer' => 'Thanh toán qua mã QR ngân hàng',
+        'cash' => 'Tiền mặt',
+        'online' => 'Thanh toán trực tuyến',
+    ],
+
+    'description' => [
+        'qr_transfer' => 'Thanh toán qua tài khoản ngân hàng của Sukientot.',
+        'cash' => 'Thanh toán trực tiếp tại văn phòng hoặc buổi gặp mặt.',
+        'online' => 'Thanh toán qua cổng thanh toán điện tử được hỗ trợ.',
+    ],
 ];
