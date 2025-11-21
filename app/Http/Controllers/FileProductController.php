@@ -2,28 +2,36 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
+use Inertia\Response;
+use Inertia\Response as InertiaResponse;
+
 use App\Enum\FileProductBillStatus;
-use App\Helper\TemporaryImage;
-use App\Http\Resources\Home\CategoryResource;
-use App\Http\Resources\Home\FileProductResource;
-use App\Http\Resources\Home\TagResource;
+use App\Enum\PaymentMethod;
+
 use App\Models\Category;
 use App\Models\FileProduct;
 use App\Models\FileProductBill;
 use App\Models\Taggable;
+
+use App\Http\Resources\Home\CategoryResource;
+use App\Http\Resources\Home\FileProductResource;
+use App\Http\Resources\Home\TagResource;
+
+use App\Helper\TemporaryImage;
 use App\Services\PaymentService;
-use Illuminate\Http\RedirectResponse;
+
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Response as InertiaResponse;
-use Inertia\Inertia;
-use Inertia\Response;
+
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
-use Throwable;
 
+use Throwable;
 use function activity;
 
 class FileProductController extends Controller
@@ -132,9 +140,9 @@ class FileProductController extends Controller
         $sessionBuyer = $request->session()->pull('asset_purchase_form', []);
         $buyer = array_merge($buyerDefaults, $sessionBuyer);
 
-        $paymentMethods = $this->paymentMethods();
-        if (!$buyer['payment_method'] && !empty($paymentMethods)) {
-            $buyer['payment_method'] = $paymentMethods[0]['code'];
+        $paymentMethods = PaymentMethod::toOptions();
+        if (!$buyer['payment_method']) {
+            $buyer['payment_method'] = PaymentMethod::QR_TRANSFER->value;
         }
 
         return Inertia::render('asset/Purchase', [
@@ -152,8 +160,8 @@ class FileProductController extends Controller
             return redirect()->route('login');
         }
 
-        $paymentMethods = $this->paymentMethods();
-        $allowedMethods = array_column($paymentMethods, 'code');
+        $paymentMethods = PaymentMethod::toOptions();
+        $allowedMethods = array_map(fn(PaymentMethod $m) => $m->value, PaymentMethod::cases());
 
         $validated = $request->validate([
             'slug' => ['required', 'string', 'exists:file_products,slug'],
@@ -185,6 +193,7 @@ class FileProductController extends Controller
             $user->save();
         }
 
+        $tax = 0.1 * $fileProduct->price;
         $bill = FileProductBill::updateOrCreate(
             [
                 'file_product_id' => $fileProduct->getKey(),
@@ -193,7 +202,12 @@ class FileProductController extends Controller
             ],
             [
                 'total' => $fileProduct->price,
-                'final_total' => $fileProduct->price,
+                'tax' => $tax,
+                'final_total' => $fileProduct->price + $tax,
+                'tax_code' => $validated['tax_code'],
+                'company' => $validated['company'],
+                'note' => $validated['note'],
+                'payment_method' => $validated['payment_method'],
             ]
         );
 
@@ -201,7 +215,8 @@ class FileProductController extends Controller
             'bill_id' => $bill->getKey(),
             'file_product_id' => $fileProduct->getKey(),
             'total' => $bill->total,
-            'final_total' => $bill->final_total,
+            'final_total' => $bill->final_total + $tax,
+            'payment_method' => $bill->payment_method,
         ]);
 
         activity('file_product_checkout')
@@ -234,6 +249,11 @@ class FileProductController extends Controller
                     'price' => (int) round($bill->final_total ?? $fileProduct->price),
                     'quantity' => 1,
                 ],
+                [
+                    'name' => 'VAT 10%',
+                    'price' => (int) round($tax),
+                    'quantity' => 1,
+                ],
             ],
             'expiryTime' => intval(now()->addMinutes(10)->timestamp),
         ];
@@ -248,7 +268,7 @@ class FileProductController extends Controller
         try {
             $paymentResponse = $paymentService->processAppointmentPayment(
                 $paymentPayload,
-                'qr_transfer',
+                PaymentMethod::from($validated['payment_method'])->gatewayChannel(),
                 false,
                 $returnUrl,
                 $returnUrl
@@ -446,25 +466,10 @@ class FileProductController extends Controller
     /**
      * @return array<int, array{code:string,name:string,description:string|null}>
      */
+    // kept for backward compatibility as public interface to front-end; replaced by enum usage
     private function paymentMethods(): array
     {
-        return [
-            [
-                'code' => 'bank_transfer',
-                'name' => 'Chuyển khoản ngân hàng',
-                'description' => 'Thanh toán qua tài khoản ngân hàng của Sukientot.',
-            ],
-            [
-                'code' => 'cash',
-                'name' => 'Tiền mặt',
-                'description' => 'Thanh toán trực tiếp tại văn phòng hoặc buổi gặp mặt.',
-            ],
-            [
-                'code' => 'online',
-                'name' => 'Thanh toán trực tuyến',
-                'description' => 'Thanh toán qua cổng thanh toán điện tử được hỗ trợ.',
-            ],
-        ];
+        return PaymentMethod::toOptions();
     }
 
     /**
