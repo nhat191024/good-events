@@ -74,13 +74,13 @@
 
             <div class="flex flex-col gap-3">
                 <a
-                    v-if="isPurchased && downloadUrl"
-                    :href="downloadUrl"
+                    v-if="isPurchased && downloadZipUrl"
+                    :href="downloadZipUrl"
                     target="_blank"
                     rel="noopener"
                     class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
                 >
-                    Tải xuống ngay
+                    Tải tất cả (ZIP)
                 </a>
                 <Link
                     v-else
@@ -89,6 +89,16 @@
                 >
                     Mua ngay
                 </Link>
+                    <!-- Show ZIP action as a secondary button when available (both visible if both are present) -->
+                    <a
+                        v-if="isPurchased && downloadZipUrl"
+                        :href="downloadZipUrl"
+                        target="_blank"
+                        rel="noopener"
+                        class="inline-flex w-full items-center justify-center rounded-lg border border-primary-100 bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    >
+                        Tải ZIP
+                    </a>
                 <a
                     :href="`tel:0901234567`"
                     class="inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
@@ -139,18 +149,21 @@ interface DetailProduct extends FileProduct {
     preview_images?: PreviewMedia[] | string[];
     download_count?: number | null;
     updated_human?: string | null;
+    included_files?: { id?: number | string | null; name: string; download_url?: string | null }[] | null;
 }
 
 interface Props {
     fileProduct: DetailProduct;
     previewImages?: PreviewMedia[];
     downloadUrl?: string | null;
+    downloadZipUrl?: string | null;
     isPurchased?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     previewImages: () => [],
     downloadUrl: null,
+    downloadZipUrl: null,
     isPurchased: false,
 });
 
@@ -181,6 +194,26 @@ const priceText = computed(() => {
     const value = Number(props.fileProduct.price);
     return Number.isFinite(value) ? `${formatPrice(value)} đ` : 'Liên hệ';
 });
+
+const downloadUrls = computed(() => {
+    const files = props.fileProduct.included_files ?? [];
+    return files.map((entry) => entry.download_url).filter((url): url is string => Boolean(url));
+});
+
+function triggerDownloadAll() {
+    const urls = downloadUrls.value || [];
+    if (!urls.length) return;
+    for (const url of urls) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.download = '';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+}
 
 function setPrimary(url: string) {
     selectedImage.value = url;
