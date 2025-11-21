@@ -26,6 +26,7 @@
                     :file-product="props.fileProduct"
                     :preview-images="previewMedia"
                     :download-url="props.downloadUrl"
+                    :download-zip-url="props.downloadZipUrl"
                     :is-purchased="props.isPurchased"
                 />
 
@@ -97,12 +98,14 @@ interface DetailPageProps {
     fileProduct: DetailFileProduct;
     related?: RelatedPayload;
     downloadUrl?: string | null;
+    downloadZipUrl?: string | null;
     isPurchased?: boolean;
 }
 
 const props = withDefaults(defineProps<DetailPageProps>(), {
     related: undefined,
     downloadUrl: null,
+    downloadZipUrl: null,
     isPurchased: false,
 });
 
