@@ -11,6 +11,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 
 use App\Services\PaymentService;
+use App\Enum\PaymentMethod;
+
 use Illuminate\Support\Facades\Auth;
 
 class ListWallets extends ListRecords
@@ -77,7 +79,7 @@ class ListWallets extends ListRecords
         ];
 
         $paymentService = app(PaymentService::class);
-        $response = $paymentService->processAppointmentPayment($data, 'qr_transfer', false);
+        $response = $paymentService->processAppointmentPayment($data, PaymentMethod::QR_TRANSFER->gatewayChannel(), false);
 
         if (isset($response['checkoutUrl'])) {
             $this->js('window.location.href = "' . $response['checkoutUrl'] . '";');
