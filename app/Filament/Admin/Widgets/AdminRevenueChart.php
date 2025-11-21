@@ -9,25 +9,140 @@ use App\Enum\FileProductBillStatus;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
+use Filament\Widgets\ChartWidget\Concerns\HasFiltersSchema;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Schema;
 
 class AdminRevenueChart extends ChartWidget
 {
+    use HasFiltersSchema;
+
     protected ?string $heading = 'Biểu đồ doanh thu 12 tháng gần nhất';
 
     protected int | string | array $columnSpan = 'full';
 
     protected ?string $maxHeight = '400px';
 
+    protected static bool $isLazy = false;
+
+    public function filtersSchema(Schema $schema): Schema
+    {
+        return $schema->components([
+            Select::make('period')
+                ->label('Khoảng thời gian')
+                ->options([
+                    'today' => 'Hôm nay',
+                    'yesterday' => 'Hôm qua',
+                    'last_7_days' => '7 ngày qua',
+                    'last_30_days' => '30 ngày qua',
+                    'this_month' => 'Tháng này',
+                    'last_month' => 'Tháng trước',
+                    'last_3_months' => '3 tháng qua',
+                    'last_6_months' => '6 tháng qua',
+                    'last_12_months' => '12 tháng qua',
+                    'this_year' => 'Năm nay',
+                    'last_year' => 'Năm trước',
+                ])
+                ->default('last_12_months')
+                ->native(false)
+                ->selectablePlaceholder(false),
+        ]);
+    }
+
     protected function getCacheKey(): string
     {
-        return 'admin_revenue_chart_' . Carbon::now()->format('Y-m-d-H');
+        $period = $this->filters['period'] ?? 'last_12_months';
+        return 'admin_revenue_chart_' . $period . '_' . Carbon::now()->format('Y-m-d-H');
+    }
+
+    protected function getDateRange(): array
+    {
+        $period = $this->filters['period'] ?? 'last_12_months';
+        return match ($period) {
+            'today' => [
+                'start' => Carbon::today(),
+                'end' => Carbon::now(),
+                'interval' => 'hour',
+            ],
+            'yesterday' => [
+                'start' => Carbon::yesterday()->startOfDay(),
+                'end' => Carbon::yesterday()->endOfDay(),
+                'interval' => 'hour',
+            ],
+            'last_7_days' => [
+                'start' => Carbon::now()->subDays(6)->startOfDay(),
+                'end' => Carbon::now(),
+                'interval' => 'day',
+            ],
+            'last_30_days' => [
+                'start' => Carbon::now()->subDays(29)->startOfDay(),
+                'end' => Carbon::now(),
+                'interval' => 'day',
+            ],
+            'this_month' => [
+                'start' => Carbon::now()->startOfMonth(),
+                'end' => Carbon::now(),
+                'interval' => 'day',
+            ],
+            'last_month' => [
+                'start' => Carbon::now()->subMonth()->startOfMonth(),
+                'end' => Carbon::now()->subMonth()->endOfMonth(),
+                'interval' => 'day',
+            ],
+            'last_3_months' => [
+                'start' => Carbon::now()->subMonths(2)->startOfMonth(),
+                'end' => Carbon::now(),
+                'interval' => 'month',
+            ],
+            'last_6_months' => [
+                'start' => Carbon::now()->subMonths(5)->startOfMonth(),
+                'end' => Carbon::now(),
+                'interval' => 'month',
+            ],
+            'last_12_months' => [
+                'start' => Carbon::now()->subMonths(11)->startOfMonth(),
+                'end' => Carbon::now(),
+                'interval' => 'month',
+            ],
+            'this_year' => [
+                'start' => Carbon::now()->startOfYear(),
+                'end' => Carbon::now(),
+                'interval' => 'month',
+            ],
+            'last_year' => [
+                'start' => Carbon::now()->subYear()->startOfYear(),
+                'end' => Carbon::now()->subYear()->endOfYear(),
+                'interval' => 'month',
+            ],
+            default => [
+                'start' => Carbon::now()->subMonths(11)->startOfMonth(),
+                'end' => Carbon::now(),
+                'interval' => 'month',
+            ],
+        };
     }
 
     protected function getData(): array
     {
         // Cache dữ liệu trong 1 giờ
         return Cache::remember($this->getCacheKey(), 3600, function () {
-            $startDate = Carbon::now()->subMonths(11)->startOfMonth();
+            $dateRange = $this->getDateRange();
+            $startDate = $dateRange['start'];
+            $endDate = $dateRange['end'];
+            $interval = $dateRange['interval'];
+
+            // Xác định format query dựa trên interval
+            $groupByFormat = match ($interval) {
+                'hour' => 'YEAR(created_at) as year, MONTH(created_at) as month, DAY(created_at) as day, HOUR(created_at) as hour, SUM(final_total) as total_revenue',
+                'day' => 'YEAR(created_at) as year, MONTH(created_at) as month, DAY(created_at) as day, SUM(final_total) as total_revenue',
+                'month' => 'YEAR(created_at) as year, MONTH(created_at) as month, SUM(final_total) as total_revenue',
+            };
+
+            $groupByFields = match ($interval) {
+                'hour' => ['year', 'month', 'day', 'hour'],
+                'day' => ['year', 'month', 'day'],
+                'month' => ['year', 'month'],
+            };
 
             // Lấy doanh thu từ Partner Bills
             $partnerRevenue = PartnerBill::whereIn('status', [
@@ -35,38 +150,61 @@ class AdminRevenueChart extends ChartWidget
                 PartnerBillStatus::CONFIRMED,
                 PartnerBillStatus::IN_JOB
             ])
-                ->where('created_at', '>=', $startDate)
-                ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(final_total) as total_revenue')
-                ->groupBy('year', 'month')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->selectRaw($groupByFormat)
+                ->groupBy($groupByFields)
                 ->orderBy('year')
                 ->orderBy('month')
+                ->when($interval !== 'month', fn($q) => $q->orderBy('day'))
+                ->when($interval === 'hour', fn($q) => $q->orderBy('hour'))
                 ->get()
-                ->keyBy(function ($item) {
-                    return $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT);
+                ->keyBy(function ($item) use ($interval) {
+                    return match ($interval) {
+                        'hour' => $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($item->day, 2, '0', STR_PAD_LEFT) . '-' . str_pad($item->hour, 2, '0', STR_PAD_LEFT),
+                        'day' => $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($item->day, 2, '0', STR_PAD_LEFT),
+                        'month' => $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT),
+                    };
                 });
 
             // Lấy doanh thu từ File Product Bills
             $fileProductRevenue = FileProductBill::where('status', FileProductBillStatus::PAID)
-                ->where('created_at', '>=', $startDate)
-                ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(final_total) as total_revenue')
-                ->groupBy('year', 'month')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->selectRaw($groupByFormat)
+                ->groupBy($groupByFields)
                 ->orderBy('year')
                 ->orderBy('month')
+                ->when($interval !== 'month', fn($q) => $q->orderBy('day'))
+                ->when($interval === 'hour', fn($q) => $q->orderBy('hour'))
                 ->get()
-                ->keyBy(function ($item) {
-                    return $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT);
+                ->keyBy(function ($item) use ($interval) {
+                    return match ($interval) {
+                        'hour' => $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($item->day, 2, '0', STR_PAD_LEFT) . '-' . str_pad($item->hour, 2, '0', STR_PAD_LEFT),
+                        'day' => $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($item->day, 2, '0', STR_PAD_LEFT),
+                        'month' => $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT),
+                    };
                 });
 
-            // Tạo dữ liệu cho 12 tháng
+            // Tạo dữ liệu theo khoảng thời gian
             $partnerMonthlyRevenue = [];
             $fileProductMonthlyRevenue = [];
             $totalMonthlyRevenue = [];
             $labels = [];
 
-            for ($i = 11; $i >= 0; $i--) {
-                $date = Carbon::now()->subMonths($i);
-                $labels[] = $date->format('M Y');
-                $key = $date->format('Y-m');
+            $current = $startDate->copy();
+            while ($current <= $endDate) {
+                $key = match ($interval) {
+                    'hour' => $current->format('Y-m-d-H'),
+                    'day' => $current->format('Y-m-d'),
+                    'month' => $current->format('Y-m'),
+                };
+
+                $label = match ($interval) {
+                    'hour' => $current->format('H:i'),
+                    'day' => $current->format('d/m'),
+                    'month' => $current->format('M Y'),
+                };
+
+                $labels[] = $label;
 
                 $partnerRev = $partnerRevenue->get($key)?->total_revenue ?? 0;
                 $fileRev = $fileProductRevenue->get($key)?->total_revenue ?? 0;
@@ -74,6 +212,12 @@ class AdminRevenueChart extends ChartWidget
                 $partnerMonthlyRevenue[] = (float) $partnerRev;
                 $fileProductMonthlyRevenue[] = (float) $fileRev;
                 $totalMonthlyRevenue[] = (float) ($partnerRev + $fileRev);
+
+                $current = match ($interval) {
+                    'hour' => $current->addHour(),
+                    'day' => $current->addDay(),
+                    'month' => $current->addMonth(),
+                };
             }
 
             return [
