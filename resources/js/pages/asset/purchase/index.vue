@@ -53,7 +53,7 @@ const form = useForm<PurchaseFormFields>({
     company: props.buyer?.company ?? '',
     tax_code: props.buyer?.tax_code ?? '',
     note: props.buyer?.note ?? '',
-    payment_method: props.buyer?.payment_method ?? props.paymentMethods[0]?.code ?? 'bank_transfer',
+    payment_method: props.buyer?.payment_method ?? props.paymentMethods[0]?.code ?? '',
 });
 
 watch(
