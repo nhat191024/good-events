@@ -14,6 +14,8 @@ class AppSettings extends Settings
     public ?string $app_partner_title = null;
     public ?string $app_design_title = null;
     public ?string $app_rental_title = null;
+    public ?string $contact_hotline = null;
+    public ?string $contact_email = null;
 
     public static function group(): string
     {
