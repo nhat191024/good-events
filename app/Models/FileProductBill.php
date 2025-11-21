@@ -15,7 +15,12 @@ use App\Enum\PaymentMethod;
  * @property int $file_product_id
  * @property int $client_id
  * @property float $total
+ * @property float|null $tax
  * @property float|null $final_total
+ * @property int|null $tax_number
+ * @property string|null $company_name
+ * @property string|null $note
+ * @property PaymentMethod $payment_method
  * @property FileProductBillStatus $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -27,11 +32,16 @@ use App\Enum\PaymentMethod;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereCompanyName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereFileProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereFinalTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill wherePaymentMethod($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereTax($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereTaxNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereUpdatedAt($value)
  * @mixin \Eloquent
