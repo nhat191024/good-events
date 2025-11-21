@@ -56,9 +56,9 @@ class ManageFileProductDesigns extends Page implements HasForms
                                 '1:1',
                             ])
                             ->maxFiles(20)
-                            ->maxSize(10240) // 10MB
+                            ->maxSize(102400) // 100MB
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'application/octet-stream', 'image/vnd.adobe.photoshop', '.psd'])
-                            ->helperText('Có thể upload tối đa 20 ảnh, mỗi ảnh tối đa 10MB. Hỗ trợ: JPG, PNG, WebP, SVG, PSD')
+                            ->helperText('Có thể upload tối đa 20 ảnh, mỗi ảnh tối đa 100MB. Hỗ trợ: JPG, PNG, WebP, SVG, PSD')
                             // ->temporary()
                             ->columnSpanFull(),
                     ]),
