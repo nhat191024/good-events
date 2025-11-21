@@ -42,6 +42,9 @@ return [
             'helper_text' => 'Upload banner images to display on the respective pages.',
         ],
 
+        'contact_hotline' => 'Contact Hotline',
+        'contact_email' => 'Contact Email',
+
         'minimum_balance' => 'Minimum Balance',
         'fee_percentage' => 'Fee Percentage',
     ]

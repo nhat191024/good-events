@@ -41,6 +41,9 @@ return [
             'helper_text' => 'Tải lên các hình ảnh biểu ngữ để hiển thị trên trang tương ứng.',
         ],
 
+        'contact_hotline' => 'Số điện thoại',
+        'contact_email' => 'Email liên hệ',
+
         'minimum_balance' => 'Số dư tối thiểu',
         'fee_percentage' => 'Phần trăm phí',
     ]
