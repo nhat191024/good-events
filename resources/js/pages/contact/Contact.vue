@@ -1,4 +1,5 @@
 <template>
+
     <Head title="Liên hệ" />
 
     <ClientHeaderLayout>
@@ -11,28 +12,20 @@
             >
                 <ContactHero :hotline="settings.contact_hotline" />
             </motion.section>
-            <motion.section
-                :initial="sectionMotion.initial"
-                :while-in-view="sectionMotion.visible"
-                :viewport="sectionMotion.viewport"
-                :transition="getSectionTransition(1)"
-            >
+            <motion.section :initial="sectionMotion.initial" :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport" :transition="getSectionTransition(1)">
                 <ContactOptions :channels="contactChannels" />
             </motion.section>
-            <motion.section
+            <!-- <motion.section
                 :initial="sectionMotion.initial"
                 :while-in-view="sectionMotion.visible"
                 :viewport="sectionMotion.viewport"
                 :transition="getSectionTransition(2)"
             >
                 <ContactForm :topics="formTopics" />
-            </motion.section>
-            <motion.section
-                :initial="sectionMotion.initial"
-                :while-in-view="sectionMotion.visible"
-                :viewport="sectionMotion.viewport"
-                :transition="getSectionTransition(3)"
-            >
+            </motion.section> -->
+            <motion.section :initial="sectionMotion.initial" :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport" :transition="getSectionTransition(3)">
                 <ContactFAQ :faqs="faqs" />
             </motion.section>
         </div>

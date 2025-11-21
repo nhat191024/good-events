@@ -87,12 +87,16 @@ class AppServiceProvider extends ServiceProvider
                 'app_name'    => $settings->app_name,
                 'app_logo'    => $settings->app_logo,
                 'app_favicon' => $settings->app_favicon,
+                'contact_hotline' => $settings->contact_hotline,
+                'contact_email' => $settings->contact_email,
             ];
         } catch (\Exception $e) {
             return [
                 'app_name'    => config('app.name'),
                 'app_logo'    => null,
                 'app_favicon' => null,
+                'contact_hotline' => null,
+                'contact_email' => null,
             ];
         }
     }

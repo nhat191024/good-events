@@ -29,12 +29,13 @@ withDefaults(defineProps<Props>(), {
 });
 
 const menuItems = [
-    { name: 'Nhân sự', slug: 'home', route: route('home') },
-    { name: 'Thiết bị sự kiện', slug: 'supply', route: route('rent.home') },
-    { name: 'Thiết kế ', slug: 'document', route: route('asset.home') },
-    { name: 'Địa điểm tổ chức', slug: 'blog', route: route('blog.discover') },
-    { name: 'Hướng dẫn tổ chức', slug: 'guides', route: route('blog.guides.discover') },
-    { name: 'Kiến thức nghề', slug: 'knowledge', route: route('blog.knowledge.discover') },
+    { name: 'Nhân sự', shortName: 'Nhân sự', slug: 'home', routeName: 'home', route: route('home') },
+    { name: 'Thiết bị sự kiện', shortName: 'Thiết bị', slug: 'supply', routeName: 'rent.home', route: route('rent.home') },
+    { name: 'Thiết kế ', shortName: 'Tài liệu', slug: 'document', routeName: 'asset.home', route: route('asset.home') },
+    { name: 'Địa điểm tổ chức', shortName: 'Địa điểm', slug: 'blog', routeName: 'blog.discover', route: route('blog.discover') },
+    { name: 'Hướng dẫn tổ chức', shortName: 'Hướng dẫn', slug: 'guides', routeName: 'blog.guides.discover', route: route('blog.guides.discover') },
+    { name: 'Kiến thức nghề', shortName: 'Kiến thức', slug: 'knowledge', routeName: 'blog.knowledge.discover', route: route('blog.knowledge.discover') },
+    { name: 'Về chúng tôi', shortName: 'Giới thiệu', slug: 'about', routeName: 'about.index', route: route('about.index') },
 ];
 
 const navLinkMotion = {
@@ -150,8 +151,8 @@ onUnmounted(() => {
         'fixed top-0 left-0 w-full z-50 transition-all duration-300',
         isFloating ? 'shadow-md bg-white/30 backdrop-blur-md' : backgroundClassNames + ' backdrop-blur-md'
     ]">
-        <div class="md:px-2 lg:px-2 mx-auto">
-            <div class="flex items-center justify-between h-16 md:px-3 px-1 gap-1">
+        <div class="md:px-1 lg:px-2 mx-auto">
+            <div class="flex items-center justify-between h-16 px-0 px-1 gap-1">
                 <div class="flex items-center gap-2">
                     <HamburgerMenu class="block lg:hidden" :menu-items="menuItems" />
                     <!-- Logo + text -->
@@ -166,23 +167,15 @@ onUnmounted(() => {
                 <div class="hidden lg:flex items-center gap-8">
                     <!-- Nav items (đậm, hover không đổi kích thước) -->
                     <nav class="flex items-center gap-3">
-                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
-                            <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Nhân sự</Link>
-                        </motion.div>
-                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
-                            <Link :href="route('rent.home')" class="font-semibold text-black hover:text-black/80">Thiết Bị</Link>
-                        </motion.div>
-                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
-                            <Link :href="route('asset.home')" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
-                        </motion.div>
-                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
-                            <Link :href="route('blog.discover')" class="font-semibold text-black hover:text-black/80">Địa điểm</Link>
-                        </motion.div>
-                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
-                            <Link :href="route('blog.guides.discover')" class="font-semibold text-black hover:text-black/80">Hướng dẫn</Link>
-                        </motion.div>
-                        <motion.div class="inline-flex" :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap" :transition="navLinkMotion.transition">
-                            <Link :href="route('blog.knowledge.discover')" class="font-semibold text-black hover:text-black/80">Kiến thức nghề</Link>
+                        <motion.div v-for="item in menuItems" :key="item.slug" class="inline-flex"
+                            :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap"
+                            :transition="navLinkMotion.transition">
+                            <Link :href="item.route" :class="[
+                                'font-semibold transition-colors duration-200',
+                                route().current(item.routeName) ? 'text-[#ED3B50] hidden' : 'text-black hover:text-black/80'
+                            ]">
+                            {{ item.shortName }}
+                            </Link>
                         </motion.div>
                     </nav>
                 </div>
@@ -191,7 +184,7 @@ onUnmounted(() => {
                 <div class="flex items-center gap-1">
                     <!-- Pill: Đặt show nhanh -->
                     <Link :href="route('quick-booking.choose-category')"
-                    class="inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
+                        class="inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path
                             d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
@@ -201,13 +194,8 @@ onUnmounted(() => {
                     <span class="hidden sm:inline">Đặt show</span>
                     </Link>
                     <DropdownMenu />
-                    <NotificationPopover
-                        :items="notificationItems"
-                        :loading="isFetching"
-                        @mark-all-read="markAllAsRead"
-                        @select="markAsRead"
-                        @reload="reloadNotifications"
-                    />
+                    <NotificationPopover :items="notificationItems" :loading="isFetching" @mark-all-read="markAllAsRead"
+                        @select="markAsRead" @reload="reloadNotifications" />
                 </div>
             </div>
         </div>
