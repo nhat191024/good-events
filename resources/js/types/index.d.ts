@@ -43,6 +43,8 @@ export interface AppSettings {
     app_name: string;
     app_logo?: string | null;
     app_favicon?: string | null;
+    contact_hotline?: string | null;
+    contact_email?: string | null;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
