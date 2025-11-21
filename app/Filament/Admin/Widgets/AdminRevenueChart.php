@@ -2,16 +2,21 @@
 
 namespace App\Filament\Admin\Widgets;
 
+use Carbon\Carbon;
+
 use App\Models\PartnerBill;
 use App\Models\FileProductBill;
+
 use App\Enum\PartnerBillStatus;
 use App\Enum\FileProductBillStatus;
+
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\Cache;
-use Carbon\Carbon;
 use Filament\Widgets\ChartWidget\Concerns\HasFiltersSchema;
-use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
+
+use Illuminate\Support\Facades\Cache;
+
+use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 
 class AdminRevenueChart extends ChartWidget
 {
@@ -28,99 +33,75 @@ class AdminRevenueChart extends ChartWidget
     public function filtersSchema(Schema $schema): Schema
     {
         return $schema->components([
-            Select::make('period')
+            DateRangePicker::make('date_range')
                 ->label('Khoảng thời gian')
-                ->options([
-                    'today' => 'Hôm nay',
-                    'yesterday' => 'Hôm qua',
-                    'last_7_days' => '7 ngày qua',
-                    'last_30_days' => '30 ngày qua',
-                    'this_month' => 'Tháng này',
-                    'last_month' => 'Tháng trước',
-                    'last_3_months' => '3 tháng qua',
-                    'last_6_months' => '6 tháng qua',
-                    'last_12_months' => '12 tháng qua',
-                    'this_year' => 'Năm nay',
-                    'last_year' => 'Năm trước',
+                ->placeholder('Chọn khoảng thời gian')
+                ->displayFormat('DD/MM/YYYY')
+                ->format('d/m/Y')
+                // ->startDate(now()->subMonths(11)->startOfMonth())
+                // ->endDate(now())
+                ->maxDate(now())
+                ->ranges([
+                    'Hôm nay' => [now(), now()],
+                    'Hôm qua' => [now()->subDay(), now()->subDay()],
+                    '7 ngày qua' => [now()->subDays(6), now()],
+                    '30 ngày qua' => [now()->subDays(29), now()],
+                    'Tháng này' => [now()->startOfMonth(), now()],
+                    'Tháng trước' => [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()],
+                    '3 tháng qua' => [now()->subMonths(2)->startOfMonth(), now()],
+                    '6 tháng qua' => [now()->subMonths(5)->startOfMonth(), now()],
+                    '12 tháng qua' => [now()->subMonths(11)->startOfMonth(), now()],
+                    'Năm nay' => [now()->startOfYear(), now()],
+                    'Năm trước' => [now()->subYear()->startOfYear(), now()->subYear()->endOfYear()],
                 ])
-                ->default('last_12_months')
-                ->native(false)
-                ->selectablePlaceholder(false),
+                ->useRangeLabels()
+                ->autoApply()
+                ->firstDayOfWeek(1),
         ]);
     }
 
     protected function getCacheKey(): string
     {
-        $period = $this->filters['period'] ?? 'last_12_months';
-        return 'admin_revenue_chart_' . $period . '_' . Carbon::now()->format('Y-m-d-H');
+        $dateRange = $this->filters['date_range'] ?? '';
+        return 'admin_revenue_chart_' . md5($dateRange) . '_' . Carbon::now()->format('Y-m-d-H');
     }
 
     protected function getDateRange(): array
     {
-        $period = $this->filters['period'] ?? 'last_12_months';
-        return match ($period) {
-            'today' => [
-                'start' => Carbon::today(),
-                'end' => Carbon::now(),
-                'interval' => 'hour',
-            ],
-            'yesterday' => [
-                'start' => Carbon::yesterday()->startOfDay(),
-                'end' => Carbon::yesterday()->endOfDay(),
-                'interval' => 'hour',
-            ],
-            'last_7_days' => [
-                'start' => Carbon::now()->subDays(6)->startOfDay(),
-                'end' => Carbon::now(),
-                'interval' => 'day',
-            ],
-            'last_30_days' => [
-                'start' => Carbon::now()->subDays(29)->startOfDay(),
-                'end' => Carbon::now(),
-                'interval' => 'day',
-            ],
-            'this_month' => [
-                'start' => Carbon::now()->startOfMonth(),
-                'end' => Carbon::now(),
-                'interval' => 'day',
-            ],
-            'last_month' => [
-                'start' => Carbon::now()->subMonth()->startOfMonth(),
-                'end' => Carbon::now()->subMonth()->endOfMonth(),
-                'interval' => 'day',
-            ],
-            'last_3_months' => [
-                'start' => Carbon::now()->subMonths(2)->startOfMonth(),
-                'end' => Carbon::now(),
-                'interval' => 'month',
-            ],
-            'last_6_months' => [
-                'start' => Carbon::now()->subMonths(5)->startOfMonth(),
-                'end' => Carbon::now(),
-                'interval' => 'month',
-            ],
-            'last_12_months' => [
-                'start' => Carbon::now()->subMonths(11)->startOfMonth(),
-                'end' => Carbon::now(),
-                'interval' => 'month',
-            ],
-            'this_year' => [
-                'start' => Carbon::now()->startOfYear(),
-                'end' => Carbon::now(),
-                'interval' => 'month',
-            ],
-            'last_year' => [
-                'start' => Carbon::now()->subYear()->startOfYear(),
-                'end' => Carbon::now()->subYear()->endOfYear(),
-                'interval' => 'month',
-            ],
-            default => [
-                'start' => Carbon::now()->subMonths(11)->startOfMonth(),
-                'end' => Carbon::now(),
-                'interval' => 'month',
-            ],
-        };
+        $dateRange = $this->filters['date_range'] ?? null;
+
+        if ($dateRange) {
+            // Parse date range string (format: "DD/MM/YYYY - DD/MM/YYYY")
+            $dates = explode(' - ', $dateRange);
+            if (count($dates) === 2) {
+                $startDate = Carbon::createFromFormat('d/m/Y', trim($dates[0]))->startOfDay();
+                $endDate = Carbon::createFromFormat('d/m/Y', trim($dates[1]))->endOfDay();
+
+                // Xác định interval dựa trên khoảng cách
+                $diffInDays = $startDate->diffInDays($endDate);
+                $interval = match (true) {
+                    $diffInDays <= 2 => 'hour',
+                    $diffInDays <= 90 => 'day',
+                    default => 'month',
+                };
+
+                return [
+                    'start' => $startDate,
+                    'end' => $endDate,
+                    'interval' => $interval,
+                ];
+            }
+        }
+
+        // Default: 12 months
+        return [
+            'start' => Carbon::now()->subMonths(11)->startOfMonth(),
+            'end' => Carbon::now(),
+            'interval' => 'month',
+        ];
     }
+
+
 
     protected function getData(): array
     {
