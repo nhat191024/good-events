@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { ref } from 'vue';
+import axios from 'axios';
 
 import { formatDate, formatPrice } from '@/lib/helper';
 
@@ -18,6 +20,10 @@ const emit = defineEmits<{
 }>();
 
 const product = computed(() => props.order?.file_product ?? null);
+
+const downloadUrl = computed(() => product.value?.download_url ?? null);
+const downloadUrls = computed(() => product.value?.download_urls ?? []);
+const downloadZipUrl = computed(() => product.value?.download_zip_url ?? null);
 
 const createdAt = computed(() => props.order ? formatDate(props.order.created_at) : null);
 const updatedAt = computed(() => props.order ? formatDate(props.order.updated_at) : null);
@@ -60,6 +66,25 @@ function triggerRepay() {
         emit('repay', props.order);
     }
 }
+
+function triggerDownloadAll() {
+    const urls = downloadUrls.value || [];
+    if (!urls.length) return;
+
+    // Programmatically trigger downloads for each url
+    for (const url of urls) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.download = '';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+}
+
+// Background ZIP handling removed; only synchronous ZIP download is provided now
 </script>
 
 <template>
@@ -144,13 +169,35 @@ function triggerRepay() {
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <button
-                        type="button"
-                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl border border-primary-200 bg-white px-4 text-sm font-medium text-primary-700 shadow-sm hover:bg-primary-50 disabled:pointer-events-none disabled:opacity-60"
-                        :disabled="!order.can_download"
-                    >
-                        Tải thiết kế
-                    </button>
+                                <template v-if="order?.can_download && downloadUrls && downloadUrls.length > 1">
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                                        @click="triggerDownloadAll"
+                                    >
+                                        Tải tất cả
+                                    </button>
+                                </template>
+                                <template v-if="order?.can_download && downloadZipUrl">
+                                    <a
+                                        :href="downloadZipUrl"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                                    >
+                                        Tải ZIP
+                                    </a>
+                                </template>
+                                <!-- Background ZIP download removed; leave synchronous ZIP link above -->
+                                <template v-else>
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl border border-primary-200 bg-white px-4 text-sm font-medium text-primary-700 shadow-sm hover:bg-primary-50 disabled:pointer-events-none disabled:opacity-60"
+                                        :disabled="!order.can_download"
+                                    >
+                                        Tải thiết kế
+                                    </button>
+                                </template>
                     <button
                         v-if="order.can_repay"
                         type="button"
@@ -159,6 +206,7 @@ function triggerRepay() {
                     >
                         Thanh toán lại
                     </button>
+                    <!-- Background ZIP modal removed -->
                 </div>
             </div>
         </div>
