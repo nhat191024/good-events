@@ -17,7 +17,7 @@ class AdminRevenueChart extends ChartWidget
 {
     use HasFiltersSchema;
 
-    protected ?string $heading = 'Biểu đồ doanh thu 12 tháng gần nhất';
+    protected ?string $heading = 'Biểu đồ doanh thu';
 
     protected int | string | array $columnSpan = 'full';
 
