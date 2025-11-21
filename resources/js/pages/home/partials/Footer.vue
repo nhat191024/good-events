@@ -58,8 +58,9 @@ const badgeMotion = {
 
 <template>
     <!-- Accent line (chỉ 1 line đỏ mỏng) -->
-    <motion.div class="w-full h-[2px] bg-[#ED3B50]" :initial="accentMotion.initial" :while-in-view="accentMotion.visible"
-        :viewport="accentMotion.viewport" :transition="accentMotion.transition"></motion.div>
+    <motion.div class="w-full h-[2px] bg-[#ED3B50]" :initial="accentMotion.initial"
+        :while-in-view="accentMotion.visible" :viewport="accentMotion.viewport" :transition="accentMotion.transition">
+    </motion.div>
 
     <!-- App Download strip -->
     <motion.div class="bg-white" :initial="downloadMotion.initial" :while-in-view="downloadMotion.visible"
@@ -86,23 +87,30 @@ const badgeMotion = {
 
     <!-- Main Footer (không có line separator) -->
     <footer class="bg-white md:py-12 py-2">
-        <motion.div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-            :initial="footerContentMotion.initial" :while-in-view="footerContentMotion.visible"
-            :viewport="footerContentMotion.viewport" :transition="footerContentMotion.transition">
+        <motion.div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" :initial="footerContentMotion.initial"
+            :while-in-view="footerContentMotion.visible" :viewport="footerContentMotion.viewport"
+            :transition="footerContentMotion.transition">
             <div class="grid grid-cols-2 md:grid-cols-6 gap-8">
                 <!-- Logo -->
                 <Link :href="route('home')" class="col-span-2 md:col-span-1">
-                    <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot" class="h-26 w-26 rounded-full object-contain" />
+                <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot"
+                    class="h-26 w-26 rounded-full object-contain" />
                 </Link>
 
                 <!-- Sự kiện -->
                 <div>
                     <h4 class="font-semibold text-gray-900 mb-4">Sự kiện</h4>
                     <ul class="space-y-2">
-                        <li><Link href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Chú hề</Link></li>
-                        <li><Link href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Ảo thuật gia</Link>
+                        <li>
+                            <Link href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Chú hề</Link>
                         </li>
-                        <li><Link href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Mascot</Link></li>
+                        <li>
+                            <Link href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Ảo thuật gia
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="#" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Mascot</Link>
+                        </li>
                     </ul>
                 </div>
 
@@ -130,9 +138,18 @@ const badgeMotion = {
                 <div>
                     <h4 class="font-semibold text-gray-900 mb-4">Blog</h4>
                     <ul class="space-y-2">
-                        <li><Link :href="route('blog.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Địa điểm</Link></li>
-                        <li><Link :href="route('blog.guides.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Hướng dẫn sự kiện</Link></li>
-                        <li><Link :href="route('blog.knowledge.discover')" class="text-gray-600 hover:text-[#ED3B50] transition-colors">Kiến thức nghề</Link></li>
+                        <li>
+                            <Link :href="route('blog.discover')"
+                                class="text-gray-600 hover:text-[#ED3B50] transition-colors">Địa điểm</Link>
+                        </li>
+                        <li>
+                            <Link :href="route('blog.guides.discover')"
+                                class="text-gray-600 hover:text-[#ED3B50] transition-colors">Hướng dẫn sự kiện</Link>
+                        </li>
+                        <li>
+                            <Link :href="route('blog.knowledge.discover')"
+                                class="text-gray-600 hover:text-[#ED3B50] transition-colors">Kiến thức nghề</Link>
+                        </li>
                     </ul>
                 </div>
 
@@ -159,7 +176,7 @@ const badgeMotion = {
                         GPMXH: 185/GP-BTTTT do Bộ Thông tin và Truyền thông cấp ngày 08/07/2025.
                     </p>
                     <p>
-                        Email: trogiup@sukientot.vn - Tổng đài CSKH: 1900-100-69 (5000đ/phút)
+                        Email: {{ settings.contact_email }} - Tổng đài CSKH: {{ settings.contact_hotline }} (5000đ/phút)
                     </p>
                     <p>
                         Chịu trách nhiệm nội dung: Trần Kiên Trí. Chính sách sử dụng. Địa chỉ: Tầng 69, Tòa nhà OIA, Số
