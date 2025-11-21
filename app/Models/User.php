@@ -49,7 +49,7 @@ use App\Enum\Role;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $authoredReviews
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Review> $authoredReviews
  * @property-read int|null $authored_reviews_count
  * @property-read string|null $avatar_url
  * @property-read non-empty-string $balance
@@ -75,7 +75,7 @@ use App\Enum\Role;
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $receivedTransfers
  * @property-read int|null $received_transfers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $reviews
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Review> $reviews
  * @property-read int|null $reviews_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read int|null $roles_count
