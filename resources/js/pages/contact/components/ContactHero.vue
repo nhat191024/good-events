@@ -51,7 +51,7 @@ import { computed } from 'vue';
 const props = defineProps<{ hotline?: string | null }>();
 
 const heroHighlights = computed(() => [
-    { label: 'Hotline ưu tiên:', value: props.hotline ?? '' },
+    { label: 'Hotline ưu tiên:', value: props.hotline ?? '1900 636 902' },
     { label: 'Giờ làm việc:', value: '7:00 - 22:00 (T2 - CN)' },
 ]);
 
