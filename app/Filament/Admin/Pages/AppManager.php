@@ -67,6 +67,16 @@ class AppManager extends SettingsPage
                             ->columnSpanFull()
                             ->required(),
 
+                        TextInput::make('contact_hotline')
+                            ->label(__(__('admin/setting.fields.contact_hotline')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('contact_email')
+                            ->label(__(__('admin/setting.fields.contact_email')))
+                            ->columnSpanFull()
+                            ->required(),
+
                         FileUpload::make('app_logo')
                             ->label(__(__('admin/setting.fields.logo')))
                             ->image()
