@@ -24,7 +24,6 @@ class GoodLocationsForm
                 TextInput::make('title')
                     ->label(__('admin/blog.fields.title'))
                     ->placeholder(__('admin/blog.placeholders.title'))
-                    ->columnSpanFull()
                     ->required(),
                 Select::make('category_id')
                     ->label(__('admin/blog.fields.category_id'))
@@ -50,6 +49,10 @@ class GoodLocationsForm
                         fn($value): ?string =>
                         Category::find($value)?->name
                     )
+                    ->required(),
+                TextInput::make('max_people')
+                    ->label(__('admin/blog.fields.max_people'))
+                    ->placeholder(__('admin/blog.placeholders.max_people'))
                     ->required(),
                 TextInput::make('slug')
                     ->label(__('admin/blog.fields.slug'))
