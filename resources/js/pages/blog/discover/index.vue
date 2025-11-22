@@ -22,9 +22,13 @@
                     :province-id="selectedProvinceId"
                     :districts="districtOptions"
                     :district-id="selectedDistrictId"
+                    :max-people="selectedMaxPeople"
+                    :location-detail="selectedLocationDetail"
                     :loading="loadingWards"
                     @update:province-id="handleProvinceChange"
                     @update:district-id="handleDistrictChange"
+                    @update:max-people="handleMaxPeopleChange"
+                    @update:location-detail="handleLocationDetailChange"
                     @clear="clearLocationFilters"
                 />
 
@@ -73,7 +77,10 @@ export interface DiscoverPageProps {
     blogs: Paginated<BlogSummary>;
     categories?: ResourceCollection<Category> | Paginated<Category> | Category[];
     category?: Category | null;
-    filters?: BlogFilters;
+    filters?: BlogFilters & {
+        max_people?: string;
+        location_detail?: string;
+    };
     locations?: {
         provinces?: Province[];
     };
@@ -91,6 +98,12 @@ const props = withDefaults(defineProps<DiscoverPageProps>(), {
 const searchTerm = ref(props.filters?.q ?? '');
 const selectedProvinceId = ref<string | null>(props.filters?.province_id ? String(props.filters?.province_id) : null);
 const selectedDistrictId = ref<string | null>(props.filters?.district_id ? String(props.filters?.district_id) : null);
+const selectedMaxPeople = ref<string | null>(props.filters?.max_people ? String(props.filters?.max_people) : null);
+const selectedLocationDetail = ref<string | null>(props.filters?.location_detail ? String(props.filters?.location_detail) : null);
+
+console.log('props.filters', props.filters);
+console.log('props.blogs', props.blogs);
+
 
 watch(
     () => props.filters?.q,
@@ -111,6 +124,22 @@ watch(
     () => props.filters?.district_id,
     (next) => {
         selectedDistrictId.value = next ? String(next) : null;
+    },
+    { immediate: true }
+);
+
+watch(
+    () => props.filters?.max_people,
+    (next) => {
+        selectedMaxPeople.value = next ? String(next) : null;
+    },
+    { immediate: true }
+);
+
+watch(
+    () => props.filters?.location_detail,
+    (next) => {
+        selectedLocationDetail.value = next ? String(next) : null;
     },
     { immediate: true }
 );
@@ -193,6 +222,8 @@ function buildQueryParams(additional: Record<string, unknown> = {}) {
         q: normalizedServerQuery.value !== '' ? normalizedServerQuery.value : undefined,
         province_id: selectedProvinceId.value ?? undefined,
         district_id: selectedDistrictId.value ?? undefined,
+        max_people: selectedMaxPeople.value ?? undefined,
+        location_detail: selectedLocationDetail.value ?? undefined,
     };
     return { ...base, ...additional };
 }
@@ -234,12 +265,27 @@ function handleDistrictChange(value: string | null): void {
     applyLocationFilter();
 }
 
+function handleMaxPeopleChange(value: string | null): void {
+    selectedMaxPeople.value = value;
+    applyLocationFilter();
+}
+
+function handleLocationDetailChange(value: string | null): void {
+    selectedLocationDetail.value = value;
+    // Debounce could be added here if we were doing live search, but for now we just update the state
+    // and let the user trigger search or apply filter via other means?
+    // Actually, the requirement says "input for location details search (for the input location detail just add on the UI first and do not make functionality yet)"
+    // So we don't need to trigger search yet. But let's keep the state updated.
+}
+
 function clearLocationFilters(): void {
-    if (!selectedProvinceId.value && !selectedDistrictId.value) {
+    if (!selectedProvinceId.value && !selectedDistrictId.value && !selectedMaxPeople.value && !selectedLocationDetail.value) {
         return;
     }
     selectedProvinceId.value = null;
     selectedDistrictId.value = null;
+    selectedMaxPeople.value = null;
+    selectedLocationDetail.value = null;
     applyLocationFilter();
 }
 

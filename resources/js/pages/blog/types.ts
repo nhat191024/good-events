@@ -1,4 +1,11 @@
-import type { Category, Tag } from '@/pages/home/types';
+import type { Category, Parent, Tag } from '@/pages/home/types';
+
+export interface BlogLocation {
+    id: number;
+    name: string;
+    type?: string | null;
+    province?: Parent | null;
+}
 
 export interface Author {
     id: number;
@@ -15,6 +22,8 @@ export interface BlogSummary {
     thumbnail?: string | null;
     published_at?: string | null;
     published_human?: string | null;
+    max_people?: number | null;
+    location?: BlogLocation | null;
     category?: Category | null;
     author?: Author | null;
     tags?: Tag[] | null;
@@ -23,6 +32,9 @@ export interface BlogSummary {
 export interface BlogDetail extends BlogSummary {
     content: string;
     read_time_minutes?: number | null;
+    address?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
 }
 
 export interface BlogFilters {

@@ -27,8 +27,8 @@ class HomeController extends Controller
 
         $expireAt = now()->addMinutes(3600);
 
-        $app_partner_banner = Banner::where('type', 'partner')->first()->getMedia('banners');
-        $app_partner_banner_mobile = Banner::where('type', 'mobile_partner')->first()->getMedia('banners');
+        $app_partner_banner = Banner::where('type', 'partner')->first()?->getMedia('banners') ?? collect();
+        $app_partner_banner_mobile = Banner::where('type', 'mobile_partner')->first()?->getMedia('banners') ?? collect();
 
         $initialData = $this->fetchEventCategories(self::INITIAL_EVENT_CATEGORY_LIMIT, 0, $expireAt);
 
@@ -163,7 +163,7 @@ class HomeController extends Controller
 
     private function getImageUrl($model)
     {
-        if (! method_exists($model, 'getFirstMediaUrl')) {
+        if (!method_exists($model, 'getFirstMediaUrl')) {
             return null;
         }
 
