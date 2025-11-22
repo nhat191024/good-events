@@ -35,7 +35,7 @@ class VocationalKnowledgeForm
                     ->searchable()
                     ->options(
                         fn() => Category::query()
-                            ->whereType('event_organization_guide')
+                            ->whereType('vocational_knowledge')
                             ->orderBy('created_at', 'desc')
                             ->limit(10)
                             ->pluck('name', 'id')
@@ -44,7 +44,7 @@ class VocationalKnowledgeForm
                     ->getSearchResultsUsing(
                         fn(string $search): array =>
                         Category::query()
-                            ->whereType('event_organization_guide')
+                            ->whereType('vocational_knowledge')
                             ->where('name', 'like', "%{$search}%")
                             ->limit(50)
                             ->pluck('name', 'id')
