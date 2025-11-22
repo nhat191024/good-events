@@ -16,6 +16,7 @@ return [
         'id' => 'ID',
         'thumbnail' => 'Hình đại diện',
         'title' => 'Tiêu đề',
+        'max_people' => 'Số người tối đa',
         'video_url' => 'Link video',
         'slug' => 'Đường dẫn tĩnh',
         'tags' => 'Thẻ',
@@ -31,6 +32,7 @@ return [
 
     'placeholders' => [
         'title' => 'Nhập tiêu đề bài viết',
+        'max_people' => 'Nhập số người tối đa',
         'video_url' => 'Nhập URL video',
         'slug' => 'Đường dẫn tĩnh sẽ được tự động tạo',
         'tags' => 'Nhập tên thẻ để tìm kiếm và nhấn enter để thêm',

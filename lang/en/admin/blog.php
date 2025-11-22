@@ -16,6 +16,7 @@ return [
         'id' => 'ID',
         'thumbnail' => 'Thumbnail',
         'title' => 'Title',
+        'max_people' => 'Max People',
         'video_url' => 'Video URL',
         'slug' => 'Slug',
         'tags' => 'Tags',
@@ -31,6 +32,7 @@ return [
 
     'placeholders' => [
         'title' => 'Enter the blog title',
+        'max_people' => 'Enter the maximum number of people',
         'video_url' => 'Enter the video URL',
         'slug' => 'The slug will be generated automatically',
         'tags' => 'Type tag names to search and press enter to add',
