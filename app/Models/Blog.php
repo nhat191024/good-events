@@ -86,6 +86,9 @@ class Blog extends Model implements HasMedia
         'location_id',
         'max_people',
         'type',
+        'address',
+        'latitude',
+        'longitude',
     ];
 
     /**
