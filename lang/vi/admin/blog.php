@@ -25,6 +25,11 @@ return [
         'content' => 'Nội dung',
         'category_id' => 'Danh mục',
         'author_id' => 'Tác giả',
+        'address' => 'Địa chỉ',
+        'latitude' => 'Vĩ độ',
+        'longitude' => 'Kinh độ',
+        'search' => 'Tìm kiếm',
+        'map' => 'Bản đồ',
         'created_at' => 'Ngày tạo',
         'updated_at' => 'Ngày cập nhật',
         'deleted_at' => 'Ngày xóa',
@@ -39,5 +44,15 @@ return [
         'city' => 'Chọn thành phố',
         'ward' => 'Chọn phường/xã',
         'content' => 'Nhập nội dung bài viết ở đây...',
+        'address' => 'Nhập địa chỉ cụ thể của địa điểm',
+        'latitude' => 'Có thể tự động điền nhờ map',
+        'longitude' => 'Có thể tự động điền nhờ map',
+        'search' => 'Chỉ nhập tên đường, thành phố'
+    ],
+
+    'helpers' => [
+        'latitude' => 'Không tự nhập trừ khi bạn biết mình đang làm gì.',
+        'longitude' => 'Không tự nhập trừ khi bạn biết mình đang làm gì.',
+        'search' => 'Sử dụng nút tìm kiếm để tự động điền tọa độ dựa trên địa chỉ. (lưu ý: kết quả có thể không chính xác 100%) - Tọa độ được điền sẽ giúp hiển thị vị trí trên bản đồ ở giao diện khách',
     ],
 ];

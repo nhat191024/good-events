@@ -25,6 +25,11 @@ return [
         'content' => 'Content',
         'category_id' => 'Category',
         'author_id' => 'Author',
+        'address' => 'Address',
+        'latitude' => 'Latitude',
+        'longitude' => 'Longitude',
+        'search' => 'Search',
+        'map' => 'Map',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
         'deleted_at' => 'Deleted At',
@@ -39,5 +44,15 @@ return [
         'city' => 'Select city',
         'ward' => 'Select ward',
         'content' => 'Enter the blog content here...',
+        'address' => 'Enter the specific address of the location',
+        'latitude' => 'Can be auto-filled via map',
+        'longitude' => 'Can be auto-filled via map',
+        'search' => 'Enter street name, city'
+    ],
+
+    'helpers' => [
+        'latitude' => 'Do not enter manually unless you know what you are doing.',
+        'longitude' => 'Do not enter manually unless you know what you are doing.',
+        'search' => 'Use the search button to auto-fill coordinates based on the address. (note: results may not be 100% accurate) - The filled coordinates will help display the location on the map in the client interface',
     ],
 ];
