@@ -6,14 +6,21 @@ use App\Models\Category;
 use App\Models\Location;
 
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
+
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
-use Filament\Schemas\Components\Utilities\Get;
+
+use OpenCage\Geocoder\Geocoder;
+use Dotswan\MapPicker\Fields\Map;
 
 class GoodLocationsForm
 {
@@ -67,25 +74,65 @@ class GoodLocationsForm
                     ->label(__('admin/blog.fields.city'))
                     ->placeholder(__('admin/blog.placeholders.city'))
                     ->searchable()
+                    ->preload()
                     ->live()
                     ->options(
-                        fn() => Location::query()
+                        Location::query()
                             ->whereNull('parent_id')
+                            ->pluck('name', 'id')
+                    )
+                    ->getSearchResultsUsing(
+                        fn(string $search): array =>
+                        Location::query()
+                            ->whereNull('parent_id')
+                            ->where('name', 'like', "%{$search}%")
+                            ->limit(50)
                             ->pluck('name', 'id')
                             ->toArray()
                     )
+                    ->getOptionLabelUsing(
+                        fn($value): ?string =>
+                        Location::find($value)?->name
+                    )
                     ->afterStateUpdated(fn(callable $set) => $set('location_id', null))
+                    ->afterStateHydrated(function ($state, $record, Set $set): void {
+                        if ($record && $record->location_id) {
+                            $ward = Location::find($record->location_id);
+                            if ($ward && $ward->parent_id) {
+                                $set('city_id', $ward->parent_id);
+                            }
+                        }
+                    })
+                    ->dehydrated(false)
                     ->required(),
                 Select::make('location_id')
                     ->label(__('admin/blog.fields.ward'))
                     ->placeholder(__('admin/blog.placeholders.ward'))
                     ->searchable()
-                    ->options(
-                        fn(Get $get): array => Location::query()
-                            ->where('parent_id', $get('city_id'))
+                    ->options(function (Get $get): array {
+                        $cityId = $get('city_id');
+                        if (!$cityId) {
+                            return [];
+                        }
+                        return Location::query()
+                            ->where('parent_id', $cityId)
                             ->whereNotNull('parent_id')
                             ->pluck('name', 'id')
+                            ->toArray();
+                    })
+                    ->getSearchResultsUsing(
+                        fn(string $search, Get $get): array =>
+                        Location::query()
+                            ->where('parent_id', $get('city_id'))
+                            ->whereNotNull('parent_id')
+                            ->where('name', 'like', "%{$search}%")
+                            ->limit(50)
+                            ->pluck('name', 'id')
                             ->toArray()
+                    )
+                    ->getOptionLabelUsing(
+                        fn($value): ?string =>
+                        Location::find($value)?->name
                     )
                     ->disabled(fn(Get $get): bool => !$get('city_id'))
                     ->required(),
@@ -102,6 +149,127 @@ class GoodLocationsForm
                     ->imageEditor()
                     ->maxFiles(1)
                     ->columnSpanFull(),
+
+                TextInput::make('address')
+                    ->label(__('admin/blog.fields.address'))
+                    ->placeholder(__('admin/blog.placeholders.address'))
+                    ->columnSpanFull()
+                    ->required(),
+
+                TextInput::make('latitude')
+                    ->label(__('admin/blog.fields.latitude'))
+                    ->helperText(__('admin/blog.helpers.latitude'))
+                    ->placeholder(__('admin/blog.placeholders.latitude')),
+
+                TextInput::make('longitude')
+                    ->label(__('admin/blog.fields.longitude'))
+                    ->helperText(__('admin/blog.helpers.longitude'))
+                    ->placeholder(__('admin/blog.placeholders.longitude')),
+
+                TextInput::make('search')
+                    ->label(__('admin/blog.fields.search'))
+                    ->placeholder(__('admin/blog.placeholders.search'))
+                    ->helperText(__('admin/blog.helpers.search'))
+                    ->suffixAction(
+                        Action::make('geocode')
+                            ->icon('heroicon-o-magnifying-glass')
+                            ->action(function (Set $set, Get $get, $state, $livewire) {
+                                if (empty($state)) {
+                                    Notification::make()
+                                        ->title('Vui lòng nhập địa chỉ')
+                                        ->warning()
+                                        ->send();
+                                    return;
+                                }
+
+                                try {
+                                    $apiKey = config('services.opencage.key');
+
+                                    if (empty($apiKey)) {
+                                        Notification::make()
+                                            ->title('Thiếu OpenCage API Key')
+                                            ->body('Vui lòng cấu hình OPEN_CAGE_API_KEY trong file .env')
+                                            ->danger()
+                                            ->send();
+                                        return;
+                                    }
+
+                                    $geocode = new Geocoder($apiKey);
+                                    $result = $geocode->geocode($state, ['limit' => 1]);
+
+                                    if ($result && $result['total_results'] > 0) {
+                                        $location = $result['results'][0]['geometry'];
+                                        $lat = $location['lat'];
+                                        $lng = $location['lng'];
+
+                                        $set('latitude', $lat);
+                                        $set('longitude', $lng);
+                                        $set('location', ['lat' => $lat, 'lng' => $lng]);
+
+                                        $livewire->dispatch('refreshMap');
+
+                                        Notification::make()
+                                            ->title('Tìm thấy tọa độ!')
+                                            ->body('Lat: ' . $lat . ', Lng: ' . $lng)
+                                            ->success()
+                                            ->send();
+                                    } else {
+                                        Notification::make()
+                                            ->title('Không tìm thấy địa chỉ')
+                                            ->body('Vui lòng thử địa chỉ khác hoặc chi tiết hơn')
+                                            ->warning()
+                                            ->send();
+                                    }
+                                } catch (\Exception $e) {
+                                    Notification::make()
+                                        ->title('Lỗi')
+                                        ->body($e->getMessage())
+                                        ->danger()
+                                        ->send();
+                                }
+                            })
+                    ),
+
+                Map::make('location')
+                    ->label(__('admin/blog.fields.map'))
+                    ->columnSpanFull()
+
+                    ->defaultLocation(latitude: 21.0285, longitude: 105.804)
+                    ->draggable(true)
+                    ->clickable(true)
+                    ->zoom(15)
+                    ->minZoom(0)
+                    ->maxZoom(28)
+                    ->tilesUrl("https://tile.openstreetmap.de/{z}/{x}/{y}.png")
+                    ->detectRetina(true)
+
+                    ->showMarker(true)
+                    ->markerColor("#3b82f6")
+                    ->markerIconUrl('/images/marker.png')
+                    ->markerIconSize([26, 26])
+                    ->markerIconAnchor([18, 36])
+
+                    ->showFullscreenControl(true)
+                    ->showZoomControl(true)
+
+                    ->showMyLocationButton(false)
+
+                    ->extraStyles([
+                        'min-height: 40vh',
+                        'border-radius: 25px'
+                    ])
+
+                    ->afterStateUpdated(function (Set $set, ?array $state): void {
+                        if ($state && isset($state['lat'], $state['lng'])) {
+                            $set('latitude', $state['lat']);
+                            $set('longitude', $state['lng']);
+                        }
+                    })
+                    ->afterStateHydrated(function ($state, $record, Set $set): void {
+                        if ($record && $record->latitude && $record->longitude) {
+                            $set('location', ['lat' => $record->latitude, 'lng' => $record->longitude]);
+                        }
+                    }),
             ]);
     }
 }
