@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('slug');
             $table->string('video_url')->nullable();
             $table->foreignId('location_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->integer('max_people')->nullable();
             $table->string('type');
             $table->softDeletes();
             $table->timestamps();

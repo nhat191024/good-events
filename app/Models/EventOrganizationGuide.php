@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $slug
  * @property string|null $video_url
  * @property int|null $location_id
+ * @property int|null $max_people
  * @property string $type
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereLocationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereMaxPeople($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereType($value)

@@ -26,6 +26,7 @@ use Spatie\Activitylog\LogOptions;
  * @property string $slug
  * @property string|null $video_url
  * @property int|null $location_id
+ * @property int|null $max_people
  * @property string $type
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -49,6 +50,7 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereLocationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereMaxPeople($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereType($value)
@@ -82,6 +84,7 @@ class Blog extends Model implements HasMedia
         'slug',
         'video_url',
         'location_id',
+        'max_people',
         'type',
     ];
 

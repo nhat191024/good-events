@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $slug
  * @property string|null $video_url
  * @property int|null $location_id
+ * @property int|null $max_people
  * @property string $type
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereLocationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereMaxPeople($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereType($value)
