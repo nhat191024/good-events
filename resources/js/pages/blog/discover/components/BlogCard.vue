@@ -34,6 +34,26 @@
             <p v-if="blog.excerpt" :class="excerptClass">
                 {{ blog.excerpt }}
             </p>
+            <div v-if="showLocationMeta" class="flex flex-wrap gap-2 text-xs text-white/80">
+                <span
+                    v-if="locationLabel"
+                    class="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 backdrop-blur-sm"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 text-primary-200">
+                        <path d="M12 2.25c-3.728 0-6.75 3.022-6.75 6.75 0 5.062 5.492 11.159 6.33 12.036a.75.75 0 0 0 1.04.038l.038-.038c.838-.877 6.34-6.974 6.34-12.036 0-3.728-3.022-6.75-6.75-6.75m0 9.563a2.813 2.813 0 1 1 0-5.625 2.813 2.813 0 0 1 0 5.625" />
+                    </svg>
+                    <span class="font-semibold text-white">{{ locationLabel }}</span>
+                </span>
+                <span
+                    v-if="capacityLabel"
+                    class="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 backdrop-blur-sm"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-primary-200">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-6-6h12" />
+                    </svg>
+                    <span class="font-semibold text-white">{{ capacityLabel }}</span>
+                </span>
+            </div>
             <div class="flex items-center gap-2 text-sm font-medium text-primary-200">
                 <span>Đọc thêm</span>
                 <span aria-hidden="true" class="transition-transform duration-300 group-hover:translate-x-1">→</span>
@@ -115,4 +135,28 @@ const cardInteractions = {
         transition: { type: 'spring', duration: 0.45, bounce: 0.25 },
     },
 } as const;
+
+const isGoodLocation = computed(() => props.blog.type === 'good_location');
+
+const locationLabel = computed(() => {
+    if (!isGoodLocation.value) return '';
+    const location = props.blog.location;
+    if (!location?.name) return '';
+
+    if (location.province?.name && location.province.name !== location.name) {
+        return `${location.name}, ${location.province.name}`;
+    }
+
+    return location.name;
+});
+
+const capacityLabel = computed(() => {
+    if (!isGoodLocation.value) return '';
+    const capacity = props.blog.max_people;
+    if (capacity === null || capacity === undefined) return '';
+
+    return `${new Intl.NumberFormat('vi-VN').format(capacity)} khách`;
+});
+
+const showLocationMeta = computed(() => Boolean(locationLabel.value || capacityLabel.value));
 </script>

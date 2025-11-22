@@ -23,6 +23,7 @@ class BlogResource extends JsonResource
             'excerpt' => $plainContent->limit(140)->toString(),
             'published_at' => optional($this->created_at)->toIso8601String(),
             'published_human' => optional($this->created_at)->translatedFormat('d M Y'),
+            'max_people' => $this->max_people,
             'thumbnail' => TemporaryImage::getTemporaryImageUrl($this, $expireAt, 'thumbnail'),
             'video_url' => $this->video_url,
             'author' => $this->whenLoaded('author', fn () => [
@@ -41,6 +42,22 @@ class BlogResource extends JsonResource
                         fn () => [
                             'id' => $category->parent->id,
                             'name' => $category->parent->name,
+                        ]
+                    ),
+                ];
+            }),
+            'location' => $this->whenLoaded('location', function () {
+                $location = $this->location;
+
+                return [
+                    'id' => $location->id,
+                    'name' => $location->name,
+                    'type' => $location->type,
+                    'province' => $this->when(
+                        $location->relationLoaded('province') && $location->province,
+                        fn () => [
+                            'id' => $location->province->id,
+                            'name' => $location->province->name,
                         ]
                     ),
                 ];
