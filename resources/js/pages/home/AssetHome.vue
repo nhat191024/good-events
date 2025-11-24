@@ -1,63 +1,55 @@
 <template>
+
     <Head class="font-lexend" title="Kho thiết kế thiết kế" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-blue-100'">
 
-        <HeroBanner
-            :header-text="heroHeaderText"
-            v-model="search"
-            :banner-images="heroBannerImages"
-            :bg-color-class="'bg-[linear-gradient(180deg,#6bafff_0%,rgb(129,187,255)_51.50151983037725%,rgba(74,144,226,0)_100%)]'"
-        />
+        <HeroBanner :header-text="heroHeaderText" :banner-images="heroBannerImages"
+            :bg-color-class="'bg-[linear-gradient(180deg,#6bafff_0%,rgb(129,187,255)_51.50151983037725%,rgba(74,144,226,0)_100%)]'" />
 
         <PartnerCategoryIcons :categories="categories" />
 
-        <motion.div
-            class="w-full pt-3 bg-white flex gap-2 justify-center flex-wrap"
-            :initial="tagSectionMotion.initial"
-            :while-in-view="tagSectionMotion.visible"
-            :viewport="tagSectionMotion.viewport"
-            :transition="tagSectionMotion.transition"
-        >
-            <motion.div
-                v-for="(item, index) in tagItems"
-                :key="item.slug ?? item.id"
-                class="inline-flex"
-                :initial="tagItemMotion.initial"
-                :while-in-view="tagItemMotion.visible"
-                :viewport="tagItemMotion.viewport"
-                :transition="getTagTransition(index)"
-                :while-hover="tagInteractions.hover"
-                :while-tap="tagInteractions.tap"
-            >
+        <motion.div class="w-full pt-3 bg-white flex gap-2 justify-center flex-wrap" :initial="tagSectionMotion.initial"
+            :while-in-view="tagSectionMotion.visible" :viewport="tagSectionMotion.viewport"
+            :transition="tagSectionMotion.transition">
+            <motion.div v-for="(item, index) in tagItems" :key="item.slug ?? item.id" class="inline-flex"
+                :initial="tagItemMotion.initial" :while-in-view="tagItemMotion.visible"
+                :viewport="tagItemMotion.viewport" :transition="getTagTransition(index)"
+                :while-hover="tagInteractions.hover" :while-tap="tagInteractions.tap">
                 <Link :href="route('asset.discover', { q: item.slug })">
-                    <Button v-text="item.name" :size="'sm'" :variant="'outline'"
-                        :class="'ring ring-primary-100 text-primary-800 bg-primary-10 hover:bg-primary-50'">
-                    </Button>
+                <Button v-text="item.name" :size="'sm'" :variant="'outline'"
+                    :class="'ring ring-primary-100 text-primary-800 bg-primary-10 hover:bg-primary-50'">
+                </Button>
                 </Link>
             </motion.div>
         </motion.div>
-
+        <div class="container mx-auto px-4 py-8 space-y-12">
+            <div class="max-w-5xl mx-auto">
+                <SearchBar :show-search-btn="false" v-model="search" />
+                <div v-if="keywordSuggestions.length" class="container mx-auto px-4 mt-4">
+                    <div class="flex flex-wrap gap-2">
+                        <button v-for="suggestion in keywordSuggestions" :key="suggestion" type="button"
+                            class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
+                            @click="search = suggestion">
+                            {{ suggestion }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <CardListLayout :href="route('asset.discover')" :name="'Thiết kế mới gần đây'" :show-section="true">
             <CardItem v-for="item in fileProductList"
                 :route-href="route('asset.show', { file_product_slug: item.slug, category_slug: item.category.slug })"
                 :key="item.id" :card-item="item || []" />
         </CardListLayout>
 
-        <motion.div
-            class="w-full pb-6 bg-white flex gap-2 justify-center flex-wrap"
-            :initial="ctaMotion.initial"
-            :while-in-view="ctaMotion.visible"
-            :viewport="ctaMotion.viewport"
-            :transition="ctaMotion.transition"
-        >
-            <motion.div
-                :while-hover="ctaInteractions.hover"
-                :while-tap="ctaInteractions.tap"
-                :transition="ctaMotion.transition"
-            >
+        <motion.div class="w-full pb-6 bg-white flex gap-2 justify-center flex-wrap" :initial="ctaMotion.initial"
+            :while-in-view="ctaMotion.visible" :viewport="ctaMotion.viewport" :transition="ctaMotion.transition">
+            <motion.div :while-hover="ctaInteractions.hover" :while-tap="ctaInteractions.tap"
+                :transition="ctaMotion.transition">
                 <Link :href="route('asset.discover')">
-                    <Button :size="'default'" :variant="'outline'" :class="'hover:bg-primary-50'">Xem thêm sản phẩm khác</Button>
+                <Button :size="'default'" :variant="'outline'" :class="'hover:bg-primary-50'">Xem thêm sản phẩm
+                    khác</Button>
                 </Link>
             </motion.div>
         </motion.div>
@@ -66,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 
@@ -79,10 +71,12 @@ import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 import { PartnerCategoryItems } from './partials/PartnerCategoryIcons/type';
 import { AssetCardItemProps, Category, FileProduct, Tag } from './types';
 
-import { createSearchFilter } from '@/lib/search-filter';
+import { normText } from '@/lib/search-filter';
+import { useSearchSuggestion } from '@/lib/useSearchSuggestion';
 
 import CardItem from './components/CardItem/index.vue';
 import { Button } from '@/components/ui/button';
+import SearchBar from '../categories/partials/SearchBar.vue';
 interface BannerImage {
     image_tag?: string | null;
 }
@@ -104,7 +98,19 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const search = ref('');
+const {
+    query: search,
+    filteredLocal,
+    setItems,
+} = useSearchSuggestion<FileProduct>({
+    keys: ['name', 'slug'],
+    initialItems: props.fileProducts.data ?? [],
+});
+
+watch(
+    () => props.fileProducts.data,
+    (val) => setItems(val ?? [])
+);
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
 const heroHeaderText = computed(() => props.settings.hero_title ?? 'Trải nghiệm kho thiết kế thiết kế');
@@ -113,14 +119,7 @@ const heroHeaderText = computed(() => props.settings.hero_title ?? 'Trải nghi�
 // console.log('tags ',props.tags.data);
 // console.log('categories ',props.categories.data);
 
-const filteredFileProducts = computed(() => {
-    const data = props.fileProducts.data ?? []
-    const q = search.value.trim()
-    if (!q) return data
-
-    const filter = createSearchFilter<FileProduct>(['name', 'slug'], q)
-    return data.filter(filter)
-})
+const filteredFileProducts = computed(() => filteredLocal.value ?? []);
 
 const categories = computed<PartnerCategoryItems[]>(() =>
     (props.categories.data ?? []).map((item) => {
@@ -149,6 +148,21 @@ const fileProductList = computed<AssetCardItemProps[]>(() =>
         }
     })
 );
+
+const keywordSuggestions = computed(() => {
+    const term = search.value.trim();
+    if (term.length < 2) return [];
+
+    const names = new Set<string>();
+    filteredFileProducts.value.forEach((item) => {
+        if (item?.name) names.add(item.name);
+    });
+
+    const normalizedTerm = normText(term);
+    return Array.from(names)
+        .filter((name) => normText(name).includes(normalizedTerm))
+        .slice(0, 8);
+});
 
 const tagSectionMotion = {
     initial: { opacity: 0.5, y: 24 },
