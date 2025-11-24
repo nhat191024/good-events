@@ -64,8 +64,6 @@ const props = defineProps<{ blog: BlogDetail }>();
 
 const isGoodLocation = computed(() => props.blog.type === 'good_location');
 
-console.log(props.blog);
-
 const locationLabel = computed(() => {
     if (!isGoodLocation.value) return '';
     const location = props.blog.location;
