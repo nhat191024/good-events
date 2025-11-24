@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use App\Models\EventOrganizationGuide;
+
 class EventOrganizationGuideController extends BaseBlogPageController
 {
     private const BLOG_TYPE = CategoryType::EVENT_ORGANIZATION_GUIDE->value;
@@ -35,7 +37,7 @@ class EventOrganizationGuideController extends BaseBlogPageController
 
     public function show(Request $request, string $categorySlug, string $blogSlug): Response
     {
-        $blog = Blog::query()
+        $blog = EventOrganizationGuide::query()
             ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'created_at', 'updated_at'])
             ->with([
                 'category:id,name,slug,parent_id',
@@ -51,7 +53,7 @@ class EventOrganizationGuideController extends BaseBlogPageController
             ->where('slug', $blogSlug)
             ->firstOrFail();
 
-        $related = Blog::query()
+        $related = EventOrganizationGuide::query()
             ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'created_at'])
             ->with([
                 'category:id,name,slug,parent_id',
@@ -77,7 +79,7 @@ class EventOrganizationGuideController extends BaseBlogPageController
     {
         $search = trim((string) $request->query('q', ''));
 
-        $query = Blog::query()
+        $query = EventOrganizationGuide::query()
             ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'order', 'created_at'])
             ->with([
                 'category:id,name,slug,parent_id',
