@@ -1,8 +1,169 @@
 <!-- resources/js/pages/partner-categories/Show.vue -->
+<template>
+
+    <Head :title="pageTitle" />
+
+    <ClientHeaderLayout>
+        <section class="bg-white pb-16 pt-6">
+            <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
+                <!-- Breadcrumb -->
+                <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
+                    <ul class="flex flex-wrap items-center gap-2">
+                        <li>
+                            <Link href="/" class="hover:text-primary-800">Sự kiện</Link>
+                        </li>
+                        <li v-if="props.category" class="flex items-center gap-2">
+                            <span aria-hidden="true" class="text-primary-400">›</span>
+                            <span class="text-primary-800">{{ props.category.name }}</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span aria-hidden="true" class="text-primary-400">›</span>
+                            <span class="text-primary-800">Chi tiết</span>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- Detail Hero -->
+                <section class="grid gap-8 lg:grid-cols-2">
+                    <div class="space-y-5">
+                        <div class="overflow-hidden rounded-3xl border border-gray-100 bg-gray-50">
+                            <img :src="props.item.image || placeholderImg" :alt="props.item.name"
+                                class="h-full w-full object-cover" loading="lazy" />
+                        </div>
+                    </div>
+
+                    <aside class="flex h-max flex-col gap-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+                        <div class="space-y-2">
+                            <span v-if="props.category"
+                                class="inline-flex w-max items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+                                {{ props.category.name }}
+                            </span>
+                            <h1 class="text-2xl font-semibold text-gray-900">
+                                {{ props.item.name }}
+                            </h1>
+                            <dl class="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500">
+                                <div>
+                                    <dt class="font-medium text-gray-700">Cập nhật</dt>
+                                    <dd>{{ props.item.updated_human || 'Đang cập nhật' }}</dd>
+                                </div>
+                            </dl>
+                        </div>
+
+                        <div class="rounded-2xl bg-primary-50/60 p-5 ring-1 ring-primary-100">
+                            <p class="text-sm font-medium text-primary-800">Giá tham khảo</p>
+                            <p class="mt-1 text-3xl font-semibold text-primary-900">{{ priceText }}</p>
+                            <p class="mt-1 text-xs text-primary-700/70">
+                                Liên hệ để nhận báo giá chi tiết và ưu đãi tốt nhất.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col gap-3">
+                            <Link v-if="props.item.slug && props.category?.slug"
+                                :href="route('quick-booking.fill-info', { partner_category_slug: props.category?.slug, partner_child_category_slug: props.item.slug })"
+                                class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
+                            Thuê ngay
+                            </Link>
+                            <a href="#"
+                                class="inline-flex w-full items-center justify-center rounded-lg border border-primary-100 bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
+                                Hỗ trợ tư vấn
+                            </a>
+                        </div>
+
+                        <ul class="space-y-2 rounded-2xl border border-gray-100 bg-gray-50 p-5 text-sm text-gray-600">
+                            <li class="flex items-center gap-3">
+                                <span
+                                    class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                                Đối tác uy tín, đã được xác minh.
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span
+                                    class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                                Phục vụ chuyên nghiệp, tận tâm.
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span
+                                    class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                                Giá cả cạnh tranh, minh bạch.
+                            </li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <!-- Product Overview -->
+                <section class="space-y-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10">
+                    <header class="space-y-2">
+                        <h2 class="text-xl font-semibold text-gray-900">Mô tả chi tiết</h2>
+                        <p class="text-sm text-gray-500">
+                            Thông tin chi tiết về dịch vụ và đối tác.
+                        </p>
+                    </header>
+
+                    <div v-if="descriptionToShow" class="prose prose-sm max-w-none text-gray-700">
+                        <p v-for="(paragraph, index) in descriptionParagraphs" :key="index" class="whitespace-pre-line">
+                            <template v-html="paragraph"></template>
+                        </p>
+                    </div>
+                    <div v-else class="text-gray-500 italic">
+                        Chưa có mô tả chi tiết.
+                    </div>
+
+                    <section class="space-y-3">
+                        <h3 class="text-base font-semibold text-gray-900">Thông tin chính</h3>
+                        <dl class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                            <div class="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm">
+                                <dt class="font-semibold text-gray-700">Loại</dt>
+                                <dd class="mt-1 text-gray-600">Sự kiện</dd>
+                            </div>
+                            <div class="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm">
+                                <dt class="font-semibold text-gray-700">Lĩnh vực</dt>
+                                <dd class="mt-1 text-gray-600">{{ props.parent?.name || '—' }}</dd>
+                            </div>
+                            <div class="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm">
+                                <dt class="font-semibold text-gray-700">Kiểu đối tác</dt>
+                                <dd class="mt-1 text-gray-600">{{ props.item.name }}</dd>
+                            </div>
+                        </dl>
+                    </section>
+                </section>
+
+                <!-- Related Products -->
+                <section v-if="relatedItems.length"
+                    class="space-y-5 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10">
+                    <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900">Có thể bạn quan tâm</h3>
+                            <p class="text-sm text-gray-500">Các đối tác khác trong cùng danh mục.</p>
+                        </div>
+                    </header>
+
+                    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        <article v-for="item in relatedItems" :key="item.id"
+                            class="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xs transition hover:-translate-y-1 hover:shadow-md">
+                            <CardItem :card-item="item.card" :route-href="item.href" />
+                            <div class="flex flex-1 flex-col gap-2 px-4 py-4">
+                                <h4 class="line-clamp-2 text-base font-semibold text-gray-900">{{ item.name }}</h4>
+                                <p class="text-sm text-gray-500">{{ props.category?.name }}</p>
+                                <div class="mt-auto flex items-center justify-between pt-2">
+                                    <span class="text-sm font-semibold text-primary-700">{{ item.priceText }}</span>
+                                    <Link :href="item.href"
+                                        class="text-xs font-semibold text-primary-600 hover:text-primary-700">
+                                    Chi tiết
+                                    </Link>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </ClientHeaderLayout>
+</template>
+
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
+import CardItem from '@/pages/home/components/CardItem/index.vue';
 
 interface Item {
     id: number;
@@ -15,13 +176,20 @@ interface Item {
     image: string | null;
 }
 interface SimpleCat { id: number; name: string; slug: string }
+interface RelatedItem {
+    id: number;
+    name: string;
+    slug: string;
+    min_price: number | null;
+    max_price: number | null;
+    image: string | null;
+}
+
 interface Props {
     item: Item;
     category: SimpleCat | null;
     parent: SimpleCat | null;
-    related: Array<{
-        id: number; name: string; slug: string; min_price: number | null; max_price: number | null; image: string | null
-    }>;
+    related: RelatedItem[];
 }
 const props = defineProps<Props>();
 
@@ -39,179 +207,48 @@ const priceText = computed(() => {
     return 'Liên hệ';
 });
 
-const contactText = 'Liên hệ'
-
-
 const placeholderImg = computed(() =>
     `https://ui-avatars.com/api/?name=${encodeURIComponent(props.item.name)}&background=ED3B50&color=ffffff&size=256`
 );
 
-const breadcrumbs = computed(() => {
-    return [
-        { label: 'Sự kiện', href: '/' },
-        { label: props.category?.name ?? '', href: undefined },
-        { label: 'Chi tiết', href: undefined },
-    ].filter(b => b.label);
-});
+const pageTitle = computed(() => `${props.item.name} - ${props.category?.name ?? 'Sự kiện'}`);
+
+const descriptionToShow = computed(
+    () => props.item.description || ''
+);
+
+const descriptionParagraphs = computed(() =>
+    descriptionToShow.value
+        .split(/\n{2,}/)
+        .map((paragraph: string) => paragraph.trim())
+        .filter(Boolean)
+);
+
+const relatedItems = computed(() =>
+    props.related.map((r: RelatedItem) => {
+        let pText = 'Liên hệ';
+        if (r.min_price && r.max_price) {
+            if (r.min_price === r.max_price) pText = money(r.min_price);
+            else pText = `${money(r.min_price)} - ${money(r.max_price)}`;
+        } else if (r.min_price) {
+            pText = money(r.min_price);
+        } else if (r.max_price) {
+            pText = money(r.max_price);
+        }
+
+        return {
+            id: r.id,
+            name: r.name,
+            priceText: pText,
+            href: route('partner-categories.show', r.slug),
+            card: {
+                id: r.id,
+                name: r.name,
+                slug: r.slug,
+                image: r.image,
+                description: null, // Related items from controller don't have description
+            },
+        };
+    })
+);
 </script>
-
-<template>
-    <Head :title="(props.item.name)+(' - Sự kiện - ')+(props.category?.name ?? '')" />
-    <ClientHeaderLayout>
-        <div class="min-h-screen max-w-7xl w-full bg-white">
-            <!-- Breadcrumb (compact) -->
-            <div class="mx-4 my-1 px-2 py-1.5 rounded-l bg-white">
-                <nav class="text-xs md:text-[13px] text-gray-500">
-                    <ul class="flex flex-wrap items-center gap-1">
-                        <li v-for="(b, i) in breadcrumbs" :key="i" class="flex items-center gap-1">
-                            <template v-if="b.href">
-                                <Link :href="b.href" class="hover:text-[#ED3B50]">{{ b.label }}</Link>
-                            </template>
-                            <template v-else>
-                                <span>{{ b.label }}</span>
-                            </template>
-                            <span v-if="i < breadcrumbs.length - 1" class="opacity-70">›</span>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-
-            <!-- Hero (compact spacing) -->
-            <section class="mx-auto px-4 py-3 md:py-2">
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 border rounded-2xl p-3 md:p-4 bg-white shadow-md">
-                    <!-- Left image + thumbs -->
-                    <div class="md:col-span-4">
-                        <div
-                            class="aspect-square w-full rounded-2xl bg-gray-50 ring-1 ring-gray-200 overflow-hidden flex items-center justify-center">
-                            <img :src="props.item.image || placeholderImg" :alt="props.item.name"
-                                class="w-full h-full object-cover" />
-                        </div>
-                        <!-- <div class="mt-2 flex items-center gap-2">
-                            <div v-for="n in 5" :key="n" class="w-10 h-10 rounded-md bg-gray-100 ring-1 ring-gray-200">
-                            </div>
-                        </div> -->
-                    </div>
-
-                    <!-- Right info -->
-                    <div class="md:col-span-8 flex flex-col gap-1 p-3">
-                        <div class="flex items-start justify-between gap-2">
-                            <div>
-                                <h1 class="text-xl md:text-2xl font-semibold text-gray-900">{{ props.item.name }}</h1>
-                                <div class="text-xs text-gray-500">
-                                    {{ props.category?.name }}
-                                </div>
-                            </div>
-                            <!-- <button class="px-3 py-1.5 rounded-full ring-1 ring-gray-200 hover:ring-[#ED3B50] text-xs">
-                                ♡ Lưu
-                            </button> -->
-                        </div>
-
-                        <!-- price -->
-                        <div class="mt-1 text-2xl font-semibold text-[#ED3B50]">{{ priceText }}</div>
-
-                        <!-- meta bullets -->
-                        <ul class="mt-2 space-y-1.5 text-[14px] md:text-[15px] text-black/80">
-                            <li class="flex items-center gap-2">
-                                <svg viewBox="0 0 24 24" class="w-4 h-4">
-                                    <path d="M12 21s7-5.33 7-11a7 7 0 1 0-14 0c0 5.67 7 11 7 11Z" fill="none"
-                                        stroke="currentColor" stroke-width="1.6" />
-                                    <circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor"
-                                        stroke-width="1.6" />
-                                </svg>
-                                <span>Đối tác ở gần bạn</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <svg viewBox="0 0 24 24" class="w-4 h-4">
-                                    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor"
-                                        stroke-width="1.6" />
-                                    <path d="M12 7v6l4 2" fill="none" stroke="currentColor" stroke-width="1.6" />
-                                </svg>
-                                <span>Luôn đúng giờ</span>
-                            </li>
-                        </ul>
-
-                        <!-- actions full-width -->
-                        <div class="mt-2 grid grid-cols-2 gap-3">
-                            <Link v-if="props.item.slug && props.category?.slug"
-                                :href="route('quick-booking.fill-info', { partner_category_slug: props.category?.slug, partner_child_category_slug: props.item.slug })"
-                                class="col-span-1 w-full h-14 inline-flex items-center justify-center rounded-xl bg-[#ED3B50] text-white text-[17px] font-medium">
-                            Thuê ngay
-                            </Link>
-                            <Link :href="'#'"
-                                class="col-span-1 w-full h-14 inline-flex items-center justify-center rounded-xl border-2 border-gray-300 bg-gray-50 text-[17px] font-medium hover:bg-gray-100">
-                            Hỗ trợ
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Mô tả -->
-            <section class="mx-auto px-4 mt-1 md:mt-2 mb-3">
-                <div class="border rounded-2xl p-3 md:p-4 bg-white shadow-md">
-                    <h2 class="font-semibold mb-2">Mô tả chi tiết</h2>
-                    <p class="text-gray-700 whitespace-pre-line" v-html="props.item.description || 'Chưa có mô tả.'"></p>
-                </div>
-            </section>
-
-            <!-- Thông tin chi tiết -->
-            <section class="hidden mx-auto px-4 mt-1 md:mt-4 mb-3">
-                <div class="border rounded-2xl p-3 md:p-4 bg-white shadow-md">
-                    <h2 class="font-semibold mb-3">Thông tin chi tiết</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                        <div>
-                            <div class="text-gray-500">Loại</div>
-                            <div class="font-medium">Sự kiện</div>
-                        </div>
-                        <div>
-                            <div class="text-gray-500">Lĩnh vực</div>
-                            <div class="font-medium">{{ props.parent?.name || '—' }}</div>
-                        </div>
-                        <div>
-                            <div class="text-gray-500">Kiểu đối tác</div>
-                            <div class="font-medium">{{ props.item.name }}</div>
-                        </div>
-                        <div>
-                            <div class="text-gray-500">Mã kiểu</div>
-                            <div class="font-medium lowercase">{{ props.item.slug }}</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Liên quan -->
-            <section v-if="false" class="mx-auto px-4 mt-1 md:mt-4 pb-8">
-                <div class="bg-white min-h-[50rem]">
-                    <div class="flex items-center justify-between p-2 bg-white">
-                        <h2 class="font-semibold">Liên quan</h2>
-                        <div class="text-xs text-gray-500">Tin mới nhất ↓</div>
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mx-4">
-                        <Link v-for="r in related" :key="r.id" :href="route('partner-categories.show', r.slug)"
-                            class="group">
-                        <div
-                            class="aspect-square w-full rounded-2xl bg-gray-50 ring-1 ring-gray-200 overflow-hidden flex items-center justify-center shadow-md">
-                            <img :src="r.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=ED3B50&color=ffffff&size=256`"
-                                :alt="r.name" class="w-full h-full object-cover" />
-                        </div>
-                        <div class="mt-2 text-sm font-medium text-gray-900 group-hover:text-[#ED3B50] line-clamp-1">{{
-                            r.name }}
-                        </div>
-                        <div class="text-xs text-gray-500">
-                            {{
-                                (r.min_price && r.max_price)
-                                    ? (r.min_price === r.max_price ? (r.min_price.toLocaleString('vi-VN') + ' đ') :
-                                        (r.min_price.toLocaleString('vi-VN') + ' - ' + r.max_price.toLocaleString('vi-VN') + ' đ'))
-                                    :
-                                    ((r.min_price || r.max_price) ? ((r.min_price || r.max_price)!.toLocaleString('vi-VN') +' đ')
-                            :
-                            contactText)
-                            }}
-                        </div>
-                        </Link>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </ClientHeaderLayout>
-</template>
