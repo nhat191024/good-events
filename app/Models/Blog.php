@@ -89,6 +89,7 @@ class Blog extends Model implements HasMedia
         'address',
         'latitude',
         'longitude',
+        'order',
     ];
 
     /**

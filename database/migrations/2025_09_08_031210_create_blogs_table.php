@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('location_id')->nullable()->constrained()->cascadeOnDelete();
             $table->integer('max_people')->nullable();
             $table->string('type');
+            $table->integer('order')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });
