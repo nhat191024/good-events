@@ -31,10 +31,7 @@
                     </div>
                 </div>
 
-                <div class="max-w-5xl mx-auto">
-                    <SearchBar :show-search-btn="false" :model-value="props.modelValue ?? ''"
-                        @update:model-value="(v: string) => emit('update:modelValue', v)" />
-                </div>
+
             </div>
         </motion.div>
     </section>
@@ -43,9 +40,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { cn } from '@/lib/utils';
-import SearchBar from '@/pages/categories/partials/SearchBar.vue';
+
 import { motion } from 'motion-v';
-import { Swiper, SwiperSlide } from 'swiper/vue';
+
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 import 'swiper/css';
