@@ -40,7 +40,7 @@ class BlogController extends BaseBlogPageController
     public function blogDetail(Request $request, string $categorySlug, string $blogSlug): Response
     {
         $blog = $this->baseBlogQuery()
-            ->whereHas('category', fn ($builder) => $builder
+            ->whereHas('category', fn($builder) => $builder
                 ->where('slug', $categorySlug)
                 ->where('type', self::BLOG_TYPE))
             ->where('slug', $blogSlug)
@@ -117,8 +117,12 @@ class BlogController extends BaseBlogPageController
                 'content',
                 'video_url',
                 'location_id',
+                'latitude',
+                'longitude',
+                'address',
                 'max_people',
                 'type',
+                'order',
                 'created_at',
                 'updated_at',
             ])
