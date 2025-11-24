@@ -10,7 +10,10 @@ use App\Enum\Role;
 use App\Settings\AppSettings;
 use App\Enum\FilamentNavigationGroup;
 
+use App\Auth\PolymorphicUserProvider;
+
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Gate;
 
@@ -41,6 +44,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(AppSettings $settings): void
     {
+        Auth::provider('polymorphic', function ($app, array $config) {
+            return new PolymorphicUserProvider($app['hash'], $config['model']);
+        });
+
         $policies = [
             Tag::class => TagPolicy::class,
             Voucher::class => VoucherPolicy::class,
