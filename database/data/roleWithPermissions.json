@@ -201,6 +201,16 @@
         ]
     },
     {
+        "name": "partner",
+        "guard_name": "web",
+        "permissions": [
+            "View:PartnerBill",
+            "View:PartnerService",
+            "ViewAny:PartnerBill",
+            "ViewAny:PartnerService"
+        ]
+    },
+    {
         "name": "rental_manager",
         "guard_name": "web",
         "permissions": [
