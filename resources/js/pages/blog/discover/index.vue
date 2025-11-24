@@ -1,51 +1,36 @@
 <template>
+
     <Head :title="pageTitle" />
 
     <ClientHeaderLayout>
-        <motion.section
-            :initial="sectionMotion.initial"
-            :animate="sectionMotion.animate"
+        <motion.section :initial="sectionMotion.initial" :animate="sectionMotion.animate"
             class="bg-white pb-12 pt-6 w-full">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
-                <BlogDiscoverHeader
-                    :is-category-page="isCategoryPage"
-                    :category-name="props.category?.name ?? null"
-                    :heading-text="headingText"
-                    :sub-heading-text="subHeadingText"
-                    :total-items="totalItems"
-                    v-model:search-term="searchTerm"
-                    @search="submitSearch"
-                />
+                <BlogDiscoverHeader :is-category-page="isCategoryPage" :category-name="props.category?.name ?? null"
+                    :heading-text="headingText" :sub-heading-text="subHeadingText" :total-items="totalItems"
+                    v-model:search-term="searchTerm" @search="submitSearch" />
 
-                <BlogLocationFilterBar
-                    :provinces="provinceOptions"
-                    :province-id="selectedProvinceId"
-                    :districts="districtOptions"
-                    :district-id="selectedDistrictId"
-                    :max-people="selectedMaxPeople"
-                    :location-detail="selectedLocationDetail"
-                    :loading="loadingWards"
-                    @update:province-id="handleProvinceChange"
-                    @update:district-id="handleDistrictChange"
-                    @update:max-people="handleMaxPeopleChange"
-                    @update:location-detail="handleLocationDetailChange"
-                    @clear="clearLocationFilters"
-                />
+                <BlogLocationFilterBar :provinces="provinceOptions" :province-id="selectedProvinceId"
+                    :districts="districtOptions" :district-id="selectedDistrictId" :max-people="selectedMaxPeople"
+                    :location-detail="selectedLocationDetail" :loading="loadingWards"
+                    @update:province-id="handleProvinceChange" @update:district-id="handleDistrictChange"
+                    @update:max-people="handleMaxPeopleChange" @update:location-detail="handleLocationDetailChange"
+                    @clear="clearLocationFilters" />
 
-                <BlogCategoryFilters
-                    :categories="categoryOptions"
-                    :active-slug="activeCategorySlug"
-                    all-route-name="blog.discover"
-                    category-route-name="blog.category"
-                />
+                <BlogCategoryFilters :categories="categoryOptions" :active-slug="activeCategorySlug"
+                    all-route-name="blog.discover" category-route-name="blog.category" />
 
-                <BlogGrid :blogs="displayedBlogs" />
+                <section>
+                    <div v-if="displayedBlogs.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        <LocationCard v-for="blog in displayedBlogs" :key="blog.id" :blog="blog" />
+                    </div>
+                    <div v-else
+                        class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 py-16 text-center text-sm text-gray-500">
+                        Hiện chưa có bài viết nào.
+                    </div>
+                </section>
 
-                <BlogPagination
-                    v-if="pagination"
-                    :pagination="pagination"
-                    @change="changePage"
-                />
+                <BlogPagination v-if="pagination" :pagination="pagination" @change="changePage" />
             </div>
         </motion.section>
     </ClientHeaderLayout>
@@ -60,7 +45,7 @@ import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
 import BlogCategoryFilters from './components/BlogCategoryFilters.vue';
 import BlogDiscoverHeader from './components/BlogDiscoverHeader.vue';
-import BlogGrid from './components/BlogGrid.vue';
+import LocationCard from './components/LocationCard.vue';
 import BlogPagination from './components/BlogPagination.vue';
 import BlogLocationFilterBar from './components/BlogLocationFilterBar.vue';
 
@@ -100,10 +85,6 @@ const selectedProvinceId = ref<string | null>(props.filters?.province_id ? Strin
 const selectedDistrictId = ref<string | null>(props.filters?.district_id ? String(props.filters?.district_id) : null);
 const selectedMaxPeople = ref<string | null>(props.filters?.max_people ? String(props.filters?.max_people) : null);
 const selectedLocationDetail = ref<string | null>(props.filters?.location_detail ? String(props.filters?.location_detail) : null);
-
-console.log('props.filters', props.filters);
-console.log('props.blogs', props.blogs);
-
 
 watch(
     () => props.filters?.q,

@@ -27,7 +27,7 @@ class BlogDetailResource extends JsonResource
             'published_at' => optional($this->created_at)->toIso8601String(),
             'published_human' => optional($this->created_at)->translatedFormat('d M Y'),
             'read_time_minutes' => max(1, (int) ceil($wordCount / 200)),
-            'thumbnail' => TemporaryImage::getTemporaryImageUrl($this, $expireAt, 'thumbnail'),
+            'thumbnail' => $this->getFirstMediaUrl('thumbnail'),
             'address' => $this->address,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
@@ -61,7 +61,7 @@ class BlogDetailResource extends JsonResource
                     'type' => $location->type,
                     'province' => $this->when(
                         $location->relationLoaded('province') && $location->province,
-                        fn () => [
+                        fn() => [
                             'id' => $location->province->id,
                             'name' => $location->province->name,
                         ]

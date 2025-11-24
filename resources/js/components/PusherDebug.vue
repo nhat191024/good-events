@@ -1,55 +1,54 @@
 <script setup lang="ts">
-    import { ref, onMounted } from 'vue'
-    import { X } from 'lucide-vue-next'
+import { ref, onMounted } from 'vue'
+import { X } from 'lucide-vue-next'
 
-    const show = ref(false)
-    const connectionState = ref<string>('checking')
-    const errors = ref<string[]>([])
-    const config = ref<any>({})
+const show = ref(false)
+const connectionState = ref<string>('checking')
+const errors = ref<string[]>([])
+const config = ref<any>({})
 
-    onMounted(() => {
-        const echo = (window as any).Echo
+onMounted(() => {
+    const echo = (window as any).Echo
 
-        if (!echo) {
-            connectionState.value = 'error'
-            errors.value.push('Echo instance not found')
-            return
-        }
+    if (!echo) {
+        connectionState.value = 'error'
+        errors.value.push('Echo instance not found')
+        return
+    }
 
-        // Get configuration
-        config.value = {
-            key: import.meta.env.VITE_PUSHER_APP_KEY,
-            cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-            wsHost: import.meta.env.VITE_PUSHER_HOST,
-            wsPort: import.meta.env.VITE_PUSHER_PORT,
-            forceTLS: import.meta.env.VITE_PUSHER_SCHEME === 'https',
-        }
+    // Get configuration
+    config.value = {
+        key: import.meta.env.VITE_PUSHER_APP_KEY,
+        cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+        wsHost: import.meta.env.VITE_PUSHER_HOST,
+        wsPort: import.meta.env.VITE_PUSHER_PORT,
+        forceTLS: import.meta.env.VITE_PUSHER_SCHEME === 'https',
+    }
 
-        const pusher = echo.connector?.pusher
+    const pusher = echo.connector?.pusher
 
-        if (!pusher) {
-            connectionState.value = 'error'
-            errors.value.push('Pusher connection not found')
-            return
-        }
+    if (!pusher) {
+        connectionState.value = 'error'
+        errors.value.push('Pusher connection not found')
+        return
+    }
 
-        // Update state
-        connectionState.value = pusher.connection.state
+    // Update state
+    connectionState.value = pusher.connection.state
 
-        // Listen to events
-        pusher.connection.bind('state_change', (states: any) => {
-            console.log('Pusher state changed:', states)
-            connectionState.value = states.current
-        })
-
-        pusher.connection.bind('error', (err: any) => {
-            errors.value.push(err.error?.data?.message || err.message || 'Unknown error')
-        })
+    // Listen to events
+    pusher.connection.bind('state_change', (states: any) => {
+        connectionState.value = states.current
     })
 
-    function toggleDebug() {
-        show.value = !show.value
-    }
+    pusher.connection.bind('error', (err: any) => {
+        errors.value.push(err.error?.data?.message || err.message || 'Unknown error')
+    })
+})
+
+function toggleDebug() {
+    show.value = !show.value
+}
 </script>
 
 <template>

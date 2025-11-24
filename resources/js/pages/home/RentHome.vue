@@ -1,39 +1,31 @@
 <template>
+
     <Head class="font-lexend" title="Thuê thiết bị sự kiện" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-green-100'">
-        <HeroBanner
-            :header-text="heroHeaderText"
-            v-model="search"
-            :banner-images="heroBannerImages"
-            :bg-color-class="'bg-[linear-gradient(180deg,#4ade80_0%,rgb(134,239,172)_51.5%,rgba(74,222,128,0)_100%)]'"
-        />
+        <HeroBanner :header-text="heroHeaderText" v-model="search" :banner-images="heroBannerImages"
+            :bg-color-class="'bg-[linear-gradient(180deg,#4ade80_0%,rgb(134,239,172)_51.5%,rgba(74,222,128,0)_100%)]'" />
 
         <PartnerCategoryIcons :categories="categories" />
 
         <div class="flex w-full flex-wrap justify-center gap-2 bg-white pt-3">
-            <Link v-for="item in tags.data" :key="item.slug ?? item.id" :href="route('rent.discover', { q: item.slug })">
-                <Button
-                    v-text="item.name"
-                    :size="'sm'"
-                    :variant="'outline'"
-                    :class="'bg-primary-10 text-primary-800 ring ring-primary-100 hover:bg-primary-50'"
-                />
+            <Link v-for="item in tags.data" :key="item.slug ?? item.id"
+                :href="route('rent.discover', { q: item.slug })">
+            <Button v-text="item.name" :size="'sm'" :variant="'outline'"
+                :class="'bg-primary-10 text-primary-800 ring ring-primary-100 hover:bg-primary-50'" />
             </Link>
         </div>
 
         <CardListLayout :href="route('rent.discover')" :name="'Thiết bị nổi bật gần đây'" :show-section="true">
-            <CardItem
-                v-for="item in rentProductList"
-                :key="item.id"
+            <CardItem v-for="item in rentProductList" :key="item.id"
                 :route-href="route('rent.show', { rent_product_slug: item.slug, category_slug: item.category.slug })"
-                :card-item="item || []"
-            />
+                :card-item="item || []" />
         </CardListLayout>
 
         <div class="flex w-full flex-wrap justify-center gap-2 bg-white pb-6">
             <Link :href="route('rent.discover')">
-                <Button :size="'default'" :variant="'outline'" :class="'hover:bg-primary-50'"> Xem thêm thiết bị khác </Button>
+            <Button :size="'default'" :variant="'outline'" :class="'hover:bg-primary-50'"> Xem thêm thiết bị khác
+            </Button>
             </Link>
         </div>
     </ClientAppHeaderLayout>

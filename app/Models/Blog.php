@@ -113,8 +113,8 @@ class Blog extends Model implements HasMedia
     }
 
     /*
-    * Register the media collections for the model.
-    */
+     * Register the media collections for the model.
+     */
     public function registerMediaCollections(): void
     {
         $this

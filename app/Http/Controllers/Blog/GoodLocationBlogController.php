@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Blog;
 
 use App\Enum\CategoryType;
-use App\Http\Controllers\Blog\BaseBlogPageController;
 use App\Http\Resources\Home\BlogDetailResource;
 use App\Http\Resources\Home\BlogResource;
 use App\Http\Resources\Home\CategoryResource;
-use App\Models\Blog;
 use App\Models\Category;
+use App\Models\GoodLocation;
 use App\Models\Location;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -16,7 +15,7 @@ use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class BlogController extends BaseBlogPageController
+class GoodLocationBlogController extends BaseBlogPageController
 {
     private const BLOG_TYPE = CategoryType::GOOD_LOCATION->value;
 
@@ -107,7 +106,7 @@ class BlogController extends BaseBlogPageController
 
     private function baseBlogQuery(): Builder
     {
-        return Blog::query()
+        return GoodLocation::query()
             ->select([
                 'id',
                 'category_id',

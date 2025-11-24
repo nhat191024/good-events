@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\BlogController;
+use App\Http\Controllers\Blog\GoodLocationBlogController;
 use App\Http\Controllers\Blog\EventOrganizationGuideController;
 use App\Http\Controllers\Blog\VocationalKnowledgeController;
 use App\Http\Controllers\Category\CategoryController;
@@ -47,9 +47,9 @@ Route::prefix('/thue-vat-tu')->name('rent.')->group(function () {
 });
 
 Route::prefix('/dia-diem-to-chuc-su-kien')->name('blog.')->group(function () {
-    Route::get('/', [BlogController::class, 'blogDiscover'])->name('discover');
-    Route::get('/danh-muc/{category_slug}', [BlogController::class, 'blogCategory'])->name('category');
-    Route::get('/danh-muc/{category_slug}/{blog_slug}', [BlogController::class, 'blogDetail'])->name('show');
+    Route::get('/', [GoodLocationBlogController::class, 'blogDiscover'])->name('discover');
+    Route::get('/danh-muc/{category_slug}', [GoodLocationBlogController::class, 'blogCategory'])->name('category');
+    Route::get('/danh-muc/{category_slug}/{blog_slug}', [GoodLocationBlogController::class, 'blogDetail'])->name('show');
 });
 
 Route::prefix('/huong-dan-to-chuc-su-kien')->name('blog.guides.')->group(function () {
