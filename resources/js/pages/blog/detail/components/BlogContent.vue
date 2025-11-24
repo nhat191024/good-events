@@ -1,24 +1,5 @@
 <template>
     <section class="flex flex-col gap-6">
-        <div v-if="showLocationMeta" class="rounded-2xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-800">
-            <div class="flex flex-wrap gap-4">
-                <span v-if="locationLabel" class="inline-flex items-center gap-2 font-semibold text-primary-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                        class="h-5 w-5 text-primary-600">
-                        <path
-                            d="M12 2.25c-3.728 0-6.75 3.022-6.75 6.75 0 5.062 5.492 11.159 6.33 12.036a.75.75 0 0 0 1.04.038l.038-.038c.838-.877 6.34-6.974 6.34-12.036 0-3.728-3.022-6.75-6.75-6.75m0 9.563a2.813 2.813 0 1 1 0-5.625 2.813 2.813 0 0 1 0 5.625" />
-                    </svg>
-                    {{ locationLabel }}
-                </span>
-                <span v-if="capacityLabel" class="inline-flex items-center gap-2 font-semibold text-primary-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="h-5 w-5 text-primary-600">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-6-6h12" />
-                    </svg>
-                    {{ capacityLabel }}
-                </span>
-            </div>
-        </div>
 
         <p v-if="blog.excerpt" class="text-lg font-medium text-gray-700">
             {{ blog.excerpt }}
