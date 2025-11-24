@@ -24,6 +24,9 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 
 use Filament\Actions\Action;
 
+use App\Models\Partner;
+use App\Http\Middleware\CheckPartnerAccess;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -41,6 +44,8 @@ class PartnerPanelProvider extends PanelProvider
         return $panel
             ->id('partner')
             ->path('partner')
+            ->authGuard('web')
+            ->authPasswordBroker('users')
             ->login()
             ->emailVerification()
             ->passwordReset()
@@ -97,6 +102,7 @@ class PartnerPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                CheckPartnerAccess::class,
             ]);
     }
 }
