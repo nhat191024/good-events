@@ -19,7 +19,7 @@ class RentProductResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'price' => $this->price,
-            'image' => TemporaryImage::getTemporaryImageUrl($this, $expireAt, 'thumbnails'),
+            'image' => $this->getFirstMediaUrl('thumbnails'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'category' => $this->whenLoaded('category', function () use ($expireAt) {
@@ -32,7 +32,7 @@ class RentProductResource extends JsonResource
                     'description' => $category->description,
                     'parent' => $this->when(
                         $category->relationLoaded('parent') && $category->parent,
-                        fn () => [
+                        fn() => [
                             'id' => $category->parent->id,
                             'name' => $category->parent->name,
                         ]
