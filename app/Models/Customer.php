@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\UserFactory;
 
 /**
  * @property int $id
@@ -87,5 +89,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Customer extends User
 {
+    use HasFactory;
+
     protected $table = 'users';
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): UserFactory
+    {
+        return UserFactory::new();
+    }
 }
