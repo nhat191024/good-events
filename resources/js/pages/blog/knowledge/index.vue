@@ -20,6 +20,19 @@
                     @search="submitSearch"
                 />
 
+                <div v-if="keywordSuggestions.length" class="flex flex-wrap gap-2">
+                    <button
+                        v-for="suggestion in keywordSuggestions"
+                        :key="`${suggestion.type}-${suggestion.slug ?? suggestion.label}`"
+                        type="button"
+                        class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
+                        @click="submitSearch(suggestion.label)"
+                    >
+                        <span v-if="suggestion.type === 'tag'" class="mr-1 text-[11px] uppercase text-primary-500">Tag</span>
+                        {{ suggestion.label }}
+                    </button>
+                </div>
+
                 <BlogCategoryFilters
                     :categories="categoryOptions"
                     :active-slug="activeCategorySlug"
