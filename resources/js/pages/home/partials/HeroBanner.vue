@@ -74,8 +74,6 @@ const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();
 
 const swiperModules = [Navigation, Autoplay];
 
-console.log(props.bannerImages);
-
 const slides = computed(() => {
     const images = props.bannerImages ?? [];
 
