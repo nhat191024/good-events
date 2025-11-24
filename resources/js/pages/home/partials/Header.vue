@@ -172,7 +172,7 @@ onUnmounted(() => {
                             :transition="navLinkMotion.transition">
                             <Link :href="item.route" :class="[
                                 'font-semibold transition-colors duration-200',
-                                route().current(item.routeName) ? 'text-[#ED3B50] hidden' : 'text-black hover:text-black/80'
+                                route().current(item.routeName) ? 'text-[#ED3B50] text-sm' : 'text-black hover:text-black/80'
                             ]">
                             {{ item.shortName }}
                             </Link>
