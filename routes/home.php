@@ -17,6 +17,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/api/home/event-categories', [HomeController::class, 'loadMoreCategories'])
     ->name('home.event-categories');
 
+Route::get('/api/home/search', [HomeController::class, 'search'])
+    ->name('home.search');
+
 Route::get('/su-kien/danh-muc/{category_slug}', [HomeController::class, 'showCategory'])
     ->where('category_slug', '[A-Za-z0-9-]+')
     ->name('home.category');

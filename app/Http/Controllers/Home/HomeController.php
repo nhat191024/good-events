@@ -8,6 +8,7 @@ use App\Models\Banner;
 use App\Models\PartnerCategory;
 use App\Settings\AppSettings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -25,12 +26,10 @@ class HomeController extends Controller
     public function index(AppSettings $settings): Response
     {
 
-        $expireAt = now()->addMinutes(3600);
-
         $app_partner_banner = Banner::where('type', 'partner')->first()?->getMedia('banners') ?? collect();
         $app_partner_banner_mobile = Banner::where('type', 'mobile_partner')->first()?->getMedia('banners') ?? collect();
 
-        $initialData = $this->fetchEventCategories(self::INITIAL_EVENT_CATEGORY_LIMIT, 0, $expireAt);
+        $initialData = $this->fetchEventCategories(self::INITIAL_EVENT_CATEGORY_LIMIT, 0);
 
         return Inertia::render('home/Home', [
             'eventCategories' => $initialData['eventCategories'],
@@ -59,9 +58,7 @@ class HomeController extends Controller
 
         $offset = (int) ($validated['offset'] ?? 0);
         $limit = (int) ($validated['limit'] ?? self::EVENT_CATEGORY_BATCH_SIZE);
-        $expireAt = now()->addMinutes(3600);
-
-        $data = $this->fetchEventCategories($limit, $offset, $expireAt);
+        $data = $this->fetchEventCategories($limit, $offset);
 
         return response()->json([
             'eventCategories' => $data['eventCategories'],
@@ -70,10 +67,51 @@ class HomeController extends Controller
         ]);
     }
 
+    public function search(Request $request)
+    {
+        $validated = $request->validate([
+            'q' => 'required|string|min:1|max:100',
+        ]);
+
+        $term = trim($validated['q']);
+        if ($term === '') {
+            return response()->json([
+                'eventCategories' => [],
+                'partnerCategories' => [],
+            ]);
+        }
+
+        $eventCategories = PartnerCategory::whereNull('parent_id')
+            ->where(function ($query) use ($term) {
+                $query->where('name', 'like', "%{$term}%")
+                    ->orWhere('slug', 'like', "%{$term}%")
+                    ->orWhereHas('children', function ($childQuery) use ($term) {
+                        $childQuery->where('name', 'like', "%{$term}%")
+                            ->orWhere('slug', 'like', "%{$term}%");
+                    });
+            })
+            ->with([
+                'media',
+                'children' => function ($query) use ($term) {
+                    $query->orderBy('order', 'asc')
+                        ->limit(self::CHILD_CATEGORY_LIMIT)
+                        ->where(function ($child) use ($term) {
+                            $child->where('name', 'like', "%{$term}%")
+                                ->orWhere('slug', 'like', "%{$term}%");
+                        })
+                        ->with('media');
+                },
+            ])
+            ->withCount(['children as total_children_count'])
+            ->orderBy('order', 'asc')
+            ->take(self::INITIAL_EVENT_CATEGORY_LIMIT)
+            ->get();
+
+        return response()->json($this->transformEventCategoryResponse($eventCategories));
+    }
+
     public function showCategory(string $categorySlug, AppSettings $settings): Response
     {
-        $expireAt = now()->addMinutes(3600);
-
         $category = PartnerCategory::whereNull('parent_id')
             ->where('slug', $categorySlug)
             ->with('media')
@@ -83,7 +121,7 @@ class HomeController extends Controller
             ->orderBy('order', 'asc')
             ->with('media')
             ->get()
-            ->map(function ($child) use ($expireAt) {
+            ->map(function ($child) {
                 return [
                     'id' => $child->id,
                     'name' => $child->name,
@@ -112,7 +150,7 @@ class HomeController extends Controller
         ]);
     }
 
-    private function fetchEventCategories(int $limit, int $offset, $expireAt): array
+    private function fetchEventCategories(int $limit, int $offset): array
     {
         $eventCategories = PartnerCategory::whereNull('parent_id')
             ->with([
@@ -129,9 +167,14 @@ class HomeController extends Controller
             ->take($limit)
             ->get();
 
+        return $this->transformEventCategoryResponse($eventCategories);
+    }
+
+    private function transformEventCategoryResponse(Collection $eventCategories): array
+    {
         $partnerCategories = [];
         foreach ($eventCategories as $category) {
-            $partnerCategories[$category->id] = $category->children->map(function ($pc) use ($expireAt) {
+            $partnerCategories[$category->id] = $category->children->map(function ($pc) {
                 return [
                     'id' => $pc->id,
                     'name' => $pc->name,

@@ -1,3 +1,59 @@
+<template>
+
+    <Head class="font-lexend" title="Trang chủ" />
+
+    <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
+
+        <HeroBanner :header-text="settings.hero_title ?? 'Thuê đối tác xịn. Sự kiện thêm vui'"
+            :banner-images="isMobile ? heroBannerMobileImages : heroBannerImages" />
+
+        <PartnerCategoryIcons :categories="categories" />
+
+        <HomeCtaBanner />
+
+        <div class="container mx-auto px-4 py-8 space-y-12">
+            <div class="max-w-5xl mx-auto">
+                <SearchBar :show-search-btn="false" v-model="search" />
+                <div v-if="keywordSuggestions.length" class="mt-3 flex flex-wrap gap-2">
+                    <button v-for="suggestion in keywordSuggestions" :key="suggestion" type="button"
+                        class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
+                        @click="search = suggestion">
+                        {{ suggestion }}
+                    </button>
+                </div>
+            </div>
+            <div v-if="isSearchMode && isSearching" class="text-center text-sm text-gray-500">
+                Đang tìm kiếm kết quả...
+            </div>
+            <div v-else-if="isSearchMode && activeEventCategories.length === 0"
+                class="text-center text-sm text-gray-500">
+                Không tìm thấy danh mục phù hợp.
+            </div>
+            <div v-for="eventCategory in activeEventCategories" :key="eventCategory.id">
+                <CategorySection :category-name="eventCategory.name" :category-slug="eventCategory.slug"
+                    :has-more-children="eventCategory.total_children_count > pagination.childLimit"
+                    :partner-categories="activePartnerCategories[eventCategory.id] || []" />
+            </div>
+            <div v-if="hasMoreCategories" ref="loadMoreTrigger"
+                class="flex w-full items-center justify-center py-8 text-sm text-gray-500">
+                <template v-if="isLoadingMore">
+                    <svg class="mr-2 h-5 w-5 animate-spin text-primary-500" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    Đang tải thêm danh mục...
+                </template>
+                <span v-else>Cuộn xuống để xem thêm danh mục</span>
+            </div>
+            <p v-else-if="!isSearchMode" class="text-center text-sm text-gray-500">Đã hiển thị tất cả danh mục.</p>
+        </div>
+    </ClientAppHeaderLayout>
+</template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import axios from 'axios';
@@ -8,7 +64,9 @@ import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 import CategorySection from './partials/CategorySection.vue';
 import HomeCtaBanner from './components/HomeCtaBanner.vue';
 import { PartnerCategory } from '@/types/database';
-import { createSearchFilter } from '@/lib/search-filter';
+import { normText } from '@/lib/search-filter';
+import { useSearchSuggestion } from '@/lib/useSearchSuggestion';
+import SearchBar from '../categories/partials/SearchBar.vue';
 
 type ParentCategory = PartnerCategory & { total_children_count?: number };
 
@@ -17,7 +75,7 @@ interface BannerImage {
 }
 
 interface BannerImageWrapper {
-  data: BannerImage[];
+    data: BannerImage[];
 }
 
 interface PaginationMeta {
@@ -37,6 +95,11 @@ interface Props {
         banner_images: BannerImageWrapper;
         mobile_banner_images: BannerImageWrapper;
     };
+}
+
+interface HomeSearchResponse {
+    eventCategories: ParentCategory[];
+    partnerCategories: { [key: number]: PartnerCategory[] };
 }
 
 const props = defineProps<Props>();
@@ -90,7 +153,23 @@ const categories = [
     },
 ];
 
-const search = ref('');
+const fetchHomeSearch = async (q: string): Promise<HomeSearchResponse> => {
+    const { data } = await axios.get(route('home.search'), {
+        params: { q },
+    });
+    return data as HomeSearchResponse;
+};
+
+const {
+    query: search,
+    result: searchResult,
+    loading: isSearching,
+    hasQuery: hasSearchQuery,
+} = useSearchSuggestion<PartnerCategory, HomeSearchResponse>({
+    fetcher: fetchHomeSearch,
+    minLength: 2,
+    debounceMs: 300,
+});
 
 const heroBannerImages = computed(() => {
     const images = props.settings.banner_images.data ?? [];
@@ -115,26 +194,55 @@ const updateIsMobile = () => {
 const eventCategoryList = ref<ParentCategory[]>([...props.eventCategories]);
 const partnerCategoriesStore = ref<Record<number, PartnerCategory[]>>({ ...props.partnerCategories });
 
-const filteredPartnerCategories = computed(() => {
-    const source = partnerCategoriesStore.value;
-    if (!search.value.trim()) return source;
-    const filter = createSearchFilter(['name', 'slug'], search.value.trim());
-    const result: Record<number, PartnerCategory[]> = {};
-    for (const catId in source) {
-        const arr = source[catId].filter(filter);
-        if (arr.length) result[Number(catId)] = arr;
+const isSearchMode = computed(() => hasSearchQuery.value);
+
+const activeEventCategories = computed(() => {
+    if (!isSearchMode.value) return eventCategoryList.value;
+    return searchResult.value?.eventCategories ?? [];
+});
+
+const activePartnerCategories = computed(() => {
+    if (!isSearchMode.value) return partnerCategoriesStore.value;
+    return searchResult.value?.partnerCategories ?? {};
+});
+
+const keywordSuggestions = computed(() => {
+    const term = search.value.trim();
+    if (term.length < 2) return [];
+
+    const names = new Set<string>();
+    const addNames = (items?: { name?: string | null }[]) => {
+        if (!items) return;
+        items.forEach((item) => {
+            if (item?.name) names.add(item.name);
+        });
+    };
+
+    const source = searchResult.value;
+    if (source) {
+        addNames(source.eventCategories);
+        Object.values(source.partnerCategories ?? {}).forEach((arr) => addNames(arr));
+    } else {
+        addNames(eventCategoryList.value);
+        Object.values(partnerCategoriesStore.value).forEach((arr) => addNames(arr));
     }
-    return result;
+
+    const normalizedTerm = normText(term);
+    return Array.from(names)
+        .filter((name) => normText(name).includes(normalizedTerm))
+        .slice(0, 8);
 });
 
 const isLoadingMore = ref(false);
 const loadMoreTrigger = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
 
-const hasMoreCategories = computed(() => eventCategoryList.value.length < props.pagination.total);
+const hasMoreCategories = computed(() =>
+    !isSearchMode.value && eventCategoryList.value.length < props.pagination.total
+);
 
 const loadMoreCategories = async () => {
-    if (isLoadingMore.value || !hasMoreCategories.value) return;
+    if (isLoadingMore.value || !hasMoreCategories.value || isSearchMode.value) return;
     isLoadingMore.value = true;
     try {
         const { data } = await axios.get(route('home.event-categories'), {
@@ -224,44 +332,3 @@ onBeforeUnmount(() => {
     unregisterResizeListener();
 });
 </script>
-
-<template>
-
-    <Head class="font-lexend" title="Trang chủ" />
-
-    <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
-
-        <HeroBanner
-            v-model="search"
-            :header-text="settings.hero_title ?? 'Thuê đối tác xịn. Sự kiện thêm vui'"
-            :banner-images="isMobile ? heroBannerMobileImages : heroBannerImages"
-        />
-
-        <PartnerCategoryIcons :categories="categories" />
-
-        <HomeCtaBanner />
-
-        <div class="container mx-auto px-4 py-8 space-y-12">
-            <div v-for="eventCategory in eventCategoryList" :key="eventCategory.id">
-                <CategorySection :category-name="eventCategory.name" :category-slug="eventCategory.slug"
-                    :has-more-children="eventCategory.total_children_count > pagination.childLimit"
-                    :partner-categories="filteredPartnerCategories[eventCategory.id] || []" />
-            </div>
-            <div v-if="hasMoreCategories" ref="loadMoreTrigger"
-                class="flex w-full items-center justify-center py-8 text-sm text-gray-500">
-                <template v-if="isLoadingMore">
-                    <svg class="mr-2 h-5 w-5 animate-spin text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24" aria-hidden="true">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
-                    </svg>
-                    Đang tải thêm danh mục...
-                </template>
-                <span v-else>Cuộn xuống để xem thêm danh mục</span>
-            </div>
-            <p v-else class="text-center text-sm text-gray-500">Đã hiển thị tất cả danh mục.</p>
-        </div>
-    </ClientAppHeaderLayout>
-</template>

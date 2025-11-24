@@ -20,6 +20,19 @@
                     @search="submitSearch"
                 />
 
+                <div v-if="keywordSuggestions.length" class="flex flex-wrap gap-2">
+                    <button
+                        v-for="suggestion in keywordSuggestions"
+                        :key="`${suggestion.type}-${suggestion.slug ?? suggestion.label}`"
+                        type="button"
+                        class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
+                        @click="submitSearch(suggestion.label)"
+                    >
+                        <span v-if="suggestion.type === 'tag'" class="mr-1 text-[11px] uppercase text-primary-500">Tag</span>
+                        {{ suggestion.label }}
+                    </button>
+                </div>
+
                 <BlogCategoryFilters
                     :categories="categoryOptions"
                     :active-slug="activeCategorySlug"
@@ -61,7 +74,7 @@ import BlogCategoryFilters from '../discover/components/BlogCategoryFilters.vue'
 import BlogPagination from '../discover/components/BlogPagination.vue';
 import VideoCard from './components/VideoCard.vue';
 
-import { createSearchFilter } from '@/lib/search-filter';
+import { createSearchFilter, normText } from '@/lib/search-filter';
 
 import type { BlogFilters, BlogSummary } from '../types';
 import type { Category } from '@/pages/home/types';
@@ -104,7 +117,7 @@ const displayedBlogs = computed(() => {
     const query = normalizedSearchTerm.value;
     if (!query) return items;
 
-    const filter = createSearchFilter<BlogSummary>(['title', 'slug', 'excerpt', 'category.name', 'video_url'], query);
+    const filter = createSearchFilter<BlogSummary>(['title', 'slug', 'excerpt', 'category.name', 'video_url', 'tags.name'], query);
     return items.filter(filter);
 });
 
@@ -140,6 +153,48 @@ function toArray<T>(input: ResourceCollection<T> | Paginated<T> | T[] | undefine
 }
 
 const categoryOptions = computed(() => toArray<Category>(props.categories));
+
+const keywordSuggestions = computed(() => {
+    const term = normalizedSearchTerm.value;
+    if (term.length < 2) return [];
+    const normalizedTerm = normText(term);
+    const seen = new Set<string>();
+    const items: { label: string; type: 'tag' | 'keyword'; slug?: string }[] = [];
+
+    (props.blogs?.data ?? []).forEach((blog) => {
+        blog.tags?.forEach((tag) => {
+            const label = tag.name ?? tag.slug ?? '';
+            if (!label) return;
+            const key = `tag:${label}`;
+            if (seen.has(key)) return;
+            if (normText(label).includes(normalizedTerm)) {
+                seen.add(key);
+                items.push({ label, type: 'tag', slug: tag.slug ?? label });
+            }
+        });
+    });
+
+    (props.blogs?.data ?? []).forEach((blog) => {
+        const title = blog.title ?? '';
+        if (title) {
+            const key = `kw:${title}`;
+            if (!seen.has(key) && normText(title).includes(normalizedTerm)) {
+                seen.add(key);
+                items.push({ label: title, type: 'keyword' });
+            }
+        }
+        const excerpt = blog.excerpt ?? '';
+        if (excerpt) {
+            const key = `kw:${excerpt}`;
+            if (!seen.has(key) && normText(excerpt).includes(normalizedTerm)) {
+                seen.add(key);
+                items.push({ label: excerpt.slice(0, 80) + (excerpt.length > 80 ? '…' : ''), type: 'keyword' });
+            }
+        }
+    });
+
+    return items.slice(0, 10);
+});
 
 function submitSearch(term: string): void {
     const normalized = term.trim();

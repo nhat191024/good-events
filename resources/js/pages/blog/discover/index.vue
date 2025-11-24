@@ -10,6 +10,19 @@
                     :heading-text="headingText" :sub-heading-text="subHeadingText" :total-items="totalItems"
                     v-model:search-term="searchTerm" @search="submitSearch" />
 
+                <div v-if="keywordSuggestions.length" class="flex flex-wrap gap-2">
+                    <button
+                        v-for="suggestion in keywordSuggestions"
+                        :key="`${suggestion.type}-${suggestion.slug ?? suggestion.label}`"
+                        type="button"
+                        class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
+                        @click="applySuggestion(suggestion)"
+                    >
+                        <span v-if="suggestion.type === 'tag'" class="mr-1 text-[11px] uppercase text-primary-500">Tag</span>
+                        {{ suggestion.label }}
+                    </button>
+                </div>
+
                 <BlogLocationFilterBar :provinces="provinceOptions" :province-id="selectedProvinceId"
                     :districts="districtOptions" :district-id="selectedDistrictId" :max-people="selectedMaxPeople"
                     :location-detail="selectedLocationDetail" :loading="loadingWards"
@@ -49,7 +62,7 @@ import LocationCard from './components/LocationCard.vue';
 import BlogPagination from './components/BlogPagination.vue';
 import BlogLocationFilterBar from './components/BlogLocationFilterBar.vue';
 
-import { createSearchFilter } from '@/lib/search-filter';
+import { createSearchFilter, normText } from '@/lib/search-filter';
 import { useWards } from '@/helper/useWards';
 
 import type { BlogFilters, BlogSummary } from '../types';
@@ -159,7 +172,7 @@ const displayedBlogs = computed(() => {
     const query = normalizedSearchTerm.value;
     if (!query) return items;
 
-    const filter = createSearchFilter<BlogSummary>(['title', 'slug', 'excerpt', 'category.name'], query);
+    const filter = createSearchFilter<BlogSummary>(['title', 'slug', 'excerpt', 'category.name', 'tags.name'], query);
     return items.filter(filter);
 });
 
@@ -233,6 +246,58 @@ function changePage(page: number): void {
     const routeParams = activeCategorySlug.value ? { category_slug: activeCategorySlug.value } : {};
 
     router.get(route(routeName, routeParams), { ...buildQueryParams({ page }) }, { preserveState: true, preserveScroll: true });
+}
+
+const keywordSuggestions = computed(() => {
+    const term = normalizedSearchTerm.value;
+    if (term.length < 2) return [];
+    const normalizedTerm = normText(term);
+    const seen = new Set<string>();
+    const items: { label: string; type: 'tag' | 'keyword'; slug?: string }[] = [];
+
+    // Tags
+    (props.blogs?.data ?? []).forEach((blog) => {
+        blog.tags?.forEach((tag) => {
+            const label = tag.name ?? tag.slug ?? '';
+            if (!label) return;
+            const key = `tag:${label}`;
+            if (seen.has(key)) return;
+            if (normText(label).includes(normalizedTerm)) {
+                seen.add(key);
+                items.push({ label, type: 'tag', slug: tag.slug ?? label });
+            }
+        });
+    });
+
+    // Titles / excerpts
+    (props.blogs?.data ?? []).forEach((blog) => {
+        const label = blog.title ?? '';
+        if (label) {
+            const key = `kw:${label}`;
+            if (!seen.has(key) && normText(label).includes(normalizedTerm)) {
+                seen.add(key);
+                items.push({ label, type: 'keyword' });
+            }
+        }
+        const excerpt = blog.excerpt ?? '';
+        if (excerpt) {
+            const key = `kw:${excerpt}`;
+            if (!seen.has(key) && normText(excerpt).includes(normalizedTerm)) {
+                seen.add(key);
+                items.push({ label: excerpt.slice(0, 80) + (excerpt.length > 80 ? '…' : ''), type: 'keyword' });
+            }
+        }
+    });
+
+    return items.slice(0, 10);
+});
+
+function applySuggestion(suggestion: { label: string; type: 'tag' | 'keyword'; slug?: string }) {
+    if (suggestion.type === 'tag') {
+        submitSearch(suggestion.label);
+        return;
+    }
+    submitSearch(suggestion.label);
 }
 
 function handleProvinceChange(value: string | null): void {
