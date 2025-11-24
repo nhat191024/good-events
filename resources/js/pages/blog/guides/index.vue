@@ -1,39 +1,31 @@
 <template>
+
     <Head :title="pageTitle" />
 
     <ClientHeaderLayout>
-        <motion.section
-            :initial="sectionMotion.initial"
-            :animate="sectionMotion.animate"
+        <motion.section :initial="sectionMotion.initial" :animate="sectionMotion.animate"
             class="bg-white pb-12 pt-6 w-full">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
-                <BlogDiscoverHeader
-                    :is-category-page="isCategoryPage"
-                    :category-name="props.category?.name ?? null"
-                    :heading-text="headingText"
-                    :sub-heading-text="subHeadingText"
-                    :total-items="totalItems"
-                    breadcrumb-label="Blog hướng dẫn"
-                    breadcrumb-route-name="blog.guides.discover"
-                    search-placeholder="Tìm kiếm hướng dẫn tổ chức sự kiện..."
-                    v-model:search-term="searchTerm"
-                    @search="submitSearch"
-                />
+                <BlogDiscoverHeader :is-category-page="isCategoryPage" :category-name="props.category?.name ?? null"
+                    :heading-text="headingText" :sub-heading-text="subHeadingText" :total-items="totalItems"
+                    breadcrumb-label="Blog hướng dẫn" breadcrumb-route-name="blog.guides.discover"
+                    search-placeholder="Tìm kiếm hướng dẫn tổ chức sự kiện..." v-model:search-term="searchTerm"
+                    @search="submitSearch" />
 
-                <BlogCategoryFilters
-                    :categories="categoryOptions"
-                    :active-slug="activeCategorySlug"
-                    all-route-name="blog.guides.discover"
-                    category-route-name="blog.guides.category"
-                />
+                <BlogCategoryFilters :categories="categoryOptions" :active-slug="activeCategorySlug"
+                    all-route-name="blog.guides.discover" category-route-name="blog.guides.category" />
 
-                <BlogGrid :blogs="displayedBlogs" detail-route-name="blog.guides.show" />
+                <section>
+                    <div v-if="displayedBlogs.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        <GuideCard v-for="blog in displayedBlogs" :key="blog.id" :blog="blog" />
+                    </div>
+                    <div v-else
+                        class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 py-16 text-center text-sm text-gray-500">
+                        Hiện chưa có bài viết nào.
+                    </div>
+                </section>
 
-                <BlogPagination
-                    v-if="pagination"
-                    :pagination="pagination"
-                    @change="changePage"
-                />
+                <BlogPagination v-if="pagination" :pagination="pagination" @change="changePage" />
             </div>
         </motion.section>
     </ClientHeaderLayout>
@@ -47,7 +39,7 @@ import { motion } from 'motion-v';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import BlogDiscoverHeader from '../discover/components/BlogDiscoverHeader.vue';
 import BlogCategoryFilters from '../discover/components/BlogCategoryFilters.vue';
-import BlogGrid from '../discover/components/BlogGrid.vue';
+import GuideCard from './components/GuideCard.vue';
 import BlogPagination from '../discover/components/BlogPagination.vue';
 
 import { createSearchFilter } from '@/lib/search-filter';
