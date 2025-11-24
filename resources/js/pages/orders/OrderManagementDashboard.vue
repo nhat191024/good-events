@@ -73,7 +73,7 @@ function fetchSingleOrder(orderId: number) {
                 selectedOrder.value = order
 
                 if (order.status !== 'pending') {
-                    console.log('Order status changed to:', order.status)
+                    console.warn('Order status changed to:', order.status)
                 }
             }
         },
@@ -306,7 +306,7 @@ async function handleConfirmChoosePartner(
               Xác nhận chốt đơn sẽ mở khóa chat với đối tác và 
               <b class="font-lexend">không thể chọn lại đối tác khác cho đơn này.</b>
               <br>Đối tác trả giá: <span class="text-red-800 font-bold text-md">
-              ${formatPrice(total??0)}đ ${(voucherDiscountAmount > 0)?'<br>Giá đã giảm từ mã giảm giá: '+formatPrice(finalTotal)+'đ (-'+formatPrice(voucherDiscountAmount)+'đ)':''}</span>
+              ${formatPrice(total ?? 0)}đ ${(voucherDiscountAmount > 0) ? '<br>Giá đã giảm từ mã giảm giá: ' + formatPrice(finalTotal) + 'đ (-' + formatPrice(voucherDiscountAmount) + 'đ)' : ''}</span>
               <br> Bạn có chấp nhận mức giá này không?
             `,
             okText: 'Chốt đơn luôn!',
@@ -332,7 +332,7 @@ async function handleConfirmChoosePartner(
                 debounce(() => {
                     fetchDetails(orderId, true);
                 }, 1000, { leading: false, trailing: true })();
-                
+
                 debounce(() => {
                     refreshCurrentOrders();
                     hideLoading(true);
@@ -520,42 +520,23 @@ onBeforeUnmount(() => {
     <ClientHeaderLayout :show-footer="false">
         <div class="flex h-[90vh] bg-background w-full overflow-visible">
             <div :class="[showMobileDetail ? 'hidden md:block' : 'block', 'w-full md:w-auto']">
-                <Sidebar
-                    :orderList="currentOrders"
-                    :history-loading="loadingForSidebar"
-                    :order-loading="loadingForSidebar"
-                    :orderHistory="historyItems"
-                    :selected-order-id="selectedOrder?.id ?? null"
-                    :selected-mode="selectedMode"
-                    v-model:activeTab="activeTab"
-                    @select="handleSelect"
-                    @load-history-more="loadMoreHistory"
-                    @reload="reloadHistory"
-                    @load-orders-more="loadMoreOrders"
-                    @reload-orders="refreshCurrentOrders"
-                />
+                <Sidebar :orderList="currentOrders" :history-loading="loadingForSidebar"
+                    :order-loading="loadingForSidebar" :orderHistory="historyItems"
+                    :selected-order-id="selectedOrder?.id ?? null" :selected-mode="selectedMode"
+                    v-model:activeTab="activeTab" @select="handleSelect" @load-history-more="loadMoreHistory"
+                    @reload="reloadHistory" @load-orders-more="loadMoreOrders" @reload-orders="refreshCurrentOrders" />
             </div>
 
             <div :class="[showMobileDetail ? 'block' : 'hidden md:block']" class="flex-1">
-                <OrderDetailPanel
-                    @reload-detail="refreshDetails"
-                    :mode="selectedMode"
-                    :order="selectedOrder"
-                    :applicants="applicants"
-                    @back="showMobileDetail = false"
-                    @rate="openRating"
+                <OrderDetailPanel @reload-detail="refreshDetails" :mode="selectedMode" :order="selectedOrder"
+                    :applicants="applicants" @back="showMobileDetail = false" @rate="openRating"
                     @cancel-order="handleCancelOrder"
                     @confirm-choose-partner="(partner, total, voucher_code) => handleConfirmChoosePartner(partner, total, voucher_code)"
-                    @view-partner-profile="handleViewPartnerProfile($event)"
-                />
+                    @view-partner-profile="handleViewPartnerProfile($event)" />
             </div>
 
-            <RatingDialog
-                v-model:showRatingDialog="showRatingDialog"
-                v-model:rating="rating"
-                v-model:comment="comment"
-                @submit="submitRating"
-            />
+            <RatingDialog v-model:showRatingDialog="showRatingDialog" v-model:rating="rating" v-model:comment="comment"
+                @submit="submitRating" />
         </div>
     </ClientHeaderLayout>
 
