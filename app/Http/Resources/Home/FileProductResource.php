@@ -33,7 +33,7 @@ class FileProductResource extends JsonResource
                     // 'image' => TemporaryImage::getTemporaryImageUrl($cat, $expireAt, 'thumbnails'),
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,
-                        fn () => [
+                        fn() => [
                             'id' => $cat->parent->id,
                             'name' => $cat->parent->name,
                             // 'image' => $this->getTemporaryImageUrl($cat->parent, $expireAt),
