@@ -83,6 +83,13 @@ class RentProduct extends Model implements HasMedia
             ->saveSlugsTo('slug');
     }
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('thumbnails')
+            ->useDisk('public')
+            ->withResponsiveImages();
+    }
+
     /**
      * Summary of getActivitylogOptions
      * @return LogOptions
