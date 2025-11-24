@@ -13,6 +13,19 @@
                     @search="submitSearch"
                 />
 
+                <div v-if="keywordSuggestions.length" class="flex flex-wrap gap-2">
+                    <button
+                        v-for="suggestion in keywordSuggestions"
+                        :key="`${suggestion.type}-${suggestion.slug ?? suggestion.label}`"
+                        type="button"
+                        class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
+                        @click="applySuggestion(suggestion)"
+                    >
+                        <span v-if="suggestion.type === 'tag'" class="mr-1 text-[11px] uppercase text-primary-500">Tag</span>
+                        {{ suggestion.label }}
+                    </button>
+                </div>
+
                 <DiscoverFilters
                     :category-options="categoryOptions"
                     :tag-options="tagOptions"
@@ -46,6 +59,7 @@ import DiscoverHeader from './components/DiscoverHeader.vue';
 import DiscoverPagination from './components/DiscoverPagination.vue';
 import DiscoverProductGrid from './components/DiscoverProductGrid.vue';
 import { formatPrice } from '@/lib/helper';
+import { normText } from '@/lib/search-filter';
 
 import type { Category, RentProduct, Tag } from '@/pages/rent/types';
 
@@ -71,6 +85,7 @@ const props = withDefaults(defineProps<DiscoverPageProps>(), {
 });
 
 const searchTerm = ref(props.filters?.q ?? '');
+const suggestionVisibleTerm = computed(() => searchTerm.value.trim());
 const initialTags = (() => {
     const provided = props.filters?.tags ?? [];
     if (Array.isArray(provided) && provided.length) {
@@ -190,6 +205,40 @@ const displayProducts = computed(() =>
 
 const hasActiveFilters = computed(() => Boolean(searchTerm.value.trim() || selectedTags.value.length));
 
+type Suggestion = { label: string; type: 'tag' | 'keyword'; slug?: string };
+
+const keywordSuggestions = computed<Suggestion[]>(() => {
+    const term = suggestionVisibleTerm.value;
+    if (term.length < 2) return [];
+    const normalizedTerm = normText(term);
+    const suggestions: Suggestion[] = [];
+    const seen = new Set<string>();
+
+    // Tag suggestions
+    tagOptions.value.forEach((tag) => {
+        const label = tag.name ?? tag.slug ?? '';
+        if (!label) return;
+        if (seen.has(`tag:${label}`)) return;
+        if (normText(label).includes(normalizedTerm)) {
+            seen.add(`tag:${label}`);
+            suggestions.push({ label, type: 'tag', slug: tag.slug ?? label });
+        }
+    });
+
+    // Keyword suggestions from products
+    (props.rentProducts?.data ?? []).forEach((item) => {
+        const label = item.name ?? '';
+        if (!label) return;
+        if (seen.has(`kw:${label}`)) return;
+        if (normText(label).includes(normalizedTerm)) {
+            seen.add(`kw:${label}`);
+            suggestions.push({ label, type: 'keyword' });
+        }
+    });
+
+    return suggestions.slice(0, 10);
+});
+
 function buildQuery(extra: Partial<{ page: number }> = {}) {
     const query: Record<string, unknown> = { tag: null };
     const trimmed = searchTerm.value.trim();
@@ -217,6 +266,19 @@ function submitSearch(value?: string) {
         searchTerm.value = value;
     }
     visitWithFilters();
+}
+
+function applySuggestion(suggestion: Suggestion) {
+    if (suggestion.type === 'tag') {
+        const slug = suggestion.slug ?? suggestion.label;
+        if (!slug) return;
+        if (!selectedTags.value.includes(slug)) {
+            selectedTags.value.push(slug);
+        }
+        visitWithFilters();
+        return;
+    }
+    submitSearch(suggestion.label);
 }
 
 function toggleTag(tagSlug: string | null | undefined) {
