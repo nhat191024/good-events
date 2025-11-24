@@ -85,6 +85,8 @@ class VocationalKnowledgeTable
                     // ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('order', 'asc')
+            ->reorderable('order');
     }
 }
