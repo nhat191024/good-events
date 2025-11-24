@@ -3,7 +3,7 @@
     <Head class="font-lexend" title="Thuê thiết bị sự kiện" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-green-100'">
-        <HeroBanner :header-text="heroHeaderText" v-model="search" :banner-images="heroBannerImages"
+        <HeroBanner :header-text="heroHeaderText" :banner-images="heroBannerImages"
             :bg-color-class="'bg-[linear-gradient(180deg,#4ade80_0%,rgb(134,239,172)_51.5%,rgba(74,222,128,0)_100%)]'" />
 
         <PartnerCategoryIcons :categories="categories" />
@@ -15,7 +15,20 @@
                 :class="'bg-primary-10 text-primary-800 ring ring-primary-100 hover:bg-primary-50'" />
             </Link>
         </div>
-
+        <div class="container mx-auto px-4 py-8 space-y-12">
+            <div class="max-w-5xl mx-auto">
+                <SearchBar :show-search-btn="false" v-model="search" />
+                <div v-if="keywordSuggestions.length" class="container mx-auto px-4 mt-4">
+                    <div class="flex flex-wrap gap-2">
+                        <button v-for="suggestion in keywordSuggestions" :key="suggestion" type="button"
+                            class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
+                            @click="search = suggestion">
+                            {{ suggestion }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <CardListLayout :href="route('rent.discover')" :name="'Thiết bị nổi bật gần đây'" :show-section="true">
             <CardItem v-for="item in rentProductList" :key="item.id"
                 :route-href="route('rent.show', { rent_product_slug: item.slug, category_slug: item.category.slug })"
@@ -33,7 +46,7 @@
 
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import CardListLayout from './layouts/CardListLayout.vue';
@@ -44,10 +57,12 @@ import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 import type { PartnerCategoryItems } from './partials/PartnerCategoryIcons/type';
 import type { Category, RentCardItemProps, RentProduct, Tag } from './types';
 
-import { createSearchFilter } from '@/lib/search-filter';
+import { normText } from '@/lib/search-filter';
+import { useSearchSuggestion } from '@/lib/useSearchSuggestion';
 
 import { Button } from '@/components/ui/button';
 import CardItem from './components/CardItem/index.vue';
+import SearchBar from '../categories/partials/SearchBar.vue';
 interface BannerImage {
     image_tag?: string | null;
 }
@@ -69,19 +84,24 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const search = ref('');
+const {
+    query: search,
+    filteredLocal,
+    setItems,
+} = useSearchSuggestion<RentProduct>({
+    keys: ['name', 'slug'],
+    initialItems: props.rentProducts.data ?? [],
+});
+
+watch(
+    () => props.rentProducts.data,
+    (val) => setItems(val ?? [])
+);
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
 const heroHeaderText = computed(() => props.settings.hero_title ?? 'Thuê thiết bị, loa đài ánh sáng');
 
-const filteredRentProducts = computed(() => {
-    const data = props.rentProducts.data ?? [];
-    const q = search.value.trim();
-    if (!q) return data;
-
-    const filter = createSearchFilter<RentProduct>(['name', 'slug'], q);
-    return data.filter(filter);
-});
+const filteredRentProducts = computed(() => filteredLocal.value ?? []);
 
 const categories = computed<PartnerCategoryItems[]>(() =>
     (props.categories.data ?? []).map((item) => ({
@@ -104,4 +124,19 @@ const rentProductList = computed<RentCardItemProps[]>(() =>
         category: item.category,
     })),
 );
+
+const keywordSuggestions = computed(() => {
+    const term = search.value.trim();
+    if (term.length < 2) return [];
+
+    const names = new Set<string>();
+    filteredRentProducts.value.forEach((item) => {
+        if (item?.name) names.add(item.name);
+    });
+
+    const normalizedTerm = normText(term);
+    return Array.from(names)
+        .filter((name) => normText(name).includes(normalizedTerm))
+        .slice(0, 8);
+});
 </script>
