@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Auth;
 use App\Enum\Role;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Customer;
+use App\Models\Partner;
 use App\Models\PartnerProfile;
 use App\Models\Location;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
@@ -64,7 +67,15 @@ class RegisteredUserController extends Controller
             'country_code' => '+84',
             'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($validated['name']) . '&size=512',
             'password' => Hash::make($validated['password']),
-        ])->assignRole(Role::CLIENT);
+        ]);
+
+        $user->assignRole(Role::CLIENT);
+
+        // Update model_type in model_has_roles to Customer
+        DB::table('model_has_roles')
+            ->where('model_id', $user->id)
+            ->where('model_type', User::class)
+            ->update(['model_type' => Customer::class]);
 
         app(\App\Services\EmailVerificationMailService::class)->sendVerificationLink($user);
         Auth::login($user);
@@ -100,7 +111,15 @@ class RegisteredUserController extends Controller
             'country_code' => '+84',
             'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($validated['name']) . '&size=512',
             'password' => Hash::make($validated['password']),
-        ])->assignRole(Role::PARTNER);
+        ]);
+
+        $user->assignRole(Role::PARTNER);
+
+        // Update model_type in model_has_roles to Partner
+        DB::table('model_has_roles')
+            ->where('model_id', $user->id)
+            ->where('model_type', User::class)
+            ->update(['model_type' => Partner::class]);
 
         PartnerProfile::create([
             'user_id' => $user->id,
