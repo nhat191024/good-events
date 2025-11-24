@@ -20,6 +20,7 @@ abstract class BaseBlogPageController extends Controller
         $page = max(1, (int) $request->query('page', 1));
 
         return $query
+            ->orderBy('order', 'asc')
             ->orderByDesc('created_at')
             ->paginate(static::BLOGS_PER_PAGE, ['*'], 'page', $page)
             ->withQueryString();
