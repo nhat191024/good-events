@@ -107,6 +107,7 @@ class PartnersTable
                             $meta = [
                                 'reason' => __('admin/partner.messages.admin_deposit'),
                                 'old_balance' => $record->balanceInt,
+                                'new_balance' => $record->balanceInt + $amount,
                             ];
 
                             $record->deposit($amount, $meta);

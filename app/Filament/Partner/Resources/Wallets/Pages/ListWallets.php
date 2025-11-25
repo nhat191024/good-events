@@ -56,7 +56,7 @@ class ListWallets extends ListRecords
         $user = Auth::user();
         $id = date('YmdHis') . rand(1000, 9999) + 1;
         $oldBalance = $user->balanceInt;
-        $transaction = $user->deposit($amount, ['reason' => 'Nạp tiền vào ví qua QR', 'transaction_codes' => $id, 'old_balance' => $oldBalance], false);
+        $transaction = $user->deposit($amount, ['reason' => 'Nạp tiền vào ví qua QR', 'transaction_codes' => $id, 'old_balance' => $oldBalance, 'new_balance' => $oldBalance + $amount], false);
 
         $timestamp = time();
         $billId = $transaction->id . $timestamp;
