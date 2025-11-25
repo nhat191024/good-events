@@ -8,6 +8,22 @@
     }>();
 
     const page = usePage();
+    const activeStyle = {
+        backgroundColor: '#ED3B50',
+        color: '#ffffff',
+        fontWeight: '600',
+        boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05), 0 0 0 1px rgb(220 38 38)',
+    };
+
+    const getPath = (url: string) => {
+        try {
+            return new URL(url).pathname;
+        } catch (error) {
+            return url;
+        }
+    }
+
+    const isActive = (href: string) => getPath(href) === page.url.split('?')[0];
 </script>
 
 <template>
@@ -15,10 +31,11 @@
         <SidebarGroupLabel>Cài đặt</SidebarGroupLabel>
         <SidebarMenu>
             <SidebarMenuItem v-for="item in items" :key="item.title">
-                <SidebarMenuButton as-child :is-active="item.href === page.url" :tooltip="item.title">
-                    <Link :href="item.href">
-                    <component :is="item.icon" />
-                    <span>{{ item.title }}</span>
+                <SidebarMenuButton as-child :is-active="isActive(item.href)" :tooltip="item.title">
+                    <Link :href="item.href" :aria-current="isActive(item.href) ? 'page' : undefined"
+                        :style="isActive(item.href) ? activeStyle : undefined">
+                        <component :is="item.icon" />
+                        <span>{{ item.title }}</span>
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>
