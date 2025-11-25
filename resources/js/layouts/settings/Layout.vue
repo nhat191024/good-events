@@ -4,6 +4,7 @@
     import { Separator } from '@/components/ui/separator';
     import { type NavItem } from '@/types';
     import { Link, usePage } from '@inertiajs/vue3';
+    import { computed } from 'vue';
 
     const sidebarNavItems: NavItem[] = [
         {
@@ -22,7 +23,33 @@
 
     const page = usePage();
 
-    const currentPath = page.props.ziggy?.location ? new URL(page.props.ziggy.location).pathname : '';
+    const normalizePath = (path: string): string => {
+        const cleaned = path.replace(/\/+$/, '');
+        return cleaned || '/';
+    };
+
+    const toPathname = (href: string): string => {
+        try {
+            const origin = page.props.ziggy?.location ?? (typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+            return normalizePath(new URL(href, origin).pathname);
+        } catch (error) {
+            return normalizePath(href);
+        }
+    };
+
+    const currentPath = computed(() => {
+        if (!page.props.ziggy?.location) {
+            return '';
+        }
+
+        try {
+            return normalizePath(new URL(page.props.ziggy.location).pathname);
+        } catch (error) {
+            return normalizePath(page.props.ziggy.location);
+        }
+    });
+
+    const isActive = (href: string): boolean => currentPath.value !== '' && toPathname(href) === currentPath.value;
 </script>
 
 <template>
@@ -33,7 +60,7 @@
             <aside class="w-full max-w-xl lg:w-48">
                 <nav class="flex flex-col space-y-1 space-x-0">
                     <Button v-for="item in sidebarNavItems" :key="item.href" variant="ghost"
-                        :class="['w-full justify-start', { 'bg-muted': currentPath === item.href }]" as-child>
+                        :class="['w-full justify-start', { 'bg-muted': isActive(item.href) }]" as-child>
                         <Link :href="item.href">
                         {{ item.title }}
                         </Link>
