@@ -5,12 +5,18 @@ return [
 
     'order_created_title' => 'Đơn hàng mới được tạo',
     'order_created_body' => 'Đơn hàng :code của bạn đã được tạo thành công',
-    
+
+    'order_detail_created_title' => 'Đối tác mới nhận đơn',
+    'order_detail_created_body' => 'Đơn hàng :code của bạn có một đối tác mới nhận đơn',
+
     'thread_created_title' => 'Khung chat mới được tạo',
     'thread_created_body' => 'Khung chat đơn hàng :code của bạn đã được tạo',
 
     'order_status_changed_title' => 'Cập nhật trạng thái đơn hàng',
     'order_status_changed_body' => 'Trạng thái của đơn hàng :code đã được thay đổi thành :status',
+
+    'order_detail_status_changed_title' => 'Có đối tác chốt giá đơn hàng',
+    'order_detail_status_changed_body' => 'Đơn hàng :code đã được chốt bởi bởi đối tác',
 
     'order_completed_title' => 'Đơn hàng đã hoàn tất',
     'order_completed_body' => 'Đơn hàng :code của bạn đã hoàn tất. Vui lòng để lại đánh giá!',
