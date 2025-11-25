@@ -9,7 +9,7 @@
 
 <template>
     <header>
-        <h3 class="mb-0.5 text-base font-medium">{{ title }}</h3>
+        <h3 class="mb-0.5 text-base font-medium pt-0.5">{{ title }}</h3>
         <p v-if="description" class="text-sm text-muted-foreground">
             {{ description }}
         </p>

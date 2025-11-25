@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import { getImg } from '@/pages/booking/helper';
+
 const props = defineProps<{
   user: {
     name: string
     avatar_url: string
     created_year: string | null
     location?: string | null
+    is_verified?: boolean
+  }
+  stats?: {
+    orders_placed?: number
   }
 }>()
 </script>
@@ -15,7 +21,7 @@ const props = defineProps<{
     <div class="absolute -top-24 left-1/2 -translate-x-1/2">
       <div class="relative w-28 h-28 md:w-32 md:h-32">
         <img
-          :src="user.avatar_url"
+          :src="getImg(user.avatar_url)"
           :alt="user.name"
           class="w-full h-full rounded-full object-cover ring-4 ring-yellow-400 shadow-lg"
         />
@@ -33,8 +39,7 @@ const props = defineProps<{
     <div class="mt-10 text-center">
       <div class="flex items-center justify-center gap-2 flex-wrap">
         <h2 class="text-xl font-bold text-gray-900">{{ user.name }}</h2>
-        <span class="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">Đã xác minh</span>
-        <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-xs rounded-full">Thành viên bạc</span>
+        <span v-if="user.is_verified" class="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">Đã xác minh</span>
       </div>
 
       <!-- Location and stats -->
@@ -50,7 +55,7 @@ const props = defineProps<{
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
           </svg>
-          <span>25+ đơn hàng</span>
+          <span>{{ (props.stats?.orders_placed ?? 0).toLocaleString('vi-VN') }}+ đơn hàng</span>
         </div>
         <div class="flex items-center gap-1">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

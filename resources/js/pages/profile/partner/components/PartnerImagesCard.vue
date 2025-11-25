@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { getImg } from '@/pages/booking/helper';
+
 type Media = { id: number; url: string }
 type Service = { id: number; name: string | null; field: string | null; media: Media[] }
 
@@ -24,7 +26,7 @@ const props = defineProps<{
           <img
             v-for="media in service.media.slice(0, 10)"
             :key="media.id"
-            :src="media.url"
+            :src="getImg(media.url)"
             :alt="service.name ?? 'Service image'"
             class="w-full aspect-square object-cover rounded-lg border border-gray-200"
           />

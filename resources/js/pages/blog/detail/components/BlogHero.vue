@@ -60,7 +60,7 @@
         <div class="overflow-hidden rounded-3xl bg-gray-100 shadow-sm">
             <img
                 v-if="blog.thumbnail"
-                :src="blog.thumbnail"
+                :src="getImg(blog.thumbnail)"
                 :alt="blog.title"
                 class="h-full w-full max-h-[420px] object-cover"
             />
@@ -75,6 +75,7 @@
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import type { BlogDetail } from '../../types';
+import { getImg } from '@/pages/booking/helper';
 
 const props = withDefaults(defineProps<{ blog: BlogDetail; categoryRouteName?: string }>(), {
     categoryRouteName: 'blog.category',

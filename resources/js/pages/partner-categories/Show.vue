@@ -4,7 +4,7 @@
     <Head :title="pageTitle" />
 
     <ClientHeaderLayout>
-        <section class="bg-white pb-16 pt-6">
+        <section class="w-full bg-white pb-16 pt-6">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
                 <!-- Breadcrumb -->
                 <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
@@ -27,12 +27,12 @@
                 <section class="grid gap-8 lg:grid-cols-2">
                     <div class="space-y-5">
                         <div class="overflow-hidden rounded-3xl border border-gray-100 bg-gray-50">
-                            <img :src="props.item.image || placeholderImg" :alt="props.item.name"
+                            <img :src="getImg(props.item.image)" :alt="props.item.name"
                                 class="h-full w-full object-cover" loading="lazy" />
                         </div>
                     </div>
 
-                    <aside class="flex h-max flex-col gap-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+                    <aside class="flex h-max flex-col gap-6 rounded-3xl border border-gray-100 bg-white md:px-6 md:py-6 px-0 py-0 shadow-sm">
                         <div class="space-y-2">
                             <span v-if="props.category"
                                 class="inline-flex w-max items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
@@ -63,10 +63,10 @@
                                 class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
                             Thuê ngay
                             </Link>
-                            <a href="#"
+                            <Link :href="route('contact.index')"
                                 class="inline-flex w-full items-center justify-center rounded-lg border border-primary-100 bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
                                 Hỗ trợ tư vấn
-                            </a>
+                            </Link>
                         </div>
 
                         <ul class="space-y-2 rounded-2xl border border-gray-100 bg-gray-50 p-5 text-sm text-gray-600">
@@ -90,7 +90,7 @@
                 </section>
 
                 <!-- Product Overview -->
-                <section class="space-y-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10">
+                <section class="space-y-8 rounded-3xl border border-gray-100 bg-white md:px-6 md:py-6 px-0 py-0 shadow-sm lg:p-10">
                     <header class="space-y-2">
                         <h2 class="text-xl font-semibold text-gray-900">Mô tả chi tiết</h2>
                         <p class="text-sm text-gray-500">
@@ -128,7 +128,7 @@
 
                 <!-- Related Products -->
                 <section v-if="relatedItems.length"
-                    class="space-y-5 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10">
+                    class="space-y-5 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10 md:px-6 md:py-6 px-0 py-0">
                     <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900">Có thể bạn quan tâm</h3>
@@ -164,6 +164,7 @@ import { computed } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import CardItem from '@/pages/home/components/CardItem/index.vue';
+import { getImg } from '../booking/helper';
 
 interface Item {
     id: number;

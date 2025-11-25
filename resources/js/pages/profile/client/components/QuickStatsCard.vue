@@ -6,6 +6,7 @@ const props = defineProps<{
     cancelled_orders_pct: string
     total_spent: number
     last_active_human: string | null
+    avg_rating?: number | null
   }
 }>()
 

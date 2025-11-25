@@ -7,7 +7,7 @@
 
         <div class="flex items-start gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4">
             <img
-                :src="props.productThumbnail"
+                :src="getImg(props.productThumbnail)"
                 :alt="props.fileProduct.name"
                 class="h-20 w-20 flex-none rounded-2xl object-cover"
             />
@@ -51,6 +51,7 @@
 import type { Category, FileProduct } from '@/pages/home/types';
 
 import type { PaymentMethod } from '@/pages/asset/purchase/types';
+import { getImg } from '@/pages/booking/helper';
 
 interface PurchaseSummaryProps {
     fileProduct: FileProduct & { category?: Category | null };

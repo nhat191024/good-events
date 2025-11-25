@@ -26,7 +26,7 @@
                         </Swiper>
 
                         <div v-else class="w-full h-full">
-                            <img :src="headerBannerImg" alt="Hero banner" class="w-full h-full object-cover" />
+                            <img :src="getImg(headerBannerImg)" alt="Hero banner" class="w-full h-full object-cover" />
                         </div>
                     </div>
                 </div>
@@ -47,6 +47,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
+import { getImg } from '@/pages/booking/helper';
 // import 'swiper/css/pagination';
 
 type BannerImage = {

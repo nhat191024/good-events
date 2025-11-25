@@ -12,7 +12,7 @@ defineProps<{
 
 <template>
     <AuthLayout title="Xác thực Email"
-        description="Vui lòng xác thực địa chỉ email của bạn bằng cách nhấn vào liên kết mà chúng tôi đã gửi cho bạn.">
+        description="Vui lòng xác thực địa chỉ email bằng cách nhấn vào liên kết mà chúng tôi đã gửi cho bạn.">
 
         <Head title="Xác thực Email" />
 

@@ -39,6 +39,10 @@ return [
                 'label' => 'Phone number',
                 'placeholder' => 'Your phone number',
             ],
+            'bio' => [
+                'label' => 'Bio',
+                'placeholder' => 'Share a short introduction about yourself',
+            ],
             'unverified_notice' => 'Your email address is unverified.',
             'resend_verification' => 'Click here to resend the verification email.',
             'verification_sent' => 'A new verification link has been sent to your email address.',
