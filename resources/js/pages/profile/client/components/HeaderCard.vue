@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { getImg } from '@/pages/booking/helper';
+
 const props = defineProps<{
   user: {
     name: string
@@ -19,7 +21,7 @@ const props = defineProps<{
     <div class="absolute -top-24 left-1/2 -translate-x-1/2">
       <div class="relative w-28 h-28 md:w-32 md:h-32">
         <img
-          :src="user.avatar_url"
+          :src="getImg(user.avatar_url)"
           :alt="user.name"
           class="w-full h-full rounded-full object-cover ring-4 ring-yellow-400 shadow-lg"
         />
