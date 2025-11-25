@@ -22,7 +22,7 @@ class TestAccountSeeder extends Seeder
         //move test accounts from other seeders to here for easier management
 
         $admin = User::factory()->create([
-            'name' => 'Admin User',
+            'name' => 'Admin',
             'email' => 'admin@example.com',
         ]);
         $admin->assignRole(Role::SUPER_ADMIN);
