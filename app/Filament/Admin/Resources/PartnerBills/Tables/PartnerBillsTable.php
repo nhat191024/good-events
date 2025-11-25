@@ -20,6 +20,8 @@ use Filament\Notifications\Notification;
 use App\Enum\PartnerBillStatus;
 use App\Models\PartnerBill;
 
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
+
 class PartnerBillsTable
 {
     public static function configure(Table $table): Table
@@ -105,7 +107,8 @@ class PartnerBillsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                DateRangeFilter::make('created_at')
+                    ->label(__('admin/partnerBill.fields.created_at')),
             ])
             ->recordActions([
                 Action::make('cancelBill')

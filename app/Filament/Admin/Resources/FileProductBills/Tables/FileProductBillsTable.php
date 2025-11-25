@@ -16,6 +16,8 @@ use Filament\Actions\RestoreBulkAction;
 
 use App\Enum\FileProductBillStatus;
 
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
+
 class FileProductBillsTable
 {
     public static function configure(Table $table): Table
@@ -56,7 +58,8 @@ class FileProductBillsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                DateRangeFilter::make('created_at')
+                    ->label(__('admin/fileProductBill.fields.created_at')),
             ])
             ->recordActions([
                 //

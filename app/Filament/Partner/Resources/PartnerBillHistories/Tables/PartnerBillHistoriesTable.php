@@ -12,6 +12,8 @@ use Filament\Actions\EditAction;
 
 use App\Enum\PartnerBillStatus;
 
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
+
 class PartnerBillHistoriesTable
 {
     public static function configure(Table $table): Table
@@ -78,7 +80,8 @@ class PartnerBillHistoriesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                DateRangeFilter::make('created_at')
+                    ->label(__('partner/bill.filter_date')),
             ])
             ->recordActions([
                 //
