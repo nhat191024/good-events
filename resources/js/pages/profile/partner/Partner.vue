@@ -11,6 +11,7 @@ import PartnerImagesCard from './components/PartnerImagesCard.vue'
 interface UserInfo {
     id: number; name: string; avatar_url: string; location: string | null;
     joined_year: string | null; is_pro: boolean; rating: number; total_reviews: number; total_customers: number | null;
+    bio?: string | null; is_verified?: boolean; email_verified_at?: string | null;
 }
 type Media = { id: number; url: string }
 type Service = { id: number; name: string | null; field: string | null; price: number | null; media: Media[] }
@@ -57,7 +58,7 @@ const props = defineProps<Props>();
                             </div>
                             <div
                                 class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full border-2 border-white">
-                                PRO
+                                PARTNER
                             </div>
                         </div>
 
@@ -65,7 +66,8 @@ const props = defineProps<Props>();
                         <div class="flex-1 text-white">
                             <div class="flex items-center gap-2 mb-1">
                                 <h1 class="text-2xl md:text-3xl font-bold">{{ user.name }}</h1>
-                                <span v-if="user.is_pro"
+                                <span
+                                    v-if="user.is_verified"
                                     class="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white text-xs rounded border border-white/30">
                                     Đã xác minh
                                 </span>
@@ -149,14 +151,14 @@ const props = defineProps<Props>();
                         <PartnerContactCard :contact="contact" />
                         <PartnerQuickStatsCard :quick="quick" />
                     </div>
-                    
+
                     <!-- Right Main Content -->
                     <div class="md:col-span-9 space-y-4">
                         <PartnerIntroCard :intro="intro" :stats="stats" />
                         <PartnerServiceCard :services="services" />
                         <PartnerReviewsCard :items="reviews" />
                     </div>
-                    
+
                     <div class="md:col-span-12 space-y-4">
                         <PartnerImagesCard :services="services" />
                     </div>
