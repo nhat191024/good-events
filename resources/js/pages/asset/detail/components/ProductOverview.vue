@@ -1,5 +1,5 @@
 <template>
-    <section class="space-y-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10">
+    <section class="md:px-6 md:py-6 px-0 py-0">
         <header class="space-y-2">
             <h2 class="text-xl font-semibold text-gray-900">Mô tả chi tiết</h2>
             <p class="text-sm text-gray-500">

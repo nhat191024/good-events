@@ -19,9 +19,9 @@
                     </div>
                     <span class="sr-only">{{ title }}</span>
                     </Link>
-                    <div class="space-y-2 text-center">
+                    <div class="space-y-2 text-left">
                         <h1 class="text-xl font-medium">{{ title }}</h1>
-                        <p class="text-center text-sm text-muted-foreground">{{ description }}</p>
+                        <p class="text-left text-sm text-muted-foreground">{{ description }}</p>
                     </div>
                 </div>
                 <slot />

@@ -79,7 +79,7 @@ const badgeMotion = {
                 <motion.a href="#" class="block" aria-label="Tải trên Google Play"
                     :while-hover="downloadButtonInteractions.hover" :while-tap="downloadButtonInteractions.tap">
                     <img src="/images/get_on_googleplay.png" alt="Get it on Google Play"
-                        class="h-[200] w-[170px] object-contain align-middle" loading="lazy" />
+                        class="h-[200px] w-[170px] object-contain align-middle" loading="lazy" />
                 </motion.a>
             </div>
         </div>

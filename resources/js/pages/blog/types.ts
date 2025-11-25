@@ -41,6 +41,8 @@ export interface BlogFilters {
     q?: string | null;
     province_id?: number | string | null;
     district_id?: number | string | null;
+    max_people?: number | string | null;
+    location_detail?: string | null;
 }
 
 export interface BlogDetailContext {

@@ -318,10 +318,7 @@ function handleMaxPeopleChange(value: string | null): void {
 
 function handleLocationDetailChange(value: string | null): void {
     selectedLocationDetail.value = value;
-    // Debounce could be added here if we were doing live search, but for now we just update the state
-    // and let the user trigger search or apply filter via other means?
-    // Actually, the requirement says "input for location details search (for the input location detail just add on the UI first and do not make functionality yet)"
-    // So we don't need to trigger search yet. But let's keep the state updated.
+    applyLocationFilter();
 }
 
 function clearLocationFilters(): void {

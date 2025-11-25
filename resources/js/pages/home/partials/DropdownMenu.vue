@@ -4,6 +4,7 @@ import { ref, onMounted, onBeforeUnmount, computed, watch, type Ref, type Compon
 import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, Shield, LogOut, FileCheck, PhoneCall, Info } from 'lucide-vue-next';
 
 import DropdownMenuItems from '../components/DropdownMenuItems.vue';
+import { getImg } from '@/pages/booking/helper';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user ?? null);
@@ -172,7 +173,7 @@ const loggedOutMenuItems: MenuItem[] = [
     <div class="relative" ref="dropdown">
         <button type="button" aria-label="Tài khoản" @click="toggleDropdown"
             class="relative cursor-pointer h-10 w-10 rounded-full bg-[#ED3B50] text-white shadow-lg shadow-[#ED3B50]/30 transition focus:outline-none focus-visible:ring-2 border border-primary-200 focus-visible:ring-offset-2 focus-visible:ring-[#ED3B50] overflow-show">
-            <img v-if="shouldRenderImage" :src="avatarUrl ?? ''" alt="Avatar"
+            <img v-if="shouldRenderImage" :src="getImg(avatarUrl)" alt="Avatar"
                 class="absolute rounded-full inset-0 h-full w-full object-cover transition-opacity duration-200 z-0"
                 :class="avatarStatus === 'loaded' ? 'opacity-100' : 'opacity-0'" @load="handleAvatarLoad"
                 @error="handleAvatarError">

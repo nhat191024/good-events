@@ -2,23 +2,34 @@
 
 namespace App\Http\Controllers\Profile;
 
+use App\Enum\Role;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\PartnerProfilePayload;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class PartnerProfileController extends Controller
 {
     public function show(User $user)
     {
+        $user->loadMissing('partnerProfile');
+
+        if (! $user->partnerProfile || ! $user->hasRole(Role::PARTNER)) {
+            return to_route('profile.client.show', ['user' => $user->id]);
+        }
+
         $payload = PartnerProfilePayload::for($user);
         return Inertia::render('profile/partner/Partner', $payload);
     }
 
     public function showJson(User $user)
     {
+        $user->loadMissing('partnerProfile');
+
+        if (! $user->partnerProfile || ! $user->hasRole(Role::PARTNER)) {
+            abort(404);
+        }
+
         return response()->json(PartnerProfilePayload::for($user));
     }
 

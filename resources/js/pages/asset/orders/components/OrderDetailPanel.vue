@@ -6,6 +6,7 @@ import axios from 'axios';
 import { formatDate, formatPrice } from '@/lib/helper';
 
 import type { AssetOrder } from '../types';
+import { getImg } from '@/pages/booking/helper';
 
 const props = withDefaults(defineProps<{
     order: AssetOrder | null
@@ -122,7 +123,7 @@ function triggerDownloadAll() {
                 <div class="relative overflow-hidden rounded-2xl bg-gray-50">
                     <template v-if="product?.thumbnail">
                         <img
-                            :src="product.thumbnail"
+                            :src="getImg(product.thumbnail)"
                             :alt="product.name"
                             class="h-full w-full object-cover"
                             loading="lazy"
