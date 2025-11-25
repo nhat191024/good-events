@@ -34,6 +34,9 @@ export interface User {
     partner_profile_name?: string | null;
     country_code?: string | null;
     phone?: string | null;
+    bio?: string | null;
+    is_verified?: boolean;
+    location?: string | null;
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
