@@ -2,7 +2,7 @@
     <Head title="Đơn hàng thiết kế" />
 
     <ClientHeaderLayout>
-        <section class="bg-white pb-16 pt-6">
+        <section class="w-full bg-white pb-16 pt-6">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
                 <header class="flex flex-col gap-2">
                     <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
