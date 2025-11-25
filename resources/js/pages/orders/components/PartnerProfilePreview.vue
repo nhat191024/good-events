@@ -7,6 +7,7 @@ import PartnerIntroCard from '@/pages/profile/partner/components/PartnerIntroCar
 import PartnerReviewsCard from '@/pages/profile/partner/components/PartnerReviewsCard.vue'
 import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesCard.vue'
 import axios from 'axios'
+import { getImg } from '@/pages/booking/helper'
 
 type UserInfo = {
     id: number; name: string; avatar_url: string; location: string | null;
@@ -77,7 +78,7 @@ const user = computed(() => data.value?.user)
                     <!-- header: sticky để luôn hiện khi cuộn -->
                     <div class="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white z-10">
                         <div class="flex items-center gap-3">
-                            <img v-if="user?.avatar_url" :src="user!.avatar_url" :alt="user!.name"
+                            <img v-if="user?.avatar_url" :src="getImg(user!.avatar_url)" :alt="user!.name"
                                 class="w-10 h-10 rounded-full object-cover" />
                             <div>
                                 <div class="font-semibold">{{ user?.name ?? '—' }}</div>
@@ -113,7 +114,7 @@ const user = computed(() => data.value?.user)
                                     <PartnerServiceCard :services="data.services" />
                                     <PartnerReviewsCard :items="data.reviews" />
                                 </div>
-                                
+
                                 <div class="md:col-span-12 space-y-4">
                                     <PartnerImagesCard :services="data.services" />
                                 </div>
