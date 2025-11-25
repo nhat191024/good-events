@@ -11,7 +11,7 @@ const props = defineProps<{
       <div class="flex-1">
         <div class="flex items-center gap-2">
           <h1 class="text-xl font-semibold">{{ user.name }}</h1>
-          <span v-if="user.is_pro" class="px-2 py-0.5 bg-rose-600 text-white text-xs rounded">PRO</span>
+          <!-- <span v-if="user.is_pro" class="px-2 py-0.5 bg-rose-600 text-white text-xs rounded">PRO</span> -->
         </div>
         <div class="flex items-center gap-1 text-yellow-500 text-sm">
           <template v-for="n in 5" :key="n">
