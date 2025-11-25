@@ -6,7 +6,6 @@ const props = defineProps<{
     created_year: string | null
     location?: string | null
     is_verified?: boolean
-    email_verified_at?: string | null
   }
   stats?: {
     orders_placed?: number
@@ -38,7 +37,7 @@ const props = defineProps<{
     <div class="mt-10 text-center">
       <div class="flex items-center justify-center gap-2 flex-wrap">
         <h2 class="text-xl font-bold text-gray-900">{{ user.name }}</h2>
-        <span v-if="user.is_verified || user.email_verified_at" class="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">Đã xác minh</span>
+        <span v-if="user.is_verified" class="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">Đã xác minh</span>
       </div>
 
       <!-- Location and stats -->
