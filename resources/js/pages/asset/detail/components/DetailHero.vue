@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <aside class="flex h-max flex-col gap-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+        <aside class="flex h-max flex-col gap-6 rounded-3xl border border-gray-100 bg-white md:px-6 md:py-6 px-0 py-0 shadow-sm">
             <div class="space-y-2">
                 <span
                     v-if="fileProduct.category"
