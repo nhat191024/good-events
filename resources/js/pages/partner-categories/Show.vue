@@ -63,10 +63,10 @@
                                 class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
                             Thuê ngay
                             </Link>
-                            <a href="#"
+                            <Link :href="route('contact.index')"
                                 class="inline-flex w-full items-center justify-center rounded-lg border border-primary-100 bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
                                 Hỗ trợ tư vấn
-                            </a>
+                            </Link>
                         </div>
 
                         <ul class="space-y-2 rounded-2xl border border-gray-100 bg-gray-50 p-5 text-sm text-gray-600">
