@@ -19,6 +19,9 @@ interface UserInfo {
     created_year: string | null
     location: string | null
     partner_profile_name?: string | null
+    bio?: string | null
+    is_verified?: boolean
+    email_verified_at?: string | null
 }
 
 interface BillItem {
@@ -49,6 +52,7 @@ interface Props {
         cancelled_orders_pct: string
         total_spent: number
         last_active_human: string | null
+        avg_rating: number | null
     }
     recent_bills: BillItem[]
     recent_reviews: ReviewItem[]
@@ -67,6 +71,13 @@ const partnerDisplayName = computed(() => {
     }
     return props.user.name
 })
+
+const isVerified = computed(() => Boolean(props.user.is_verified ?? props.user.email_verified_at))
+
+const introStats = computed(() => ({
+    orders_placed: props.stats.orders_placed,
+    avg_rating: props.stats.avg_rating ?? undefined,
+}))
 
 const menuOpen = ref(false)
 const menuWrapper = ref<HTMLDivElement | null>(null)
@@ -133,10 +144,10 @@ onBeforeUnmount(() => {
                                 </div>
                             </div>
                             <!-- VIP badge -->
-                            <div
+                            <!-- <div
                                 class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full border-2 border-white">
                                 VIP
-                            </div>
+                            </div> -->
                         </div>
 
                         <!-- User info -->
@@ -144,12 +155,9 @@ onBeforeUnmount(() => {
                             <div class="flex items-center gap-2 flex-wrap mb-2">
                                 <h1 class="text-2xl md:text-3xl font-bold text-white">{{ partnerDisplayName }}</h1>
                                 <span
+                                    v-if="isVerified"
                                     class="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-md border border-white/30">
                                     Đã xác minh
-                                </span>
-                                <span
-                                    class="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-md border border-white/30">
-                                    Thành viên Bạc
                                 </span>
                             </div>
 
@@ -169,7 +177,7 @@ onBeforeUnmount(() => {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
-                                    <span>25+ đơn hàng</span>
+                                    <span>{{ stats.orders_placed.toLocaleString('vi-VN') }}+ đơn hàng</span>
                                 </div>
 
                                 <div class="flex items-center gap-1.5">
@@ -237,7 +245,7 @@ onBeforeUnmount(() => {
 
                     <!-- Main content area -->
                     <div class="lg:col-span-8 xl:col-span-9 space-y-6">
-                        <IntroCard :intro="intro" />
+                        <IntroCard :intro="intro" :stats="introStats" />
                         <RecentOrdersCard :items="recent_bills" />
                         <RecentReviewsCard :items="recent_reviews" />
                     </div>
