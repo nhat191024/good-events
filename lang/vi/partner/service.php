@@ -38,6 +38,7 @@ return [
         'service_unique' => 'Bạn đã đăng ký dịch vụ cho danh mục này rồi. Vui lòng chọn danh mục khác.',
         'service_media' => 'Thêm các video giới thiệu dịch vụ của bạn để admin duyệt. Chỉ có thể thêm khi tạo mới.',
         'service_images' => 'Tải lên tối đa 10 hình ảnh giới thiệu dịch vụ của bạn. Hỗ trợ: JPG, PNG, GIF, WEBP.',
+        'video_url_valid' => 'Vui lòng nhập URL hợp lệ hoặc bao gồm "https://" (bạn có thể copy link từ YouTube)',
     ],
 
     'action' => [
