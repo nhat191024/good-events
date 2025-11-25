@@ -9,6 +9,7 @@ import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { AppPageProps } from '@/types'
+import { getImg } from '@/pages/booking/helper'
 
 interface UserInfo {
     id: number
@@ -132,7 +133,7 @@ onBeforeUnmount(() => {
                         <div class="relative flex-shrink-0">
                             <div
                                 class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-                                <img v-if="user.avatar_url" :key="user.avatar_url" :src="user.avatar_url" :alt="user.name"
+                                <img v-if="user.avatar_url" :key="user.avatar_url" :src="getImg(user.avatar_url)" :alt="user.name"
                                     class="w-full h-full object-cover" />
                                 <div v-else class="w-full h-full flex items-center justify-center bg-gray-200">
                                     <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400" fill="currentColor"
