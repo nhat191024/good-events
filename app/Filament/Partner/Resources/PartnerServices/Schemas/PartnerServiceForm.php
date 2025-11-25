@@ -45,7 +45,10 @@ class PartnerServiceForm
                             ->label(__('partner/service.label.video_url'))
                             ->url()
                             ->required()
-                            ->placeholder(__('partner/service.placeholder.video_url')),
+                            ->placeholder(__('partner/service.placeholder.video_url'))
+                            ->validationMessages([
+                                'url' => __('partner/service.helper.video_url_valid'),
+                            ]),
                         Textarea::make('description')
                             ->label(__('partner/service.label.video_description'))
                             ->placeholder(__('partner/service.placeholder.video_description'))
