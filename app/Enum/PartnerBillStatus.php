@@ -22,4 +22,16 @@ enum PartnerBillStatus: string
             self::CANCELLED => __('partner/bill.status_cancelled'),
         };
     }
+
+    public static function asSelectArray(): array
+    {
+        return [
+            self::PENDING->value => self::PENDING->label(),
+            self::CONFIRMED->value => self::CONFIRMED->label(),
+            self::IN_JOB->value => self::IN_JOB->label(),
+            self::COMPLETED->value => self::COMPLETED->label(),
+            self::EXPIRED->value => self::EXPIRED->label(),
+            self::CANCELLED->value => self::CANCELLED->label(),
+        ];
+    }
 }
