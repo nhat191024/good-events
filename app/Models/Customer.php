@@ -12,6 +12,7 @@ use Database\Factories\UserFactory;
  * @property string $avatar
  * @property string $email
  * @property string $country_code
+ * @property string|null $bio
  * @property string $phone
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
@@ -63,6 +64,7 @@ use Database\Factories\UserFactory;
  * @property-read int|null $vouchers_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transaction> $walletTransactions
  * @property-read int|null $wallet_transactions_count
+ * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer onlyTrashed()
@@ -70,6 +72,7 @@ use Database\Factories\UserFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer role($roles, $guard = null, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereAvatar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereCountryCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereDeletedAt($value)

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $location_id
  * @property int|null $max_people
  * @property string $type
+ * @property int $order
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereLocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereMaxPeople($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereType($value)

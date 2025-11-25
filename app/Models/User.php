@@ -40,6 +40,7 @@ use App\Enum\Role;
  * @property string $avatar
  * @property string $email
  * @property string $country_code
+ * @property string|null $bio
  * @property string $phone
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
@@ -99,6 +100,7 @@ use App\Enum\Role;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User role($roles, $guard = null, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCountryCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDeletedAt($value)
@@ -131,6 +133,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'avatar',
         'email',
         'country_code',
+        'bio',
         'phone',
         'password',
     ];

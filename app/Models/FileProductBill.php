@@ -20,8 +20,8 @@ use App\Enum\PaymentMethod;
  * @property int|null $tax_number
  * @property string|null $company_name
  * @property string|null $note
- * @property PaymentMethod $payment_method
  * @property FileProductBillStatus $status
+ * @property PaymentMethod $payment_method
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
