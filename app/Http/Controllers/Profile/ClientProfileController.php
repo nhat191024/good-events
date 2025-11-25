@@ -14,8 +14,12 @@ class ClientProfileController extends Controller
     {
         $user->loadMissing('partnerProfile');
 
+        if ($user->partnerProfile) {
+            return to_route('profile.partner.show', ['user' => $user->id]);
+        }
+
         // cache key theo user
-        $key = "profile:client:v2:{$user->id}";
+        $key = "profile:client:v3:{$user->id}";
 
         $payload = Cache::remember($key, now()->addMinutes(10), function () use ($user) {
             // --- Quick stats (ưu tiên statistics table, fallback tính nhanh) ---
@@ -70,7 +74,7 @@ class ClientProfileController extends Controller
                     'partner_profile_name' => $user->partner_profile_name,
                     'bio' => $user->bio,
                     'email_verified_at' => optional($user->email_verified_at)->toIso8601String(),
-                    'is_verified' => $user->hasVerifiedEmail(),
+                    'is_verified' => (bool) $user->hasVerifiedEmail(),
                 ],
                 'stats' => [
                     'orders_placed' => $ordersPlaced,
