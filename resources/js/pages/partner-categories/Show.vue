@@ -4,7 +4,7 @@
     <Head :title="pageTitle" />
 
     <ClientHeaderLayout>
-        <section class="bg-white pb-16 pt-6">
+        <section class="w-full bg-white pb-16 pt-6">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
                 <!-- Breadcrumb -->
                 <nav aria-label="Breadcrumb" class="text-xs font-medium uppercase tracking-wide text-primary-600">
@@ -32,7 +32,7 @@
                         </div>
                     </div>
 
-                    <aside class="flex h-max flex-col gap-6 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+                    <aside class="flex h-max flex-col gap-6 rounded-3xl border border-gray-100 bg-white md:px-6 md:py-6 px-0 py-0 shadow-sm">
                         <div class="space-y-2">
                             <span v-if="props.category"
                                 class="inline-flex w-max items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
@@ -90,7 +90,7 @@
                 </section>
 
                 <!-- Product Overview -->
-                <section class="space-y-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10">
+                <section class="space-y-8 rounded-3xl border border-gray-100 bg-white md:px-6 md:py-6 px-0 py-0 shadow-sm lg:p-10">
                     <header class="space-y-2">
                         <h2 class="text-xl font-semibold text-gray-900">Mô tả chi tiết</h2>
                         <p class="text-sm text-gray-500">
@@ -128,7 +128,7 @@
 
                 <!-- Related Products -->
                 <section v-if="relatedItems.length"
-                    class="space-y-5 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10">
+                    class="space-y-5 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10 md:px-6 md:py-6 px-0 py-0">
                     <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900">Có thể bạn quan tâm</h3>
