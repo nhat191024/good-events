@@ -55,6 +55,10 @@
                 label: string;
                 placeholder: string;
             };
+            bio: {
+                label: string;
+                placeholder: string;
+            };
             unverified_notice: string;
             resend_verification: string;
             verification_sent: string;
@@ -105,6 +109,7 @@
         email: '',
         country_code: '',
         phone: '',
+        bio: '',
         avatar: null as File | null,
     });
 
@@ -124,6 +129,7 @@
         form.email = user.value?.email ?? '';
         form.country_code = user.value?.country_code ?? '';
         form.phone = user.value?.phone ?? '';
+        form.bio = user.value?.bio ?? '';
         form.avatar = null;
         avatarPreview.value = user.value?.avatar_url ?? null;
         if (avatarInput.value) {
@@ -351,9 +357,22 @@
                                                 autocomplete="tel"
                                                 :placeholder="translations.form.phone.placeholder"
                                             />
-                                            <InputError class="mt-1" :message="form.errors.phone" />
-                                        </div>
+                                        <InputError class="mt-1" :message="form.errors.phone" />
                                     </div>
+
+                                    <div class="grid gap-2 md:col-span-2">
+                                        <Label for="bio">{{ translations.form.bio.label }}</Label>
+                                        <textarea
+                                            id="bio"
+                                            name="bio"
+                                            rows="4"
+                                            class="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm transition focus-visible:border-primary-400 focus-visible:ring-2 focus-visible:ring-primary-200 focus-visible:outline-none"
+                                            v-model="form.bio"
+                                            :placeholder="translations.form.bio.placeholder"
+                                        ></textarea>
+                                        <InputError class="mt-1" :message="form.errors.bio" />
+                                    </div>
+                                </div>
 
                                     <div
                                         v-if="mustVerifyEmail && !user?.email_verified_at"
