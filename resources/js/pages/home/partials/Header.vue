@@ -171,8 +171,8 @@ onUnmounted(() => {
                             :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap"
                             :transition="navLinkMotion.transition">
                             <Link :href="item.route" :class="[
-                                'font-semibold transition-colors duration-200',
-                                route().current(item.routeName) ? 'text-[#ED3B50] text-sm' : 'text-black hover:text-black/80'
+                                'transition-colors duration-200',
+                                route().current(item.routeName) ? 'text-[#ED3B50] text-md font-semibold ' : 'text-black hover:text-black/80'
                             ]">
                             {{ item.shortName }}
                             </Link>
@@ -184,7 +184,7 @@ onUnmounted(() => {
                 <div class="flex items-center gap-1">
                     <!-- Pill: Đặt show nhanh -->
                     <Link :href="route('quick-booking.choose-category')"
-                        class="inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
+                        class="self-start inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path
                             d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
