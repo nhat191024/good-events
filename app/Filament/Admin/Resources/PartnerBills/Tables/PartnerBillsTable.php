@@ -4,7 +4,7 @@ namespace App\Filament\Admin\Resources\PartnerBills\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Filters\SelectFilter;
 
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -109,6 +109,9 @@ class PartnerBillsTable
             ->filters([
                 DateRangeFilter::make('created_at')
                     ->label(__('admin/partnerBill.fields.created_at')),
+                SelectFilter::make('status')
+                    ->label(__('admin/partnerBill.fields.status'))
+                    ->options(PartnerBillStatus::asSelectArray()),
             ])
             ->recordActions([
                 Action::make('cancelBill')

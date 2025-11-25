@@ -4,6 +4,7 @@ namespace App\Filament\Partner\Resources\PartnerBillHistories\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 use Filament\Actions\ViewAction;
 use Filament\Actions\BulkActionGroup;
@@ -82,6 +83,9 @@ class PartnerBillHistoriesTable
             ->filters([
                 DateRangeFilter::make('created_at')
                     ->label(__('partner/bill.filter_date')),
+                SelectFilter::make('status')
+                    ->label(__('partner/bill.filter_status'))
+                    ->options(PartnerBillStatus::asSelectArray()),
             ])
             ->recordActions([
                 //
