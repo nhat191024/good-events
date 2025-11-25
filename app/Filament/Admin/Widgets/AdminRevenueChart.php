@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Cache;
 
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 
+use App\Settings\PartnerSettings;
+
 class AdminRevenueChart extends ChartWidget
 {
     use HasFiltersSchema;
@@ -169,7 +171,11 @@ class AdminRevenueChart extends ChartWidget
             $partnerMonthlyRevenue = [];
             $fileProductMonthlyRevenue = [];
             $totalMonthlyRevenue = [];
+            $profitMonthlyRevenue = [];
             $labels = [];
+
+            // Lấy fee percentage từ settings
+            $feePercentage = app(PartnerSettings::class)->fee_percentage;
 
             $current = $startDate->copy();
             while ($current <= $endDate) {
@@ -193,6 +199,7 @@ class AdminRevenueChart extends ChartWidget
                 $partnerMonthlyRevenue[] = (float) $partnerRev;
                 $fileProductMonthlyRevenue[] = (float) $fileRev;
                 $totalMonthlyRevenue[] = (float) ($partnerRev + $fileRev);
+                $profitMonthlyRevenue[] = (float) ($partnerRev * $feePercentage / 100);
 
                 $current = match ($interval) {
                     'hour' => $current->addHour(),
@@ -216,6 +223,14 @@ class AdminRevenueChart extends ChartWidget
                         'borderColor' => 'rgb(251, 146, 60)',
                         'backgroundColor' => 'rgba(251, 146, 60, 0.1)',
                         'tension' => 0.4,
+                    ],
+                    [
+                        'label' => 'Lợi nhuận (₫)',
+                        'data' => $profitMonthlyRevenue,
+                        'borderColor' => 'rgb(168, 85, 247)',
+                        'backgroundColor' => 'rgba(168, 85, 247, 0.1)',
+                        'tension' => 0.4,
+                        'borderWidth' => 2,
                     ],
                     [
                         'label' => 'Tổng (₫)',
