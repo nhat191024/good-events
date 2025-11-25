@@ -15,7 +15,7 @@
                 :class="'bg-primary-10 text-primary-800 ring ring-primary-100 hover:bg-primary-50'" />
             </Link>
         </div>
-        <div class="container mx-auto px-4 py-8 space-y-12">
+        <div class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full">
             <div class="max-w-5xl mx-auto">
                 <SearchBar :show-search-btn="false" v-model="search" />
                 <div v-if="keywordSuggestions.length" class="container mx-auto px-4 mt-4">
