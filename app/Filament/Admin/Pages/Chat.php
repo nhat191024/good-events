@@ -40,7 +40,8 @@ class Chat extends Page
             return null;
         }
 
-        $unreadCount = Thread::forUser($userId)
+        $unreadCount = Thread::withTrashed()
+            ->forUser($userId)
             ->whereHas('participants', function ($query) use ($userId) {
                 $query->where('user_id', $userId)
                     ->where(function ($q) {
@@ -99,7 +100,8 @@ class Chat extends Page
             $threadId = (int) $chatThreadId;
 
             $userId = Auth::id();
-            $thread = Thread::forUser($userId)
+            $thread = Thread::withTrashed()
+                ->forUser($userId)
                 ->where('threads.id', $threadId)
                 ->first();
             if ($thread) {
@@ -152,7 +154,8 @@ class Chat extends Page
             return;
         }
 
-        $query = Thread::forUserOrderByNotReadMessages($userId)
+        $query = Thread::withTrashed()
+            ->forUserOrderByNotReadMessages($userId)
             ->with(
                 [
                     'latestMessage',
@@ -302,7 +305,7 @@ class Chat extends Page
      */
     private function loadMessages(int $threadId, bool $prepend = false): void
     {
-        $thread = Thread::find($threadId);
+        $thread = Thread::withTrashed()->find($threadId);
 
         $thread?->markAsRead(Auth::id());
 
@@ -450,7 +453,7 @@ class Chat extends Page
             $this->messages = collect($this->messages)->push($newMessage)->toArray();
             $this->cachedMessages = $this->messages;
 
-            Thread::find($threadId)?->markAsRead(Auth::id());
+            Thread::withTrashed()->find($threadId)?->markAsRead(Auth::id());
         }
 
         $this->updateThreadInList($threadId, $messageData);
