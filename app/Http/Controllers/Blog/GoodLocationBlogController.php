@@ -79,6 +79,7 @@ class GoodLocationBlogController extends BaseBlogPageController
                 'province_id' => $filters['provinceId'],
                 'district_id' => $filters['districtId'],
                 'max_people' => $filters['maxPeople'],
+                'location_detail' => $filters['locationDetail'],
             ],
             'locations' => [
                 'provinces' => $provinces,
@@ -99,6 +100,7 @@ class GoodLocationBlogController extends BaseBlogPageController
         }
 
         $this->applyLocationFilter($query, $filters['provinceId'], $filters['districtId']);
+        $this->applyLocationDetailFilter($query, $filters['locationDetail']);
         $this->applyMaxPeopleFilter($query, $filters['maxPeople']);
 
         return $query;
@@ -160,6 +162,18 @@ class GoodLocationBlogController extends BaseBlogPageController
         }
     }
 
+    private function applyLocationDetailFilter(Builder $query, ?string $locationDetail): void
+    {
+        if ($locationDetail === null || trim($locationDetail) === '') {
+            return;
+        }
+
+        $term = trim($locationDetail);
+        $escaped = addcslashes($term, '%_');
+
+        $query->where('address', 'like', '%' . $escaped . '%');
+    }
+
     private function applyMaxPeopleFilter(Builder $query, ?int $maxPeople): void
     {
         [$min, $max] = $this->maxPeopleRange($maxPeople);
@@ -208,17 +222,20 @@ class GoodLocationBlogController extends BaseBlogPageController
      *     provinceId: int|null,
      *     districtId: int|null,
      *     maxPeople: int|null,
+     *     locationDetail: string|null,
      * }
      */
     private function extractFilters(Request $request): array
     {
         $search = trim((string) $request->query('q', ''));
+        $locationDetail = trim((string) $request->query('location_detail', ''));
 
         return [
             'search' => $search !== '' ? $search : null,
             'provinceId' => $this->normalizeId($request->query('province_id')),
             'districtId' => $this->normalizeId($request->query('district_id')),
             'maxPeople' => $this->normalizeId($request->query('max_people')),
+            'locationDetail' => $locationDetail !== '' ? $locationDetail : null,
         ];
     }
 
