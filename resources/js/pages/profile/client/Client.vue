@@ -72,7 +72,7 @@ const partnerDisplayName = computed(() => {
     return props.user.name
 })
 
-const isVerified = computed(() => Boolean(props.user.is_verified ?? props.user.email_verified_at))
+const isVerified = computed(() => Boolean(props.user.is_verified))
 
 const introStats = computed(() => ({
     orders_placed: props.stats.orders_placed,
