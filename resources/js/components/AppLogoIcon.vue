@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { getImg } from '@/pages/booking/helper';
     import { AppSettings } from '@/types';
     import { usePage } from '@inertiajs/vue3';
     import { computed, type HTMLAttributes } from 'vue';
