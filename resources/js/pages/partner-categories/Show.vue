@@ -27,7 +27,7 @@
                 <section class="grid gap-8 lg:grid-cols-2">
                     <div class="space-y-5">
                         <div class="overflow-hidden rounded-3xl border border-gray-100 bg-gray-50">
-                            <img :src="props.item.image || placeholderImg" :alt="props.item.name"
+                            <img :src="getImg(props.item.image)" :alt="props.item.name"
                                 class="h-full w-full object-cover" loading="lazy" />
                         </div>
                     </div>
@@ -164,6 +164,7 @@ import { computed } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import CardItem from '@/pages/home/components/CardItem/index.vue';
+import { getImg } from '../booking/helper';
 
 interface Item {
     id: number;
