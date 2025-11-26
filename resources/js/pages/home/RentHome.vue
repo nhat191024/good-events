@@ -115,10 +115,10 @@ watch(
 );
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
-const heroHeaderText = computed(() => props.settings.hero_title ?? 'Thuê thiết bị, loa đài ánh sáng');
+const heroHeaderText = computed(() => 'Thuê thiết bị, loa đài ánh sáng');
 const heroDescription = computed(
     () =>
-        'Đặt loa, màn hình, ánh sáng, sân khấu và nhân sự kỹ thuật chỉ với vài thao tác. Nhận hỗ trợ vận hành trọn gói cho sự kiện của bạn.',
+        props.settings.hero_title ?? 'Đặt loa, màn hình, ánh sáng, sân khấu và nhân sự kỹ thuật chỉ với vài thao tác. Nhận hỗ trợ vận hành trọn gói cho sự kiện của bạn.',
 );
 
 const filteredRentProducts = computed(() => filteredLocal.value ?? []);
