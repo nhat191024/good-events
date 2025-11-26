@@ -16,6 +16,7 @@ return [
     'fields' => [
         'name' => 'Tên danh mục',
         'slug' => 'Đường dẫn tĩnh',
+        'is_show' => 'Hiển thị',
         'order' => 'Thứ tự',
         'image' => 'Hình ảnh',
         'parents' => 'Danh mục cha',

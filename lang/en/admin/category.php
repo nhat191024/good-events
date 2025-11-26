@@ -16,6 +16,7 @@ return [
     'fields' => [
         'name' => 'Category Name',
         'slug' => 'Slug',
+        'is_show' => 'Show',
         'order' => 'Order',
         'image' => 'Image',
         'parents' => 'Parent Categories',
