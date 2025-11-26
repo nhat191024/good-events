@@ -28,7 +28,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="bg-white shadow-sm rounded-xl w-full max-w-6xl px-2 md:px-4 py-2">
+    <div class="bg-white shadow-sm rounded-xl w-full max-w-6xl px-2 md:px-4 py-2 ring ring-gray-300">
         <div class="flex items-stretch gap-2">
             <div class="flex-1 min-w-0 flex items-center gap-2 px-3 md:px-4">
                 <Icon :name="'search'"/>

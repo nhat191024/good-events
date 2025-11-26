@@ -9,7 +9,9 @@
     import FormGroupLayout from '@/pages/booking/layout/FormGroup.vue'
     import FormItemLayout from '@/pages/booking/layout/FormItem.vue'
     import DatePickerSingle from '@/components/date-picker/DatePicker.vue'
+    import { toDate } from '@/components/date-picker'
     import TimePickerSingle from '@/components/time-picker/TimePicker.vue'
+    import { toMinutes } from '@/components/time-picker'
     import SelectBox from '@/components/Select.vue'
     import Input from '@/components/ui/input/Input.vue'
     import Button from '@/components/ui/button/Button.vue'
@@ -42,6 +44,8 @@
     const provinceList = [{ name: 'Chọn tỉnh thành', children: provinceListProp.map(province => ({ name: province.name, value: String(province.id) })) }]
 
     const LS_KEY = `quick-booking:partner-form:ls`
+    const MIN_LEAD_MINUTES = 15
+    const MIN_EVENT_DURATION_MINUTES = 30
 
     const initial : PartnerBillForm = JSON.parse(localStorage.getItem(LS_KEY) || 'null') ?? {
         order_date: null,
@@ -57,7 +61,7 @@
     }
 
     const location = reactive({
-        provinceId: null as string | null,
+        provinceId: initial.province_id as string | null,
     })
 
     const wardList = ref<WardTypeSelectBox[]>([])
@@ -127,7 +131,113 @@
         }
     })
 
+    const buildDateTime = (date: Date, minutes: number) => {
+        const next = new Date(date.getTime())
+        next.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0)
+        return next
+    }
+
+    const validateClient = (): boolean => {
+        form.clearErrors()
+        let hasError = false
+
+        const parsedDate = toDate(form.order_date)
+        const startMinutes = toMinutes(form.start_time)
+        const endMinutes = toMinutes(form.end_time)
+        const provinceId = location.provinceId ?? form.province_id
+
+        if (!form.order_date) {
+            form.setError('order_date', 'Vui lòng chọn ngày đặt lịch.')
+            hasError = true
+        } else if (!parsedDate) {
+            form.setError('order_date', 'Ngày đặt lịch không đúng định dạng (Y-m-d).')
+            hasError = true
+        }
+
+        if (!form.start_time) {
+            form.setError('start_time', 'Vui lòng chọn giờ bắt đầu.')
+            hasError = true
+        } else if (startMinutes === null) {
+            form.setError('start_time', 'Giờ bắt đầu không đúng định dạng (H:i).')
+            hasError = true
+        }
+
+        if (!form.end_time) {
+            form.setError('end_time', 'Vui lòng chọn giờ kết thúc.')
+            hasError = true
+        } else if (endMinutes === null) {
+            form.setError('end_time', 'Giờ kết thúc không đúng định dạng (H:i).')
+            hasError = true
+        }
+
+        if (!provinceId) {
+            form.setError('province_id', 'Vui lòng chọn tỉnh/thành phố.')
+            hasError = true
+        } else {
+            form.province_id = provinceId
+        }
+
+        if (!form.ward_id) {
+            form.setError('ward_id', 'Vui lòng chọn phường/xã.')
+            hasError = true
+        }
+
+        const locationDetail = form.location_detail == null ? '' : String(form.location_detail).trim()
+        if (!locationDetail) {
+            form.setError('location_detail', 'Vui lòng nhập địa chỉ chi tiết.')
+            hasError = true
+        } else if (locationDetail.length < 5) {
+            form.setError('location_detail', 'Địa chỉ chi tiết phải có ít nhất 5 ký tự.')
+            hasError = true
+        } else {
+            form.location_detail = locationDetail
+        }
+
+        const customEventVal = form.custom_event == null ? '' : String(form.custom_event).trim()
+        if (customEventVal && customEventVal.length < 5) {
+            form.setError('custom_event', 'Chi tiết sự kiện phải có ít nhất 5 ký tự.')
+            hasError = true
+        } else {
+            form.custom_event = customEventVal || null
+        }
+
+        if (parsedDate && startMinutes !== null && endMinutes !== null) {
+            const startDateTime = buildDateTime(parsedDate, startMinutes)
+            const endDateTime = buildDateTime(parsedDate, endMinutes)
+            const now = new Date()
+
+            if (startDateTime < now) {
+                form.setError('order_date', 'Thời gian tổ chức sự kiện phải là thời gian tới.')
+                form.setError('start_time', 'Thời gian tổ chức sự kiện phải là thời gian tới.')
+                hasError = true
+            } else {
+                const minStart = new Date(now.getTime() + MIN_LEAD_MINUTES * 60_000)
+                if (startDateTime < minStart) {
+                    form.setError('start_time', 'Bạn phải đặt lịch trước ít nhất 15 phút.')
+                    hasError = true
+                }
+            }
+
+            if (startDateTime >= endDateTime) {
+                form.setError('start_time', 'Giờ bắt đầu phải nhỏ hơn giờ kết thúc.')
+                hasError = true
+            }
+
+            const duration = (endDateTime.getTime() - startDateTime.getTime()) / 60_000
+            if (duration < MIN_EVENT_DURATION_MINUTES) {
+                form.setError('end_time', 'Thời gian tổ chức sự kiện phải ít nhất 30 phút.')
+                hasError = true
+            }
+        }
+
+        return !hasError
+    }
+
     async function submit() {
+        if (!validateClient()) {
+            return
+        }
+
         const ok = await confirm({
             title: 'Xác nhận đặt đơn ngay?',
             message: 'Vui lòng kiểm tra kỹ thông tin trước khi xác nhận',

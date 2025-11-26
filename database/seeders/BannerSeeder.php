@@ -17,7 +17,6 @@ class BannerSeeder extends Seeder
      */
     public function run(): void
     {
-
         foreach (BannerType::cases() as $type) {
             Banner::firstOrCreate([
                 'type' => $type->value,

@@ -16,7 +16,7 @@ class HomeController extends Controller
 {
     public const INITIAL_EVENT_CATEGORY_LIMIT = 8;
     public const EVENT_CATEGORY_BATCH_SIZE = 4;
-    public const CHILD_CATEGORY_LIMIT = 99;
+    public const CHILD_CATEGORY_LIMIT = 5;
 
     private ?int $parentCategoryCount = null;
 
@@ -64,6 +64,50 @@ class HomeController extends Controller
             'eventCategories' => $data['eventCategories'],
             'partnerCategories' => $data['partnerCategories'],
             'hasMore' => ($offset + $limit) < $this->getParentCategoryCount(),
+        ]);
+    }
+
+    public function loadMoreChildren(Request $request)
+    {
+        $validated = $request->validate([
+            'category_slug' => 'required|string|exists:partner_categories,slug',
+            'offset' => 'nullable|integer|min:0',
+            'limit' => 'nullable|integer|min:1|max:50',
+        ]);
+
+        $category = PartnerCategory::whereNull('parent_id')
+            ->where('slug', $validated['category_slug'])
+            ->firstOrFail();
+
+        $offset = (int) ($validated['offset'] ?? 0);
+        $limit = (int) ($validated['limit'] ?? self::CHILD_CATEGORY_LIMIT);
+
+        $childrenQuery = $category->children()->orderBy('order', 'asc');
+        $totalChildren = (clone $childrenQuery)->count();
+
+        $children = $childrenQuery
+            ->skip($offset)
+            ->take($limit)
+            ->with('media')
+            ->get()
+            ->map(function ($child) {
+                return [
+                    'id' => $child->id,
+                    'name' => $child->name,
+                    'slug' => $child->slug,
+                    'description' => $child->description,
+                    'min_price' => $child->min_price,
+                    'max_price' => $child->max_price,
+                    'image' => $this->getImageUrl($child),
+                ];
+            });
+
+        $hasMore = ($offset + $limit) < $totalChildren;
+
+        return response()->json([
+            'children' => $children,
+            'hasMore' => $hasMore,
+            'total' => $totalChildren,
         ]);
     }
 

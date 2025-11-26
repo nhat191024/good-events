@@ -46,7 +46,7 @@ onBeforeUnmount(() => {
 <template>
     <div class="relative" ref="menuRef">
         <button type="button" aria-label="Mở menu" @click="toggleMenu"
-            class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md hover:shadow-lg transition">
+            class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/70 shadow-md hover:shadow-lg transition">
             <span class="sr-only">Menu</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="transition-transform duration-200"
                 :class="{ 'rotate-90': isOpen }">
