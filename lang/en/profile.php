@@ -17,7 +17,8 @@ return [
     'partner_label' => [
         'partner_name' => 'Partner/Business Name',
         'identity_card_number' => 'Identity Card Number',
-        'location_id' => 'Location',
+        'city_id' => 'City',
+        'location_id' => 'Ward',
     ],
 
     'buttons' => [

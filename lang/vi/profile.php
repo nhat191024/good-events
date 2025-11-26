@@ -17,7 +17,8 @@ return [
     'partner_label' => [
         'partner_name' => 'Biệt danh làm việc',
         'identity_card_number' => 'Số chứng minh thư',
-        'location_id' => 'Vị trí',
+        'city_id' => 'Thành phố',
+        'location_id' => 'Phường/Xã',
     ],
 
     'buttons' => [
