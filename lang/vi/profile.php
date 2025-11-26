@@ -9,6 +9,7 @@ return [
         'email' => 'Email',
         'country_code' => 'Mã quốc gia',
         'phone' => 'Số điện thoại',
+        'bio' => 'Giới thiệu bản thân',
     ],
 
     'partner_info' => 'Thông tin đối tác',

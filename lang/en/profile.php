@@ -9,6 +9,7 @@ return [
         'email' => 'Email',
         'country_code' => 'Country Code',
         'phone' => 'Phone Number',
+        'bio' => 'Bio',
     ],
 
     'partner_info' => 'Partner Information',
