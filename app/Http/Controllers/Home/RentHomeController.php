@@ -8,7 +8,7 @@ use App\Http\Resources\Home\CategoryResource;
 use App\Http\Resources\Home\RentProductResource;
 use App\Http\Resources\Home\TagResource;
 use App\Models\Banner;
-use App\Models\Category;
+use App\Models\RentalCategory;
 use App\Models\RentProduct;
 use App\Models\Taggable;
 use App\Settings\AppSettings;
@@ -35,7 +35,7 @@ class RentHomeController extends Controller
             ?->getMedia('banners') ?? collect();
 
         $tags = Taggable::getModelTags('RentProduct');
-        $categories = Category::limit(15)
+        $categories = RentalCategory::limit(15)
             ->where('type', 'rental')
             ->orderBy('order', 'asc')
             ->get();

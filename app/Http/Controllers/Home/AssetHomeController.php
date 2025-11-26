@@ -8,7 +8,7 @@ use App\Http\Resources\Home\CategoryResource;
 use App\Http\Resources\Home\FileProductResource;
 use App\Http\Resources\Home\TagResource;
 use App\Models\Banner;
-use App\Models\Category;
+use App\Models\DesignCategory;
 use App\Models\FileProduct;
 use App\Models\Tag;
 use App\Models\Taggable;
@@ -36,7 +36,7 @@ class AssetHomeController extends Controller
             ?->getMedia('banners') ?? collect();
 
         $tags = Taggable::getModelTags('FileProduct');
-        $categories = Category::limit(15)
+        $categories = DesignCategory::limit(15)
             ->where('type', 'design')
             ->orderBy('order', 'asc')
             ->get();
