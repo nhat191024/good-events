@@ -3,7 +3,7 @@
     <Head title="Hướng dẫn khác" />
     <ClientAppHeaderLayout>
         <TutorialHero title="Các hướng dẫn khác"
-            description="Khám phá thêm các tính năng thú vị khác của Good Event để tận dụng tối đa nền tảng của chúng tôi." />
+            description="Khám phá thêm các tính năng thú vị khác của Sukientot để tận dụng tối đa nền tảng của chúng tôi." />
 
         <div class="bg-white">
             <TutorialStep v-for="(step, index) in steps" :key="index" :step-number="index + 1" :title="step.title"
