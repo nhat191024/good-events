@@ -44,10 +44,16 @@ class RentalCategoriesTable
                     ->formatStateUsing(fn($state): string => $state ? __('global.exists') : __('global.no'))
                     ->color(fn($state): string => $state ? 'success' : 'danger')
                     ->badge(),
+                TextColumn::make('is_show')
+                    ->label(__('admin/category.fields.is_show'))
+                    ->formatStateUsing(fn($state): string => $state ? __('global.yes') : __('global.no'))
+                    ->color(fn($state): string => $state ? 'success' : 'danger')
+                    ->badge(),
                 TextColumn::make('description')
                     ->label(__('admin/category.fields.description'))
                     ->html()
-                    ->limit(50),
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->label(__('admin/category.fields.deleted_at'))
                     ->dateTime()

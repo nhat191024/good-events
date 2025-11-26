@@ -6,6 +6,7 @@ use Filament\Schemas\Schema;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class RentalCategoryChildrenForm
@@ -22,6 +23,10 @@ class RentalCategoryChildrenForm
                     ->label(__('admin/category.fields.slug'))
                     ->placeholder(__('admin/category.placeholders.slug'))
                     ->disabled(),
+                Toggle::make('is_show')
+                    ->label(__('admin/category.fields.is_show'))
+                    ->default(true)
+                    ->columnSpanFull(),
                 RichEditor::make('description')
                     ->label(__('admin/category.fields.description'))
                     ->placeholder(__('admin/category.placeholders.description'))

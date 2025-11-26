@@ -40,6 +40,11 @@ class DesignCategoryChildrensTable
                     ->label(__('admin/category.fields.description'))
                     ->html()
                     ->limit(50),
+                TextColumn::make('is_show')
+                    ->label(__('admin/category.fields.is_show'))
+                    ->formatStateUsing(fn($state): string => $state ? __('global.yes') : __('global.no'))
+                    ->color(fn($state): string => $state ? 'success' : 'danger')
+                    ->badge(),
                 TextColumn::make('deleted_at')
                     ->label(__('admin/category.fields.deleted_at'))
                     ->dateTime()
