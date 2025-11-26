@@ -129,6 +129,6 @@ class RegisteredUserController extends Controller
         ]);
 
         app(\App\Services\EmailVerificationMailService::class)->sendVerificationLink($user);
-        return Inertia::location(route('filament.partner.auth.login'));
+        return Inertia::location(route('filament.partner.pages.dashboard'));
     }
 }
