@@ -1,5 +1,5 @@
 <template>
-    <section class="relative overflow-hidden bg-gradient-to-b from-sky-50 via-white to-white py-3 sm:py-22">
+    <section class="relative overflow-hidden bg-gradient-to-b from-sky-50 via-white to-white py-3 sm:py-12">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mx-auto max-w-2xl text-center">
                 <motion.div initial="{ opacity: 0, y: 20 }" animate="{ opacity: 1, y: 0 }"
