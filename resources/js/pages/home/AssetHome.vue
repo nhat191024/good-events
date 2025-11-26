@@ -4,8 +4,20 @@
 
     <ClientAppHeaderLayout :background-class-names="'bg-blue-100'">
 
-        <HeroBanner :header-text="heroHeaderText" :banner-images="heroBannerImages"
-            :bg-color-class="'bg-[linear-gradient(180deg,#6bafff_0%,rgb(129,187,255)_51.50151983037725%,rgba(74,144,226,0)_100%)]'" />
+        <HeroBanner :banner-images="heroBannerImages">
+            <HeroContentBlock
+                tag-label="Kho thiết kế"
+                :title="heroHeaderText"
+                :description="heroDescription"
+                :primary-cta="{ label: 'Tìm thiết kế ngay', href: '#search' }"
+                :secondary-cta="{ label: 'Khám phá tất cả', href: route('asset.discover') }"
+                :stats="[
+                    { value: '12K+', label: 'Mẫu thiết kế sẵn' },
+                    { value: '4.8/5', label: 'Đánh giá người dùng' },
+                    { value: '30s', label: 'Tải xuống tức thì' }
+                ]"
+            />
+        </HeroBanner>
 
         <PartnerCategoryIcons :categories="categories" />
 
@@ -23,7 +35,7 @@
                 </Link>
             </motion.div>
         </motion.div>
-        <div class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full max-w-7xl">
+        <div id="search" class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full max-w-7xl bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-xl scroll-mt-24">
             <div class="max-w-5xl mx-auto">
                 <SearchBar :show-search-btn="false" v-model="search" />
                 <div v-if="keywordSuggestions.length" class="container mx-auto px-4 mt-4">
@@ -37,10 +49,12 @@
                 </div>
             </div>
         </div>
-        <CardListLayout :href="route('asset.discover')" :name="'Thiết kế mới gần đây'" :show-section="true">
-            <CardItem v-for="item in fileProductList"
-                :route-href="route('asset.show', { file_product_slug: item.slug, category_slug: item.category.slug })"
-                :key="item.id" :card-item="item || []" />
+        <CardListLayout :href="route('asset.discover')" :name="'Thiết kế mới gần đây'" :show-section="true"
+            :items="fileProductList" @reach-end="handleAssetReachEnd">
+            <template #default="{ item }">
+                <CardItem :route-href="route('asset.show', { file_product_slug: item.slug, category_slug: item.category.slug })"
+                    :key="item.id" :card-item="item || []" />
+            </template>
         </CardListLayout>
 
         <motion.div class="w-full pb-6 bg-white flex gap-2 justify-center flex-wrap" :initial="ctaMotion.initial"
@@ -66,6 +80,7 @@ import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import CardListLayout from './layouts/CardListLayout.vue';
 
 import HeroBanner from './partials/HeroBanner.vue';
+import HeroContentBlock from './components/HeroContentBlock.vue';
 import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 
 import { PartnerCategoryItems } from './partials/PartnerCategoryIcons/type';
@@ -114,6 +129,10 @@ watch(
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
 const heroHeaderText = computed(() => props.settings.hero_title ?? 'Trải nghiệm kho thiết kế thiết kế');
+const heroDescription = computed(
+    () =>
+        'Chọn file thiết kế phù hợp, tải xuống ngay lập tức và áp dụng cho dự án của bạn chỉ trong vài bước đơn giản.',
+);
 
 // console.log('file products ',props.fileProducts.data);
 // console.log('tags ',props.tags.data);
@@ -148,6 +167,10 @@ const fileProductList = computed<AssetCardItemProps[]>(() =>
         }
     })
 );
+
+const handleAssetReachEnd = () => {
+    // Hook for lazy loading more asset products when the slider hits the end.
+};
 
 const keywordSuggestions = computed(() => {
     const term = search.value.trim();
