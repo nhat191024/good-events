@@ -73,6 +73,7 @@ class Category extends Model implements HasMedia
         'slug',
         'type',
         'order',
+        'is_show',
         'parent_id',
         'description',
     ];
