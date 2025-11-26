@@ -3,7 +3,7 @@
     <Head title="Liên hệ" />
 
     <ClientHeaderLayout>
-        <div class="bg-primary-50">
+        <div class="bg-primary-50 w-full">
             <motion.section
                 :initial="sectionMotion.initial"
                 :while-in-view="sectionMotion.visible"
