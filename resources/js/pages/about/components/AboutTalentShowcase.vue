@@ -13,7 +13,15 @@
                     <motion.article
                         v-for="(category, index) in categories"
                         :key="category.title"
-                        class="rounded-3xl border border-slate-100 bg-slate-50/80 p-5 shadow-sm shadow-black/[0.03]"
+                        class="relative overflow-hidden rounded-3xl p-5 shadow-sm shadow-black/[0.03]"
+                        :class="category.cover ? 'border-0 text-white' : 'border border-slate-100 bg-slate-50/80 text-slate-900'"
+                        :style="category.cover
+                            ? {
+                                backgroundImage: `linear-gradient(150deg, rgba(15,23,42,0.75), rgba(15,23,42,0.35)), url(${category.cover})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                            }
+                            : undefined"
                         :initial="cardMotion.initial"
                         :while-in-view="cardMotion.visible"
                         :viewport="cardMotion.viewport"
@@ -21,15 +29,20 @@
                         :while-hover="cardInteractions.hover"
                         :while-tap="cardInteractions.tap"
                     >
-                        <h3 class="text-lg font-semibold text-slate-900">{{ category.title }}</h3>
-                        <p class="mt-2 text-sm text-slate-600">
-                            {{ category.description }}
-                        </p>
-                        <div class="mt-3 flex flex-wrap gap-2">
+                        <div class="relative space-y-2">
+                            <h3 class="text-lg font-semibold" :class="category.cover ? 'text-white' : 'text-slate-900'">
+                                {{ category.title }}
+                            </h3>
+                            <p class="text-sm" :class="category.cover ? 'text-white/80' : 'text-slate-600'">
+                                {{ category.description }}
+                            </p>
+                        </div>
+                        <div class="relative mt-3 flex flex-wrap gap-2">
                             <motion.span
                                 v-for="(tag, tagIndex) in category.tags"
                                 :key="tag"
-                                class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-600"
+                                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
+                                :class="category.cover ? 'bg-white/20 text-white' : 'bg-white text-slate-600'"
                                 :initial="tagMotion.initial"
                                 :while-in-view="tagMotion.visible"
                                 :viewport="tagMotion.viewport"
@@ -53,6 +66,7 @@ interface TalentCategory {
     title: string;
     description: string;
     tags: string[];
+    cover?: string;
 }
 
 defineProps<{
