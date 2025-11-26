@@ -13,6 +13,11 @@ return [
     'loading' => 'Loading...',
     'new' => 'New',
 
+    'tab' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+    ],
+
     'button' => [
         'back' => 'Back',
         'send' => 'Send',

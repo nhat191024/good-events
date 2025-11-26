@@ -13,6 +13,11 @@ return [
     'loading' => 'Đang tải...',
     'new' => 'Mới',
 
+    'tab' => [
+        'active' => 'Đang hoạt động',
+        'inactive' => 'Không hoạt động',
+    ],
+
     'button' => [
         'back' => 'Trở lại',
         'send' => 'Gửi',
