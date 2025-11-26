@@ -38,6 +38,7 @@ class RentHomeController extends Controller
         $categories = RentalCategory::limit(15)
             ->where('type', 'rental')
             ->orderBy('order', 'asc')
+            ->whereIsShow(1)
             ->get();
 
         return Inertia::render('home/RentHome', [

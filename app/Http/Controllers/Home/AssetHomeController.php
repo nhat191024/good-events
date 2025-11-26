@@ -39,6 +39,7 @@ class AssetHomeController extends Controller
         $categories = DesignCategory::limit(15)
             ->where('type', 'design')
             ->orderBy('order', 'asc')
+            ->whereIsShow(1)
             ->get();
 
         return Inertia::render('home/AssetHome', [
