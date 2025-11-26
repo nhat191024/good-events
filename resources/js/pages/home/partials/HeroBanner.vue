@@ -1,6 +1,6 @@
 <template>
     <section class="relative w-full bg-white">
-        <motion.div class="relative h-[620px] md:h-[60vh] w-full overflow-visible" :initial="heroMotion.initial"
+        <motion.div class="relative h-[620px] md:h-[60vh] w-full overflow-hidden" :initial="heroMotion.initial"
             :animate="heroMotion.animate">
             <Swiper v-if="hasSlides" :modules="swiperModules"
                 effect="fade" :fade-effect="{ crossFade: true }" :allow-touch-move="false"
