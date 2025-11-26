@@ -23,6 +23,7 @@ use Spatie\Activitylog\LogOptions;
  * @property string $slug
  * @property string $type
  * @property int $order
+ * @property int $is_show
  * @property int|null $parent_id
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -49,6 +50,7 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereIsShow($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereParentId($value)

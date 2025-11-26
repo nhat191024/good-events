@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $user_id
  * @property string $slug
  * @property string|null $video_url
+ * @property string|null $address
+ * @property string|null $latitude
+ * @property string|null $longitude
  * @property int|null $location_id
  * @property int|null $max_people
  * @property string $type
@@ -29,12 +32,15 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereContent($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereLatitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereLocationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereLongitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereMaxPeople($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EventOrganizationGuide whereSlug($value)

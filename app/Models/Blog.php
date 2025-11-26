@@ -25,6 +25,9 @@ use Spatie\Activitylog\LogOptions;
  * @property int $user_id
  * @property string $slug
  * @property string|null $video_url
+ * @property string|null $address
+ * @property string|null $latitude
+ * @property string|null $longitude
  * @property int|null $location_id
  * @property int|null $max_people
  * @property string $type
@@ -45,12 +48,15 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereContent($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereLatitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereLocationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereLongitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereMaxPeople($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog whereSlug($value)

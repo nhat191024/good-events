@@ -5,6 +5,9 @@ namespace App\Models;
 use App\Enum\PartnerBillDetailStatus;
 use App\Events\PartnerBillDetailCreated;
 use App\Events\PartnerBillDetailStatusChanged;
+
+use Filament\Notifications\Notification;
+
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -53,6 +56,7 @@ class PartnerBillDetail extends Model
 
         static::updated(function ($partnerBillDetail) {
             match ($partnerBillDetail->status) {
+                PartnerBillDetailStatus::NEW => static::handleNewStatus($partnerBillDetail),
                 PartnerBillDetailStatus::CLOSED => static::handleClosedStatus($partnerBillDetail),
                 default => null,
             };
@@ -61,7 +65,14 @@ class PartnerBillDetail extends Model
 
     protected static function handleBillDetailCreated(PartnerBillDetail $partnerBillDetail): void
     {
-
+        Notification::make()
+            ->title(__('notifications.partner_bill_detail.created.title'))
+            ->body(__('notifications.partner_bill_detail.created.body', [
+                'id' => $partnerBillDetail->id,
+                'total' => $partnerBillDetail->total,
+            ]))
+            ->success()
+            ->toDatabase();
     }
 
     protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $slug
  * @property string $type
  * @property int $order
+ * @property int $is_show
  * @property int|null $parent_id
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -36,6 +37,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogCategory whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogCategory whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogCategory whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogCategory whereIsShow($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogCategory whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogCategory whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BlogCategory whereParentId($value)

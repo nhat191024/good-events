@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $user_id
  * @property string $slug
  * @property string|null $video_url
+ * @property string|null $address
+ * @property string|null $latitude
+ * @property string|null $longitude
  * @property int|null $location_id
  * @property int|null $max_people
  * @property string $type
@@ -29,12 +32,15 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereContent($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereLatitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereLocationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereLongitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereMaxPeople($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VocationalKnowledge whereSlug($value)

@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $user_id
  * @property string $slug
  * @property string|null $video_url
+ * @property string|null $address
+ * @property string|null $latitude
+ * @property string|null $longitude
  * @property int|null $location_id
  * @property int|null $max_people
  * @property string $type
@@ -29,12 +32,15 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereContent($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereLatitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereLocationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereLongitude($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereMaxPeople($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|GoodLocation whereSlug($value)
