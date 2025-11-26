@@ -72,10 +72,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div ref="containerRef" class="relative inline-block">
+    <div ref="containerRef" class="relative inline-block self-start">
         <!-- Trigger Button -->
         <button type="button"
-            class="relative inline-flex items-center justify-center h-10 w-10 rounded-md hover:bg-muted/60 transition-colors"
+            class="bg-white/70 relative inline-flex items-center justify-center h-10 w-10 rounded-full hover:bg-muted/60 transition-colors"
             @click="toggle" aria-label="Thông báo">
             <Bell class="h-5 w-5" />
             <span v-if="unreadCount"
