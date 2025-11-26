@@ -6,7 +6,7 @@ return [
     'singulars' => [
         'blog' => 'Blog Category',
         'design' => 'Design Category',
-        'rental' => 'Rental Category',
+        'rental' => 'Supplies Category',
     ],
 
     'cannot_hidden_category_has_children' => 'Cannot hide category because it has child categories.',

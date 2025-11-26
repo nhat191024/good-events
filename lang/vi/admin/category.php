@@ -6,7 +6,7 @@ return [
     'singulars' => [
         'blog' => 'Danh mục blog',
         'design' => 'Danh mục thiết kế',
-        'rental' => 'Danh mục cho thuê',
+        'rental' => 'Danh mục vật tư',
     ],
 
     'cannot_hidden_category_has_children' => 'Không thể ẩn danh mục vì danh mục này có danh mục con.',
