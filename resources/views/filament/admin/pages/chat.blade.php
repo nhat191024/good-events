@@ -15,6 +15,33 @@
             <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
                 <div class="space-y-3">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('chat.thread_list') }}</h3>
+
+                    <!-- Tabs -->
+                    <div class="flex gap-1 rounded-lg bg-gray-200 p-1 dark:bg-gray-700">
+                        <button
+                            type="button"
+                            wire:click="switchTab('active')"
+                            @class([
+                                'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition',
+                                'bg-white text-gray-900 shadow dark:bg-gray-600 dark:text-white' => $activeTab === 'active',
+                                'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white' => $activeTab !== 'active',
+                            ])
+                        >
+                            {{ __('chat.tab.active') }}
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="switchTab('inactive')"
+                            @class([
+                                'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition',
+                                'bg-white text-gray-900 shadow dark:bg-gray-600 dark:text-white' => $activeTab === 'inactive',
+                                'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white' => $activeTab !== 'inactive',
+                            ])
+                        >
+                            {{ __('chat.tab.inactive') }}
+                        </button>
+                    </div>
+
                     <div class="relative">
                         <input class="focus:border-primary-500 focus:ring-primary-500 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-white" type="search" wire:model.live.debounce.400ms="searchTerm"
                             placeholder="{{ __('chat.search_placeholder') }}" aria-label="Tìm kiếm hội thoại" />

@@ -27,7 +27,7 @@ class Chat extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
-    protected string $view = 'filament.partner.pages.chat';
+    protected string $view = 'filament.admin.pages.chat';
 
     protected static ?string $navigationLabel = 'Chat';
 
@@ -91,6 +91,8 @@ class Chat extends Page
 
     public string $searchTerm = '';
 
+    public string $activeTab = 'active';
+
     public function mount(): void
     {
         $this->loadThreads();
@@ -115,6 +117,33 @@ class Chat extends Page
         $this->currentPage = 1;
         $this->hasMoreThreads = true;
         $this->threads = [];
+        $this->loadThreads();
+
+        // Dispatch event to update thread subscriptions
+        $threadIds = collect($this->threads)->pluck('id')->toArray();
+        $this->dispatch('filament-partner-chat:threads-updated', threadIds: $threadIds);
+    }
+
+    /**
+     * Switch between active and inactive tabs
+     *
+     * @param string $tab 'active' or 'inactive'
+     */
+    public function switchTab(string $tab): void
+    {
+        if (!in_array($tab, ['active', 'inactive'])) {
+            return;
+        }
+
+        $this->activeTab = $tab;
+        $this->currentPage = 1;
+        $this->hasMoreThreads = true;
+        $this->threads = [];
+        $this->selectedThreadId = null;
+        $this->selectedThread = null;
+        $this->messages = [];
+        $this->cachedSelectedThread = null;
+        $this->cachedMessages = null;
         $this->loadThreads();
 
         // Dispatch event to update thread subscriptions
@@ -167,6 +196,13 @@ class Chat extends Page
                 ]
             )
             ->latest('updated_at');
+
+        // Filter by active tab
+        if ($this->activeTab === 'active') {
+            $query->whereNull('threads.deleted_at');
+        } else {
+            $query->whereNotNull('threads.deleted_at');
+        }
 
         if (!empty(trim($this->searchTerm))) {
             $query->where(function ($q) {
