@@ -13,6 +13,8 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
 
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 
@@ -128,11 +130,70 @@ class ProfileSettings extends Page implements HasForms
                                     ->required()
                                     ->maxLength(20),
 
-                                Select::make('location_id')
-                                    ->label(__('profile.partner_label.location_id'))
-                                    ->options(Location::all()->pluck('name', 'id'))
+                                Select::make('city_id')
+                                    ->label(__('profile.partner_label.city_id'))
                                     ->searchable()
                                     ->preload()
+                                    ->live()
+                                    ->options(
+                                        Location::query()
+                                            ->whereNull('parent_id')
+                                            ->pluck('name', 'id')
+                                    )
+                                    ->getSearchResultsUsing(
+                                        fn(string $search): array =>
+                                        Location::query()
+                                            ->whereNull('parent_id')
+                                            ->where('name', 'like', "%{$search}%")
+                                            ->limit(50)
+                                            ->pluck('name', 'id')
+                                            ->toArray()
+                                    )
+                                    ->getOptionLabelUsing(
+                                        fn($value): ?string =>
+                                        Location::find($value)?->name
+                                    )
+                                    ->afterStateUpdated(fn(callable $set) => $set('location_id', null))
+                                    ->afterStateHydrated(function ($state, $record, Set $set): void {
+                                        if ($record && $record->location_id) {
+                                            $ward = Location::find($record->location_id);
+                                            if ($ward && $ward->parent_id) {
+                                                $set('city_id', $ward->parent_id);
+                                            }
+                                        }
+                                    })
+                                    ->dehydrated(false)
+                                    ->required(),
+
+                                Select::make('location_id')
+                                    ->label(__('profile.partner_label.location_id'))
+                                    ->searchable()
+                                    ->options(function (Get $get): array {
+                                        $cityId = $get('city_id');
+                                        if (!$cityId) {
+                                            return [];
+                                        }
+                                        return Location::query()
+                                            ->where('parent_id', $cityId)
+                                            ->whereNotNull('parent_id')
+                                            ->pluck('name', 'id')
+                                            ->toArray();
+                                    })
+                                    ->getSearchResultsUsing(
+                                        fn(string $search, Get $get): array =>
+                                        Location::query()
+                                            ->where('parent_id', $get('city_id'))
+                                            ->whereNotNull('parent_id')
+                                            ->where('name', 'like', "%{$search}%")
+                                            ->limit(50)
+                                            ->pluck('name', 'id')
+                                            ->toArray()
+                                    )
+                                    ->getOptionLabelUsing(
+                                        fn($value): ?string =>
+                                        Location::find($value)?->name
+                                    )
+                                    ->disabled(fn(Get $get): bool => !$get('city_id'))
                                     ->required(),
                             ])
                     ])
