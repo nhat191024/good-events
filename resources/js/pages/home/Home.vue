@@ -220,6 +220,16 @@ const activePartnerCategories = computed(() => {
     return searchResult.value?.partnerCategories ?? {};
 });
 
+const categoryTotals = computed<Record<number, number>>(() => {
+    const totals: Record<number, number> = {};
+    eventCategoryList.value.forEach((cat) => {
+        totals[cat.id] = cat.total_children_count ?? 0;
+    });
+    return totals;
+});
+
+const loadingChildrenIds = ref<Set<number>>(new Set());
+
 const keywordSuggestions = computed(() => {
     const term = search.value.trim();
     if (term.length < 2) return [];
@@ -255,6 +265,39 @@ const hasMoreCategories = computed(() =>
     !isSearchMode.value && eventCategoryList.value.length < props.pagination.total
 );
 
+const hasMoreChildrenFor = (categoryId: number) => {
+    const total = categoryTotals.value[categoryId] ?? 0;
+    const loaded = partnerCategoriesStore.value[categoryId]?.length ?? 0;
+    return loaded < total;
+};
+
+const loadMoreChildrenForCategory = async (categoryId: number, categorySlug: string) => {
+    if (loadingChildrenIds.value.has(categoryId)) return;
+    if (!hasMoreChildrenFor(categoryId)) return;
+
+    const current = partnerCategoriesStore.value[categoryId] ?? [];
+    loadingChildrenIds.value.add(categoryId);
+    try {
+        const { data } = await axios.get(route('home.category-children'), {
+            params: {
+                category_slug: categorySlug,
+                offset: current.length,
+                limit: pagination.value.childLimit,
+            },
+        });
+
+        const merged = [...current, ...(data.children ?? [])];
+        partnerCategoriesStore.value = {
+            ...partnerCategoriesStore.value,
+            [categoryId]: merged,
+        };
+    } catch (error) {
+        console.error('Failed to load more partner categories', error);
+    } finally {
+        loadingChildrenIds.value.delete(categoryId);
+    }
+};
+
 const loadMoreCategories = async () => {
     if (isLoadingMore.value || !hasMoreCategories.value || isSearchMode.value) return;
     isLoadingMore.value = true;
@@ -278,8 +321,10 @@ const loadMoreCategories = async () => {
 };
 
 const handlePartnerReachEnd = (categorySlug: string) => {
-    // Hook for lazy-loading more partner categories within a section when the carousel hits the end.
-    // Integrate your fetcher here and append to partnerCategoriesStore with the matching categorySlug.
+    if (isSearchMode.value) return;
+    const category = eventCategoryList.value.find((cat) => cat.slug === categorySlug);
+    if (!category) return;
+    loadMoreChildrenForCategory(category.id, category.slug);
 };
 
 const cleanupObserver = () => {
