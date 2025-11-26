@@ -7,7 +7,7 @@
         <HeroBanner :banner-images="isMobile ? heroBannerMobileImages : heroBannerImages">
             <HeroContentBlock
                 tag-label="Sự kiện"
-                title="Cần người hỗ trợ tổ chức sự kiện?"
+                title="Tổ chức sự kiện thật dễ dàng!"
                 :description="settings.hero_title ?? 'Bạn đã đến đúng nơi rồi đấy. Kết nối với hàng trăm đối tác dịch vụ sự kiện uy tín, chuyên nghiệp cho mọi nhu cầu của bạn.'"
                 :primary-cta="{ label: 'Khám phá', href: '#search' }"
                 :secondary-cta="{ label: 'Xem demo', href: route('tutorial.index') }"
