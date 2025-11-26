@@ -55,7 +55,13 @@
                     :href="route('about.index')"
                     class="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-sm shadow-black/10 transition hover:translate-y-0.5"
                 >
-                    Tìm hiểu thêm
+                    Xem thêm
+                </Link>
+                <Link
+                    :href="route('tutorial.index')"
+                    class="pl-2 text-shadow-2xs inline-flex items-center justify-center bg-transparent px-0 py-0 text-base font-semibold text-white transition hover:translate-y-0.5"
+                >
+                    Xem demo
                 </Link>
             </motion.div>
         </motion.div>

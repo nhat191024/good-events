@@ -3,8 +3,20 @@
     <Head class="font-lexend" title="Thuê thiết bị sự kiện" />
 
     <ClientAppHeaderLayout :background-class-names="'bg-green-100'">
-        <HeroBanner :header-text="heroHeaderText" :banner-images="heroBannerImages"
-            :bg-color-class="'bg-[linear-gradient(180deg,#4ade80_0%,rgb(134,239,172)_51.5%,rgba(74,222,128,0)_100%)]'" />
+        <HeroBanner :banner-images="heroBannerImages">
+            <HeroContentBlock
+                tag-label="Thiết bị sự kiện"
+                :title="heroHeaderText"
+                :description="heroDescription"
+                :primary-cta="{ label: 'Tìm thiết bị', href: '#search' }"
+                :secondary-cta="{ label: 'Xem tất cả', href: route('rent.discover') }"
+                :stats="[
+                    { value: '3.2K+', label: 'Thiết bị sẵn sàng' },
+                    { value: '15 phút', label: 'Phản hồi báo giá' },
+                    { value: '360°', label: 'Hỗ trợ lắp đặt' }
+                ]"
+            />
+        </HeroBanner>
 
         <PartnerCategoryIcons :categories="categories" />
 
@@ -15,7 +27,7 @@
                 :class="'bg-primary-10 text-primary-800 ring ring-primary-100 hover:bg-primary-50'" />
             </Link>
         </div>
-        <div class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full">
+        <div id="search" class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full max-w-7xl bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl scroll-mt-24">
             <div class="max-w-5xl mx-auto">
                 <SearchBar :show-search-btn="false" v-model="search" />
                 <div v-if="keywordSuggestions.length" class="container mx-auto px-4 mt-4">
@@ -29,10 +41,13 @@
                 </div>
             </div>
         </div>
-        <CardListLayout :href="route('rent.discover')" :name="'Thiết bị nổi bật gần đây'" :show-section="true">
-            <CardItem v-for="item in rentProductList" :key="item.id"
-                :route-href="route('rent.show', { rent_product_slug: item.slug, category_slug: item.category.slug })"
-                :card-item="item || []" />
+        <CardListLayout :href="route('rent.discover')" :name="'Thiết bị nổi bật gần đây'" :show-section="true"
+            :items="rentProductList" @reach-end="handleRentReachEnd">
+            <template #default="{ item }">
+                <CardItem :key="item.id"
+                    :route-href="route('rent.show', { rent_product_slug: item.slug, category_slug: item.category.slug })"
+                    :card-item="item || []" />
+            </template>
         </CardListLayout>
 
         <div class="flex w-full flex-wrap justify-center gap-2 bg-white pb-6">
@@ -52,6 +67,7 @@ import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import CardListLayout from './layouts/CardListLayout.vue';
 
 import HeroBanner from './partials/HeroBanner.vue';
+import HeroContentBlock from './components/HeroContentBlock.vue';
 import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 
 import type { PartnerCategoryItems } from './partials/PartnerCategoryIcons/type';
@@ -99,7 +115,11 @@ watch(
 );
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
-const heroHeaderText = computed(() => props.settings.hero_title ?? 'Thuê thiết bị, loa đài ánh sáng');
+const heroHeaderText = computed(() => 'Thuê thiết bị, loa đài ánh sáng');
+const heroDescription = computed(
+    () =>
+        props.settings.hero_title ?? 'Đặt loa, màn hình, ánh sáng, sân khấu và nhân sự kỹ thuật chỉ với vài thao tác. Nhận hỗ trợ vận hành trọn gói cho sự kiện của bạn.',
+);
 
 const filteredRentProducts = computed(() => filteredLocal.value ?? []);
 
@@ -124,6 +144,10 @@ const rentProductList = computed<RentCardItemProps[]>(() =>
         category: item.category,
     })),
 );
+
+const handleRentReachEnd = () => {
+    // Hook for lazy loading more rent products when the slider hits the end.
+};
 
 const keywordSuggestions = computed(() => {
     const term = search.value.trim();

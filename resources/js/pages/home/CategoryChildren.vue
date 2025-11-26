@@ -6,9 +6,8 @@
             <div class="space-y-2">
                 <p class="text-sm font-semibold uppercase tracking-wide text-primary-600">Danh mục sự kiện</p>
                 <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
-                <p v-if="category.description" class="text-gray-600">
-                    {{ category.description }}
-                </p>
+                <div v-if="category.description" class="text-gray-600" v-html="category.description">
+                </div>
                 <p class="text-sm text-gray-500">Tổng {{ category.total_children }} danh mục con</p>
             </div>
 
@@ -23,7 +22,7 @@
                 />
             </div>
 
-            <div v-if="filteredCategories.length" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div v-if="filteredCategories.length" class="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <PartnerCategoryCard v-for="partnerCategory in filteredCategories" :key="partnerCategory.id"
                     :partner-category="partnerCategory" />
             </div>

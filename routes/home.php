@@ -17,6 +17,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/api/home/event-categories', [HomeController::class, 'loadMoreCategories'])
     ->name('home.event-categories');
 
+Route::get('/api/home/category-children', [HomeController::class, 'loadMoreChildren'])
+    ->name('home.category-children');
+
 Route::get('/api/home/search', [HomeController::class, 'search'])
     ->name('home.search');
 

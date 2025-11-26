@@ -1,37 +1,31 @@
 <template>
-    <section class="relative w-full">
-        <div :class="cn('absolute inset-0 z-0', bgColorClass)"></div>
-        <motion.div class="w-full" :initial="heroMotion.initial" :animate="heroMotion.animate">
-            <div class="relative z-10 container mx-auto px-4 md:py-8 py-1">
-                <div class="text-center md:mb-8 mb-1">
-                    <h1 class="text-[25px] font-lexend font-medium md:text-[36px] text-white text-shadow-sm">
-                        {{ headerText }}
-                    </h1>
-                </div>
-
-                <div class="mb-8 flex justify-center">
-                    <div class="w-full max-w-5xl h-[420px] bg-white rounded-4xl shadow-lg overflow-hidden">
-                        <Swiper v-if="hasSlides" :modules="swiperModules"
-                            :autoplay="{ delay: 4800, disableOnInteraction: false }" loop :space-between="24"
-                            :slides-per-view="1" class="h-full">
-                            <SwiperSlide v-for="slide in slides" :key="slide.key">
-                                <div class="relative w-full h-full">
-                                    <div class="relative w-full h-full hero-slide" v-html="slide.src"></div>
-                                    <div
-                                        class="absolute inset-x-0 bottom-0 px-6 pb-6 pt-14 bg-gradient-to-t from-black/80 to-transparent text-white">
-
-                                    </div>
-                                </div>
-                            </SwiperSlide>
-                        </Swiper>
-
-                        <div v-else class="w-full h-full">
-                            <img :src="getImg(headerBannerImg)" alt="Hero banner" class="w-full h-full object-cover" />
-                        </div>
+    <section class="relative w-full bg-white">
+        <motion.div class="relative h-[620px] md:h-[60vh] w-full overflow-visible" :initial="heroMotion.initial"
+            :animate="heroMotion.animate">
+            <Swiper v-if="hasSlides" :modules="swiperModules"
+                effect="fade" :fade-effect="{ crossFade: true }" :allow-touch-move="false"
+                :autoplay="{ delay: 5200, disableOnInteraction: false }" loop :space-between="0"
+                :slides-per-view="1" class="hero-swiper h-full">
+                <SwiperSlide v-for="slide in slides" :key="slide.key">
+                    <div class="hero-slide">
+                        <div class="hero-media" v-html="slide.src"></div>
+                        <div class="hero-overlay"></div>
                     </div>
+                </SwiperSlide>
+            </Swiper>
+
+            <div v-else class="hero-slide">
+                <img :src="getImg(headerBannerImg)" alt="Hero banner" class="hero-img" />
+                <div class="hero-overlay"></div>
+            </div>
+
+            <div class="pointer-events-none absolute inset-x-0 -bottom-1 h-3 bg-gradient-to-b from-transparent via-25%-white/10 via-50%-white/30 via-75%-white/60 via-90%-white to-white z-[3]"
+                aria-hidden="true"></div>
+
+            <div class="hero-content h-full w-full px-4">
+                <div class="hero-content-inner text-white space-y-4 w-full justify-items-center">
+                    <slot />
                 </div>
-
-
             </div>
         </motion.div>
     </section>
@@ -39,16 +33,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { cn } from '@/lib/utils';
-
 import { motion } from 'motion-v';
 
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { Autoplay, EffectFade } from 'swiper/modules';
 
 import 'swiper/css';
-import 'swiper/css/navigation';
+import 'swiper/css/effect-fade';
 import { getImg } from '@/pages/booking/helper';
-// import 'swiper/css/pagination';
 
 type BannerImage = {
     image_tag?: string | null;
@@ -56,21 +47,14 @@ type BannerImage = {
 
 const props = withDefaults(defineProps<{
     modelValue?: string;
-    headerText?: string;
     headerBannerImg?: string;
     bannerImages?: BannerImage[];
-    bgColorClass?: string;
 }>(), {
-    headerText: 'Thuê đối tác xịn. Sự kiện thêm vui',
     headerBannerImg: '/images/banner-image.webp',
     bannerImages: [],
-    bgColorClass:
-        'bg-[linear-gradient(180deg,var(--token-3d956cea-dbc1-4944-ad45-eefce4d545dc,#f28f8f)_0%,var(--token-3d956cea-dbc1-4944-ad45-eefce4d545dc,rgb(242,143,143))_51.50151983037725%,rgba(242,143,143,0)_100%)]',
 });
 
-const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();
-
-const swiperModules = [Navigation, Autoplay];
+const swiperModules = [Autoplay, EffectFade];
 
 const slides = computed(() => {
     const images = props.bannerImages ?? [];
@@ -105,3 +89,61 @@ const heroMotion = {
     },
 } as const;
 </script>
+
+<style scoped>
+.hero-swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.hero-slide {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0b0f17;
+}
+
+.hero-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hero-media :deep(img),
+.hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    color: transparent;
+    filter: brightness(0.78) contrast(1.05) saturate(1.05);
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 32% 22%, rgba(0, 82, 156, 0.24), transparent 35%),
+        radial-gradient(circle at 72% 18%, rgba(0, 125, 255, 0.22), transparent 30%),
+        linear-gradient(135deg, rgba(0, 0, 0, 0.55), rgba(2, 7, 18, 0.7));
+    z-index: 2;
+    pointer-events: none;
+}
+
+.hero-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.hero-content-inner {
+    padding-bottom: 2rem;
+    pointer-events: auto;
+}
+</style>

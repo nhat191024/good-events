@@ -98,11 +98,7 @@
                         </p>
                     </header>
 
-                    <div v-if="descriptionToShow" class="prose prose-sm max-w-none text-gray-700">
-                        <p v-for="(paragraph, index) in descriptionParagraphs" :key="index" class="whitespace-pre-line">
-                            <template v-html="paragraph"></template>
-                        </p>
-                    </div>
+                    <div v-if="descriptionToShow" class="prose prose-sm max-w-none text-gray-700" v-html="descriptionToShow"></div>
                     <div v-else class="text-gray-500 italic">
                         Chưa có mô tả chi tiết.
                     </div>
@@ -214,16 +210,7 @@ const placeholderImg = computed(() =>
 
 const pageTitle = computed(() => `${props.item.name} - ${props.category?.name ?? 'Sự kiện'}`);
 
-const descriptionToShow = computed(
-    () => props.item.description || ''
-);
-
-const descriptionParagraphs = computed(() =>
-    descriptionToShow.value
-        .split(/\n{2,}/)
-        .map((paragraph: string) => paragraph.trim())
-        .filter(Boolean)
-);
+const descriptionToShow = computed(() => props.item.description || '');
 
 const relatedItems = computed(() =>
     props.related.map((r: RelatedItem) => {
