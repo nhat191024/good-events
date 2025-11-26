@@ -18,10 +18,10 @@ class CategoryResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'image' => TemporaryImage::getTemporaryImageUrl($this, $expireAt, 'images'),
+            'image' => $this->getFirstMediaUrl('images', 'thumb'),
             'parent' => $this->when(
                 $this->relationLoaded('parent') && $this->parent,
-                fn () => [
+                fn() => [
                     'id' => $this->parent->id,
                     'name' => $this->parent->name,
                 ]
