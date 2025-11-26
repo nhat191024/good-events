@@ -4,14 +4,26 @@
 
     <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
 
-        <HeroBanner :header-text="settings.hero_title ?? 'Thuê đối tác xịn. Sự kiện thêm vui'"
-            :banner-images="isMobile ? heroBannerMobileImages : heroBannerImages" />
+        <HeroBanner :banner-images="isMobile ? heroBannerMobileImages : heroBannerImages">
+            <HeroContentBlock
+                tag-label="Sự kiện"
+                title="Cần người hỗ trợ tổ chức sự kiện?"
+                :description="settings.hero_title ?? 'Bạn đã đến đúng nơi rồi đấy. Kết nối với hàng trăm đối tác dịch vụ sự kiện uy tín, chuyên nghiệp cho mọi nhu cầu của bạn.'"
+                :primary-cta="{ label: 'Khám phá', href: '#search' }"
+                :secondary-cta="{ label: 'Xem demo', href: route('tutorial.index') }"
+                :stats="[
+                    { value: '450+', label: 'Đối tác uy tín' },
+                    { value: '98%', label: 'Khách hàng hài lòng' },
+                    { value: '24/7', label: 'Hỗ trợ trực tuyến' }
+                ]"
+            />
+        </HeroBanner>
 
         <PartnerCategoryIcons :categories="categories" />
 
         <HomeCtaBanner />
 
-        <div class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full">
+        <div id="search" class="container-fluid p-2 sm:p-4 md:p-6 space-y-12 w-full max-w-7xl bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-xl scroll-mt-24">
             <div class="max-w-5xl mx-auto">
                 <SearchBar :show-search-btn="false" v-model="search" />
                 <div v-if="keywordSuggestions.length" class="mt-3 flex flex-wrap gap-2">
@@ -32,7 +44,8 @@
             <div v-for="eventCategory in activeEventCategories" :key="eventCategory.id">
                 <CategorySection :category-name="eventCategory.name" :category-slug="eventCategory.slug"
                     :has-more-children="eventCategory.total_children_count > pagination.childLimit"
-                    :partner-categories="activePartnerCategories[eventCategory.id] || []" />
+                    :partner-categories="activePartnerCategories[eventCategory.id] || []"
+                    @reach-end="handlePartnerReachEnd" />
             </div>
             <div v-if="hasMoreCategories" ref="loadMoreTrigger"
                 class="flex w-full items-center justify-center py-8 text-sm text-gray-500">
@@ -57,9 +70,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import axios from 'axios';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import HeroBanner from './partials/HeroBanner.vue';
+import HeroContentBlock from './components/HeroContentBlock.vue';
 import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 import CategorySection from './partials/CategorySection.vue';
 import HomeCtaBanner from './components/HomeCtaBanner.vue';
@@ -261,6 +275,11 @@ const loadMoreCategories = async () => {
     } finally {
         isLoadingMore.value = false;
     }
+};
+
+const handlePartnerReachEnd = (categorySlug: string) => {
+    // Hook for lazy-loading more partner categories within a section when the carousel hits the end.
+    // Integrate your fetcher here and append to partnerCategoriesStore with the matching categorySlug.
 };
 
 const cleanupObserver = () => {
