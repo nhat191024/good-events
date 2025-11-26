@@ -35,7 +35,7 @@
                 </Link>
             </motion.div>
         </motion.div>
-        <div id="search" class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full max-w-7xl bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-xl scroll-mt-24">
+        <div id="search" class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full max-w-7xl bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl scroll-mt-24">
             <div class="max-w-5xl mx-auto">
                 <SearchBar :show-search-btn="false" v-model="search" />
                 <div v-if="keywordSuggestions.length" class="container mx-auto px-4 mt-4">
