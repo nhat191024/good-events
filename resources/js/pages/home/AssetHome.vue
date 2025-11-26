@@ -128,10 +128,10 @@ watch(
 );
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
-const heroHeaderText = computed(() => props.settings.hero_title ?? 'Trải nghiệm kho thiết kế thiết kế');
+const heroHeaderText = computed(() => 'Trải nghiệm kho thiết kế thiết kế');
 const heroDescription = computed(
     () =>
-        'Chọn file thiết kế phù hợp, tải xuống ngay lập tức và áp dụng cho dự án của bạn chỉ trong vài bước đơn giản.',
+        props.settings.hero_title ?? 'Chọn file thiết kế phù hợp, tải xuống ngay lập tức và áp dụng cho dự án của bạn chỉ trong vài bước đơn giản.',
 );
 
 // console.log('file products ',props.fileProducts.data);
