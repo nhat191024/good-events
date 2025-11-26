@@ -3,7 +3,7 @@
     <Head title="Hướng dẫn sử dụng" />
     <ClientAppHeaderLayout>
         <TutorialHero title="Hướng dẫn sử dụng dịch vụ"
-            description="Chào mừng bạn đến với Good Event. Dưới đây là quy trình chi tiết để bạn có thể bắt đầu sử dụng dịch vụ của chúng tôi một cách dễ dàng." />
+            description="Chào mừng bạn đến với Sukientot. Dưới đây là quy trình chi tiết để bạn có thể bắt đầu sử dụng dịch vụ của chúng tôi một cách dễ dàng." />
 
         <div class="bg-gray-50 pb-24">
             <TutorialStep v-for="(step, index) in steps" :key="index" :step-number="index + 1" :title="step.title"
