@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 
 use Filament\Actions\Action;
 
@@ -103,6 +104,12 @@ class ProfileSettings extends Page implements HasForms
                                     ->label(__('profile.label.phone'))
                                     ->tel()
                                     ->maxLength(20),
+
+                                Textarea::make('bio')
+                                    ->label(__('profile.label.bio'))
+                                    ->columnSpanFull()
+                                    ->maxLength(500)
+                                    ->nullable(),
                             ])
                     ]),
 
