@@ -139,8 +139,14 @@ class PartnerBillsTable
                     ->label(__('admin/partnerBill.fields.arrival_photo'))
                     ->icon('heroicon-o-photo')
                     ->color('info')
-                    ->url(fn(PartnerBill $record): ?string => $record->getFirstMedia('arrival_photo')?->getUrl())
-                    ->openUrlInNewTab()
+                    ->modalHeading(__('admin/partnerBill.fields.arrival_photo'))
+                    ->modalContent(fn(PartnerBill $record) => view('filament.admin.modals.arrival-photo', [
+                        'media' => $record->getFirstMedia('arrival_photo'),
+                    ]))
+                    ->modalWidth('3xl')
+                    ->slideOver()
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close')
                     ->visible(fn(PartnerBill $record): bool => $record->getFirstMedia('arrival_photo') !== null),
             ])
             ->toolbarActions([
