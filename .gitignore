@@ -32,3 +32,4 @@ docker-compose-local.yml
 pnpm-workspace.yaml
 /worktrees/
 .rnd
+routes/test.php
