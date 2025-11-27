@@ -1,6 +1,6 @@
 <template>
     <section class="relative w-full bg-white">
-        <motion.div class="relative h-[620px] md:h-[60vh] w-full overflow-visible" :initial="heroMotion.initial"
+        <motion.div class="relative h-[620px] md:h-[60vh] w-full overflow-hidden" :initial="heroMotion.initial"
             :animate="heroMotion.animate">
             <Swiper v-if="hasSlides" :modules="swiperModules"
                 effect="fade" :fade-effect="{ crossFade: true }" :allow-touch-move="false"
@@ -23,7 +23,7 @@
                 aria-hidden="true"></div>
 
             <div class="hero-content h-full w-full px-4">
-                <div class="hero-content-inner text-white space-y-4 w-full justify-items-center">
+                <div class="hero-content-inner text-white space-y-4 w-full pl-0 md:pl-12">
                     <slot />
                 </div>
             </div>
@@ -127,7 +127,7 @@ const heroMotion = {
     inset: 0;
     background: radial-gradient(circle at 32% 22%, rgba(0, 82, 156, 0.24), transparent 35%),
         radial-gradient(circle at 72% 18%, rgba(0, 125, 255, 0.22), transparent 30%),
-        linear-gradient(135deg, rgba(0, 0, 0, 0.55), rgba(2, 7, 18, 0.7));
+        linear-gradient(135deg, rgba(0, 0, 0, 0.35), rgb(0 7 18 / 0%));
     z-index: 2;
     pointer-events: none;
 }
