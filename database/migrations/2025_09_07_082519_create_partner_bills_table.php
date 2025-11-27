@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('status');
             $table->unsignedInteger('thread_id')->nullable();
             $table->foreign('thread_id')->references('id')->on('threads')->restrictOnDelete();
+            $table->foreign('voucher_id')->references('id')->on('vouchers')->restrictOnDelete();
             $table->timestamps();
         });
     }

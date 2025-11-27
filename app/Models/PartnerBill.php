@@ -44,6 +44,7 @@ use Cmgmyr\Messenger\Models\Message;
  * @property string|null $note
  * @property PartnerBillStatus $status
  * @property int|null $thread_id
+ * @property int|null $voucher_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
@@ -57,6 +58,7 @@ use Cmgmyr\Messenger\Models\Message;
  * @property-read int|null $media_count
  * @property-read \App\Models\User|null $partner
  * @property-read Thread|null $thread
+ * @property-read \App\Models\Voucher|null $voucher
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill query()
@@ -79,6 +81,7 @@ use Cmgmyr\Messenger\Models\Message;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereThreadId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereVoucherId($value)
  * @mixin \Eloquent
  */
 class PartnerBill extends Model implements HasMedia
@@ -107,6 +110,7 @@ class PartnerBill extends Model implements HasMedia
         'note',
         'status',
         'thread_id',
+        'voucher_id',
     ];
 
     /**
@@ -423,5 +427,10 @@ class PartnerBill extends Model implements HasMedia
     public function thread()
     {
         return $this->belongsTo(Thread::class, 'thread_id');
+    }
+
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class, 'voucher_id');
     }
 }
