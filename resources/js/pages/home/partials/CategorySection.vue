@@ -24,41 +24,20 @@
             </Link>
         </motion.div>
 
-        <!-- Partner categories carousel -->
-        <Swiper
-            v-if="partnerCategories.length"
-            :modules="[Navigation, Autoplay]"
-            :slides-per-view="1.2"
-            :space-between="8"
-            :navigation="true"
-            :autoplay="autoplayOptions"
-            :loop="partnerCategories.length > 4"
-            :breakpoints="swiperBreakpoints"
-            class="!pb-2 category-swiper home-swiper-nav"
-            @reachEnd="emitReachEnd"
-        >
-            <SwiperSlide
-                v-for="partnerCategory in partnerCategories"
-                :key="partnerCategory.id"
-                class="!h-auto"
-            >
-                <PartnerCategoryCard :partner-category="partnerCategory" />
-            </SwiperSlide>
-        </Swiper>
+        <!-- Partner categories grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-4 lg:gap-6 gap-2">
+            <PartnerCategoryCard v-for="partnerCategory in partnerCategories" :key="partnerCategory.id"
+                :partner-category="partnerCategory" />
+        </div>
     </motion.section>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { Swiper, SwiperSlide } from 'swiper/vue';
-import { Navigation, Autoplay } from 'swiper/modules';
 import PartnerCategoryCard from './PartnerCategoryCard.vue';
 import { PartnerCategory } from '@/types/database';
 import { motion } from 'motion-v';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import '../styles/swiper-nav.css';
 
 interface Props {
     categoryName: string;
@@ -71,30 +50,9 @@ const props = withDefaults(defineProps<Props>(), {
     hasMoreChildren: false,
 });
 
-const emit = defineEmits<{
-    (e: 'reach-end', categorySlug: string): void;
-}>();
-
 const seeMoreHref = computed(() =>
     route('home.category', { category_slug: props.categorySlug })
 );
-
-const swiperBreakpoints = {
-    640: { slidesPerView: 2, spaceBetween: 12 },
-    768: { slidesPerView: 3, spaceBetween: 16 },
-    1024: { slidesPerView: 4, spaceBetween: 20 },
-};
-
-const autoplayOptions = {
-    delay: 5000,
-    disableOnInteraction: false,
-    pauseOnMouseEnter: true,
-};
-
-const emitReachEnd = () => {
-    if (!props.hasMoreChildren) return;
-    emit('reach-end', props.categorySlug);
-};
 
 const sectionMotion = {
     initial: { opacity: 0.5, y: 30 },
