@@ -64,6 +64,7 @@ return [
     ],
 
     'helpers' => [
+        'video_url' => 'Website will automatically convert standard video URLs from platforms like YouTube and Vimeo into embedded videos.',
         'latitude' => 'Do not enter manually unless you know what you are doing.',
         'longitude' => 'Do not enter manually unless you know what you are doing.',
         'search' => 'Use the search button to auto-fill coordinates based on the address. (note: results may not be 100% accurate) - The filled coordinates will help display the location on the map in the client interface',
