@@ -24,6 +24,9 @@ class BlogResource extends JsonResource
             'published_at' => optional($this->created_at)->toIso8601String(),
             'published_human' => optional($this->created_at)->translatedFormat('d M Y'),
             'max_people' => $this->max_people,
+            'address' => $this->address,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
             'thumbnail' => $this->getFirstMediaUrl('thumbnail', 'thumb'),
             'video_url' => $this->video_url,
             'author' => $this->whenLoaded('author', fn() => [
