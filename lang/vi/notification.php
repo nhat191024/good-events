@@ -27,4 +27,9 @@ return [
 
     'order_cancelled_title' => 'Đơn hàng đã bị hủy',
     'order_cancelled_body' => 'Đơn hàng :code của bạn đã bị hủy',
+
+    'partner_bill_expired_title' => 'Hóa đơn đối tác :code đã hết hạn',
+    'partner_bill_expired_body' => 'Hóa đơn đối tác với mã :code đã hết thời gian mà không có đối tác xác nhận. Đơn hàng đã được hủy.',
+
+    'partner_bill_followup_reminder_body' => 'Đơn hàng với mã :code đã hoàn thành thời gian đặt. Vui lòng hoàn tất đơn hàng để đảm bảo chất lượng dịch vụ.',
 ];
