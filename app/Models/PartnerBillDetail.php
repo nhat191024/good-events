@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\User;
+
 use App\Enum\PartnerBillDetailStatus;
 use App\Events\PartnerBillDetailCreated;
 use App\Events\PartnerBillDetailStatusChanged;
@@ -65,22 +67,19 @@ class PartnerBillDetail extends Model
 
     protected static function handleBillDetailCreated(PartnerBillDetail $partnerBillDetail): void
     {
+        $partner = User::find($partnerBillDetail->partner_id)->name ?? 'Đối tác';
         Notification::make()
-            ->title(__('notifications.partner_bill_detail.created.title'))
-            ->body(__('notifications.partner_bill_detail.created.body', [
-                'id' => $partnerBillDetail->id,
-                'total' => $partnerBillDetail->total,
+            ->title(__('notification.partner_accepted_title'))
+            ->body(__('notification.partner_accepted_body', [
+                'partner_name' => $partner,
+                'code' => $partnerBillDetail->partnerBill->code,
             ]))
             ->success()
-            ->toDatabase();
+            ->sendToDatabase(User::find($partnerBillDetail->partnerBill->client_id));
     }
 
-    protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void
-    {
+    protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void {}
 
-    }
-
-    //model helpers methods
     public function isNew(): bool
     {
         return $this->status === PartnerBillDetailStatus::NEW;
