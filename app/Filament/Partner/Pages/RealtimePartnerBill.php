@@ -287,6 +287,7 @@ class RealtimePartnerBill extends Page
                 ]);
 
                 session()->flash('success', __('partner/bill.order_accepted'));
+                session()->flash('show_id', $this->selectedBillId);
                 $this->closeAcceptModal();
                 $this->loadPartnerBills();
             }

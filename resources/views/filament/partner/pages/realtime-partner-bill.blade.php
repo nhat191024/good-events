@@ -3,15 +3,22 @@
         <!-- Flash Messages -->
         @if (session()->has('success'))
             <div class="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-400" />
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <x-heroicon-s-check-circle class="h-5 w-5 text-green-400" />
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-green-800 dark:text-green-200">
+                                {{ session('success') }}
+                            </p>
+                        </div>
                     </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-green-800 dark:text-green-200">
-                            {{ session('success') }}
-                        </p>
-                    </div>
+                    {{-- go to my show button --}}
+                    <a class="ml-4 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-blue-700 focus:border-blue-900 focus:outline-none focus:ring focus:ring-blue-300 active:bg-blue-900 disabled:opacity-25"
+                        href="{{ route('filament.partner.resources.partner-bills.view', ['record' => session('show_id')]) }}">
+                        {{ __('partner/bill.go_to_show') }}
+                    </a>
                 </div>
             </div>
         @endif
