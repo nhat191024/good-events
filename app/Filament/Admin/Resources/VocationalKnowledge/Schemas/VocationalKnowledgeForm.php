@@ -13,6 +13,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
+
+use Cohensive\OEmbed\Facades\OEmbed;
 
 class VocationalKnowledgeForm
 {
@@ -39,7 +43,43 @@ class VocationalKnowledgeForm
                                 TextInput::make('video_url')
                                     ->label(__('admin/blog.fields.video_url'))
                                     ->placeholder(__('admin/blog.placeholders.video_url'))
-                                    ->url(),
+                                    ->helperText(__('admin/blog.helpers.video_url'))
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function (Set $set, ?string $state): void {
+                                        if ($state) {
+                                            try {
+                                                $embed = OEmbed::get($state);
+                                                if ($embed) {
+                                                    $set('video_url', $embed->html([
+                                                        'width' => 640,
+                                                        'height' => 360,
+                                                    ]));
+                                                } else {
+                                                    $set('video_url', null);
+                                                }
+                                            } catch (\Exception $e) {
+                                                $set('video_url', null);
+                                            }
+                                        } else {
+                                            $set('video_url', null);
+                                        }
+                                    })
+                                    ->dehydrateStateUsing(function (?string $state): ?string {
+                                        if ($state) {
+                                            try {
+                                                $embed = OEmbed::get($state);
+                                                if ($embed) {
+                                                    return $embed->html([
+                                                        'width' => 640,
+                                                        'height' => 360,
+                                                    ]);
+                                                }
+                                            } catch (\Exception $e) {
+                                                return null;
+                                            }
+                                        }
+                                        return null;
+                                    }),
                                 Select::make('category_id')
                                     ->label(__('admin/blog.fields.category_id'))
                                     ->searchable()
