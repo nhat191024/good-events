@@ -5,25 +5,22 @@
     <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
 
         <HeroBanner :banner-images="isMobile ? heroBannerMobileImages : heroBannerImages">
-            <HeroContentBlock
-                tag-label="Sự kiện"
-                title="Tổ chức sự kiện thật dễ dàng!"
+            <HeroContentBlock tag-label="Sự kiện" title="Tổ chức sự kiện thật dễ dàng!"
                 :description="settings.hero_title ?? 'Bạn đã đến đúng nơi rồi đấy. Kết nối với hàng trăm đối tác dịch vụ sự kiện uy tín, chuyên nghiệp cho mọi nhu cầu của bạn.'"
                 :primary-cta="{ label: 'Khám phá', href: '#search' }"
-                :secondary-cta="{ label: 'Xem demo', href: route('tutorial.index') }"
-                :stats="[
+                :secondary-cta="{ label: 'Chi tiết', href: route('about.index') }" :stats="[
                     { value: '450+', label: 'Đối tác uy tín' },
                     { value: '98%', label: 'Khách hàng hài lòng' },
                     { value: '24/7', label: 'Hỗ trợ trực tuyến' }
-                ]"
-            />
+                ]" />
         </HeroBanner>
 
         <PartnerCategoryIcons :categories="categories" />
 
         <HomeCtaBanner />
 
-        <div id="search" class="container-fluid p-2 sm:p-4 md:p-6 space-y-12 w-full max-w-7xl bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl scroll-mt-24">
+        <div id="search"
+            class="container-fluid p-2 sm:p-4 md:p-6 space-y-12 w-full max-w-7xl bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl scroll-mt-24">
             <div class="max-w-5xl mx-auto">
                 <SearchBar :show-search-btn="false" v-model="search" />
                 <div v-if="keywordSuggestions.length" class="mt-3 flex flex-wrap gap-2">
@@ -44,8 +41,7 @@
             <div v-for="eventCategory in activeEventCategories" :key="eventCategory.id">
                 <CategorySection :category-name="eventCategory.name" :category-slug="eventCategory.slug"
                     :has-more-children="eventCategory.total_children_count > pagination.childLimit"
-                    :partner-categories="activePartnerCategories[eventCategory.id] || []"
-                    @reach-end="handlePartnerReachEnd" />
+                    :partner-categories="activePartnerCategories[eventCategory.id] || []" />
             </div>
             <div v-if="hasMoreCategories" ref="loadMoreTrigger"
                 class="flex w-full items-center justify-center py-8 text-sm text-gray-500">
