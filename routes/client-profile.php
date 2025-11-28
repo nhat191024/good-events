@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Profile\ClientProfileController;
+use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/profile/client/{user}', [ClientProfileController::class, 'show'])
-    ->whereNumber('user') // id
+Route::get('/profile/{user}', [ProfileController::class, 'show'])
+    ->whereNumber('user')
     ->name('profile.client.show');
