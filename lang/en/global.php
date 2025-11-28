@@ -27,6 +27,8 @@ return [
     'next' => 'Next',
     'previous' => 'Previous',
 
+    'log_viewer' => 'Log Viewer',
+
     'system_message' => [
         'order_confirmed' => 'The order :code has been confirmed. This is the chat between customer and partner. Admin can monitor to support when necessary.',
     ],

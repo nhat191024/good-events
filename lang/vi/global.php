@@ -29,6 +29,8 @@ return [
     'next' => 'Tiếp',
     'previous' => 'Trước',
 
+    'log_viewer' => 'Nhật ký hệ thống',
+
     'system_message' => [
         'order_confirmed' => 'Đơn hàng :code đã được xác nhận. Đây là đoạn chat trao đổi giữa khách hàng và đối tác. Admin sẽ có thể theo dõi để hỗ trợ khi cần thiết.',
     ],
