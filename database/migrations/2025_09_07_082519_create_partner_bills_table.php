@@ -28,9 +28,8 @@ return new class extends Migration
             $table->foreignId('category_id')->nullable()->constrained('partner_categories')->restrictOnDelete();
             $table->text('note')->nullable();
             $table->string('status');
-            $table->unsignedInteger('thread_id')->nullable();
-            $table->foreign('thread_id')->references('id')->on('threads')->restrictOnDelete();
-            $table->foreign('voucher_id')->references('id')->on('vouchers')->restrictOnDelete();
+            $table->foreignId('thread_id')->nullable()->constrained('threads')->restrictOnDelete();
+            $table->foreignId('voucher_id')->nullable()->constrained('vouchers')->restrictOnDelete();
             $table->timestamps();
         });
     }
@@ -40,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bills');
+        Schema::dropIfExists('partner_bills');
     }
 };
