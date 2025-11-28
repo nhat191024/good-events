@@ -104,6 +104,13 @@ class PartnerBillHistoryResource extends JsonResource
                 ];
             }),
 
+            "voucher" => $this->whenLoaded('voucher', function () {
+                return [
+                    'id' => $this->voucher?->id,
+                    'code' => $this->voucher?->code,
+                ];
+            }),
+
             "review" => $review,
         ];
     }

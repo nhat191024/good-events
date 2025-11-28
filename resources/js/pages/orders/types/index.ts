@@ -1,5 +1,10 @@
 import { Event, Metrics } from '@/types/database'
 
+export interface OrderVoucher {
+    id: number
+    code: string
+}
+
 export interface ClientOrderDetail {
     id: number
     total: number | null
@@ -22,6 +27,7 @@ export interface ClientOrder {
     note: string
     status: OrderStatus
     thread_id: number
+    voucher?: OrderVoucher | null
     created_at: string
     updated_at: string
     category: Category
@@ -49,6 +55,7 @@ export interface ClientOrderHistory {
     final_total: number | null
     note: string
     status: OrderStatus
+    voucher?: OrderVoucher | null
     created_at: string
     updated_at: string
     category: Category

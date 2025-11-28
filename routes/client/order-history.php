@@ -15,6 +15,13 @@ Route::middleware('auth')->group(function () {
             [OrderController::class, 'getDetails']
         )->name('details');
 
+        Route::get(
+            '/partner-profile/{user}.json',
+            [OrderController::class, 'getPartnerProfile']
+        )
+            ->whereNumber('user')
+            ->name('partner-profile');
+
         Route::post(
             '/cancel-order',
             [OrderController::class, 'cancelOrder']

@@ -47,7 +47,7 @@ watch([open, () => props.userId], async ([isOpen, id]) => {
 
     status.value = 'loading'
     try {
-        const url = route('profile.partner.show.json', { user: id })
+        const url = route('client-orders.partner-profile', { user: id })
         const response = await axios.get<Payload>(url, { headers: { 'Accept': 'application/json' } })
         const payload = response.data
         cache.set(id, payload)

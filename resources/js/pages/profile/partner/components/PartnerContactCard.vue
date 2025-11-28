@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
+
 const props = defineProps<{ contact: { phone: string | null; email: string | null; response_time: string; languages: string[]; timezone: string } }>()
 </script>
 
@@ -7,14 +9,14 @@ const props = defineProps<{ contact: { phone: string | null; email: string | nul
         <!-- Red title matching design -->
         <h3 class="font-semibold mb-3 text-rose-600">Liên hệ</h3>
         <div class="space-y-2">
-            <button
+            <Link :href="route('chat.index')"
                 class="w-full py-2.5 rounded-lg bg-rose-600 text-white font-medium hover:bg-rose-700 transition-colors flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 Nhắn tin ngay
-            </button>
+            </Link>
             <div class="grid grid-cols-1 gap-2">
                 <!-- <a :href="contact.phone ? `tel:${contact.phone}` : '#'"
                     class="flex items-center justify-center gap-1 py-2 rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 transition-colors">
@@ -24,14 +26,14 @@ const props = defineProps<{ contact: { phone: string | null; email: string | nul
                     </svg>
                     Gọi
                 </a> -->
-                <a :href="contact.email ? `mailto:${contact.email}` : '#'"
+                <!-- <a :href="contact.email ? `mailto:${contact.email}` : '#'"
                     class="flex items-center justify-center gap-1 py-2 rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     Email
-                </a>
+                </a> -->
             </div>
             <div class="mt-3 pt-3 border-t text-sm text-gray-600 space-y-2">
                 <div class="flex justify-between">

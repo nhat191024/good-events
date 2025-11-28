@@ -1,5 +1,5 @@
 <template>
-    <section v-if="items.length" class="space-y-5 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10 md:px-6 md:py-6 px-0 py-0">
+    <section v-if="items.length" class="space-y-5 rounded-3xl bg-white p-6 lg:p-10 md:px-6 md:py-6 px-0 py-0">
         <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h3 class="text-xl font-semibold text-gray-900">Có thể bạn cũng thích</h3>

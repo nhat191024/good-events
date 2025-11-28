@@ -11,8 +11,13 @@ class PartnerProfilePayload
 {
     public static function for(User $user): array
     {
-        $key = "profile:partner:v2:{$user->id}";
-        
+        $latestReviewUpdated = optional(
+            $user->reviews()->latest('updated_at')->first()
+        )->updated_at?->timestamp ?? 0;
+
+        // bump cache when reviews change so fresh feedback is returned
+        $key = "profile:partner:v3:{$user->id}:r{$latestReviewUpdated}";
+
         return Cache::remember($key, now()->addDay(), function () use ($user) {
             $stats = $user->statistics()->get()->keyBy('metrics_name');
 
@@ -113,10 +118,13 @@ class PartnerProfilePayload
                     $authors = \App\Models\User::whereIn('id', $authorIds)->pluck('name', 'id');
 
                     return $reviews->map(function ($r) use ($authors) {
+                        $rating = optional($r->ratings->firstWhere('key', 'rating'))->value
+                            ?? optional($r->ratings->firstWhere('key', 'overall'))->value;
+
                         return [
                             'id' => $r->id,
                             'author' => $authors[$r->user_id] ?? '—',
-                            'rating' => optional($r->ratings->firstWhere('key', 'overall'))->value,
+                            'rating' => $rating,
                             'review' => $r->review,
                             'created_human' => optional($r->created_at)->diffForHumans(),
                         ];
