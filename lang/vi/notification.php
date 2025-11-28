@@ -32,4 +32,9 @@ return [
     'partner_bill_expired_body' => 'Hóa đơn đối tác với mã :code đã hết thời gian mà không có đối tác xác nhận. Đơn hàng đã được hủy.',
 
     'partner_bill_followup_reminder_body' => 'Đơn hàng với mã :code đã hoàn thành thời gian đặt. Vui lòng hoàn tất đơn hàng để đảm bảo chất lượng dịch vụ.',
+
+    'balance_low_title' => 'Cảnh báo số dư tài khoản!',
+    'balance_low_body' => 'Xin chào đối tác! Số dư tài khoản của bạn hiện chỉ còn :balance VNĐ. Vui lòng nạp thêm ít nhất :amount VNĐ để tiếp tục sử dụng dịch vụ mà không bị gián đoạn.',
+
+    'open_wallet' => 'Tới ví của bạn',
 ];

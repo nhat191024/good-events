@@ -26,4 +26,8 @@ return [
     'partner_bill_expired_body' => 'The partner bill with code :code has expired without any partner confirmation. The order has been cancelled.',
 
     'partner_bill_followup_reminder_body' => 'The order with code :code has completed the booking time. Please finalize the order to ensure service quality.',
+
+    'balance_low_title' => 'Account Balance Warning!',
+    'balance_low_body' => 'Hello Partner! Your account balance is currently only :balance VND. Please top up at least :amount VND to continue using the service without interruption.',
+    'open_wallet' => 'Go to your wallet',
 ];
