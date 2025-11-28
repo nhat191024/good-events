@@ -6,12 +6,16 @@ use App\Models\Category;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
+
+use Cohensive\OEmbed\Facades\OEmbed;
 
 class EventOrganizationGuideForm
 {
@@ -20,8 +24,8 @@ class EventOrganizationGuideForm
         return $schema
             ->components([
 
-                Section::make(__('admin/blog.sections.basic_information'))
-                    ->description(__('admin/blog.sections.descriptions.basic_information'))
+                Section::make(__('admin/blog.sections.basic_info'))
+                    ->description(__('admin/blog.sections.basic_info_description'))
                     ->icon('heroicon-o-information-circle')
                     ->collapsible()
                     ->schema([
@@ -68,7 +72,43 @@ class EventOrganizationGuideForm
                         TextInput::make('video_url')
                             ->label(__('admin/blog.fields.video_url'))
                             ->placeholder(__('admin/blog.placeholders.video_url'))
-                            ->url(),
+                            ->helperText(__('admin/blog.helpers.video_url'))
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (Set $set, ?string $state): void {
+                                if ($state) {
+                                    try {
+                                        $embed = OEmbed::get($state);
+                                        if ($embed) {
+                                            $set('video_url', $embed->html([
+                                                'width' => 640,
+                                                'height' => 360,
+                                            ]));
+                                        } else {
+                                            $set('video_url', null);
+                                        }
+                                    } catch (\Exception $e) {
+                                        $set('video_url', null);
+                                    }
+                                } else {
+                                    $set('video_url', null);
+                                }
+                            })
+                            ->dehydrateStateUsing(function (?string $state): ?string {
+                                if ($state) {
+                                    try {
+                                        $embed = OEmbed::get($state);
+                                        if ($embed) {
+                                            return $embed->html([
+                                                'width' => 640,
+                                                'height' => 360,
+                                            ]);
+                                        }
+                                    } catch (\Exception $e) {
+                                        return null;
+                                    }
+                                }
+                                return null;
+                            }),
                     ])
                     ->columnSpanFull(),
 
