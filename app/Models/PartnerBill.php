@@ -169,6 +169,7 @@ class PartnerBill extends Model implements HasMedia
                 PartnerBillStatus::CANCELLED => static::handleCancelledStatus($partnerBill),
                 PartnerBillStatus::CONFIRMED => static::handleConfirmedStatus($partnerBill),
                 PartnerBillStatus::PENDING => static::handlePendingStatus($partnerBill),
+                PartnerBillStatus::EXPIRED => static::handleExpiredStatus($partnerBill),
                 default => null,
             };
 
@@ -387,6 +388,24 @@ class PartnerBill extends Model implements HasMedia
         $mailService->sendOrderConfirmedNotification($partnerBill);
 
         NewThreadCreated::dispatch($partnerBill);
+    }
+
+    /**
+     * Handle expired bill status
+     */
+    protected static function handleExpiredStatus(PartnerBill $partnerBill): void
+    {
+        $thread = Thread::find($partnerBill->thread_id);
+        if ($thread) {
+            $thread->delete();
+        }
+
+        //send notification
+        Notification::make()
+            ->title(__('notification.partner_bill_expired_title', ['code' => $partnerBill->code]))
+            ->body(__('notification.partner_bill_expired_body', ['code' => $partnerBill->code]))
+            ->danger()
+            ->sendToDatabase(User::find($partnerBill->client_id));
     }
 
     //model helpers method
