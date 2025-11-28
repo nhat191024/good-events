@@ -35,7 +35,16 @@
 
                 <section>
                     <div v-if="displayedBlogs.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        <LocationCard v-for="blog in displayedBlogs" :key="blog.id" :blog="blog" />
+                        <BlogHighlightCard
+                            v-for="blog in displayedBlogs"
+                            :key="blog.id"
+                            :blog="blog"
+                            label="Địa điểm"
+                            tone="primary"
+                            detail-route-name="blog.show"
+                            fallback-route-name="blog.discover"
+                            show-address
+                        />
                     </div>
                     <div v-else
                         class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 py-16 text-center text-sm text-gray-500">
@@ -58,7 +67,7 @@ import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
 import BlogCategoryFilters from './components/BlogCategoryFilters.vue';
 import BlogDiscoverHeader from './components/BlogDiscoverHeader.vue';
-import LocationCard from './components/LocationCard.vue';
+import BlogHighlightCard from '../components/BlogHighlightCard.vue';
 import BlogPagination from './components/BlogPagination.vue';
 import BlogLocationFilterBar from './components/BlogLocationFilterBar.vue';
 

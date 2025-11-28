@@ -58,8 +58,13 @@
         </div>
 
         <div class="overflow-hidden rounded-3xl bg-gray-100 shadow-sm">
+            <div v-if="hasVideo" class="relative aspect-video w-full bg-black">
+                <div class="absolute inset-0">
+                    <div class="h-full w-full" v-html="props.blog.video_url" />
+                </div>
+            </div>
             <img
-                v-if="blog.thumbnail"
+                v-else-if="blog.thumbnail"
                 :src="getImg(blog.thumbnail)"
                 :alt="blog.title"
                 class="h-full w-full max-h-[420px] object-cover"
@@ -126,4 +131,14 @@ const capacityLabel = computed(() => {
 });
 
 const showLocationMeta = computed(() => Boolean(locationLabel.value || capacityLabel.value));
+const hasVideo = computed(() => Boolean(props.blog.video_url && props.blog.video_url.trim()));
 </script>
+
+<style scoped>
+:deep(iframe) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+}
+</style>
