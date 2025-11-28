@@ -23,7 +23,7 @@ class BlogDetailResource extends JsonResource
             'content' => $this->content,
             'type' => $this->type,
             'video_url' => $this->video_url,
-            'excerpt' => $plainContent->limit(160)->toString(),
+            // 'excerpt' => $plainContent->limit(160)->toString(),
             'published_at' => optional($this->created_at)->toIso8601String(),
             'published_human' => optional($this->created_at)->translatedFormat('d M Y'),
             'read_time_minutes' => max(1, (int) ceil($wordCount / 200)),
