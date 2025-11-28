@@ -7,12 +7,16 @@ use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
 use App\Http\Controllers\Controller;
 
+use App\Models\User;
+
 class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
-        abort_if(!$user, 401, 'unauthenticated');
+        $authUser = $request->user();
+        abort_if(!$authUser, 401, 'unauthenticated');
+
+        $user = User::find($authUser->id);
 
         $perPage    = (int) min(50, max(5, (int) $request->integer('per_page', 10)));
         $onlyUnread = $request->boolean('unread');
@@ -32,8 +36,10 @@ class NotificationController extends Controller
 
     public function read(Request $request, string $id)
     {
-        $user = $request->user();
-        abort_if(!$user, 401, 'unauthenticated');
+        $authUser = $request->user();
+        abort_if(!$authUser, 401, 'unauthenticated');
+
+        $user = User::find($authUser->id);
 
         /** @var DatabaseNotification $notification */
         $notification = $user->notifications()->where('id', $id)->firstOrFail();
@@ -49,8 +55,10 @@ class NotificationController extends Controller
 
     public function readAll(Request $request)
     {
-        $user = $request->user();
-        abort_if(!$user, 401, 'unauthenticated');
+        $authUser = $request->user();
+        abort_if(!$authUser, 401, 'unauthenticated');
+
+        $user = User::find($authUser->id);
 
         $user->unreadNotifications->markAsRead();
 
@@ -59,8 +67,10 @@ class NotificationController extends Controller
 
     public function destroy(Request $request, string $id)
     {
-        $user = $request->user();
-        abort_if(!$user, 401, 'unauthenticated');
+        $authUser = $request->user();
+        abort_if(!$authUser, 401, 'unauthenticated');
+
+        $user = User::find($authUser->id);
 
         $notification = $user->notifications()->where('id', $id)->firstOrFail();
         $notification->delete();
