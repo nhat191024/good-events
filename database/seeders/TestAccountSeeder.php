@@ -20,13 +20,6 @@ class TestAccountSeeder extends Seeder
     public function run(): void
     {
         //move test accounts from other seeders to here for easier management
-
-        $admin = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-        ]);
-        $admin->assignRole(Role::SUPER_ADMIN);
-
         $partner = User::factory()->createPartner()->create([
             'name' => 'Partner User',
             'email' => 'partner@example.com',
