@@ -25,6 +25,7 @@ use App\Jobs\SendPartnerReminder;
 use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
 use Cmgmyr\Messenger\Models\Message;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @property int $id
@@ -210,17 +211,21 @@ class PartnerBill extends Model implements HasMedia
             'subject' => "$partnerBill->code - $partnerCategoryName"
         ]);
 
-        Participant::create([
-            'thread_id' => $thread->id,
-            'user_id' => $admin->id, //system user
-            'last_read' => now(),
-        ]);
+        try {
+            Participant::create([
+                'thread_id' => $thread->id,
+                'user_id' => $admin->id, //system user
+                'last_read' => now(),
+            ]);
 
-        Participant::create([
-            'thread_id' => $thread->id,
-            'user_id' => $partnerBill->client_id,
-            'last_read' => null
-        ]);
+            Participant::create([
+                'thread_id' => $thread->id,
+                'user_id' => $partnerBill->client_id,
+                'last_read' => null
+            ]);
+        } catch (\Throwable $th) {
+            Log::error('From PartnerBill.php',$th->getMessage());
+        }
 
         $partnerBill->thread_id = $thread->id;
         $partnerBill->saveQuietly();
