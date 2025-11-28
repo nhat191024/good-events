@@ -23,6 +23,9 @@ export interface BlogSummary {
     published_at?: string | null;
     published_human?: string | null;
     max_people?: number | null;
+    address?: string | null;
+    latitude?: number | string | null;
+    longitude?: number | string | null;
     location?: BlogLocation | null;
     category?: Category | null;
     author?: Author | null;
@@ -32,9 +35,6 @@ export interface BlogSummary {
 export interface BlogDetail extends BlogSummary {
     content: string;
     read_time_minutes?: number | null;
-    address?: string | null;
-    latitude?: number | null;
-    longitude?: number | null;
 }
 
 export interface BlogFilters {

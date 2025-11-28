@@ -42,10 +42,15 @@
 
                 <section>
                     <div v-if="displayedBlogs.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        <VideoCard
+                        <BlogHighlightCard
                             v-for="blog in displayedBlogs"
                             :key="blog.id"
                             :blog="blog"
+                            label="Video"
+                            tone="red"
+                            detail-route-name="blog.knowledge.show"
+                            fallback-route-name="blog.knowledge.discover"
+                            show-tags
                         />
                     </div>
                     <div v-else class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 py-16 text-center text-sm text-gray-500">
@@ -72,7 +77,7 @@ import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import BlogDiscoverHeader from '../discover/components/BlogDiscoverHeader.vue';
 import BlogCategoryFilters from '../discover/components/BlogCategoryFilters.vue';
 import BlogPagination from '../discover/components/BlogPagination.vue';
-import VideoCard from './components/VideoCard.vue';
+import BlogHighlightCard from '../components/BlogHighlightCard.vue';
 
 import { createSearchFilter, normText } from '@/lib/search-filter';
 

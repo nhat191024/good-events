@@ -67,4 +67,5 @@ Route::prefix('/huong-dan-to-chuc-su-kien')->name('blog.guides.')->group(functio
 Route::prefix('/kien-thuc-nghe')->name('blog.knowledge.')->group(function () {
     Route::get('/', [VocationalKnowledgeController::class, 'index'])->name('discover');
     Route::get('/danh-muc/{category_slug}', [VocationalKnowledgeController::class, 'category'])->name('category');
+    Route::get('/danh-muc/{category_slug}/{blog_slug}', [VocationalKnowledgeController::class, 'show'])->name('show');
 });
