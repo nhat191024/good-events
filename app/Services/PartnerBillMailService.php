@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Mail\PartnerBillReceived;
 use App\Mail\PartnerBillConfirmed;
 use App\Mail\PartnerBillReminder;
+use App\Mail\PartnerBillExpired;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -139,6 +140,71 @@ class PartnerBillMailService
 
         Log::info('Batch reminder sending completed', [
             'total_reminders_sent' => $sentCount
+        ]);
+
+        return $sentCount;
+    }
+
+    /**
+     * Gửi mail thông báo đơn hàng đã hết hạn (không có đối tác nhận)
+     */
+    public function sendOrderExpiredNotification(PartnerBill $partnerBill): void
+    {
+        try {
+            // Chỉ gửi cho client vì đơn hết hạn do không có partner nhận
+            if ($partnerBill->client && $partnerBill->client->email) {
+                $clientLocale = $this->getUserLocale($partnerBill->client);
+                Mail::to($partnerBill->client->email)
+                    ->queue(new PartnerBillExpired($partnerBill, $clientLocale));
+
+                Log::info('Order expired notification sent successfully', [
+                    'partner_bill_id' => $partnerBill->id,
+                    'code' => $partnerBill->code,
+                    'client_email' => $partnerBill->client->email
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send order expired notification', [
+                'partner_bill_id' => $partnerBill->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Lấy danh sách đơn hàng đã hết hạn (PENDING và đã quá thời gian chờ)
+     *
+     * @param int $hoursThreshold Số giờ để xác định đơn hết hạn (mặc định 48 giờ)
+     */
+    public function getExpiredPartnerBills(int $hoursThreshold = 48): \Illuminate\Database\Eloquent\Collection
+    {
+        $expiredTime = Carbon::now()->subHours($hoursThreshold);
+
+        return PartnerBill::where('status', \App\Enum\PartnerBillStatus::PENDING)
+            ->whereNull('partner_id')
+            ->where('created_at', '<=', $expiredTime)
+            ->with(['client', 'event', 'category'])
+            ->get();
+    }
+
+    /**
+     * Gửi thông báo hết hạn cho tất cả đơn hàng đã hết hạn
+     *
+     * @param int $hoursThreshold Số giờ để xác định đơn hết hạn
+     */
+    public function sendAllExpiredNotifications(int $hoursThreshold = 48): int
+    {
+        $expiredBills = $this->getExpiredPartnerBills($hoursThreshold);
+        $sentCount = 0;
+
+        foreach ($expiredBills as $bill) {
+            $this->sendOrderExpiredNotification($bill);
+            $sentCount++;
+        }
+
+        Log::info('Batch expired notification sending completed', [
+            'total_notifications_sent' => $sentCount,
+            'hours_threshold' => $hoursThreshold
         ]);
 
         return $sentCount;
