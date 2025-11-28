@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Blog;
 
 use App\Enum\CategoryType;
+use App\Http\Resources\Home\BlogDetailResource;
 use App\Http\Resources\Home\BlogResource;
 use App\Http\Resources\Home\CategoryResource;
-use App\Models\Blog;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -32,6 +32,65 @@ class VocationalKnowledgeController extends BaseBlogPageController
             ->firstOrFail();
 
         return $this->renderKnowledgePage($request, $category);
+    }
+
+    public function show(Request $request, string $categorySlug, string $blogSlug): Response
+    {
+        $blog = VocationalKnowledge::query()
+            ->select([
+                'id',
+                'category_id',
+                'user_id',
+                'title',
+                'slug',
+                'content',
+                'video_url',
+                'address',
+                'latitude',
+                'longitude',
+                'location_id',
+                'max_people',
+                'type',
+                'order',
+                'created_at',
+                'updated_at',
+            ])
+            ->with([
+                'category:id,name,slug,parent_id',
+                'category.parent:id,name,slug',
+                'author:id,name',
+                'media',
+                'tags',
+                'location:id,name,parent_id,type',
+                'location.province:id,name,parent_id',
+            ])
+            ->where('type', self::BLOG_TYPE)
+            ->whereHas('category', fn($builder) => $builder
+                ->where('slug', $categorySlug)
+                ->where('type', self::BLOG_TYPE))
+            ->where('slug', $blogSlug)
+            ->firstOrFail();
+
+        $related = VocationalKnowledge::query()
+            ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'created_at'])
+            ->with([
+                'category:id,name,slug,parent_id',
+                'category.parent:id,name,slug',
+                'author:id,name',
+                'media',
+            ])
+            ->where('type', self::BLOG_TYPE)
+            ->where('category_id', $blog->category_id)
+            ->whereKeyNot($blog->getKey())
+            ->latest('created_at')
+            ->take(6)
+            ->get();
+
+        return Inertia::render('blog/Detail', [
+            'blog' => BlogDetailResource::make($blog)->resolve($request),
+            'related' => BlogResource::collection($related),
+            'context' => $this->detailContext(),
+        ]);
     }
 
     private function renderKnowledgePage(Request $request, ?Category $category = null): Response
@@ -79,5 +138,16 @@ class VocationalKnowledgeController extends BaseBlogPageController
                 'q' => $search !== '' ? $search : null,
             ],
         ]);
+    }
+
+    private function detailContext(): array
+    {
+        return [
+            'breadcrumbLabel' => 'Kiến thức nghề',
+            'discoverRouteName' => 'blog.knowledge.discover',
+            'categoryRouteName' => 'blog.knowledge.category',
+            'detailRouteName' => 'blog.knowledge.show',
+            'pageTitleSuffix' => 'Kiến thức nghề Sukientot',
+        ];
     }
 }
