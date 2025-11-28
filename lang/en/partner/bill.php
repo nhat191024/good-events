@@ -54,6 +54,8 @@ return [
     'status_in_job' => 'In Job',
     'status_cancelled' => 'Cancelled',
 
+    'go_to_show' => 'Go to Show',
+
     // View page sections
     'basic_information' => 'Basic Information',
     'contact_information' => 'Contact Information',

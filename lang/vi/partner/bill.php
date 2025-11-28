@@ -54,6 +54,8 @@ return [
     'status_in_job' => 'Đã đến nơi',
     'status_cancelled' => 'Đã hủy',
 
+    'go_to_show' => 'Xem Show',
+
     // View page sections
     'basic_information' => 'Thông tin cơ bản',
     'contact_information' => 'Thông tin liên hệ',
