@@ -12,6 +12,19 @@ return [
         'event_organization_guide' => 'Bài viết hướng dẫn tổ chức sự kiện',
     ],
 
+    'sections' => [
+        'basic_info' => 'Thông tin cơ bản',
+        'basic_info_description' => 'Nhập các thông tin chung về bài viết',
+        'content' => 'Nội dung',
+        'content_description' => 'Mô tả chi tiết về bài viết',
+        'media' => 'Hình ảnh',
+        'media_description' => 'Tải lên hình ảnh đại diện cho bài viết',
+        'location' => 'Địa điểm',
+        'location_description' => 'Chọn thành phố, quận/huyện và địa chỉ cụ thể',
+        'map' => 'Bản đồ & Tọa độ',
+        'map_description' => 'Xác định vị trí chính xác trên bản đồ',
+    ],
+
     'fields' => [
         'id' => 'ID',
         'thumbnail' => 'Hình đại diện',

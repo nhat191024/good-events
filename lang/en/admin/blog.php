@@ -12,6 +12,19 @@ return [
         'event_organization_guide' => 'Event Organization Guide Posts',
     ],
 
+    'sections' => [
+        'basic_info' => 'Basic Information',
+        'basic_info_description' => 'Enter general information about the blog post',
+        'content' => 'Content',
+        'content_description' => 'Detailed description of the blog post',
+        'media' => 'Media',
+        'media_description' => 'Upload a featured image for the blog post',
+        'location' => 'Location',
+        'location_description' => 'Select city, ward, and specific address',
+        'map' => 'Map & Coordinates',
+        'map_description' => 'Pinpoint the exact location on the map',
+    ],
+
     'fields' => [
         'id' => 'ID',
         'thumbnail' => 'Thumbnail',
