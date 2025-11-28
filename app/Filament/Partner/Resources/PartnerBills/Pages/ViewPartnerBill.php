@@ -56,28 +56,22 @@ class ViewPartnerBill extends ViewRecord
                 ->visible(fn() => $this->record->status === PartnerBillStatus::IN_JOB)
                 ->action(function () {
                     $user = Auth::user();
-                    $balance = $user->balanceInt;
                     $feePercentage = app(PartnerSettings::class)->fee_percentage;
                     $withdrawAmount = floor($this->record->final_total * ($feePercentage / 100));
 
-                    if ($balance < $withdrawAmount) {
-                        $formatWithdrawAmount = number_format($withdrawAmount) . ' VND';
-                        $formatBalance = number_format($balance) . ' VND';
-                        Notification::make()
-                            ->title(__('partner/bill.insufficient_balance', ['amount' => $formatWithdrawAmount, 'balance' => $formatBalance]))
-                            ->danger()
-                            ->send();
-                        return;
-                    }
-
                     // Withdraw money
+                    $id = date('YmdHis') . rand(1000, 9999) + $this->record->id + rand(100, 999);
                     $oldBalance = $user->balanceInt;
-                    $transaction = $user->withdraw($withdrawAmount, ['reason' => 'Thu phí nền tảng show mã: ' . $this->record->code, 'old_balance' => $oldBalance]);
-                    $newBalance = $user->balanceInt;
-                    $transaction->meta = array_merge($transaction->meta ?? [], [
-                        'new_balance' => $newBalance,
-                    ]);
-                    $transaction->save();
+                    $user->forceWithdraw(
+                        $withdrawAmount,
+                        [
+                            'reason' => 'Thu phí nền tảng show mã: ' . $this->record->code,
+                            'transaction_codes' => $id,
+                            'old_balance' => $oldBalance,
+                            'new_balance' => $oldBalance - $withdrawAmount,
+                        ],
+                        true
+                    );
 
                     $this->record->status = PartnerBillStatus::COMPLETED;
                     $this->record->save();
