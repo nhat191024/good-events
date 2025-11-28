@@ -224,7 +224,7 @@ class PartnerBill extends Model implements HasMedia
                 'last_read' => null
             ]);
         } catch (\Throwable $th) {
-            Log::error('From PartnerBill.php',$th->getMessage());
+            Log::error('From PartnerBill.php', ['message' => $th->getMessage(), 'exception' => $th]);
         }
 
         $partnerBill->thread_id = $thread->id;
