@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8dac4ab29e0a8769b8bda5a71743cfb2",
+    "content-hash": "209785f706c02e6520f45f02c057e03e",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -1414,6 +1414,64 @@
                 }
             ],
             "time": "2025-07-15T00:47:54+00:00"
+        },
+        {
+            "name": "cohensive/oembed",
+            "version": "v0.20.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/KaneCohen/oembed.git",
+                "reference": "dbf869fd97841b5c587a711fb2928bd89a3ae181"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/KaneCohen/oembed/zipball/dbf869fd97841b5c587a711fb2928bd89a3ae181",
+                "reference": "dbf869fd97841b5c587a711fb2928bd89a3ae181",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.0|^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Cohensive\\OEmbed\\OEmbedServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Cohensive\\OEmbed\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Kane Cohen",
+                    "email": "kanecohen@gmail.com"
+                }
+            ],
+            "description": "Media embed generation using OEmbed protocol.",
+            "keywords": [
+                "embed",
+                "laravel",
+                "media",
+                "oembed",
+                "vimeo",
+                "youtube"
+            ],
+            "support": {
+                "issues": "https://github.com/KaneCohen/oembed/issues",
+                "source": "https://github.com/KaneCohen/oembed/tree/v0.20.1"
+            },
+            "time": "2025-09-27T21:31:28+00:00"
         },
         {
             "name": "composer/semver",
