@@ -30,7 +30,7 @@ class BannerManager extends Page implements HasForms
     use InteractsWithForms, HasPageShield;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
-    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS->value;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS;
 
     protected string $view = 'filament.admin.pages.banner-manager';
 

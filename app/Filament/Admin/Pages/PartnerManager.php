@@ -24,7 +24,7 @@ class PartnerManager extends SettingsPage
     use HasPageShield;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
-    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS->value;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS;
 
     protected static string $settings = PartnerSettings::class;
 
