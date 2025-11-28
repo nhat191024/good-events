@@ -80,7 +80,7 @@ class PartnerPanelProvider extends PanelProvider
             ->defaultThemeMode(ThemeMode::Light)
 
             ->pages([
-                Dashboard::class,
+                \App\Filament\Partner\Pages\Dashboard::class,
             ])
 
             ->widgets([
