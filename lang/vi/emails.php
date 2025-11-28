@@ -176,4 +176,39 @@ return [
         // Footer
         'footer_note' => '<strong>Lưu ý:</strong> Nếu có bất kỳ thay đổi hoặc vấn đề gì, vui lòng liên hệ ngay lập tức.',
     ],
+
+    // ===== PARTNER BILL EXPIRED - Email thông báo đơn hết hạn =====
+    'partner_bill_expired' => [
+        'title' => 'Đơn hàng đã hết hạn',
+        'subject' => 'Đơn hàng hết hạn - :code',
+
+        // Alert Banner
+        'alert_message' => '⚠️ Đơn hàng của bạn đã hết hạn do không có đối tác nhận!',
+
+        // Messages
+        'message' => 'Chúng tôi rất tiếc phải thông báo rằng đơn đặt dịch vụ của bạn đã hết thời hạn chờ và không có đối tác nào nhận đơn.',
+
+        // Status
+        'status_expired' => 'Hết hạn',
+
+        // Reason
+        'reason_title' => '📝 Lý do đơn hàng hết hạn:',
+        'reason_message' => 'Đơn hàng đã vượt quá thời gian chờ đợi mà không có đối tác nào trong hệ thống xác nhận nhận đơn. Điều này có thể do dịch vụ bạn yêu cầu chưa có đối tác phù hợp tại thời điểm này.',
+
+        // Suggestions
+        'suggestions_title' => '💡 Bạn có thể thực hiện các bước sau:',
+        'suggestions_list' => [
+            'Đặt lại đơn hàng với thời gian linh hoạt hơn',
+            'Chọn danh mục dịch vụ khác có nhiều đối tác hơn',
+            'Liên hệ bộ phận hỗ trợ để được tư vấn',
+            'Kiểm tra lại yêu cầu và địa điểm của bạn',
+        ],
+
+        // Apology
+        'apology_message' => 'Chúng tôi thành thật xin lỗi vì sự bất tiện này và mong bạn sẽ tiếp tục sử dụng dịch vụ của chúng tôi trong tương lai.',
+
+        // CTA
+        'cta_new_order' => 'Đặt đơn hàng mới',
+        'cta_contact_support' => 'Liên hệ hỗ trợ',
+    ],
 ];

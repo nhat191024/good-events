@@ -176,4 +176,39 @@ return [
         // Footer
         'footer_note' => '<strong>Note:</strong> If there are any changes or issues, please contact immediately.',
     ],
+
+    // ===== PARTNER BILL EXPIRED - Order expired notification email =====
+    'partner_bill_expired' => [
+        'title' => 'Order Expired',
+        'subject' => 'Order Expired - :code',
+
+        // Alert Banner
+        'alert_message' => '⚠️ Your order has expired because no partner accepted it!',
+
+        // Messages
+        'message' => 'We regret to inform you that your service booking has expired and no partner has accepted the order.',
+
+        // Status
+        'status_expired' => 'Expired',
+
+        // Reason
+        'reason_title' => '📝 Reason for order expiration:',
+        'reason_message' => 'The order has exceeded the waiting period without any partner in our system confirming acceptance. This may be due to the requested service not having a suitable partner available at this time.',
+
+        // Suggestions
+        'suggestions_title' => '💡 You can take the following steps:',
+        'suggestions_list' => [
+            'Place a new order with more flexible timing',
+            'Choose a service category with more partners available',
+            'Contact our support team for assistance',
+            'Review your requirements and location',
+        ],
+
+        // Apology
+        'apology_message' => 'We sincerely apologize for this inconvenience and hope you will continue to use our services in the future.',
+
+        // CTA
+        'cta_new_order' => 'Place New Order',
+        'cta_contact_support' => 'Contact Support',
+    ],
 ];
