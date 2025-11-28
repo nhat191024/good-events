@@ -16,7 +16,7 @@ class HomeController extends Controller
 {
     public const INITIAL_EVENT_CATEGORY_LIMIT = 8;
     public const EVENT_CATEGORY_BATCH_SIZE = 4;
-    public const CHILD_CATEGORY_LIMIT = 5;
+    public const CHILD_CATEGORY_LIMIT = 99;
 
     private ?int $parentCategoryCount = null;
 

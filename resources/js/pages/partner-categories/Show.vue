@@ -1,6 +1,5 @@
 <!-- resources/js/pages/partner-categories/Show.vue -->
 <template>
-
     <Head :title="pageTitle" />
 
     <ClientHeaderLayout>
@@ -27,15 +26,16 @@
                 <section class="grid gap-8 lg:grid-cols-2">
                     <div class="space-y-5">
                         <div class="overflow-hidden rounded-3xl border border-gray-100 bg-gray-50">
-                            <img :src="getImg(props.item.image)" :alt="props.item.name"
-                                class="h-full w-full object-cover" loading="lazy" />
+                            <img :src="getImg(props.item.image)" :alt="props.item.name" class="h-full w-full object-cover" loading="lazy" />
                         </div>
                     </div>
 
-                    <aside class="flex h-max flex-col gap-6 rounded-3xl border border-gray-100 bg-white md:px-6 md:py-6 px-0 py-0 shadow-sm">
+                    <aside class="flex h-max flex-col gap-6 rounded-3xl bg-white md:px-6 md:py-6 px-0 py-0">
                         <div class="space-y-2">
-                            <span v-if="props.category"
-                                class="inline-flex w-max items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+                            <span
+                                v-if="props.category"
+                                class="inline-flex w-max items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700"
+                            >
                                 {{ props.category.name }}
                             </span>
                             <h1 class="text-2xl font-semibold text-gray-900">
@@ -58,31 +58,32 @@
                         </div>
 
                         <div class="flex flex-col gap-3">
-                            <Link v-if="props.item.slug && props.category?.slug"
+                            <Link
+                                v-if="props.item.slug && props.category?.slug"
                                 :href="route('quick-booking.fill-info', { partner_category_slug: props.category?.slug, partner_child_category_slug: props.item.slug })"
-                                class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
-                            Thuê ngay
+                                class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                            >
+                                Thuê ngay
                             </Link>
-                            <Link :href="route('contact.index')"
-                                class="inline-flex w-full items-center justify-center rounded-lg border border-primary-100 bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
+                            <Link
+                                :href="route('contact.index')"
+                                class="inline-flex w-full items-center justify-center rounded-lg border border-primary-100 bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                            >
                                 Hỗ trợ tư vấn
                             </Link>
                         </div>
 
                         <ul class="space-y-2 rounded-2xl border border-gray-100 bg-gray-50 p-5 text-sm text-gray-600">
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                                <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
                                 Đối tác uy tín, đã được xác minh.
                             </li>
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                                <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
                                 Phục vụ chuyên nghiệp, tận tâm.
                             </li>
                             <li class="flex items-center gap-3">
-                                <span
-                                    class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                                <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
                                 Giá cả cạnh tranh, minh bạch.
                             </li>
                         </ul>
@@ -90,7 +91,7 @@
                 </section>
 
                 <!-- Product Overview -->
-                <section class="space-y-8 rounded-3xl border border-gray-100 bg-white md:px-6 md:py-6 px-0 py-0 shadow-sm lg:p-10">
+                <section class="space-y-8 rounded-3xl bg-white md:px-6 md:py-6 px-0 py-0 lg:p-10">
                     <header class="space-y-2">
                         <h2 class="text-xl font-semibold text-gray-900">Mô tả chi tiết</h2>
                         <p class="text-sm text-gray-500">
@@ -123,8 +124,10 @@
                 </section>
 
                 <!-- Related Products -->
-                <section v-if="relatedItems.length"
-                    class="space-y-5 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm lg:p-10 md:px-6 md:py-6 px-0 py-0">
+                <section
+                    v-if="relatedItems.length"
+                    class="space-y-5 rounded-3xl bg-white p-6 lg:p-10 md:px-6 md:py-6 px-0 py-0"
+                >
                     <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900">Có thể bạn quan tâm</h3>
@@ -132,23 +135,41 @@
                         </div>
                     </header>
 
-                    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                        <article v-for="item in relatedItems" :key="item.id"
-                            class="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xs transition hover:-translate-y-1 hover:shadow-md">
-                            <CardItem :card-item="item.card" :route-href="item.href" />
-                            <div class="flex flex-1 flex-col gap-2 px-4 py-4">
-                                <h4 class="line-clamp-2 text-base font-semibold text-gray-900">{{ item.name }}</h4>
-                                <p class="text-sm text-gray-500">{{ props.category?.name }}</p>
-                                <div class="mt-auto flex items-center justify-between pt-2">
-                                    <span class="text-sm font-semibold text-primary-700">{{ item.priceText }}</span>
-                                    <Link :href="item.href"
-                                        class="text-xs font-semibold text-primary-600 hover:text-primary-700">
-                                    Chi tiết
-                                    </Link>
+                    <Swiper
+                        :modules="[Navigation, Autoplay]"
+                        :slides-per-view="1.2"
+                        :space-between="12"
+                        :navigation="true"
+                        :autoplay="autoplayOptions"
+                        :loop="relatedItems.length > 4"
+                        :breakpoints="swiperBreakpoints"
+                        class="!pb-2 home-swiper-nav"
+                    >
+                        <SwiperSlide
+                            v-for="item in relatedItems"
+                            :key="item.id"
+                            class="!h-auto"
+                        >
+                            <article
+                                class="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xs transition hover:-translate-y-1 hover:shadow-md"
+                            >
+                                <CardItem :card-item="item.card" :route-href="item.href" />
+                                <div class="flex flex-1 flex-col gap-2 px-4 py-4">
+                                    <h4 class="line-clamp-2 text-base font-semibold text-gray-900">{{ item.name }}</h4>
+                                    <p class="text-sm text-gray-500">{{ props.category?.name }}</p>
+                                    <div class="mt-auto flex items-center justify-between pt-2">
+                                        <span class="text-sm font-semibold text-primary-700">{{ item.priceText }}</span>
+                                        <Link
+                                            :href="item.href"
+                                            class="text-xs font-semibold text-primary-600 hover:text-primary-700"
+                                        >
+                                            Chi tiết
+                                        </Link>
+                                    </div>
                                 </div>
-                            </div>
-                        </article>
-                    </div>
+                            </article>
+                        </SwiperSlide>
+                    </Swiper>
                 </section>
             </div>
         </section>
@@ -158,9 +179,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Navigation, Autoplay } from 'swiper/modules';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import CardItem from '@/pages/home/components/CardItem/index.vue';
 import { getImg } from '../booking/helper';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import '@/pages/home/styles/swiper-nav.css';
 
 interface Item {
     id: number;
@@ -172,7 +198,11 @@ interface Item {
     updated_human?: string | null;
     image: string | null;
 }
-interface SimpleCat { id: number; name: string; slug: string }
+interface SimpleCat {
+    id: number;
+    name: string;
+    slug: string;
+}
 interface RelatedItem {
     id: number;
     name: string;
@@ -204,13 +234,21 @@ const priceText = computed(() => {
     return 'Liên hệ';
 });
 
-const placeholderImg = computed(() =>
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(props.item.name)}&background=ED3B50&color=ffffff&size=256`
-);
-
 const pageTitle = computed(() => `${props.item.name} - ${props.category?.name ?? 'Sự kiện'}`);
 
 const descriptionToShow = computed(() => props.item.description || '');
+
+const swiperBreakpoints = {
+    640: { slidesPerView: 2, spaceBetween: 12 },
+    768: { slidesPerView: 3, spaceBetween: 16 },
+    1024: { slidesPerView: 3.2, spaceBetween: 20 },
+};
+
+const autoplayOptions = {
+    delay: 5000,
+    disableOnInteraction: false,
+    pauseOnMouseEnter: true,
+};
 
 const relatedItems = computed(() =>
     props.related.map((r: RelatedItem) => {

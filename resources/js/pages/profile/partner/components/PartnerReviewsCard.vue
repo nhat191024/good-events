@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 const props = defineProps<{ items:Array<{ id:number; author:string; rating:number; review:string|null; created_human:string|null }> }>()
 const showAll = ref(false)
 const visible = computed(() => (showAll.value ? props.items : props.items.slice(0, 2)))
+
+console.log('all the reviews ',visible.value);
 </script>
 
 <template>

@@ -3,7 +3,7 @@ const props = defineProps<{ user: { email: string; phone: string } }>()
 </script>
 
 <template>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hidden">
         <h3 class="font-semibold text-rose-600 mb-3">Liên hệ</h3>
 
         <!-- Primary action button -->
