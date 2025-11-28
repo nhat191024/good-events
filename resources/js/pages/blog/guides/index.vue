@@ -30,7 +30,15 @@
 
                 <section>
                     <div v-if="displayedBlogs.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        <GuideCard v-for="blog in displayedBlogs" :key="blog.id" :blog="blog" />
+                        <BlogHighlightCard
+                            v-for="blog in displayedBlogs"
+                            :key="blog.id"
+                            :blog="blog"
+                            label="Hướng dẫn"
+                            tone="blue"
+                            detail-route-name="blog.guides.show"
+                            fallback-route-name="blog.guides.discover"
+                        />
                     </div>
                     <div v-else
                         class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 py-16 text-center text-sm text-gray-500">
@@ -52,7 +60,7 @@ import { motion } from 'motion-v';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import BlogDiscoverHeader from '../discover/components/BlogDiscoverHeader.vue';
 import BlogCategoryFilters from '../discover/components/BlogCategoryFilters.vue';
-import GuideCard from './components/GuideCard.vue';
+import BlogHighlightCard from '../components/BlogHighlightCard.vue';
 import BlogPagination from '../discover/components/BlogPagination.vue';
 
 import { createSearchFilter, normText } from '@/lib/search-filter';
