@@ -8,6 +8,8 @@ use App\Enum\StatisticType;
 use App\Services\PartnerWidgetCacheService;
 use App\Services\PartnerBillMailService;
 
+use Filament\Notifications\Notification;
+
 use Illuminate\Database\Eloquent\Model;
 
 use Spatie\MediaLibrary\HasMedia;
@@ -20,7 +22,7 @@ use App\Events\PartnerBillCreated;
 use App\Events\NewThreadCreated;
 use App\Events\PartnerBillStatusChanged;
 
-use App\Jobs\SendPartnerReminder;
+use App\Jobs\PartnerBillFirstJob;
 
 use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
@@ -229,6 +231,15 @@ class PartnerBill extends Model implements HasMedia
 
         $partnerBill->thread_id = $thread->id;
         $partnerBill->saveQuietly();
+
+        if ($partnerBill->date && $partnerBill->start_time) {
+            $eventDateTime = $partnerBill->date->copy()->setTimeFrom($partnerBill->start_time);
+            $reminderTime = $eventDateTime->copy()->subHours(2);
+
+            if ($reminderTime->isFuture()) {
+                PartnerBillFirstJob::dispatch($partnerBill)->delay($reminderTime);
+            }
+        }
     }
 
     /**
@@ -376,15 +387,6 @@ class PartnerBill extends Model implements HasMedia
         $mailService->sendOrderConfirmedNotification($partnerBill);
 
         NewThreadCreated::dispatch($partnerBill);
-
-        if ($partnerBill->date && $partnerBill->start_time) {
-            $eventDateTime = $partnerBill->date->copy()->setTimeFrom($partnerBill->start_time);
-            $reminderTime = $eventDateTime->copy()->subHours(2);
-
-            if ($reminderTime->isFuture()) {
-                SendPartnerReminder::dispatch($partnerBill)->delay($reminderTime);
-            }
-        }
     }
 
     //model helpers method
