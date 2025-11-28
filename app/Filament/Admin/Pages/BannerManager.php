@@ -30,7 +30,6 @@ class BannerManager extends Page implements HasForms
     use InteractsWithForms, HasPageShield;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
-    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SETTINGS;
 
     protected string $view = 'filament.admin.pages.banner-manager';
 
@@ -42,6 +41,11 @@ class BannerManager extends Page implements HasForms
     public Banner $designMobileBanner;
     public Banner $rentalBanner;
     public Banner $rentalMobileBanner;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return NavigationGroup::SETTINGS->value;
+    }
 
     public static function getNavigationLabel(): string
     {
