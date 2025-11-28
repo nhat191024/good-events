@@ -28,7 +28,7 @@ class EventResource extends Resource
     protected static ?string $model = Event::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedStar;
-    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM->value;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM;
 
     public static function getModelLabel(): string
     {

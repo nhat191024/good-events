@@ -27,7 +27,7 @@ class VoucherResource extends Resource
     protected static ?string $model = Voucher::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
-        protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM->value;
+        protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM;
 
     public static function getModelLabel(): string
     {

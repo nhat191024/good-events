@@ -30,7 +30,7 @@ class CityResource extends Resource
     protected static ?string $model = Location::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
-    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM->value;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM;
 
     public static function getModelLabel(): string
     {
