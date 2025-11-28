@@ -28,8 +28,10 @@ return new class extends Migration
             $table->foreignId('category_id')->nullable()->constrained('partner_categories')->restrictOnDelete();
             $table->text('note')->nullable();
             $table->string('status');
-            $table->foreignId('thread_id')->nullable()->constrained('threads')->restrictOnDelete();
-            $table->foreignId('voucher_id')->nullable()->constrained('vouchers')->restrictOnDelete();
+            $table->unsignedInteger('thread_id')->nullable();
+            $table->foreign('thread_id')->references('id')->on('threads')->restrictOnDelete();
+            $table->unsignedBigInteger('voucher_id')->nullable();
+            $table->foreign('voucher_id')->references('id')->on('vouchers')->restrictOnDelete();
             $table->timestamps();
         });
     }
