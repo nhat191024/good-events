@@ -13,14 +13,14 @@ class BlogResource extends JsonResource
     public function toArray(Request $request): array
     {
         $expireAt = now()->addDay();
-        $plainContent = Str::of(strip_tags((string) $this->content))->squish();
+        // $plainContent = Str::of(strip_tags((string) $this->content))->squish();
 
         return [
             'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
             'type' => $this->type,
-            'excerpt' => $plainContent->limit(140)->toString(),
+            // 'excerpt' => $plainContent->limit(140)->toString(),
             'published_at' => optional($this->created_at)->toIso8601String(),
             'published_human' => optional($this->created_at)->translatedFormat('d M Y'),
             'max_people' => $this->max_people,
