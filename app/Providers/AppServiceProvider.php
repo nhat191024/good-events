@@ -29,6 +29,9 @@ use App\Policies\VoucherPolicy;
 use Spatie\Activitylog\Models\Activity;
 use App\Policies\ActivityPolicy;
 
+use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
+use App\Policies\FailedJobPolicy;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -52,6 +55,7 @@ class AppServiceProvider extends ServiceProvider
             Tag::class => TagPolicy::class,
             Voucher::class => VoucherPolicy::class,
             Activity::class => ActivityPolicy::class,
+            FailedJob::class => FailedJobPolicy::class,
         ];
 
         //manually register policies - why? idk
