@@ -24,6 +24,8 @@ use Filament\Forms\Components\SpatieTagsInput;
 use OpenCage\Geocoder\Geocoder;
 use Dotswan\MapPicker\Fields\Map;
 
+use Cohensive\OEmbed\Facades\OEmbed;
+
 class GoodLocationsForm
 {
     public static function configure(Schema $schema): Schema
@@ -83,7 +85,42 @@ class GoodLocationsForm
                         TextInput::make('video_url')
                             ->label(__('admin/blog.fields.video_url'))
                             ->placeholder(__('admin/blog.placeholders.video_url'))
-                            ->url(),
+                            ->helperText(__('admin/blog.helpers.video_url'))
+                            ->afterStateUpdated(function (Set $set, ?string $state): void {
+                                if ($state) {
+                                    try {
+                                        $embed = OEmbed::get($state);
+                                        if ($embed) {
+                                            $set('video_url', $embed->html([
+                                                'width' => 640,
+                                                'height' => 360,
+                                            ]));
+                                        } else {
+                                            $set('video_url', null);
+                                        }
+                                    } catch (\Exception $e) {
+                                        $set('video_url', null);
+                                    }
+                                } else {
+                                    $set('video_url', null);
+                                }
+                            })
+                            ->dehydrateStateUsing(function (?string $state): ?string {
+                                if ($state) {
+                                    try {
+                                        $embed = OEmbed::get($state);
+                                        if ($embed) {
+                                            return $embed->html([
+                                                'width' => 640,
+                                                'height' => 360,
+                                            ]);
+                                        }
+                                    } catch (\Exception $e) {
+                                        return null;
+                                    }
+                                }
+                                return null;
+                            }),
                     ])
                     ->columnSpanFull(),
 
@@ -205,11 +242,13 @@ class GoodLocationsForm
                                 TextInput::make('latitude')
                                     ->label(__('admin/blog.fields.latitude'))
                                     ->helperText(__('admin/blog.helpers.latitude'))
-                                    ->placeholder(__('admin/blog.placeholders.latitude')),
+                                    ->placeholder(__('admin/blog.placeholders.latitude'))
+                                    ->required(),
                                 TextInput::make('longitude')
                                     ->label(__('admin/blog.fields.longitude'))
                                     ->helperText(__('admin/blog.helpers.longitude'))
-                                    ->placeholder(__('admin/blog.placeholders.longitude')),
+                                    ->placeholder(__('admin/blog.placeholders.longitude'))
+                                    ->required(),
                                 TextInput::make('search')
                                     ->label(__('admin/blog.fields.search'))
                                     ->placeholder(__('admin/blog.placeholders.search'))
