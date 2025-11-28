@@ -31,7 +31,6 @@ class GoodLocationsForm
         return $schema
             ->components([
                 Section::make(__('admin/blog.sections.basic_info'))
-                    ->collapsed()
                     ->description(__('admin/blog.sections.basic_info_description'))
                     ->icon('heroicon-o-information-circle')
                     ->collapsible()
@@ -84,8 +83,7 @@ class GoodLocationsForm
                         TextInput::make('video_url')
                             ->label(__('admin/blog.fields.video_url'))
                             ->placeholder(__('admin/blog.placeholders.video_url'))
-                            ->url()
-                            ->required(),
+                            ->url(),
                     ])
                     ->columnSpanFull(),
 
