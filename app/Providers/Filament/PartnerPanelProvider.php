@@ -9,6 +9,8 @@ use Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
 use Filament\Enums\ThemeMode;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -26,8 +28,10 @@ use Filament\Actions\Action;
 
 use App\Models\Partner;
 use App\Http\Middleware\CheckPartnerAccess;
+use App\Livewire\Component\ChatNotificationIndicator;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
@@ -69,7 +73,12 @@ class PartnerPanelProvider extends PanelProvider
 
             ->databaseNotifications()
             ->lazyLoadedDatabaseNotifications(true)
-            ->databaseNotificationsPolling('30s')
+            ->databaseNotificationsPolling('90s')
+
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn () => Blade::render('@livewire(\'component.chat-notification-indicator\')')
+            )
 
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
             ->discoverPages(in: app_path('Filament/Partner/Pages'), for: 'App\Filament\Partner\Pages')
