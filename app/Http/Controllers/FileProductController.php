@@ -245,7 +245,7 @@ class FileProductController extends Controller
 
         $request->session()->flash('asset_purchase_form', Arr::except($validated, ['slug']));
 
-        $billTotal = (int) round($bill->final_total ?? $fileProduct->price) + (int) round($tax);
+        $billTotal = (int) round($bill->final_total ?? $fileProduct->price);
         $paymentService = app(PaymentService::class);
         $paymentPayload = [
             'billId' => $bill->getKey() . time(),
