@@ -24,9 +24,9 @@ class AssetOrderController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('asset/orders/Index', [
-            'orders' => Inertia::lazy(fn () => $this->getOrders($request)),
-            'activeOrder' => Inertia::lazy(fn () => $this->getActiveOrder($request)),
-            'statusOptions' => collect(FileProductBillStatus::cases())->map(fn ($status) => [
+            'orders' => Inertia::lazy(fn() => $this->getOrders($request)),
+            'activeOrder' => Inertia::lazy(fn() => $this->getActiveOrder($request)),
+            'statusOptions' => collect(FileProductBillStatus::cases())->map(fn($status) => [
                 'value' => $status->value,
                 'label' => $status->label(),
             ]),
@@ -68,6 +68,7 @@ class AssetOrderController extends Controller
         $paymentService = app(PaymentService::class);
         $amount = (int) round($bill->final_total ?? $bill->total);
         $orderCode = $bill->getKey() . time();
+        $tax = 0.1 * $fileProduct->price;
 
         $payload = [
             'billId' => $orderCode,
@@ -79,7 +80,12 @@ class AssetOrderController extends Controller
             'items' => [
                 [
                     'name' => $fileProduct->name,
-                    'price' => $amount,
+                    'price' => (int) round($fileProduct->price),
+                    'quantity' => 1,
+                ],
+                [
+                    'name' => 'VAT 10%',
+                    'price' => (int) round($tax),
                     'quantity' => 1,
                 ],
             ],
