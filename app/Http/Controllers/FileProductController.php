@@ -257,7 +257,7 @@ class FileProductController extends Controller
             'items' => [
                 [
                     'name' => $fileProduct->name,
-                    'price' => (int) round($bill->final_total ?? $fileProduct->price),
+                    'price' => (int) round($fileProduct->price),
                     'quantity' => 1,
                 ],
                 [
