@@ -11,8 +11,14 @@ class Dashboard extends BaseDashboard
 {
     public $defaultAction = 'callToAction';
 
+    protected int $balance = 0;
+    protected int $minBalance = 0;
+
     public function mount(): void
     {
+        $this->balance = auth()->user()->balanceInt ?? 0;
+        $this->minBalance = app(PartnerSettings::class)->minimum_balance;
+
         if (! $this->shouldShowCallToAction()) {
             $this->defaultAction = null;
         }
@@ -24,20 +30,21 @@ class Dashboard extends BaseDashboard
             return false;
         }
 
+        if ($this->balance >= $this->minBalance) {
+            return false;
+        }
+
         session()->put('partner_cta_shown', true);
         return true;
     }
 
     public function callToAction(): Action
     {
-        $user = auth()->user();
-        $balance = $user->balanceInt ?? 0;
-
-        $amount = app(PartnerSettings::class)->minimum_balance - $balance;
+        $amount = $this->minBalance - $this->balance;
 
         return Action::make('callToAction')
             ->modalHeading(__('notification.balance_low_title'))
-            ->modalDescription(__('notification.balance_low_body', ['balance' => number_format($balance), 'amount' => number_format($amount)]))
+            ->modalDescription(__('notification.balance_low_body', ['balance' => number_format($this->balance), 'amount' => number_format($amount)]))
             ->action(function (array $data) {
                 return redirect()->route('filament.partner.resources.wallets.index');
             })
