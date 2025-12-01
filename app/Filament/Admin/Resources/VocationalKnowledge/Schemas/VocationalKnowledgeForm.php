@@ -65,7 +65,7 @@ class VocationalKnowledgeForm
                                         }
                                     })
                                     ->dehydrateStateUsing(function (?string $state): ?string {
-                                        if ($state) {
+                                        if ($state && !str_starts_with($state, '<iframe') || str_starts_with($state, '<blockquote')) {
                                             try {
                                                 $embed = OEmbed::get($state);
                                                 if ($embed) {
@@ -78,7 +78,7 @@ class VocationalKnowledgeForm
                                                 return null;
                                             }
                                         }
-                                        return null;
+                                        return $state;
                                     }),
                                 Select::make('category_id')
                                     ->label(__('admin/blog.fields.category_id'))

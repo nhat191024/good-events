@@ -94,7 +94,7 @@ class EventOrganizationGuideForm
                                 }
                             })
                             ->dehydrateStateUsing(function (?string $state): ?string {
-                                if ($state) {
+                                if ($state && !str_starts_with($state, '<iframe') || str_starts_with($state, '<blockquote')) {
                                     try {
                                         $embed = OEmbed::get($state);
                                         if ($embed) {
@@ -107,7 +107,7 @@ class EventOrganizationGuideForm
                                         return null;
                                     }
                                 }
-                                return null;
+                                return $state;
                             }),
                     ])
                     ->columnSpanFull(),
