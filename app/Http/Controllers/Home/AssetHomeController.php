@@ -39,6 +39,7 @@ class AssetHomeController extends Controller
         $categories = DesignCategory::limit(15)
             ->where('type', 'design')
             ->orderBy('order', 'asc')
+            ->whereParentId(null)
             ->whereIsShow(1)
             ->get();
 
