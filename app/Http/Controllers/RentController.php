@@ -97,11 +97,16 @@ class RentController extends Controller
         $query = RentProduct::query()
             ->with(['category.parent', 'tags', 'media']);
 
+        $childCategories = new Collection();
         $categoryIds = new Collection();
         if ($category) {
             $category = $category->loadMissing('parent');
-            $categoryIds = Category::query()
+            $childCategories = Category::query()
+                ->with('parent', 'media')
                 ->where('parent_id', $category->getKey())
+                ->orderBy('name')
+                ->get();
+            $categoryIds = $childCategories
                 ->pluck('id')
                 ->prepend($category->getKey());
 
@@ -149,6 +154,7 @@ class RentController extends Controller
             'categories' => CategoryResource::collection($categories),
             'tags' => TagResource::collection($tags),
             'category' => $category ? CategoryResource::make($category)->resolve($request) : null,
+            'childCategories' => CategoryResource::collection($childCategories),
             'filters' => [
                 'q' => $search !== '' ? $search : null,
                 'tags' => $tagSlugs->values()->all(),
