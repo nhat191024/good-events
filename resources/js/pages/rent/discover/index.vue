@@ -2,7 +2,7 @@
     <Head :title="pageTitle" />
 
     <ClientHeaderLayout>
-        <section class="bg-white pb-12 pt-6">
+        <section class="bg-white w-full pb-12 pt-6">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
                 <DiscoverHeader
                     :is-category-page="isCategoryPage"
@@ -25,6 +25,11 @@
                         {{ suggestion.label }}
                     </button>
                 </div>
+
+                <PartnerCategoryIcons
+                    v-if="showChildCategoryIcons"
+                    :categories="childCategoryItems"
+                />
 
                 <DiscoverFilters
                     :category-options="categoryOptions"
@@ -58,10 +63,12 @@ import DiscoverFilters from './components/DiscoverFilters.vue';
 import DiscoverHeader from './components/DiscoverHeader.vue';
 import DiscoverPagination from './components/DiscoverPagination.vue';
 import DiscoverProductGrid from './components/DiscoverProductGrid.vue';
+import PartnerCategoryIcons from '@/pages/home/partials/PartnerCategoryIcons/index.vue';
 import { formatPrice } from '@/lib/helper';
 import { normText } from '@/lib/search-filter';
 
 import type { Category, RentProduct, Tag } from '@/pages/rent/types';
+import type { PartnerCategoryItems } from '@/pages/home/partials/PartnerCategoryIcons/type';
 
 type ResourceCollection<T> = { data?: T[] | null };
 
@@ -70,6 +77,7 @@ export interface DiscoverPageProps {
     categories?: ResourceCollection<Category> | Paginated<Category> | Category[];
     tags?: ResourceCollection<Tag> | Paginated<Tag> | Tag[];
     category?: Category | null;
+    childCategories?: ResourceCollection<Category> | Paginated<Category> | Category[];
     filters?: {
         q?: string | null;
         tags?: string[] | null;
@@ -81,6 +89,7 @@ const props = withDefaults(defineProps<DiscoverPageProps>(), {
     categories: undefined,
     tags: undefined,
     category: null,
+    childCategories: undefined,
     filters: () => ({}),
 });
 
@@ -156,6 +165,7 @@ function toArray<T>(input: ResourceCollection<T> | Paginated<T> | T[] | undefine
 
 const tagOptions = computed(() => toArray<Tag>(props.tags));
 const categoryOptions = computed(() => toArray<Category>(props.categories));
+const childCategoryOptions = computed(() => toArray<Category>(props.childCategories));
 const selectedTagItems = computed(() => {
     const lookup = new Map(tagOptions.value.map((tag) => [tag.slug, tag]));
     return selectedTags.value.map((slug) => {
@@ -204,6 +214,17 @@ const displayProducts = computed(() =>
 );
 
 const hasActiveFilters = computed(() => Boolean(searchTerm.value.trim() || selectedTags.value.length));
+const childCategoryItems = computed<PartnerCategoryItems[]>(() =>
+    childCategoryOptions.value.map((item) => ({
+        id: item.id,
+        name: item.name,
+        slug: item.slug,
+        href: route('rent.category', { category_slug: item.slug }),
+        icon: '',
+        image: item.image ?? null,
+    }))
+);
+const showChildCategoryIcons = computed(() => isCategoryPage.value && childCategoryItems.value.length > 0);
 
 type Suggestion = { label: string; type: 'tag' | 'keyword'; slug?: string };
 
