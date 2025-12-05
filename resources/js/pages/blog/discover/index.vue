@@ -4,7 +4,7 @@
 
     <ClientHeaderLayout>
         <motion.section :initial="sectionMotion.initial" :animate="sectionMotion.animate"
-            class="bg-white pb-12 pt-6 w-full">
+            class="bg-white w-full pb-12 pt-6 w-full">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
                 <BlogDiscoverHeader :is-category-page="isCategoryPage" :category-name="props.category?.name ?? null"
                     :heading-text="headingText" :sub-heading-text="subHeadingText" :total-items="totalItems"
