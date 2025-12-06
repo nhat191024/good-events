@@ -478,15 +478,6 @@ class FileProductController extends Controller
     }
 
     /**
-     * @return array<int, array{code:string,name:string,description:string|null}>
-     */
-    // kept for backward compatibility as public interface to front-end; replaced by enum usage
-    private function paymentMethods(): array
-    {
-        return PaymentMethod::toOptions();
-    }
-
-    /**
      * @return array{id:int,url:string,thumbnail:string|null}[]
      */
     private function buildPreviewImages(FileProduct $fileProduct): array
@@ -510,19 +501,6 @@ class FileProductController extends Controller
             })
             ->values()
             ->all();
-    }
-
-    private function buildDownloadUrl(FileProduct $fileProduct, \DateTimeInterface $expireAt): ?string
-    {
-        try {
-            return $fileProduct->getFirstTemporaryUrl($expireAt, 'designs');
-        } catch (\Throwable $e) {
-            try {
-                return $fileProduct->getFirstMediaUrl('designs') ?: TemporaryImage::getTemporaryImageUrl($fileProduct, $expireAt, 'designs');
-            } catch (\Throwable $th) {
-                return null;
-            }
-        }
     }
 
     /**
