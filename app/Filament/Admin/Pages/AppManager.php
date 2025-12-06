@@ -88,7 +88,7 @@ class AppManager extends SettingsPage
                             ->visibility('public')
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? '/storage/' . $state : ($record?->app_logo ?? null);
+                                return filled($state) ? 'storage/' . $state : ($record?->app_logo ?? null);
                             }),
 
                         FileUpload::make('app_favicon')
@@ -99,7 +99,7 @@ class AppManager extends SettingsPage
                             ->visibility('public')
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? '/storage/' . $state : ($record?->app_favicon ?? null);
+                                return filled($state) ? 'storage/' . $state : ($record?->app_favicon ?? null);
                             }),
                     ]),
             ]);
