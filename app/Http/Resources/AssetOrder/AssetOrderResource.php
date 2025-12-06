@@ -52,38 +52,6 @@ class AssetOrderResource extends JsonResource
                             'slug' => $product->category->slug,
                         ]
                     ),
-                        'download_url' => $this->when($statusEnum === FileProductBillStatus::PAID, function () use ($expireAt, $statusEnum) {
-                            return route('client-orders.asset.download', ['bill' => $this->id]);
-                        }),
-                        'download_urls' => $this->when($statusEnum === FileProductBillStatus::PAID, function () use ($statusEnum) {
-                            $medias = $this->fileProduct->getMedia('designs');
-                            $urls = [];
-                            foreach ($medias as $media) {
-                                $disk = $media->disk;
-                                $path = $media->getPath();
-                                try {
-                                    $diskRoot = \Illuminate\Support\Facades\Storage::disk($disk)->path('');
-                                    if (!empty($diskRoot) && str_starts_with($path, $diskRoot)) {
-                                        $path = ltrim(str_replace($diskRoot, '', $path), '/\\');
-                                    }
-                                } catch (\Throwable $ex) {
-                                    // ignore
-                                }
-
-                                if ($disk === 's3') {
-                                    try {
-                                        $urls[] = \Illuminate\Support\Facades\Storage::disk($disk)->temporaryUrl($path, now()->addMinutes(10));
-                                        continue;
-                                    } catch (\Throwable $ex) {
-                                        // fallback
-                                    }
-                                }
-
-                                $urls[] = route('client-orders.asset.download', ['bill' => $this->id]) . '?media_id=' . $media->id;
-                            }
-
-                            return $urls;
-                        }),
                         'download_zip_url' => $this->when($statusEnum === FileProductBillStatus::PAID, function () {
                             return route('client-orders.asset.downloadZip', ['bill' => $this->id]);
                         }),
