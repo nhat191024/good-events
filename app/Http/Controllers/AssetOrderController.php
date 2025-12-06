@@ -11,6 +11,7 @@ use Filament\Support\Assets\Asset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -131,9 +132,20 @@ class AssetOrderController extends Controller
             : FileProductBillStatus::tryFrom((string) $bill->status);
 
         if ($statusEnum !== FileProductBillStatus::PAID) {
-            return response()->json([
+            return view('error', [
                 'message' => __('Đơn hàng chưa thanh toán hoặc không thể tải xuống.'),
-            ], 403);
+            ]);
+        }
+
+        $key = 'downloads_weekly:bill:' . $bill->getKey();
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            $availableAt = now()->addSeconds($seconds)->format('H:i d/m/Y');
+
+            return view('error', [
+                'message' => __('Bạn đã vượt quá giới hạn tải xuống (5 lần/tuần). Vui lòng thử lại vào lúc :time.', ['time' => $availableAt]),
+            ]);
         }
 
         $bill->loadMissing('fileProduct');
@@ -151,6 +163,8 @@ class AssetOrderController extends Controller
                 'message' => __('Không có tệp để tải xuống.'),
             ], 404);
         }
+
+        RateLimiter::hit($key, 60 * 60 * 24 * 7);
 
         $zipFileName = sprintf('FPB-%s-designs.zip', $bill->getKey());
 
