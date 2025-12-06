@@ -7,6 +7,7 @@ use App\Enum\PaymentMethod;
 use App\Http\Resources\AssetOrder\AssetOrderResource;
 use App\Models\FileProductBill;
 use App\Services\PaymentService;
+use Filament\Support\Assets\Asset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -119,141 +120,6 @@ class AssetOrderController extends Controller
         return response()->json([
             'message' => __('Không thể khởi tạo lại thanh toán, vui lòng thử lại sau.'),
         ], 500);
-    }
-
-    public function download(Request $request, FileProductBill $bill)
-    {
-        $this->authorizeBill($bill, $request);
-
-        $statusEnum = $bill->status instanceof FileProductBillStatus
-            ? $bill->status
-            : FileProductBillStatus::tryFrom((string) $bill->status);
-
-        if ($statusEnum !== FileProductBillStatus::PAID) {
-            return response()->json([
-                'message' => __('Đơn hàng chưa thanh toán hoặc không thể tải xuống.'),
-            ], 403);
-        }
-
-        $bill->loadMissing('fileProduct');
-        $fileProduct = $bill->fileProduct;
-
-        if (!$fileProduct) {
-            return response()->json([
-                'message' => __('Không tìm thấy thông tin sản phẩm cho đơn hàng.'),
-            ], 500);
-        }
-
-        $mediaId = (int) $request->query('media_id');
-        $media = $mediaId
-            ? $fileProduct->media()->where('collection_name', 'designs')->whereKey($mediaId)->first()
-            : $fileProduct->getFirstMedia('designs');
-        if (!$media) {
-            return response()->json([
-                'message' => __('Không tìm thấy tệp đính kèm.'),
-            ], 404);
-        }
-
-        try {
-            $disk = $media->disk;
-            $path = $media->getPath();
-
-            try {
-                $diskRoot = Storage::disk($disk)->path('');
-                if (!empty($diskRoot) && Str::startsWith($path, $diskRoot)) {
-                    $path = ltrim(Str::after($path, $diskRoot), '/\\');
-                }
-            } catch (Throwable $ex) {
-                // Ignore if disk->path() is not supported for this driver
-            }
-
-            $stream = Storage::disk($disk)->readStream($path);
-
-            if (!$stream) {
-                return response()->json([
-                    'message' => __('Không thể đọc tệp. Vui lòng thử lại sau.'),
-                ], 500);
-            }
-
-            return response()->streamDownload(function () use ($stream) {
-                fpassthru($stream);
-                if (is_resource($stream)) {
-                    fclose($stream);
-                }
-            }, $media->file_name, [
-                'Content-Type' => $media->mime_type,
-            ]);
-        } catch (Throwable $exception) {
-            report($exception);
-
-            return response()->json([
-                'message' => __('Không thể tải tệp. Vui lòng thử lại sau.'),
-            ], 500);
-        }
-    }
-
-    public function downloadAll(Request $request, FileProductBill $bill): JsonResponse
-    {
-        $this->authorizeBill($bill, $request);
-        $statusEnum = $bill->status instanceof FileProductBillStatus
-            ? $bill->status
-            : FileProductBillStatus::tryFrom((string) $bill->status);
-
-        if ($statusEnum !== FileProductBillStatus::PAID) {
-            return response()->json([
-                'message' => __('Đơn hàng chưa thanh toán hoặc không thể tải xuống.'),
-            ], 403);
-        }
-
-        $bill->loadMissing('fileProduct');
-        $fileProduct = $bill->fileProduct;
-
-        if (!$fileProduct) {
-            return response()->json([
-                'message' => __('Không tìm thấy thông tin sản phẩm cho đơn hàng.'),
-            ], 500);
-        }
-
-        $medias = $fileProduct->getMedia('designs');
-        $files = [];
-
-        foreach ($medias as $media) {
-            $disk = $media->disk;
-            $path = $media->getPath();
-
-            try {
-                $diskRoot = Storage::disk($disk)->path('');
-                if (!empty($diskRoot) && Str::startsWith($path, $diskRoot)) {
-                    $path = ltrim(Str::after($path, $diskRoot), '/\\');
-                }
-            } catch (Throwable $ex) {
-                // ignore
-            }
-
-            $url = null;
-
-            if ($disk === 's3') {
-                try {
-                    $url = Storage::disk($disk)->temporaryUrl($path, now()->addMinutes(10));
-                } catch (Throwable $ex) {
-                    // fallback to server proxy URL
-                }
-            }
-
-            if (!$url) {
-                $url = route('client-orders.asset.download', ['bill' => $bill->getKey()]) . '?media_id=' . $media->id;
-            }
-
-            $files[] = [
-                'id' => $media->id,
-                'name' => $media->file_name,
-                'mime_type' => $media->mime_type,
-                'size' => $media->size,
-                'url' => $url,
-            ];
-        }
-
-        return response()->json(['files' => $files]);
     }
 
     public function downloadZip(Request $request, FileProductBill $bill)

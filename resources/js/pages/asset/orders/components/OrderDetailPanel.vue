@@ -1,35 +1,33 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ref } from 'vue';
-import axios from 'axios';
 
 import { formatDate, formatPrice } from '@/lib/helper';
 
-import type { AssetOrder } from '../types';
 import { getImg } from '@/pages/booking/helper';
+import type { AssetOrder } from '../types';
 
-const props = withDefaults(defineProps<{
-    order: AssetOrder | null
-    loading?: boolean
-}>(), {
-    order: null,
-    loading: false,
-});
+const props = withDefaults(
+    defineProps<{
+        order: AssetOrder | null;
+        loading?: boolean;
+    }>(),
+    {
+        order: null,
+        loading: false,
+    },
+);
 
 const emit = defineEmits<{
-    (e: 'repay', order: AssetOrder): void
+    (e: 'repay', order: AssetOrder): void;
 }>();
 
 const product = computed(() => props.order?.file_product ?? null);
-
-const downloadUrl = computed(() => product.value?.download_url ?? null);
-const downloadUrls = computed(() => product.value?.download_urls ?? []);
 const downloadZipUrl = computed(() => product.value?.download_zip_url ?? null);
 
-const createdAt = computed(() => props.order ? formatDate(props.order.created_at) : null);
-const updatedAt = computed(() => props.order ? formatDate(props.order.updated_at) : null);
+const createdAt = computed(() => (props.order ? formatDate(props.order.created_at) : null));
+const updatedAt = computed(() => (props.order ? formatDate(props.order.updated_at) : null));
 
-const totalAmount = computed(() => props.order ? `${formatPrice(props.order.total)} đ` : null);
+const totalAmount = computed(() => (props.order ? `${formatPrice(props.order.total)} đ` : null));
 const finalAmount = computed(() => {
     if (!props.order) return null;
     const value = props.order.final_total ?? props.order.total;
@@ -39,12 +37,6 @@ const hasDiscount = computed(() => {
     if (!props.order) return false;
     if (props.order.final_total === null) return false;
     return props.order.final_total !== props.order.total;
-});
-
-const descriptionPreview = computed(() => {
-    if (!product.value?.description) return null;
-    const plain = product.value.description.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-    return plain || null;
 });
 
 function statusClass(status: string): string {
@@ -67,37 +59,14 @@ function triggerRepay() {
         emit('repay', props.order);
     }
 }
-
-function triggerDownloadAll() {
-    const urls = downloadUrls.value || [];
-    if (!urls.length) return;
-
-    // Programmatically trigger downloads for each url
-    for (const url of urls) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.download = '';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-}
-
-// Background ZIP handling removed; only synchronous ZIP download is provided now
 </script>
 
 <template>
     <section class="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <header class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-4">
             <div>
-                <h2 class="font-lexend text-xl font-semibold text-gray-900">
-                    Chi tiết đơn thiết kế
-                </h2>
-                <p class="text-sm text-gray-500">
-                    Xem thông tin thiết kế đã mua và trạng thái thanh toán.
-                </p>
+                <h2 class="font-lexend text-xl font-semibold text-gray-900">Chi tiết đơn thiết kế</h2>
+                <p class="text-sm text-gray-500">Xem thông tin thiết kế đã mua và trạng thái thanh toán.</p>
             </div>
             <span
                 v-if="order"
@@ -122,14 +91,12 @@ function triggerDownloadAll() {
             <div class="grid gap-4 md:grid-cols-[minmax(0,200px)_minmax(0,1fr)]">
                 <div class="relative overflow-hidden rounded-2xl bg-gray-50">
                     <template v-if="product?.thumbnail">
-                        <img
-                            :src="getImg(product.thumbnail)"
-                            :alt="product.name"
-                            class="h-full w-full object-cover"
-                            loading="lazy"
-                        >
+                        <img :src="getImg(product.thumbnail)" :alt="product.name" class="h-full w-full object-cover" loading="lazy" />
                     </template>
-                    <div v-else class="flex h-full min-h-[160px] items-center justify-center bg-gradient-to-br from-primary-100 via-primary-200 to-primary-300 text-sm font-medium text-primary-900">
+                    <div
+                        v-else
+                        class="flex h-full min-h-[160px] items-center justify-center bg-gradient-to-br from-primary-100 via-primary-200 to-primary-300 text-sm font-medium text-primary-900"
+                    >
                         {{ product?.name || `Đơn #${order.id}` }}
                     </div>
                 </div>
@@ -139,26 +106,22 @@ function triggerDownloadAll() {
                         <h3 class="font-lexend text-lg font-semibold text-gray-900">
                             {{ product?.name || `Đơn #${order.id}` }}
                         </h3>
-                        <p v-if="product?.category?.name" class="text-sm text-gray-500">
-                            Danh mục: {{ product.category.name }}
-                        </p>
+                        <p v-if="product?.category?.name" class="text-sm text-gray-500">Danh mục: {{ product.category.name }}</p>
                     </div>
 
                     <div class="grid gap-3 rounded-2xl bg-gray-50 p-4 text-sm text-gray-700 sm:grid-cols-2">
                         <div class="flex flex-col gap-1">
-                            <span class="text-xs uppercase tracking-wide text-gray-500">Ngày tạo</span>
+                            <span class="text-xs tracking-wide text-gray-500 uppercase">Ngày tạo</span>
                             <span class="font-medium">{{ createdAt }}</span>
                         </div>
                         <div class="flex flex-col gap-1">
-                            <span class="text-xs uppercase tracking-wide text-gray-500">Cập nhật</span>
+                            <span class="text-xs tracking-wide text-gray-500 uppercase">Cập nhật</span>
                             <span class="font-medium">{{ updatedAt }}</span>
                         </div>
                         <div class="flex flex-col gap-1 sm:col-span-2">
-                            <span class="text-xs uppercase tracking-wide text-gray-500">Giá thiết kế</span>
+                            <span class="text-xs tracking-wide text-gray-500 uppercase">Giá thiết kế</span>
                             <span class="font-semibold text-primary-700">{{ totalAmount }}</span>
-                            <span v-if="hasDiscount" class="text-xs text-emerald-600">
-                                Thành tiền sau khi điều chỉnh: {{ finalAmount }}
-                            </span>
+                            <span v-if="hasDiscount" class="text-xs text-emerald-600"> Thành tiền sau khi điều chỉnh: {{ finalAmount }} </span>
                         </div>
                     </div>
                 </div>
@@ -170,39 +133,20 @@ function triggerDownloadAll() {
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
-                                <template v-if="order?.can_download && downloadUrls && downloadUrls.length > 1">
-                                    <button
-                                        type="button"
-                                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-                                        @click="triggerDownloadAll"
-                                    >
-                                        Tải tất cả
-                                    </button>
-                                </template>
-                                <template v-if="order?.can_download && downloadZipUrl">
-                                    <a
-                                        :href="downloadZipUrl"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-                                    >
-                                        Tải ZIP
-                                    </a>
-                                </template>
-                                <!-- Background ZIP download removed; leave synchronous ZIP link above -->
-                                <template v-else>
-                                    <button
-                                        type="button"
-                                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl border border-primary-200 bg-white px-4 text-sm font-medium text-primary-700 shadow-sm hover:bg-primary-50 disabled:pointer-events-none disabled:opacity-60"
-                                        :disabled="!order.can_download"
-                                    >
-                                        Tải thiết kế
-                                    </button>
-                                </template>
+                    <a
+                        :href="downloadZipUrl ?? undefined"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:outline-none"
+                        :disabled="!order.can_download"
+                    >
+                        Tải ZIP
+                    </a>
+
                     <button
                         v-if="order.can_repay"
                         type="button"
-                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                        class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:outline-none"
                         @click="triggerRepay"
                     >
                         Thanh toán lại
@@ -212,10 +156,11 @@ function triggerDownloadAll() {
             </div>
         </div>
 
-        <div v-else class="mt-6 flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
-            <h3 class="font-lexend text-lg font-semibold text-gray-700">
-                Chọn một đơn hàng bên trái
-            </h3>
+        <div
+            v-else
+            class="mt-6 flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center"
+        >
+            <h3 class="font-lexend text-lg font-semibold text-gray-700">Chọn một đơn hàng bên trái</h3>
             <p class="mt-2 max-w-md text-sm text-gray-500">
                 Danh sách bên trái hiển thị các đơn thiết kế bạn đã mua. Hãy chọn một đơn để xem chi tiết và thao tác thanh toán.
             </p>
