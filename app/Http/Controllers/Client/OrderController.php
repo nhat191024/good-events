@@ -215,6 +215,12 @@ class OrderController extends Controller
             $partnerBillDetail = PartnerBillDetail::where('partner_bill_id', $bill_id)
                 ->where('partner_id', $user_id)
                 ->first();
+            Log::debug('[controller] confirmChoosePartner bill loaded', [
+                'bill_id' => $bill->id,
+                'bill_status' => $bill->status,
+                'bill_total' => $bill->total,
+                'bill_final_total' => $bill->final_total,
+            ]);
 
             $discount = 0;
 
