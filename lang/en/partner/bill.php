@@ -2,6 +2,8 @@
 
 return [
     'bill' => 'My shows',
+    'bill_pending' => 'Pending shows',
+    'bill_confirmed' => 'Confirmed shows',
     'bill_history' => 'Show History',
 
     'new_bill' => 'Take shows',

@@ -2,6 +2,8 @@
 
 return [
     'bill' => 'Show của tôi',
+    'bill_pending' => 'Show chờ xử lý',
+    'bill_confirmed' => 'Show đã xác nhận',
     'bill_history' => 'Lịch sử show',
 
     'new_bill' => 'Nhận show',
