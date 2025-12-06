@@ -80,7 +80,6 @@ class FileProductController extends Controller
         $expireAt = now()->addDay();
 
         $isPurchased = false;
-        $downloadUrl = null;
         $downloadZipUrl = null;
 
         if ($user) {
@@ -91,7 +90,6 @@ class FileProductController extends Controller
                 ->exists();
 
             if ($isPurchased) {
-                $downloadUrl = $this->buildDownloadUrl($fileProduct, $expireAt);
                 $bill = FileProductBill::query()
                     ->where('file_product_id', $fileProduct->getKey())
                     ->where('client_id', $user->getAuthIdentifier())
@@ -119,7 +117,6 @@ class FileProductController extends Controller
         return Inertia::render('asset/Detail', [
             'fileProduct' => $fileProductPayload,
             'related' => FileProductResource::collection($related)->resolve($request),
-            'downloadUrl' => $downloadUrl,
             'downloadZipUrl' => $downloadZipUrl,
             'isPurchased' => $isPurchased,
         ]);
