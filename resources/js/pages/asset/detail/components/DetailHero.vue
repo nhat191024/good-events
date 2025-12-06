@@ -2,12 +2,7 @@
     <section class="grid gap-8 lg:grid-cols-2">
         <div class="space-y-5">
             <div class="overflow-hidden rounded-3xl border border-gray-100 bg-gray-50">
-                <img
-                    :src="getImg(coverImage)"
-                    :alt="fileProduct.name"
-                    class="h-full w-full object-cover"
-                    loading="lazy"
-                />
+                <img :src="getImg(coverImage)" :alt="fileProduct.name" class="h-full w-full object-cover" loading="lazy" />
             </div>
 
             <div v-if="secondaryPreviews.length" class="flex flex-wrap gap-3">
@@ -37,7 +32,7 @@
             </div>
         </div>
 
-        <aside class="flex h-max flex-col gap-6 rounded-3xl bg-white md:px-6 md:py-6 px-0 py-0">
+        <aside class="flex h-max flex-col gap-6 rounded-3xl bg-white px-0 py-0 md:px-6 md:py-6">
             <div class="space-y-2">
                 <span
                     v-if="fileProduct.category"
@@ -67,9 +62,7 @@
             <div class="rounded-2xl bg-primary-50/60 p-5 ring-1 ring-primary-100">
                 <p class="text-sm font-medium text-primary-800">Giá trọn gói</p>
                 <p class="mt-1 text-3xl font-semibold text-primary-900">{{ priceText }}</p>
-                <p class="mt-1 text-xs text-primary-700/70">
-                    Bao gồm đầy đủ file thiết kế chất lượng cao cùng thiết kế hướng dẫn triển khai.
-                </p>
+                <p class="mt-1 text-xs text-primary-700/70">Bao gồm đầy đủ file thiết kế chất lượng cao cùng thiết kế hướng dẫn triển khai.</p>
             </div>
 
             <div class="flex flex-col gap-3">
@@ -78,36 +71,23 @@
                     :href="downloadZipUrl"
                     target="_blank"
                     rel="noopener"
-                    class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
-                    Tải tất cả (ZIP)
+                    Tải (ZIP)
                 </a>
                 <Link
                     v-else
                     :href="route('asset.buy', { slug: fileProduct.slug })"
-                    class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                     Mua ngay
                 </Link>
-                    <!-- Show ZIP action as a secondary button when available (both visible if both are present) -->
-                    <a
-                        v-if="isPurchased && downloadZipUrl"
-                        :href="downloadZipUrl"
-                        target="_blank"
-                        rel="noopener"
-                        class="inline-flex w-full items-center justify-center rounded-lg border border-primary-100 bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                    >
-                        Tải ZIP
-                    </a>
                 <a
                     :href="`tel:0901234567`"
-                    class="inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 text-primary-600 font-semibold text-base shadow-sm transition hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    class="inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 text-base font-semibold text-primary-600 shadow-sm transition hover:bg-primary-50 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                     Gọi: 0901 234 567
                 </a>
-                <!-- <Button variant="outline" class="w-full border-primary-100 text-primary-700 hover:border-primary-200 hover:text-primary-900">
-                    Thêm vào danh sách yêu thích
-                </Button> -->
             </div>
 
             <ul class="space-y-2 rounded-2xl border border-gray-100 bg-gray-50 p-5 text-sm text-gray-600">
@@ -129,14 +109,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
-import { Button } from '@/components/ui/button';
 import { formatDate, formatPrice } from '@/lib/helper';
 
-import type { FileProduct, Tag } from '@/pages/home/types';
 import { getImg } from '@/pages/booking/helper';
+import type { FileProduct, Tag } from '@/pages/home/types';
 
 interface PreviewMedia {
     id?: number | string | null;
@@ -170,7 +149,7 @@ const props = withDefaults(defineProps<Props>(), {
 const selectedImage = ref<string | null>(null);
 
 const placeholderImage = computed(
-    () => `https://ui-avatars.com/api/?name=${encodeURIComponent(props.fileProduct.name)}&background=1F73D8&color=ffffff&size=512`
+    () => `https://ui-avatars.com/api/?name=${encodeURIComponent(props.fileProduct.name)}&background=1F73D8&color=ffffff&size=512`,
 );
 
 const coverImage = computed(() => selectedImage.value ?? props.previewImages[0]?.url ?? props.fileProduct.image ?? placeholderImage.value);
