@@ -1,7 +1,6 @@
 <?php
 
 return [
-    'bill' => 'Show của tôi',
     'bill_pending' => 'Show chờ xử lý',
     'bill_confirmed' => 'Show đã xác nhận',
     'bill_history' => 'Lịch sử show',
@@ -24,13 +23,16 @@ return [
     'client' => 'Khách hàng',
     'need_to_find' => 'Cần tìm',
     'event' => 'Sự kiện',
+    'time' => 'Thời gian',
     'date' => 'Ngày',
     'address' => 'Địa chỉ',
     'note' => 'Ghi chú',
+    'event_type' => 'Loại sự kiện',
+    'price' => 'Giá tiền',
+    'total' => 'Tổng giá tiền',
     'accept_order' => 'Nhận show',
     'view_details' => 'Xem chi tiết',
 
-    'search_placeholder' => 'Tìm kiếm theo mã đơn, khách hàng...',
     'filter_date' => 'Lọc theo ngày',
     'today' => 'Hôm nay',
     'this_week' => 'Tuần này',
@@ -59,12 +61,10 @@ return [
     'go_to_show' => 'Xem Show',
 
     // View page sections
-    'basic_information' => 'Thông tin cơ bản',
-    'contact_information' => 'Thông tin liên hệ',
-    'time_information' => 'Thông tin thời gian',
-    'payment_information' => 'Thông tin thanh toán',
-    'notes' => 'Ghi chú',
-    'system_information' => 'Thông tin hệ thống',
+    'bill_info' => 'Thông tin show',
+    'client_info' => 'Thông tin khách hàng',
+    'bill' => 'Hóa đơn',
+    'event_info' => 'Thông tin sự kiện',
 
     // View page fields
     'order_code' => 'Mã show',
@@ -152,4 +152,7 @@ return [
     'detail_status' => 'Trạng thái chi tiết',
     'updated' => 'Cập nhật',
     'no_bills_filter_description' => 'Không có show nào phù hợp với bộ lọc hiện tại.',
+
+    'back_to_list' => 'Quay lại danh sách show',
+    'bill_not_found' => 'Không tìm thấy show',
 ];

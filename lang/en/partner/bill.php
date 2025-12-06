@@ -1,7 +1,6 @@
 <?php
 
 return [
-    'bill' => 'My shows',
     'bill_pending' => 'Pending shows',
     'bill_confirmed' => 'Confirmed shows',
     'bill_history' => 'Show History',
@@ -24,13 +23,16 @@ return [
     'client' => 'Client',
     'need_to_find' => 'Need to find',
     'event' => 'Event',
+    'time' => 'Time',
     'date' => 'Date',
     'address' => 'Address',
     'note' => 'Note',
+    'event_type' => 'Event Type',
+    'price' => 'Price',
+    'total' => 'Total Price',
     'accept_order' => 'Accept Show',
     'view_details' => 'View Details',
 
-    'search_placeholder' => 'Search by order code, client...',
     'filter_date' => 'Filter by Date',
     'today' => 'Today',
     'this_week' => 'This Week',
@@ -59,12 +61,11 @@ return [
     'go_to_show' => 'Go to Show',
 
     // View page sections
-    'basic_information' => 'Basic Information',
-    'contact_information' => 'Contact Information',
-    'time_information' => 'Time Information',
-    'payment_information' => 'Payment Information',
-    'notes' => 'Notes',
-    'system_information' => 'System Information',
+    'bill_info' => 'Show Information',
+    'client_info' => 'Client Information',
+    'bill' => 'Bill',
+    'services' => 'Services',
+    'event_info' => 'Event Information',
 
     // View page fields
     'order_code' => 'Show Code',
@@ -152,4 +153,7 @@ return [
     'detail_status' => 'Detail Status',
     'updated' => 'Updated',
     'no_bills_filter_description' => 'No shows match your current filters.',
+
+    'back_to_list' => 'Back to show list',
+    'bill_not_found' => 'No shows found.',
 ];
