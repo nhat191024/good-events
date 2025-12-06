@@ -274,7 +274,6 @@ class ConfirmedPartnerBill extends Page
         $old_balance = $user->balanceInt;
         $transaction = $user->withdraw($withdrawAmount, ['reason' => 'Thu phí nền tảng show mã: ' . $bill->code, 'old_balance' => $old_balance]);
         $new_balance = $user->balanceInt;
-        $transactionId = $transaction->id;
         $transaction->meta = array_merge($transaction->meta ?? [], [
             'new_balance' => $new_balance,
         ]);
