@@ -131,7 +131,7 @@ class PendingPartnerBill extends Page
 
     public function viewBill($billId): void
     {
-        $this->redirect(route('filament.partner.resources.partner-bills.view', ['record' => $billId]));
+        $this->redirect(ViewPartnerBill::getUrl(['bill_id' => $billId]));
     }
 
     public function getStatusColor(string $status): string

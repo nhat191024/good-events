@@ -148,7 +148,7 @@ class ConfirmedPartnerBill extends Page
 
     public function viewBill($billId): void
     {
-        $this->redirect(route('filament.partner.resources.partner-bills.view', ['record' => $billId]));
+        $this->redirect(ViewPartnerBill::getUrl(['bill_id' => $billId]));
     }
 
     public function openMarkInJobModal($billId): void
