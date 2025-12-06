@@ -149,7 +149,7 @@
 
                 {{-- Actions --}}
                 <div class="flex justify-end">
-                    <x-filament::button color="gray" tag="a" href="{{ \App\Filament\Partner\Pages\PendingPartnerBill::getUrl() }}">
+                    <x-filament::button color="gray" tag="a" href="{{ redirect()->back()->getTargetUrl() }}">
                         {{ __('partner/bill.back_to_list') }}
                     </x-filament::button>
                 </div>
