@@ -44,7 +44,7 @@ class PartnerBillFourthJob implements ShouldQueue
     /**
      * Complete partner bill
      */
-    private function completePartnerBill(PartnerBill $partnerBill, PartnerBillMailService $mailService)
+    private function completePartnerBill(PartnerBill $partnerBill)
     {
         $partnerBill->status = PartnerBillStatus::COMPLETED;
         $partnerBill->save();
