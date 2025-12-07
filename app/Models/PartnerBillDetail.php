@@ -52,6 +52,15 @@ class PartnerBillDetail extends Model
     {
         parent::boot();
 
+        static::creating(function ($partnerBillDetail) {
+            $existingDetail = PartnerBillDetail::wherePartnerBillId($partnerBillDetail->partner_bill_id)
+                ->wherePartnerId($partnerBillDetail->partner_id)
+                ->first();
+            if ($existingDetail) {
+                throw new \Exception('Partner bill detail already exists for this partner and partner bill.');
+            }
+        });
+
         static::created(function ($partnerBillDetail) {
             static::handleBillDetailCreated($partnerBillDetail);
         });
