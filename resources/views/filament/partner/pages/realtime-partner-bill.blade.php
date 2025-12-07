@@ -16,7 +16,7 @@
                     </div>
                     {{-- go to my show button --}}
                     <a class="ml-4 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-blue-700 focus:border-blue-900 focus:outline-none focus:ring focus:ring-blue-300 active:bg-blue-900 disabled:opacity-25"
-                        href="{{ route('filament.partner.resources.partner-bills.view', ['record' => session('show_id')]) }}">
+                        href="{{ route('filament.partner.pages.view-partner-bill', ['record' => session('show_id')]) }}">
                         {{ __('partner/bill.go_to_show') }}
                     </a>
                 </div>
