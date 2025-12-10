@@ -10,21 +10,21 @@ class StaticPageController extends Controller
 {
     public function privacyPolicy(): Response
     {
-        $filePath = base_path('privacy-policy.txt');
+        $content = $this->getDocumentContent('privacy-policy.php');
 
         return Inertia::render('static/StaticDocument', [
             'page' => [
                 'slug' => 'privacy-policy',
                 'title' => 'Chính sách bảo mật dữ liệu cá nhân',
                 'intro' => $this->cleanIntro(
-                    $this->extractIntroFromFile($filePath, '/(PHẦN\s+[A-Z]\s+–\s+[^\n]+)/u')
+                    $this->extractIntro($content, '/(PHẦN\s+[A-Z]\s+–\s+[^\n]+)/u')
                 ),
                 'hero' => [
                     'kicker' => 'Bảo vệ dữ liệu',
                     'note' => 'Minh bạch trong thu thập, sử dụng và lưu trữ thông tin cá nhân',
                 ],
-                'sections' => $this->parseSectionsFromFile(
-                    $filePath,
+                'sections' => $this->parseSections(
+                    $content,
                     '/(PHẦN\s+[A-Z]\s+–\s+[^\n]+)/u'
                 ),
             ],
@@ -33,21 +33,21 @@ class StaticPageController extends Controller
 
     public function shippingPolicy(): Response
     {
-        $filePath = base_path('shipping policy and payment.txt');
+        $content = $this->getDocumentContent('shipping-policy-and-payment.php');
 
         return Inertia::render('static/StaticDocument', [
             'page' => [
                 'slug' => 'shipping-policy-and-payment-methods',
                 'title' => 'Chính sách vận chuyển & phương thức thanh toán',
                 'intro' => $this->cleanIntro(
-                    $this->extractIntroFromFile($filePath, '/^\d+\.\s+[^\n]+/m')
+                    $this->extractIntro($content, '/^\d+\.\s+[^\n]+/m')
                 ),
                 'hero' => [
                     'kicker' => 'Giao nhận & thanh toán',
                     'note' => 'Phạm vi giao hàng, quy trình tiếp nhận và hình thức thanh toán áp dụng',
                 ],
-                'sections' => $this->parseSectionsFromFile(
-                    $filePath,
+                'sections' => $this->parseSections(
+                    $content,
                     '/^\d+\.\s+[^\n]+/m'
                 ),
             ],
@@ -86,9 +86,9 @@ class StaticPageController extends Controller
         ]);
     }
 
-    private function parseSectionsFromFile(string $path, string $headingPattern): array
+    private function parseSections(string $content, string $headingPattern): array
     {
-        $content = $this->normalizeContent(file_get_contents($path));
+        $content = $this->normalizeContent($content);
 
         if (!preg_match_all($headingPattern, $content, $matches, PREG_OFFSET_CAPTURE)) {
             return [];
@@ -171,9 +171,9 @@ class StaticPageController extends Controller
         return $blocks;
     }
 
-    private function extractIntroFromFile(string $path, string $firstHeadingPattern): ?string
+    private function extractIntro(string $content, string $firstHeadingPattern): ?string
     {
-        $content = $this->normalizeContent(file_get_contents($path));
+        $content = $this->normalizeContent($content);
 
         if (preg_match($firstHeadingPattern, $content, $match, PREG_OFFSET_CAPTURE)) {
             return trim(substr($content, 0, $match[0][1]));
@@ -185,6 +185,13 @@ class StaticPageController extends Controller
     private function normalizeContent(string $content): string
     {
         return str_replace("\r", '', $content);
+    }
+
+    private function getDocumentContent(string $fileName): string
+    {
+        $path = resource_path("static/{$fileName}");
+
+        return $this->normalizeContent(require $path);
     }
 
     private function cleanIntro(?string $intro): ?string
