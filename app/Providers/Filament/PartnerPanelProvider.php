@@ -41,10 +41,14 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use App\Settings\AppSettings;
+
 class PartnerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $settings = app(AppSettings::class);
+
         return $panel
             ->id('partner')
             ->path('partner')
@@ -54,6 +58,8 @@ class PartnerPanelProvider extends PanelProvider
             ->emailVerification()
             ->passwordReset()
 
+            ->brandName('Sự Kiện tốt - Đối tác')
+            ->favicon($settings->app_favicon)
             ->colors([
                 'primary' => Color::Rose
             ])
@@ -77,7 +83,7 @@ class PartnerPanelProvider extends PanelProvider
 
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
-                fn () => Blade::render('@livewire(\'component.chat-notification-indicator\')')
+                fn() => Blade::render('@livewire(\'component.chat-notification-indicator\')')
             )
 
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
