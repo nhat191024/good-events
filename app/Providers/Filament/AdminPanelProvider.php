@@ -39,6 +39,8 @@ use App\Enum\FilamentNavigationGroup;
 
 use App\Settings\AppSettings;
 
+use App\Filament\Admin\Pages\ListLogs;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -96,8 +98,9 @@ class AdminPanelProvider extends PanelProvider
                 FilamentLoggerPlugin::make(),
                 FilamentFailedJobsPlugin::make(),
                 FilamentLogViewerPlugin::make()
+                    ->listLogs(ListLogs::class)
                     ->navigationGroup('system')
-                    ->navigationLabel(__('global.log_viewer')),
+                    ->navigationLabel(__('global.log_viewer'))
             ])
 
             ->middleware([
