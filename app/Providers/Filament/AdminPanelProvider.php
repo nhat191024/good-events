@@ -37,10 +37,14 @@ use App\Filament\Admin\Widgets\AdminTopPartnersWidget;
 
 use App\Enum\FilamentNavigationGroup;
 
+use App\Settings\AppSettings;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $settings = app(AppSettings::class);
+
         return $panel
             ->default()
             ->id('admin')
@@ -49,6 +53,8 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Red,
             ])
+            ->brandName('Sự Kiện tốt - Admin')
+            ->favicon($$settings->app_favicon)
             ->maxContentWidth(Width::Full)
             ->navigationGroups(FilamentNavigationGroup::class)
 
