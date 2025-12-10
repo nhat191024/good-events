@@ -160,7 +160,7 @@ onUnmounted(() => {
                     <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot"
                         class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
                     <span
-                        class="font-bold tracking-tight text-black uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
+                        class="font-bold tracking-tight text-primary-700 uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
                     </Link>
                 </div>
 
