@@ -86,6 +86,7 @@ class AppManager extends SettingsPage
                             ->directory('uploads/app')
                             ->disk('public')
                             ->visibility('public')
+                            ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
                                 return filled($state) ? 'storage/' . $state : ($record?->app_logo ?? null);
@@ -97,6 +98,7 @@ class AppManager extends SettingsPage
                             ->directory('uploads/app')
                             ->disk('public')
                             ->visibility('public')
+                            ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
                                 return filled($state) ? 'storage/' . $state : ($record?->app_favicon ?? null);
