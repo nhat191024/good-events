@@ -11,6 +11,7 @@ return [
     'save' => 'Save',
     'confirm' => 'Confirm',
     'ban' => 'Ban',
+    'close' => 'Close',
 
     'no' => 'No',
     'yes' => 'Yes',

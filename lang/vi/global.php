@@ -11,6 +11,7 @@ return [
     'save' => 'Lưu',
     'confirm' => 'Xác nhận',
     'ban' => 'Cấm',
+    'close' => 'Đóng',
 
     'no' => 'Không',
     'yes' => 'Có',
