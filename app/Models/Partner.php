@@ -16,6 +16,7 @@ use Database\Factories\UserFactory;
  * @property string $phone
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property bool $can_accept_shows
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -73,6 +74,7 @@ use Database\Factories\UserFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner role($roles, $guard = null, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereAvatar($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereBio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereCanAcceptShows($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereCountryCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereDeletedAt($value)

@@ -16,6 +16,7 @@ use Database\Factories\UserFactory;
  * @property string $phone
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property bool $can_accept_shows
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -73,6 +74,7 @@ use Database\Factories\UserFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer role($roles, $guard = null, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereAvatar($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereBio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereCanAcceptShows($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereCountryCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereDeletedAt($value)

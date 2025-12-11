@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\User $partner
+ * @property-read User $partner
  * @property-read \App\Models\PartnerBill $partnerBill
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBillDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBillDetail newQuery()

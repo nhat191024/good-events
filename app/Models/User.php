@@ -44,6 +44,7 @@ use App\Enum\Role;
  * @property string $phone
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property bool $can_accept_shows
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -101,6 +102,7 @@ use App\Enum\Role;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User role($roles, $guard = null, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatar($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCanAcceptShows($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCountryCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDeletedAt($value)
@@ -136,6 +138,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'bio',
         'phone',
         'password',
+        'can_accept_shows',
     ];
 
     /**
@@ -168,6 +171,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'can_accept_shows' => 'boolean',
         ];
     }
 
