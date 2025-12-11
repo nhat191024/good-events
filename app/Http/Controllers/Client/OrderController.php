@@ -26,8 +26,10 @@ use App\Notifications\PartnerAcceptedOrder;
 use App\Models\Voucher;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
+use App\Models\Statistical;
 use App\Models\User;
 use App\Services\PartnerProfilePayload;
+use App\Services\PartnerWidgetCacheService;
 
 use Inertia\Inertia;
 
@@ -278,6 +280,9 @@ class OrderController extends Controller
             $latest->partner_bill_id = $data['order_id'];
             $latest->save();
         }
+
+        Statistical::syncPartnerRatingMetrics($partner->id);
+        PartnerWidgetCacheService::clearPartnerCaches($partner->id);
 
         return back()->with('review_submitted', true);
     }
