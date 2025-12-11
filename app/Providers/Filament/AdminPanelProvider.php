@@ -56,7 +56,7 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Red,
             ])
             ->brandName('Sự Kiện tốt - Admin')
-            ->favicon($settings->app_favicon)
+            ->favicon(asset($settings->app_favicon))
             ->maxContentWidth(Width::Full)
             ->navigationGroups(FilamentNavigationGroup::class)
 

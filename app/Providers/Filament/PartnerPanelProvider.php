@@ -59,7 +59,7 @@ class PartnerPanelProvider extends PanelProvider
             ->passwordReset()
 
             ->brandName('Sự Kiện tốt - Đối tác')
-            ->favicon($settings->app_favicon)
+            ->favicon(asset($settings->app_favicon))
             ->colors([
                 'primary' => Color::Rose
             ])
