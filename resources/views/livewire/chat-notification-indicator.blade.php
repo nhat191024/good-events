@@ -3,7 +3,7 @@
         href="{{ route('filament.partner.pages.chat') }}" title="{{ __('chat.title') }}">
         <div class="relative">
             {{-- Chat Icon --}}
-            <x-heroicon-o-chat-bubble-left-right class="h-5 w-5" />
+            <x-heroicon-o-chat-bubble-left-right class="h-6 w-6 stroke-2" />
 
             {{-- Badge --}}
             @if ($unreadCount > 0)
