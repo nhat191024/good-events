@@ -19,6 +19,9 @@ return [
     'partner_accepted_title' => 'Partner Accepted Your Order',
     'partner_accepted_body' => ':partner_name has accepted your order :code',
 
+    'client_accepted_title' => 'Client Accepted Your Order',
+    'client_accepted_body' => ':client_name has accepted your order :code',
+
     'order_cancelled_title' => 'Order Cancelled',
     'order_cancelled_body' => 'Your order :code has been cancelled',
 

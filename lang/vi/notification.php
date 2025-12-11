@@ -25,6 +25,9 @@ return [
     'partner_accepted_title' => 'Đối tác đã nhận đơn hàng',
     'partner_accepted_body' => ':partner_name đã chấp nhận đơn hàng :code của bạn',
 
+    'client_accepted_title' => 'Khách hàng đã chốt show',
+    'client_accepted_body' => ':client_name đã chốt show :code',
+
     'order_cancelled_title' => 'Đơn hàng đã bị hủy',
     'order_cancelled_body' => 'Đơn hàng :code của bạn đã bị hủy',
 
