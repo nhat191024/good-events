@@ -99,14 +99,13 @@ class RealtimePartnerBill extends Page
 
     public function mount(): void
     {
-        $this->partnerId = auth()->id();
         $this->loadPartnerBills();
         $this->lastUpdated = now()->format('H:i:s');
     }
 
     public function loadPartnerBills(): void
     {
-        $user = User::find($this->partnerId);
+        $user = Auth::user();
         if (! $user || ! $user->partnerServices()->exists()) {
             $this->partnerBills = [];
             $this->categoryIds = [];
@@ -143,8 +142,8 @@ class RealtimePartnerBill extends Page
                 'event:id,name'
             ])
             ->where('status', PartnerBillStatus::PENDING)
-            ->whereDoesntHave('details', function ($query) {
-                $query->where('partner_id', $this->partnerId);
+            ->whereDoesntHave('details', function ($query) use ($user) {
+                $query->where('partner_id', $user->id);
             });
 
         if ($this->dateFilter !== 'all') {
@@ -281,7 +280,7 @@ class RealtimePartnerBill extends Page
 
                 PartnerBillDetail::create([
                     'partner_bill_id' => $bill->id,
-                    'partner_id' => $this->partnerId,
+                    'partner_id' => $user->id,
                     'total' => $this->priceInput,
                     'status' => PartnerBillDetailStatus::NEW,
                 ]);
