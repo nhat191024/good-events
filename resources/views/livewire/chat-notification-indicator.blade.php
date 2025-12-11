@@ -1,4 +1,4 @@
-<div wire:poll.30s="loadUnreadCount">
+<div wire:poll.90s="loadUnreadCount">
     <a class="fi-icon-btn relative flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 outline-none transition duration-75 hover:bg-gray-50 hover:text-gray-500 focus-visible:bg-gray-50 focus-visible:text-gray-500 dark:text-gray-500 dark:hover:bg-white/5 dark:hover:text-gray-400 dark:focus-visible:bg-white/5 dark:focus-visible:text-gray-400"
         href="{{ route('filament.partner.pages.chat') }}" title="{{ __('chat.title') }}">
         <div class="relative">
