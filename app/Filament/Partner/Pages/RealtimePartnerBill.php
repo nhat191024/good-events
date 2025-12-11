@@ -86,6 +86,8 @@ class RealtimePartnerBill extends Page
     // Modal properties
     public $showAcceptModal = false;
 
+    public $showBannedModal = false;
+
     public $selectedBillId = null;
 
     public $selectedBillCode = '';
@@ -239,6 +241,13 @@ class RealtimePartnerBill extends Page
     public function openAcceptModal($billId): void
     {
         $bill = PartnerBill::find($billId);
+        $canAccept = Auth::user()->can_accept_shows;
+
+        if (!$canAccept) {
+            $this->showBannedModal = true;
+            return;
+        }
+
         if ($bill && $bill->status === PartnerBillStatus::PENDING) {
             $this->selectedBillId = $billId;
             $this->selectedBillCode = $bill->code;
@@ -254,6 +263,11 @@ class RealtimePartnerBill extends Page
         $this->selectedBillCode = '';
         $this->priceInput = '';
         $this->resetErrorBag();
+    }
+
+    public function closeBannedModal(): void
+    {
+        $this->showBannedModal = false;
     }
 
     public function acceptOrder(): void
