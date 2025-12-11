@@ -155,4 +155,8 @@ return [
 
     'back_to_list' => 'Quay lại danh sách show',
     'bill_not_found' => 'Không tìm thấy show',
+
+    //banned modal
+    'ban_partner_title' => 'Bạn đã bị cấm nhận show',
+    'ban_partner_description' => 'Bạn không thể nhận show mới cho đến khi quản trị viên gỡ bỏ lệnh cấm.',
 ];

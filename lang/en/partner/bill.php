@@ -156,4 +156,8 @@ return [
 
     'back_to_list' => 'Back to show list',
     'bill_not_found' => 'No shows found.',
+
+    //banned modal
+    'ban_partner_title' => 'You have been banned from accepting shows',
+    'ban_partner_description' => 'You cannot accept new shows until the administrator lifts the ban.',
 ];
