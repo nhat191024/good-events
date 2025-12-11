@@ -77,7 +77,7 @@ onBeforeUnmount(() => {
         <button type="button"
             class="bg-white/70 relative inline-flex items-center justify-center h-10 w-10 rounded-full hover:bg-muted/60 transition-colors"
             @click="toggle" aria-label="Thông báo">
-            <Bell class="h-5 w-5" />
+            <Bell class="h-7 w-7" />
             <span v-if="unreadCount"
                 class="absolute -top-1 -right-0 h-4 min-w-[16px] px-1 bg-red-500 rounded-full flex items-center justify-center">
                 <span class="text-[10px] leading-none text-white font-bold">

@@ -1,5 +1,5 @@
 <template>
-    <section class="flex flex-col gap-6">
+    <section class="flex flex-col gap-0 md:gap-6">
 
         <p v-if="blog.excerpt" class="text-lg font-medium text-gray-700">
             {{ blog.excerpt }}
@@ -8,7 +8,7 @@
         <div class="prose prose-lg max-w-none text-gray-700" v-html="blog.content" />
 
         <div v-if="blog.latitude && blog.longitude"
-            class="mt-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+            class="mt-8 rounded-3xl border border-gray-100 bg-white p-0 md:p-6 shadow-sm">
             <h3 class="mb-4 text-lg font-bold text-gray-900">Bản đồ địa điểm</h3>
             <a :href="`https://www.google.com/maps/search/?api=1&query=${blog.latitude},${blog.longitude}`"
                 target="_blank" rel="noopener noreferrer"

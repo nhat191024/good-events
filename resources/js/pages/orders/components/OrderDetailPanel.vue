@@ -43,6 +43,11 @@ const bookedPartner = computed<ClientOrderDetail | undefined>(() => {
     return props.applicants.find(item => item.status === OrderDetailStatus.CLOSED)
 })
 
+console.log('applicant list '
+    , props.applicants
+);
+
+
 const isReloading = ref(false)
 const applyVoucher = ref(true)
 
