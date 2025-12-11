@@ -18,6 +18,7 @@ class StatisticalSeeder extends Seeder
         User::query()->each(function (User $user) {
             // Determine which StatisticType cases apply for this user
             $cases = StatisticType::cases();
+            $ratingMetrics = null;
 
             foreach ($cases as $case) {
                 $aud = $case->audience();
@@ -34,6 +35,10 @@ class StatisticalSeeder extends Seeder
                     continue;
                 }
 
+                if (in_array($case, [StatisticType::AVERAGE_STARS, StatisticType::TOTAL_RATINGS], true)) {
+                    $ratingMetrics ??= Statistical::calculatePartnerRatingMetrics($user->id);
+                }
+
                 Statistical::firstOrCreate(
                     [
                         'user_id' => $user->id,
@@ -48,6 +53,8 @@ class StatisticalSeeder extends Seeder
                             StatisticType::COMPLETED_ORDERS => 0,
                             StatisticType::CANCELLED_ORDERS_PERCENTAGE => 0,
                             StatisticType::REVENUE_GENERATED => 0,
+                            StatisticType::AVERAGE_STARS => $ratingMetrics[StatisticType::AVERAGE_STARS->value] ?? 0,
+                            StatisticType::TOTAL_RATINGS => $ratingMetrics[StatisticType::TOTAL_RATINGS->value] ?? 0,
                         },
                         'metadata' => null,
                     ]
