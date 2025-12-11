@@ -387,7 +387,13 @@ class PartnerBill extends Model implements HasMedia
         $mailService = new PartnerBillMailService();
         $mailService->sendOrderConfirmedNotification($partnerBill);
 
-        NewThreadCreated::dispatch($partnerBill);
+        $partner = User::find($partnerBill->partner_id);
+        $client = User::find($partnerBill->client_id);
+        Notification::make()
+            ->title(__('notification.client_accepted_title'))
+            ->body(__('notification.client_accepted_body', ['code' => $partnerBill->code, 'client_name' => $client->name]))
+            ->warning()
+            ->sendToDatabase($partner);
     }
 
     /**
