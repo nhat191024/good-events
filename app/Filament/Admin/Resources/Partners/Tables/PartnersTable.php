@@ -139,6 +139,34 @@ class PartnersTable
                     ->modalSubmitActionLabel(__('global.ban'))
                     ->successNotificationTitle(__('admin/user.ban_success_message')),
                 RestoreAction::make(),
+                Action::make('ban_accept_show')
+                    ->label(__('admin/partner.actions.ban_accept_show'))
+                    ->icon('heroicon-o-minus-circle')
+                    ->color('danger')
+                    ->visible(fn(User $record): bool => $record->deleted_at === null && $record->can_accept_shows)
+                    ->action(function (User $record): void {
+                        $record->can_accept_shows = false;
+                        $record->save();
+
+                        Notification::make()
+                            ->success()
+                            ->title(__('admin/partner.ban_success_message'))
+                            ->send();
+                    }),
+                Action::make('ban_accept_hide')
+                    ->label(__('admin/partner.actions.ban_accept_hide'))
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn(User $record): bool => $record->deleted_at === null && ! $record->can_accept_shows)
+                    ->action(function (User $record): void {
+                        $record->can_accept_shows = true;
+                        $record->save();
+
+                        Notification::make()
+                            ->success()
+                            ->title(__('admin/partner.unban_success_message'))
+                            ->send();
+                    }),
             ])
             ->toolbarActions([
                 //
