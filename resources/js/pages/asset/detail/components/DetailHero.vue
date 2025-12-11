@@ -223,7 +223,7 @@ const priceText = computed(() => {
     return Number.isFinite(value) ? `${formatPrice(value)} đ` : 'Liên hệ';
 });
 
-const hotlineNumeric = computed(() => hotlineDisplay.replace(/[^0-9+]/g, ''));
+const hotlineNumeric = computed(() => hotlineDisplay.value.replace(/[^0-9+]/g, ''));
 
 const hotlineHref = computed(() => `tel:${hotlineNumeric.value}`);
 
