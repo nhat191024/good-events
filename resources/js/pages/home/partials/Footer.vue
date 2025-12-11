@@ -41,9 +41,9 @@ const taxCode = 'Mã số thuế: 0318063280 do Sở Kế hoạch & Đầu tư T
 </script>
 
 <template>
-    <footer class="bg-primary text-white">
+    <footer class="bg-primary-700 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
-            <div class="grid gap-10 lg:grid-cols-3 lg:items-start">
+            <div class="grid gap-3 md:gap-10 lg:grid-cols-3 lg:items-start">
                 <div class="space-y-6">
                     <Link :href="route('home')" class="inline-block">
                         <img :src="getImg(`/${settings.app_logo}`)" alt="Sự Kiện Tốt" class="rounded-full h-16 w-auto object-contain" />
