@@ -30,8 +30,8 @@ onMounted(() => {
 <template>
     <Header v-if="showNav" :background-class-names="backgroundClassNames" />
     <main :class="showNav ? 'pt-16' : 'pt-0'">
-        <div class="h-full bg-white">
-            <AppContent>
+        <div class="flex min-h-screen flex-col bg-white">
+            <AppContent class="flex-1">
                 <!-- the red bg banner on top of the page -->
                 <!-- <div v-if="showBannerBackground" :class="`absolute top-0 left-0 z-0 flex w-full h-48 items-center ${bannerBackgroundClassName || ''}`"> -->
                 <!-- </div> -->
@@ -39,8 +39,9 @@ onMounted(() => {
             </AppContent>
 
             <Footer v-if="showFooter" />
-            <ConfirmModal />
-            <Loading />
         </div>
+
+        <ConfirmModal />
+        <Loading />
     </main>
 </template>

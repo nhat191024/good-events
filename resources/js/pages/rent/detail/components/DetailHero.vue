@@ -69,12 +69,13 @@
             </div>
 
             <div class="flex flex-col gap-3">
-                <a
-                    :href="hotlineHref"
+                <button
+                    type="button"
                     class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    @click="isContactModalOpen = true"
                 >
                     Gọi ngay: {{ hotlineDisplay }}
-                </a>
+                </button>
                 <p class="text-xs text-gray-500">
                     Hotline hỗ trợ 24/7 của Sukientot sẵn sàng tư vấn giải pháp thuê thiết bị phù hợp cho sự kiện của bạn.
                 </p>
@@ -95,16 +96,61 @@
                 </li>
             </ul>
         </aside>
+
+        <div
+            v-if="isContactModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4"
+            @click="isContactModalOpen = false"
+        >
+            <div
+                class="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+                @click.stop
+            >
+                <button
+                    type="button"
+                    class="absolute right-3 top-3 rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    @click="isContactModalOpen = false"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            fill-rule="evenodd"
+                            d="M10 8.586 4.293 2.879 2.879 4.293 8.586 10l-5.707 5.707 1.414 1.414L10 11.414l5.707 5.707 1.414-1.414L11.414 10l5.707-5.707-1.414-1.414L10 8.586Z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </button>
+                <h3 class="text-lg font-semibold text-gray-900">Chọn cách liên hệ</h3>
+                <p class="mt-1 text-sm text-gray-600">Vui lòng chọn kênh liên hệ với tư vấn viên.</p>
+                <div class="mt-5 flex flex-col gap-3">
+                    <a
+                        :href="zaloHref"
+                        target="_blank"
+                        rel="noopener"
+                        class="inline-flex w-full items-center justify-center rounded-lg border border-primary-200 bg-primary-50 px-4 py-3 text-base font-semibold text-primary-700 transition hover:border-primary-300 hover:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    >
+                        Liên hệ qua Zalo
+                    </a>
+                    <a
+                        :href="hotlineHref"
+                        class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    >
+                        Gọi trực tiếp
+                    </a>
+                </div>
+            </div>
+        </div>
     </section>
 </template>
 
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 import { formatDate, formatPrice } from '@/lib/helper';
 
 import type { RentProduct, Tag, PreviewMedia } from '@/pages/rent/types';
 import { getImg } from '@/pages/booking/helper';
+import type { AppSettings } from '@/types';
 
 interface Props {
     rentProduct: RentProduct & { tags?: Tag[] };
@@ -118,6 +164,11 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const selectedImage = ref<string | null>(null);
+const isContactModalOpen = ref(false);
+
+const page = usePage();
+const appSettings = computed(() => page.props.app_settings as AppSettings | undefined);
+const settingsHotline = computed(() => appSettings.value?.contact_hotline?.trim() || null);
 
 const placeholderImage = computed(
     () => `https://ui-avatars.com/api/?name=${encodeURIComponent(props.rentProduct.name)}&background=1F73D8&color=ffffff&size=512`
@@ -145,12 +196,13 @@ const priceText = computed(() => {
     return Number.isFinite(value) ? `${formatPrice(value)} đ` : 'Liên hệ';
 });
 
-const hotlineDisplay = computed(() => props.contactHotline?.trim() || '0901 234 567');
+const hotlineDisplay = computed(() => settingsHotline.value || props.contactHotline?.trim() || '0901 234 567');
 
-const hotlineHref = computed(() => {
-    const numeric = hotlineDisplay.value.replace(/[^0-9+]/g, '');
-    return `tel:${numeric}`;
-});
+const hotlineNumeric = computed(() => hotlineDisplay.value.replace(/[^0-9+]/g, ''));
+
+const hotlineHref = computed(() => `tel:${hotlineNumeric.value}`);
+
+const zaloHref = computed(() => `http://zalo.me/${hotlineNumeric.value}`);
 
 function setPrimary(url: string) {
     selectedImage.value = url;

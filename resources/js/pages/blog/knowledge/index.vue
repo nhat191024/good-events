@@ -6,7 +6,7 @@
             :initial="sectionMotion.initial"
             :animate="sectionMotion.animate"
             class="bg-white w-full pb-12 pt-6 w-full">
-            <div class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto flex w-full max-w-6xl flex-col gap-3 md:gap-10 px-2 md:px-4 sm:px-6 lg:px-8">
                 <BlogDiscoverHeader
                     :is-category-page="isCategoryPage"
                     :category-name="props.category?.name ?? null"
@@ -41,7 +41,7 @@
                 />
 
                 <section>
-                    <div v-if="displayedBlogs.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div v-if="displayedBlogs.length" class="grid gap-2 grid-cols-2 lg:grid-cols-3">
                         <BlogHighlightCard
                             v-for="blog in displayedBlogs"
                             :key="blog.id"

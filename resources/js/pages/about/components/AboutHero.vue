@@ -3,7 +3,7 @@
         <div
             class="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr,1fr] lg:px-8">
             <div class="space-y-6">
-                <p class="text-sm font-semibold uppercase tracking-widest text-sky-600">{{ content.eyebrow }}</p>
+                <p class="text-sm font-semibold uppercase tracking-widest text-primary-600">{{ content.eyebrow }}</p>
                 <h1 class="text-4xl font-bold leading-tight text-slate-900 sm:text-5xl">
                     {{ content.title }}
                 </h1>
@@ -65,7 +65,7 @@
                         :while-hover="cardInteractions.hover"
                         :while-tap="cardInteractions.tap"
                     >
-                        <p class="text-sm font-semibold uppercase tracking-wide text-sky-600">
+                        <p class="text-sm font-semibold uppercase tracking-wide text-primary-600">
                             {{ highlight.kicker }}
                         </p>
                         <h3 class="mt-2 text-lg font-semibold text-slate-900">{{ highlight.title }}</h3>
@@ -77,7 +77,7 @@
             </div>
 
             <div class="relative">
-                <div class="absolute -inset-6 -z-10 rounded-[36px] bg-gradient-to-br from-sky-100 via-white to-amber-50 blur-2xl" />
+                <div class="absolute -inset-6 -z-10 rounded-[36px] bg-gradient-to-br from-primary-100 via-white to-amber-50 blur-2xl" />
                 <div class="grid gap-4 sm:grid-cols-2">
                     <motion.figure
                         v-for="(shot, index) in gallery"
@@ -220,7 +220,7 @@ const ctas = [
     {
         href: route('register'),
         label: 'Đăng ký ngay',
-        class: 'inline-flex items-center justify-center rounded-2xl bg-sky-600 px-6 py-3 text-base font-semibold text-white shadow-sm shadow-sky-600/30 transition hover:bg-sky-500',
+        class: 'inline-flex items-center justify-center rounded-2xl bg-primary-600 px-6 py-3 text-base font-semibold text-white shadow-sm shadow-primary-600/30 transition hover:bg-primary-500',
     },
     {
         href: route('tutorial.index'),

@@ -8,7 +8,7 @@
     >
         <Link
             :href="detailHref"
-            class="group relative flex h-full flex-col overflow-hidden rounded-[2rem] bg-white shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer"
+            class="group relative flex h-full flex-col overflow-hidden rounded-xl md:rounded-[2rem] bg-white shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer"
         >
             <div class="relative aspect-[4/5] w-full overflow-hidden">
                 <img
@@ -30,14 +30,14 @@
 
                 <div v-if="label" class="absolute right-4 top-4">
                     <span
-                        class="rounded-lg bg-black/50 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+                        class="rounded-lg bg-black/50 px-2 py-1 text-[8px] md:text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
                     >
                         {{ label }}
                     </span>
                 </div>
 
-                <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <h3 class="mb-3 line-clamp-2 text-xl font-bold leading-tight">
+                <div class="absolute bottom-0 left-0 right-0 p-2 md:p-6 text-white">
+                    <h3 class="mb-1 md:mb-3 line-clamp-2 text-sm md:text-xl font-bold leading-tight">
                         {{ blog.title }}
                     </h3>
 
@@ -56,7 +56,7 @@
 
                     <div
                         v-else-if="showAddress && addressLabel"
-                        class="mb-4 flex items-start gap-2 text-xs text-white/90"
+                        class="mb-1 md:mb-4 flex gap-1 md:gap-2 text-xs text-white/90 items-center"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -70,18 +70,18 @@
                                 clip-rule="evenodd"
                             />
                         </svg>
-                        <span class="line-clamp-2">{{ addressLabel }}</span>
+                        <span class="line-clamp-2 text-[10px] md:text-sm">{{ addressLabel }}</span>
                     </div>
 
-                    <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center justify-between gap-0 md:gap-4">
                         <div
                             v-if="blog.category?.name"
-                            :class="['rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wide text-white', categoryBadgeClass]"
+                            :class="['rounded-xl px-2 md:px-3 py-1 md:py-2 text-[8px] md:text-xs font-bold uppercase tracking-wide text-white', categoryBadgeClass]"
                         >
                             {{ blog.category.name }}
                         </div>
 
-                        <div class="flex items-center gap-2 text-xs font-medium text-white/80">
+                        <div class="flex items-center gap-0 md:gap-2 text-[9px] md:text-sm font-medium text-white/80">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"

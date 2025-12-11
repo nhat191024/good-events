@@ -8,7 +8,7 @@
         :while-hover="cardInteractions.hover"
         :while-tap="cardInteractions.tap"
     >
-        <Link :href="detailHref" class="h-full group relative block overflow-hidden rounded-3xl" :class="variantClass">
+        <Link :href="detailHref" class="h-full group relative block overflow-hidden rounded-xl md:rounded-3xl" :class="variantClass">
         <div class="absolute inset-0">
             <img
                 v-if="blog.thumbnail"
@@ -24,8 +24,8 @@
 
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition duration-500 group-hover:from-black/70" />
 
-        <div class="relative flex h-full flex-col justify-end gap-3 p-6 text-white">
-            <p v-if="dateLabel" class="text-xs font-semibold uppercase tracking-wider text-white/70">
+        <div class="relative flex h-full flex-col justify-end gap-1 md:gap-3 md:p-6 p-2 text-white">
+            <p v-if="dateLabel" class="text-[9px] md:text-xs font-semibold uppercase tracking-wider text-white/70">
                 {{ dateLabel }}
             </p>
             <h3 :class="titleClass">
@@ -42,7 +42,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 text-primary-200">
                         <path d="M12 2.25c-3.728 0-6.75 3.022-6.75 6.75 0 5.062 5.492 11.159 6.33 12.036a.75.75 0 0 0 1.04.038l.038-.038c.838-.877 6.34-6.974 6.34-12.036 0-3.728-3.022-6.75-6.75-6.75m0 9.563a2.813 2.813 0 1 1 0-5.625 2.813 2.813 0 0 1 0 5.625" />
                     </svg>
-                    <span class="font-semibold text-white">{{ locationLabel }}</span>
+                    <span class="font-semibold text-white text-[10px] md:text-xs">{{ locationLabel }}</span>
                 </span>
                 <span
                     v-if="capacityLabel"
@@ -51,10 +51,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 text-primary-200">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-6-6h12" />
                     </svg>
-                    <span class="font-semibold text-white">{{ capacityLabel }}</span>
+                    <span class="font-semibold text-white text-[10px] md:text-xs">{{ capacityLabel }}</span>
                 </span>
             </div>
-            <div class="flex items-center gap-2 text-sm font-medium text-primary-200">
+            <div class="flex items-center gap-2 text-xs font-medium text-primary-200">
                 <span>Đọc thêm</span>
                 <span aria-hidden="true" class="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </div>
@@ -106,11 +106,11 @@ const variantClass = computed(() => {
 const titleClass = computed(() => {
     switch (props.variant) {
         case 'featured':
-            return 'text-2xl font-semibold leading-snug line-clamp-3';
+            return 'text-md md:text-2xl font-semibold leading-snug line-clamp-3';
         case 'secondary':
-            return 'text-xl font-semibold leading-snug line-clamp-3';
+            return 'text-sm md:text-xl font-semibold leading-snug line-clamp-3';
         default:
-            return 'text-lg font-semibold leading-snug line-clamp-3';
+            return 'text-sm md:text-lg font-semibold leading-snug line-clamp-3';
     }
 });
 

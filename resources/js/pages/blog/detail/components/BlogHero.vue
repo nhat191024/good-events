@@ -1,5 +1,5 @@
 <template>
-    <article class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+    <article class="grid gap-2 md:gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <div class="space-y-4">
             <div class="flex flex-wrap items-center gap-3 text-sm font-medium">
                 <Link
