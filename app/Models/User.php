@@ -251,7 +251,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         });
 
         static::updating(function ($user) {
-            if ($user->isDirty('name') && $user->avatar->startsWith('https://ui-avatars.com/')) {
+            if ($user->isDirty('name') && Str::startsWith($user->avatar, 'https://ui-avatars.com/')) {
                 $name = urlencode($user->name);
                 $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
             }
