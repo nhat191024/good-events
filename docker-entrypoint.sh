@@ -25,8 +25,10 @@ npm run build:ssr
 
 # Set proper permissions
 echo "Setting permissions..."
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+chgrp -R www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R g+w /var/www/html/storage /var/www/html/bootstrap/cache
+find /var/www/html/storage -type d -exec chmod g+s {} +
+find /var/www/html/bootstrap/cache -type d -exec chmod g+s {} +
 
 # Clear and cache configurations
 echo "Clearing and caching configurations..."
