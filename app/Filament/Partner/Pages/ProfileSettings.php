@@ -220,8 +220,7 @@ class ProfileSettings extends Page implements HasForms
         try {
             // Simple validation (Filament form validation is already applied)
             $userData = [
-                // 'avatar' => "storage/{$data['avatar']}" ?? null,
-                'avatar' => $data['avatar'] ?? null,
+                'avatar' => $data['avatar'] ?? $user->avatar,
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'country_code' => $data['country_code'] ?? null,
