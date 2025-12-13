@@ -101,7 +101,8 @@ class AdminPanelProvider extends PanelProvider
                     ]),
                 FilamentLoggerPlugin::make(),
                 FilamentFailedJobsPlugin::make()
-                    ->authorize(fn () => Gate::check('viewAny', FailedJob::class)),
+                    ->authorize(fn () => Gate::check('viewAny', FailedJob::class))
+                    ->navigationGroup('system'),
                 FilamentLogViewerPlugin::make()
                     ->listLogs(ListLogs::class)
                     ->navigationGroup('system')
