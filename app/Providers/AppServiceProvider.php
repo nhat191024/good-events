@@ -32,6 +32,9 @@ use App\Policies\ActivityPolicy;
 use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
 use App\Policies\FailedJobPolicy;
 
+use Tapp\FilamentMailLog\Models\MailLog;
+use App\Policies\MailLogPolicy;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -56,6 +59,7 @@ class AppServiceProvider extends ServiceProvider
             Voucher::class => VoucherPolicy::class,
             Activity::class => ActivityPolicy::class,
             FailedJob::class => FailedJobPolicy::class,
+            MailLog::class => MailLogPolicy::class,
         ];
 
         //manually register policies - why? idk
