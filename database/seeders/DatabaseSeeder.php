@@ -26,7 +26,6 @@ class DatabaseSeeder extends Seeder
                 LocationSeeder::class,
                 RoleSeeder::class,
                 AdminSeeder::class,
-                AppSettingSeeder::class,
                 BannerSeeder::class,
                 ShieldSeeder::class,
             ]);
