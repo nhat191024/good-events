@@ -32,6 +32,7 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use BinaryBuilds\FilamentFailedJobs\FilamentFailedJobsPlugin;
 use Boquizo\FilamentLogViewer\FilamentLogViewerPlugin;
 use Tapp\FilamentMailLog\FilamentMailLogPlugin;
+use Hugomyb\FilamentErrorMailer\FilamentErrorMailerPlugin;
 
 use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
 
@@ -106,13 +107,14 @@ class AdminPanelProvider extends PanelProvider
                     ]),
                 FilamentLoggerPlugin::make(),
                 FilamentFailedJobsPlugin::make()
-                    ->authorize(fn () => Gate::check('viewAny', FailedJob::class))
+                    ->authorize(fn() => Gate::check('viewAny', FailedJob::class))
                     ->navigationGroup('system'),
                 FilamentLogViewerPlugin::make()
                     ->listLogs(ListLogs::class)
                     ->navigationGroup('system')
                     ->navigationLabel(__('global.log_viewer')),
                 FilamentMailLogPlugin::make(),
+                FilamentErrorMailerPlugin::make(),
             ])
 
             ->middleware([
