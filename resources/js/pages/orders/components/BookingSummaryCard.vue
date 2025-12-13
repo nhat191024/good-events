@@ -48,7 +48,7 @@ const applyVoucher = computed({
     set: (value: boolean) => emit('update:applyVoucher', value),
 })
 
-function goToChat(thread_id: number|null, canAccess: boolean) {
+function goToChat(thread_id: number | null, canAccess: boolean) {
     if (!thread_id || canAccess) return
     router.get(route('chat.index', { chat: thread_id }))
 }
@@ -215,8 +215,7 @@ watch(() => form.voucher_input, (newVal) => {
             <div class="max-w-3xl mx-auto">
                 <div v-if="props.order?.review" class="space-y-3 mb-3">
                     <div
-                        class="flex items-center gap-3 p-2 md:p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-sm"
-                    >
+                        class="flex items-center gap-3 p-2 md:p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-sm">
                         <Star class="h-5 w-5 text-amber-500" />
                         <div>
                             <div class="text-xs text-amber-700 font-semibold">
@@ -327,14 +326,10 @@ watch(() => form.voucher_input, (newVal) => {
                                 </div>
                                 <div class="flex gap-2 items-center">
                                     <span class="text-xs text-muted-foreground select-none">Áp dụng mã</span>
-                                    <SwitchRoot
-                                        id="apply-voucher"
-                                        v-model="applyVoucher"
-                                        class="w-[36px] h-[22px] shadow-sm flex data-[state=unchecked]:bg-stone-300 data-[state=checked]:bg-stone-800 dark:data-[state=unchecked]:bg-stone-800 dark:data-[state=checked]:bg-stone-700 border border-stone-300 data-[state=checked]:border-stone-700  dark:border-stone-700 rounded-full relative transition-[background] focus-within:outline-none focus-within:shadow-[0_0_0_1px] focus-within:border-stone-800 focus-within:shadow-stone-800"
-                                    >
+                                    <SwitchRoot id="apply-voucher" v-model="applyVoucher"
+                                        class="w-[36px] h-[22px] shadow-sm flex data-[state=unchecked]:bg-stone-300 data-[state=checked]:bg-stone-800 dark:data-[state=unchecked]:bg-stone-800 dark:data-[state=checked]:bg-stone-700 border border-stone-300 data-[state=checked]:border-stone-700  dark:border-stone-700 rounded-full relative transition-[background] focus-within:outline-none focus-within:shadow-[0_0_0_1px] focus-within:border-stone-800 focus-within:shadow-stone-800">
                                         <SwitchThumb
-                                            class="w-4 h-4 my-auto bg-white text-xs flex items-center justify-center shadow-xl rounded-full transition-transform translate-x-0.5 will-change-transform data-[state=checked]:translate-x-full"
-                                        />
+                                            class="w-4 h-4 my-auto bg-white text-xs flex items-center justify-center shadow-xl rounded-full transition-transform translate-x-0.5 will-change-transform data-[state=checked]:translate-x-full" />
                                     </SwitchRoot>
                                 </div>
                             </div>
@@ -361,7 +356,8 @@ watch(() => form.voucher_input, (newVal) => {
 
                 <!-- actions -->
                 <div class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
-                    <button v-if="(props.mode === 'current')" @click="goToChat(props.order?.thread_id??null, !(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB))"
+                    <button v-if="(props.mode === 'current')"
+                        @click="goToChat(props.order?.thread_id ?? null, !(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB))"
                         :class="(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB) ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"
                         class="h-10 rounded-md text-white flex-1">Chat ngay</button>
 
@@ -372,101 +368,104 @@ watch(() => form.voucher_input, (newVal) => {
                 </div>
             </div>
         </div>
-    </div>
-
-    <div v-if="showVoucherDialog" class="fixed inset-0 z-[70] grid place-items-center bg-black/40 p-4"
-        @click.self="closeVoucherDialog">
-        <div class="w-full max-w-2xl rounded-xl bg-card text-card-foreground border border-border shadow-lg">
-            <div class="p-4 border-b border-border flex items-start justify-between gap-3">
-                <div>
-                    <div class="text-xs text-muted-foreground mb-1">Kết quả kiểm tra mã</div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="text-lg font-semibold">
-                            {{ voucherCheckResult?.details?.code ?? form.voucher_input }}
-                        </span>
-                        <span :class="['px-2 py-1 rounded-full text-xs font-semibold', voucherStatusBadge.cls]">
-                            {{ voucherStatusBadge.text }}
-                        </span>
+        <div v-if="showVoucherDialog" class="fixed inset-0 z-[70] grid place-items-center bg-black/40 p-4"
+            @click.self="closeVoucherDialog">
+            <div class="w-full max-w-2xl rounded-xl bg-card text-card-foreground border border-border shadow-lg">
+                <div class="p-4 border-b border-border flex items-start justify-between gap-3">
+                    <div>
+                        <div class="text-xs text-muted-foreground mb-1">Kết quả kiểm tra mã</div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-lg font-semibold">
+                                {{ voucherCheckResult?.details?.code ?? form.voucher_input }}
+                            </span>
+                            <span :class="['px-2 py-1 rounded-full text-xs font-semibold', voucherStatusBadge.cls]">
+                                {{ voucherStatusBadge.text }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-muted-foreground mt-1 leading-relaxed">
+                            {{ voucherCheckResult?.message ?? 'Kiểm tra mã giảm giá để xem chi tiết.' }}
+                        </p>
                     </div>
-                    <p class="text-sm text-muted-foreground mt-1 leading-relaxed">
-                        {{ voucherCheckResult?.message ?? 'Kiểm tra mã giảm giá để xem chi tiết.' }}
-                    </p>
-                </div>
-                <button class="text-muted-foreground hover:text-foreground text-xl leading-none" type="button"
-                    @click="closeVoucherDialog">
-                    ×
-                </button>
-            </div>
-
-            <div class="p-4 space-y-4">
-                <div v-if="voucherCheckResult?.details" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div class="p-3 rounded-lg border border-border/70 bg-muted/20">
-                        <div class="text-xs text-muted-foreground mb-1">Mức giảm</div>
-                        <div class="text-base font-semibold">
-                            {{ voucherCheckResult?.details?.discount_percent
-                                ? voucherCheckResult?.details?.discount_percent + '% trên giá chốt'
-                                : 'Không giới hạn phần trăm' }}
-                        </div>
-                        <div class="text-xs text-muted-foreground">
-                            Tối đa: {{ voucherCheckResult?.details?.max_discount_amount
-                                ? formatPrice(voucherCheckResult?.details?.max_discount_amount) + 'đ'
-                                : 'Không giới hạn' }}
-                        </div>
-                    </div>
-
-                    <div class="p-3 rounded-lg border border-border/70 bg-muted/20">
-                        <div class="text-xs text-muted-foreground mb-1">Điều kiện đơn tối thiểu</div>
-                        <div class="text-base font-semibold">
-                            {{ voucherCheckResult?.details?.min_order_amount
-                                ? formatPrice(voucherCheckResult?.details?.min_order_amount) + 'đ'
-                                : 'Không yêu cầu' }}
-                        </div>
-                        <div class="text-xs text-muted-foreground">Mã sẽ áp dụng khi bạn chốt giá với đối tác.</div>
-                    </div>
-
-                    <div class="p-3 rounded-lg border border-border/70 bg-muted/20">
-                        <div class="text-xs text-muted-foreground mb-1">Thời gian hiệu lực</div>
-                        <div class="text-sm font-semibold">
-                            {{ voucherCheckResult?.details?.starts_at
-                                ? 'Bắt đầu: ' + formatDateSafe(voucherCheckResult?.details?.starts_at)
-                                : 'Hiệu lực ngay' }}
-                        </div>
-                        <div class="text-sm font-semibold">
-                            {{ voucherCheckResult?.details?.expires_at
-                                ? 'Hết hạn: ' + formatDateSafe(voucherCheckResult?.details?.expires_at)
-                                : 'Không có hạn' }}
-                        </div>
-                    </div>
-
-                    <div class="p-3 rounded-lg border border-border/70 bg-muted/20">
-                        <div class="text-xs text-muted-foreground mb-1">Lượt sử dụng</div>
-                        <div class="text-base font-semibold">
-                            {{ voucherCheckResult?.details?.is_unlimited
-                                ? 'Không giới hạn lượt dùng'
-                                : `${voucherCheckResult?.details?.times_used ?? 0}/${voucherCheckResult?.details?.usage_limit ?? '∞'}` }}
-                        </div>
-                        <div class="text-xs text-muted-foreground">Giữ nguyên mã khi bấm "Chọn đối tác".</div>
-                    </div>
+                    <!-- Action close button -->
+                    <button class="text-muted-foreground hover:text-foreground text-xl leading-none" type="button"
+                        @click="closeVoucherDialog">
+                        ×
+                    </button>
                 </div>
 
-                <div v-else class="p-3 rounded-lg border border-border/70 bg-muted/10 text-sm text-muted-foreground">
-                    Không tìm thấy thông tin chi tiết cho mã này. Vui lòng kiểm tra lại mã hoặc thử lại sau.
+                <div class="p-4 space-y-4">
+                    <div v-if="voucherCheckResult?.details" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="p-3 rounded-lg border border-border/70 bg-muted/20">
+                            <div class="text-xs text-muted-foreground mb-1">Mức giảm</div>
+                            <div class="text-base font-semibold">
+                                {{ voucherCheckResult?.details?.discount_percent
+                                    ? voucherCheckResult?.details?.discount_percent + '% trên giá chốt'
+                                    : 'Không giới hạn phần trăm' }}
+                            </div>
+                            <div class="text-xs text-muted-foreground">
+                                Tối đa: {{ voucherCheckResult?.details?.max_discount_amount
+                                    ? formatPrice(voucherCheckResult?.details?.max_discount_amount) + 'đ'
+                                    : 'Không giới hạn' }}
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-lg border border-border/70 bg-muted/20">
+                            <div class="text-xs text-muted-foreground mb-1">Điều kiện đơn tối thiểu</div>
+                            <div class="text-base font-semibold">
+                                {{ voucherCheckResult?.details?.min_order_amount
+                                    ? formatPrice(voucherCheckResult?.details?.min_order_amount) + 'đ'
+                                    : 'Không yêu cầu' }}
+                            </div>
+                            <div class="text-xs text-muted-foreground">Mã sẽ áp dụng khi bạn chốt giá với đối tác.</div>
+                        </div>
+
+                        <div class="p-3 rounded-lg border border-border/70 bg-muted/20">
+                            <div class="text-xs text-muted-foreground mb-1">Thời gian hiệu lực</div>
+                            <div class="text-sm font-semibold">
+                                {{ voucherCheckResult?.details?.starts_at
+                                    ? 'Bắt đầu: ' + formatDateSafe(voucherCheckResult?.details?.starts_at)
+                                    : 'Hiệu lực ngay' }}
+                            </div>
+                            <div class="text-sm font-semibold">
+                                {{ voucherCheckResult?.details?.expires_at
+                                    ? 'Hết hạn: ' + formatDateSafe(voucherCheckResult?.details?.expires_at)
+                                    : 'Không có hạn' }}
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-lg border border-border/70 bg-muted/20">
+                            <div class="text-xs text-muted-foreground mb-1">Lượt sử dụng</div>
+                            <div class="text-base font-semibold">
+                                {{ voucherCheckResult?.details?.is_unlimited
+                                    ? 'Không giới hạn lượt dùng'
+                                    : `${voucherCheckResult?.details?.times_used ??
+                                    0}/${voucherCheckResult?.details?.usage_limit ??
+                                    '∞'}` }}
+                            </div>
+                            <div class="text-xs text-muted-foreground">Giữ nguyên mã khi bấm "Chọn đối tác".</div>
+                        </div>
+                    </div>
+
+                    <div v-else
+                        class="p-3 rounded-lg border border-border/70 bg-muted/10 text-sm text-muted-foreground">
+                        Không tìm thấy thông tin chi tiết cho mã này. Vui lòng kiểm tra lại mã hoặc thử lại sau.
+                    </div>
+
+                    <div class="text-xs text-muted-foreground">
+                        Mã đã được lưu tạm thời, chỉ cần giữ nguyên trường mã khi bấm "Chọn đối tác" để áp dụng.
+                    </div>
                 </div>
 
-                <div class="text-xs text-muted-foreground">
-                    Mã đã được lưu tạm thời, chỉ cần giữ nguyên trường mã khi bấm "Chọn đối tác" để áp dụng.
+                <div class="p-4 border-t border-border flex gap-2">
+                    <button class="flex-1 h-10 rounded-md border border-border bg-transparent" type="button"
+                        @click="closeVoucherDialog">
+                        Đóng
+                    </button>
+                    <button class="flex-1 h-10 rounded-md bg-primary-700 text-white" type="button"
+                        @click="closeVoucherDialog">
+                        Lưu mã
+                    </button>
                 </div>
-            </div>
-
-            <div class="p-4 border-t border-border flex gap-2">
-                <button class="flex-1 h-10 rounded-md border border-border bg-transparent" type="button"
-                    @click="closeVoucherDialog">
-                    Đóng
-                </button>
-                <button class="flex-1 h-10 rounded-md bg-primary-700 text-white" type="button"
-                    @click="closeVoucherDialog">
-                    Lưu mã
-                </button>
             </div>
         </div>
     </div>

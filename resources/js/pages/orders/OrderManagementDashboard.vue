@@ -73,7 +73,7 @@ function fetchSingleOrder(orderId: number) {
                 selectedOrder.value = order
 
                 if (order.status !== 'pending') {
-                    console.warn('Order status changed to:', order.status)
+                    // console.warn('Order status changed to:', order.status)
                 }
             }
         },
@@ -244,7 +244,7 @@ function fetchDetails(id: number, reload = false) {
 }
 
 function refreshDetails(id: number | undefined) {
-    if (!id) return
+    if (!id || activeTab.value !== 'current') return
     fetchDetails(id, true)
 }
 
@@ -518,7 +518,7 @@ onBeforeUnmount(() => {
 
     <Head title="Đơn hàng của tôi" />
     <ClientHeaderLayout :show-footer="false">
-        <div class="flex h-[90vh] bg-background w-full overflow-visible">
+        <div class="flex h-[95vh] bg-background w-full overflow-visible">
             <div :class="[showMobileDetail ? 'hidden md:block' : 'block', 'w-full md:w-auto']">
                 <Sidebar :orderList="currentOrders" :history-loading="loadingForSidebar"
                     :order-loading="loadingForSidebar" :orderHistory="historyItems"

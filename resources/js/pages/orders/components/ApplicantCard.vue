@@ -29,6 +29,13 @@ const cardMotion = {
     viewport: { once: true, amount: 0.3 },
 } as const;
 
+import { computed } from 'vue';
+
+const rating = computed(() => props.partner?.statistics?.average_stars ?? 0);
+const totalJobs = computed(() => props.partner?.statistics?.total_ratings ?? 0);
+const completionRate = computed(() => 100); // Placeholder or map from new metric if available
+const responseTime = computed(() => '5 phút'); // Placeholder or map from new metric if available
+
 const actionInteractions = {
     hover: {
         scale: 1.03,
@@ -42,13 +49,9 @@ const actionInteractions = {
 </script>
 
 <template>
-    <motion.div
-        class="transition-all duration-200 border-2 rounded-xl bg-card hover:shadow-lg hover:border-primary/20"
-        :initial="cardMotion.initial"
-        :while-in-view="cardMotion.visible"
-        :viewport="cardMotion.viewport"
-        :transition="cardMotion.transition"
-    >
+    <motion.div class="transition-all duration-200 border-2 rounded-xl bg-card hover:shadow-lg hover:border-primary/20"
+        :initial="cardMotion.initial" :while-in-view="cardMotion.visible" :viewport="cardMotion.viewport"
+        :transition="cardMotion.transition">
         <div class="p-2 md:p-4">
             <div class="flex gap-6">
                 <!-- content -->
@@ -66,7 +69,7 @@ const actionInteractions = {
                         <div class="w-full">
                             <div class="flex items-center gap-2 mb-1">
                                 <h3 class="text-xl font-bold text-foreground">
-                                    {{ partner.partner_profile?.partner_name ?? partner.name }}</h3>
+                                    {{ partner?.partner_profile?.partner_name ?? partner?.name }}</h3>
                                 <!-- <Award v-if="verified" class="h-5 w-5 text-primary" /> -->
                             </div>
                             <div class="flex flex-col items-start gap-1 text-sm text-muted-foreground mb-0">

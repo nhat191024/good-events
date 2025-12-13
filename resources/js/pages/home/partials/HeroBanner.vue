@@ -2,10 +2,9 @@
     <section class="relative w-full bg-white">
         <motion.div class="relative h-[620px] md:h-[60vh] w-full overflow-hidden" :initial="heroMotion.initial"
             :animate="heroMotion.animate">
-            <Swiper v-if="hasSlides" :modules="swiperModules"
-                effect="fade" :fade-effect="{ crossFade: true }" :allow-touch-move="false"
-                :autoplay="{ delay: 5200, disableOnInteraction: false }" loop :space-between="0"
-                :slides-per-view="1" class="hero-swiper h-full">
+            <Swiper v-if="hasSlides" :modules="swiperModules" effect="fade" :fade-effect="{ crossFade: true }"
+                :allow-touch-move="false" :autoplay="{ delay: 5200, disableOnInteraction: false }" loop
+                :space-between="0" :slides-per-view="1" class="hero-swiper h-full">
                 <SwiperSlide v-for="slide in slides" :key="slide.key">
                     <div class="hero-slide">
                         <div class="hero-media" v-html="slide.src"></div>
@@ -35,6 +34,7 @@
 import { computed } from 'vue';
 import { motion } from 'motion-v';
 
+import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Autoplay, EffectFade } from 'swiper/modules';
 
 import 'swiper/css';
@@ -51,7 +51,7 @@ const props = withDefaults(defineProps<{
     bannerImages?: BannerImage[];
 }>(), {
     headerBannerImg: '/images/banner-image.webp',
-    bannerImages: [],
+    bannerImages: () => [],
 });
 
 const swiperModules = [Autoplay, EffectFade];
