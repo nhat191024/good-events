@@ -34,37 +34,7 @@
                     :transition="cardMotion.transition" :while-hover="cardInteractions.hover"
                     :while-tap="cardInteractions.tap">
                     <div class="space-y-4">
-                        <!-- Zalo: Minh -->
-                        <div class="flex items-start gap-4">
-                            <div class="bg-primary/10 rounded-full p-3">
-                                <img class="h-6 w-6 text-primary" src="/images/social/zalo.png" alt="Zalo Icon">
-                            </div>
-                            <a class="group transition-colors duration-200 hover:text-primary"
-                                href="https://zalo.me/0908556913" target="_blank" rel="noopener noreferrer">
-                                <h3 class="font-semibold transition-all duration-200 group-hover:underline text-white">
-                                    Zalo: Minh</h3>
-                                <p
-                                    class="text-indigo-100 transition-all duration-200 group-hover:text-primary group-hover:underline">
-                                    0908.556.913
-                                </p>
-                            </a>
-                        </div>
 
-                        <!-- Zalo: Phương -->
-                        <div class="flex items-start gap-4">
-                            <div class="bg-primary/10 rounded-full p-3">
-                                <img class="h-6 w-6 text-primary" src="/images/social/zalo.png" alt="Zalo Icon">
-                            </div>
-                            <a class="group transition-colors duration-200 hover:text-primary"
-                                href="https://zalo.me/0975038534" target="_blank" rel="noopener noreferrer">
-                                <h3 class="font-semibold transition-all duration-200 group-hover:underline text-white">
-                                    Zalo: Phương</h3>
-                                <p
-                                    class="text-indigo-100 transition-all duration-200 group-hover:text-primary group-hover:underline">
-                                    0975.038.534
-                                </p>
-                            </a>
-                        </div>
 
                         <!-- Zalo Group Link -->
                         <div class="flex items-start gap-4">
