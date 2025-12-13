@@ -33,11 +33,123 @@
                     :initial="cardMotion.initial" :while-in-view="cardMotion.visible" :viewport="cardMotion.viewport"
                     :transition="cardMotion.transition" :while-hover="cardInteractions.hover"
                     :while-tap="cardInteractions.tap">
-                    <p class="text-sm font-medium uppercase tracking-wide text-indigo-200">Cam kết phản hồi</p>
-                    <p class="mt-4 text-2xl font-semibold text-white">Trong vòng 2 giờ làm việc</p>
-                    <p class="mt-3 text-base text-indigo-100">
-                        Mọi thông tin của bạn được bảo mật và chỉ sử dụng để hỗ trợ yêu cầu đã gửi.
-                    </p>
+                    <div class="space-y-4">
+                        <!-- Zalo: Minh -->
+                        <div class="flex items-start gap-4">
+                            <div class="bg-primary/10 rounded-full p-3">
+                                <img class="h-6 w-6 text-primary" src="/images/social/zalo.png" alt="Zalo Icon">
+                            </div>
+                            <a class="group transition-colors duration-200 hover:text-primary"
+                                href="https://zalo.me/0908556913" target="_blank" rel="noopener noreferrer">
+                                <h3 class="font-semibold transition-all duration-200 group-hover:underline text-white">
+                                    Zalo: Minh</h3>
+                                <p
+                                    class="text-indigo-100 transition-all duration-200 group-hover:text-primary group-hover:underline">
+                                    0908.556.913
+                                </p>
+                            </a>
+                        </div>
+
+                        <!-- Zalo: Phương -->
+                        <div class="flex items-start gap-4">
+                            <div class="bg-primary/10 rounded-full p-3">
+                                <img class="h-6 w-6 text-primary" src="/images/social/zalo.png" alt="Zalo Icon">
+                            </div>
+                            <a class="group transition-colors duration-200 hover:text-primary"
+                                href="https://zalo.me/0975038534" target="_blank" rel="noopener noreferrer">
+                                <h3 class="font-semibold transition-all duration-200 group-hover:underline text-white">
+                                    Zalo: Phương</h3>
+                                <p
+                                    class="text-indigo-100 transition-all duration-200 group-hover:text-primary group-hover:underline">
+                                    0975.038.534
+                                </p>
+                            </a>
+                        </div>
+
+                        <!-- Zalo Group Link -->
+                        <div class="flex items-start gap-4">
+                            <div class="bg-primary/10 rounded-full p-3">
+                                <img class="h-6 w-6 text-primary" src="/images/social/zalo.png" alt="Zalo Icon">
+                            </div>
+                            <a class="group transition-colors duration-200 hover:text-primary"
+                                href="https://zalo.me/g/mudhks623" target="_blank" rel="noopener noreferrer">
+                                <h3 class="font-semibold transition-all duration-200 group-hover:underline text-white">
+                                    Nhóm Zalo Đối Tác</h3>
+                                <p
+                                    class="text-indigo-100 transition-all duration-200 group-hover:text-primary group-hover:underline">
+                                    Tham gia nhóm Zalo đối tác
+                                </p>
+                            </a>
+                        </div>
+
+                        <!-- Facebook Link -->
+                        <div class="flex items-start gap-4">
+                            <div class="bg-primary/10 rounded-full p-3">
+                                <img class="h-6 w-6 text-primary" src="/images/social/facebook.png" alt="Facebook Icon">
+                            </div>
+                            <a class="group transition-colors duration-200 hover:text-primary"
+                                href="https://www.facebook.com/share/16WPcoU7x7/?mibextid=wwXIfr" target="_blank"
+                                rel="noopener noreferrer">
+                                <h3 class="font-semibold transition-all duration-200 group-hover:underline text-white">
+                                    Facebook</h3>
+                                <p
+                                    class="text-indigo-100 transition-all duration-200 group-hover:text-primary group-hover:underline">
+                                    Theo dõi chúng tôi trên Facebook
+                                </p>
+                            </a>
+                        </div>
+
+                        <!-- Facebook Group Link -->
+                        <div class="flex items-start gap-4">
+                            <div class="bg-primary/10 rounded-full p-3">
+                                <img class="h-6 w-6 text-primary" src="/images/social/facebook.png" alt="Facebook Icon">
+                            </div>
+                            <a class="group transition-colors duration-200 hover:text-primary"
+                                href="https://www.facebook.com/share/g/1D9PCXgbbq/?mibextid=wwXIfr" target="_blank"
+                                rel="noopener noreferrer">
+                                <h3 class="font-semibold transition-all duration-200 group-hover:underline text-white">
+                                    Nhóm Cộng Đồng</h3>
+                                <p
+                                    class="text-indigo-100 transition-all duration-200 group-hover:text-primary group-hover:underline">
+                                    Nhân sự - Sự kiện
+                                </p>
+                            </a>
+                        </div>
+
+                        <!-- YouTube Link -->
+                        <div class="flex items-start gap-4">
+                            <div class="bg-primary/10 rounded-full p-3">
+                                <img class="h-6 w-6 text-primary" src="/images/social/youtube.png" alt="YouTube Icon">
+                            </div>
+                            <a class="group transition-colors duration-200 hover:text-primary"
+                                href="https://youtube.com/@sukientot?si=00L9WnYoZyxfuPDb" target="_blank"
+                                rel="noopener noreferrer">
+                                <h3 class="font-semibold transition-all duration-200 group-hover:underline text-white">
+                                    YouTube</h3>
+                                <p
+                                    class="text-indigo-100 transition-all duration-200 group-hover:text-primary group-hover:underline">
+                                    Xem kênh YouTube của chúng tôi
+                                </p>
+                            </a>
+                        </div>
+
+                        <!-- TikTok Link -->
+                        <div class="flex items-start gap-4">
+                            <div class="bg-primary/10 rounded-full p-3">
+                                <img class="h-6 w-6 text-primary" src="/images/social/tiktok.png" alt="TikTok Icon">
+                            </div>
+                            <a class="group transition-colors duration-200 hover:text-primary"
+                                href="https://www.tiktok.com/@sukien.com?_r=1&_t=ZS-92A2PZ54gxJ" target="_blank"
+                                rel="noopener noreferrer">
+                                <h3 class="font-semibold transition-all duration-200 group-hover:underline text-white">
+                                    TikTok</h3>
+                                <p
+                                    class="text-indigo-100 transition-all duration-200 group-hover:text-primary group-hover:underline">
+                                    Theo dõi TikTok của chúng tôi
+                                </p>
+                            </a>
+                        </div>
+                    </div>
                 </motion.div>
             </div>
         </div>
