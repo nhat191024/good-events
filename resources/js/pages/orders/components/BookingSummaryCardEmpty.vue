@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getImg } from '@/pages/booking/helper';
-import { Star } from 'lucide-vue-next';
+import { Star, CalendarDays, Clock, MapPin, Award } from 'lucide-vue-next';
 
 </script>
 
@@ -10,8 +10,8 @@ import { Star } from 'lucide-vue-next';
             <!-- mobile back button sẽ nằm ở panel ngoài -->
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-3">
-                    <img :src="getImg('')"
-                        alt="Traditional Vietnamese scholar" class="w-12 h-12 object-contain rounded-full" />
+                    <img :src="getImg('')" alt="Traditional Vietnamese scholar"
+                        class="w-12 h-12 object-contain rounded-full" />
                 </div>
                 <h3 class="text-xl font-bold text-foreground mb-1">Xem chi tiết</h3>
                 <p class="text-sm text-muted-foreground">Hãy chọn một đơn bất kỳ để xem chi tiết
@@ -69,15 +69,13 @@ import { Star } from 'lucide-vue-next';
                 <div class="flex gap-3">
                     <button disabled class="h-10 rounded-md bg-gray-400 text-white flex-1">Chat now</button>
 
-                    <button
-                        class="h-10 rounded-md border border-gray-400 text-gray-400 bg-transparent flex-1">
+                    <button class="h-10 rounded-md border border-gray-400 text-gray-400 bg-transparent flex-1">
                         Cancel
                     </button>
 
                     <!-- rating button chỉ hiện ở history + completed -->
                     <button disabled
-                        class="h-10 rounded-md border border-gray-400 flex-1 inline-flex items-center justify-center gap-2"
-                        >
+                        class="h-10 rounded-md border border-gray-400 flex-1 inline-flex items-center justify-center gap-2">
                         <Star class="h-4 w-4 text-gray-400" />
                         <span class="text-gray-400">Đánh giá</span>
                     </button>
