@@ -31,7 +31,6 @@
         "leandrocfe/filament-apex-charts": "^4.0@beta",
         "maennchen/zipstream-php": "^3.2",
         "malzariey/filament-daterangepicker-filter": "^4.0",
-        "opcodesio/log-viewer": "^3.19",
         "opencage/geocode": "^3.3",
         "payos/payos": "^1.0",
         "predis/predis": "^3.2",
@@ -47,6 +46,7 @@
         "spatie/laravel-sluggable": "^3.7",
         "spatie/laravel-tags": "^4.10",
         "spatie/laravel-uptime-monitor": "^4.5",
+        "tapp/filament-maillog": "^2.0",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
