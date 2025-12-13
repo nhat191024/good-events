@@ -47,7 +47,12 @@ class PartnerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $settings = app(AppSettings::class);
+        try {
+            $settings = app(AppSettings::class);
+            $favicon = asset($settings->app_favicon);
+        } catch (\Exception $e) {
+            $favicon = asset('images/favicon.ico');
+        }
 
         return $panel
             ->id('partner')
@@ -59,7 +64,7 @@ class PartnerPanelProvider extends PanelProvider
             ->passwordReset()
 
             ->brandName('Sự Kiện tốt - Đối tác')
-            ->favicon(asset($settings->app_favicon))
+            ->favicon($favicon)
             ->colors([
                 'primary' => Color::Rose
             ])
