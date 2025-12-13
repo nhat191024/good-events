@@ -48,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(AppSettings $settings): void
+    public function boot(): void
     {
         Auth::provider('polymorphic', function ($app, array $config) {
             return new PolymorphicUserProvider($app['hash'], $config['model']);
@@ -82,6 +82,19 @@ class AppServiceProvider extends ServiceProvider
                 ->locales(['vi', 'en']); // also accepts a closure
         });
 
+        try {
+            $settings = app(AppSettings::class);
+            $settingsArray = $this->getSettingsArray($settings);
+        } catch (\Exception $e) {
+            $settingsArray = [
+                'app_name'    => config('app.name'),
+                'app_logo'    => null,
+                'app_favicon' => null,
+                'contact_hotline' => null,
+                'contact_email' => null,
+            ];
+        }
+
         Inertia::share([
             'flash' => function () {
                 return [
@@ -89,10 +102,10 @@ class AppServiceProvider extends ServiceProvider
                     'error'   => session('error'),
                 ];
             },
-            'app_settings'  => fn() => $this->getSettingsArray($settings)
+            'app_settings'  => fn() => $settingsArray
         ]);
 
-        View::share('settings', $this->getSettingsArray($settings));
+        View::share('settings', $settingsArray);
     }
 
     private function getSettingsArray(AppSettings $settings)

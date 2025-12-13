@@ -49,7 +49,12 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $settings = app(AppSettings::class);
+        try {
+            $settings = app(AppSettings::class);
+            $favicon = asset($settings->app_favicon);
+        } catch (\Exception $e) {
+            $favicon = asset('images/favicon.ico');
+        }
 
         return $panel
             ->default()
@@ -60,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Red,
             ])
             ->brandName('Sự Kiện tốt - Admin')
-            ->favicon(asset($settings->app_favicon))
+            ->favicon($favicon)
             ->maxContentWidth(Width::Full)
             ->navigationGroups(FilamentNavigationGroup::class)
 
