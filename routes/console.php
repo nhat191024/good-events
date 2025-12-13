@@ -18,7 +18,7 @@ Schedule::call(function () {
     }
 })->daily();
 
-$schedule->call(function () {
+Schedule::call(function () {
     $storagePath = config('error-mailer.storage_path');
     $files = File::files($storagePath);
 
