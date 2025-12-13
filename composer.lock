@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "655cfe1d6cd1cf8b230c4429ffbb76af",
+    "content-hash": "eab70c8239244888ee002a7dea990163",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -3592,6 +3592,79 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "hugomyb/filament-error-mailer",
+            "version": "v4.0.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hugomyb/filament-error-mailer.git",
+                "reference": "589dffb1e0b20f3128d5467b4eb63f8986f59a6f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hugomyb/filament-error-mailer/zipball/589dffb1e0b20f3128d5467b4eb63f8986f59a6f",
+                "reference": "589dffb1e0b20f3128d5467b4eb63f8986f59a6f",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.0|^4.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "nunomaduro/collision": "^7.9",
+                "orchestra/testbench": "^8.0",
+                "pestphp/pest": "^2.1",
+                "pestphp/pest-plugin-arch": "^2.0",
+                "pestphp/pest-plugin-laravel": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "FilamentErrorMailer": "Hugomyb\\FilamentErrorMailer\\Facades\\FilamentErrorMailer"
+                    },
+                    "providers": [
+                        "Hugomyb\\FilamentErrorMailer\\FilamentErrorMailerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hugomyb\\FilamentErrorMailer\\": "src/",
+                    "Hugomyb\\FilamentErrorMailer\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mayonobe Hugo",
+                    "email": "hugomayonobe@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Filament plugin for instant e-mail alerts on web errors, simplifying monitoring and application stability.",
+            "homepage": "https://github.com/hugomyb/filament-error-mailer",
+            "keywords": [
+                "filament-error-mailer",
+                "hugomyb",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/hugomyb/filament-error-mailer/issues",
+                "source": "https://github.com/hugomyb/filament-error-mailer"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/hugomyb",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-11-25T21:07:41+00:00"
         },
         {
             "name": "inertiajs/inertia-laravel",
