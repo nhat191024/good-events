@@ -22,14 +22,18 @@ use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+
+use Illuminate\Support\Facades\Gate;
 
 use Jacobtims\FilamentLogger\FilamentLoggerPlugin;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use BinaryBuilds\FilamentFailedJobs\FilamentFailedJobsPlugin;
 use Boquizo\FilamentLogViewer\FilamentLogViewerPlugin;
+use Tapp\FilamentMailLog\FilamentMailLogPlugin;
+
+use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
 
 use App\Filament\Admin\Widgets\AdminStatisticsWidget;
 use App\Filament\Admin\Widgets\AdminRevenueChart;
@@ -96,11 +100,13 @@ class AdminPanelProvider extends PanelProvider
                         'sm' => 2,
                     ]),
                 FilamentLoggerPlugin::make(),
-                FilamentFailedJobsPlugin::make(),
+                FilamentFailedJobsPlugin::make()
+                    ->authorize(fn () => Gate::check('viewAny', FailedJob::class)),
                 FilamentLogViewerPlugin::make()
                     ->listLogs(ListLogs::class)
                     ->navigationGroup('system')
-                    ->navigationLabel(__('global.log_viewer'))
+                    ->navigationLabel(__('global.log_viewer')),
+                FilamentMailLogPlugin::make(),
             ])
 
             ->middleware([
