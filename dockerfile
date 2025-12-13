@@ -40,7 +40,7 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 # Copy and install PHP dependencies
 COPY composer.json composer.lock ./
-RUN composer install --optimize-autoloader --no-scripts
+RUN composer install --optimize-autoloader --no-scripts --no-dev
 
 # Copy and install Node dependencies
 COPY package.json package-lock.json* ./
