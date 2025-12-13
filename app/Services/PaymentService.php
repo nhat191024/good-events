@@ -13,7 +13,8 @@ class PaymentService
         $this->payOS = new PayOS(
             env("PAYOS_CLIENT_ID"),
             env("PAYOS_API_KEY"),
-            env("PAYOS_CHECKSUM_KEY")
+            env("PAYOS_CHECKSUM_KEY"),
+            env("PAYOS_PARTNER_CODE")
         );
     }
 
