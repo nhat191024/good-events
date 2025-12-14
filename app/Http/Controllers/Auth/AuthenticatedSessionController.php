@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use App\Enum\Role;
+
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -32,6 +34,10 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        if ($request->user()->hasRole(Role::PARTNER)) {
+            return redirect()->intended(route('filament.partner.pages.dashboard', absolute: false));
+        }
 
         return redirect()->intended(route('home', absolute: false));
     }

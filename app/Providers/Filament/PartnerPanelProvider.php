@@ -59,7 +59,6 @@ class PartnerPanelProvider extends PanelProvider
             ->path('partner')
             ->authGuard('web')
             ->authPasswordBroker('users')
-            ->login()
             ->emailVerification()
             ->passwordReset()
 
