@@ -29,14 +29,15 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
         if ($request->user()->hasRole(Role::PARTNER)) {
-            return redirect()->intended(route('filament.partner.pages.dashboard', absolute: false));
+            $intendedUrl = session()->pull('url.intended', route('filament.admin.pages.dashboard'));
+            return Inertia::location($intendedUrl);
         }
 
         return redirect()->intended(route('home', absolute: false));
