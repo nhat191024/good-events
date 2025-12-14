@@ -87,7 +87,8 @@ class PartnerPanelProvider extends PanelProvider
 
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
-                fn() => Blade::render('@livewire(\'component.chat-notification-indicator\')')
+                fn() => Blade::render('@livewire(\'component.chat-notification-indicator\')') .
+                    Blade::render('filament.partner.hooks.user-menu-before')
             )
 
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
