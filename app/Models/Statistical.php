@@ -88,9 +88,15 @@ class Statistical extends Model
             ? (float) ((clone $ratingQuery)->avg('ratings.value') ?? 0)
             : 0;
 
+        $satisfiedRatings = (int) (clone $ratingQuery)->where('ratings.value', '>=', 4)->count();
+        $satisfactionRate = $totalRatings > 0
+            ? ($satisfiedRatings / $totalRatings) * 100
+            : 0;
+
         return [
             StatisticType::AVERAGE_STARS->value => round($averageStars, 2),
             StatisticType::TOTAL_RATINGS->value => $totalRatings,
+            StatisticType::SATISFACTION_RATE->value => round($satisfactionRate, 2),
         ];
     }
 }
