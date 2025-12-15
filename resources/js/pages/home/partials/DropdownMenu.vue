@@ -1,22 +1,12 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onBeforeUnmount, computed, watch, type Ref, type Component } from 'vue';
-import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, Shield, LogOut, FileCheck, PhoneCall, Info } from 'lucide-vue-next';
-
-import DropdownMenuItems from '../components/DropdownMenuItems.vue';
+import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, LogOut, FileCheck, PhoneCall, Info } from 'lucide-vue-next';
+import DropdownMenuItems, { MenuItem } from '../components/DropdownMenuItems.vue';
 import { getImg } from '@/pages/booking/helper';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user ?? null);
-
-type MenuItem = {
-    label: string;
-    route: () => string;
-    icon: Component;
-    external?: boolean;
-    hoverClass?: string;
-    textClass?: string;
-};
 
 const isOpen: Ref<boolean> = ref(false);
 const dropdown: Ref<HTMLDivElement | null> = ref(null);
@@ -74,50 +64,41 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
         label: 'Hồ sơ cá nhân',
         route: () => route('profile.client.show', { user: user.value?.id ?? 1 }),
         icon: User,
-        external: false
     },
     {
         label: 'Đơn hàng của tôi',
         route: () => route('client-orders.dashboard'),
         icon: ClipboardList,
-        external: false
     },
     {
         label: 'File đã mua',
         route: () => route('client-orders.asset.dashboard'),
         icon: FileCheck,
-        external: false
     },
     {
         label: 'Nhắn tin',
         route: () => route('chat.index'),
         icon: MessageSquare,
-        external: false
     },
     {
         label: 'Cài đặt',
         route: () => route('profile.edit'),
         icon: Settings,
-        external: false
     },
     {
         label: 'Liên hệ',
         route: () => route('contact.index'),
         icon: PhoneCall,
-        external: false
     },
     {
         label: 'Về chúng tôi',
         route: () => route('about.index'),
         icon: Info,
-        external: false
     },
     {
         label: 'Trang đối tác',
-        route: () => '/partner/login',
+        href: () => route('filament.partner.pages.dashboard'),
         icon: Handshake,
-        external: true,
-        hoverClass: 'hover:bg-gray-100'
     },
     // {
     //     label: 'Trang quản trị',
@@ -134,31 +115,26 @@ const loggedOutMenuItems: MenuItem[] = [
         label: 'Đăng nhập/Đăng ký',
         route: () => route('login'),
         icon: User,
-        external: false
     },
     {
         label: 'Khám phá nhân sự',
         route: () => route('home'),
         icon: HelpCircle,
-        external: false
     },
     {
         label: 'Về chúng tôi',
         route: () => route('about.index'),
         icon: Info,
-        external: false
     },
     {
         label: 'Liên hệ',
         route: () => route('contact.index'),
         icon: PhoneCall,
-        external: false
     },
     {
         label: 'Trang đối tác',
-        route: () => '/partner/login',
+        href: () => route('filament.partner.pages.dashboard'),
         icon: Handshake,
-        external: true
     },
     // {
     //     label: 'Trang quản trị',
@@ -202,8 +178,8 @@ const loggedOutMenuItems: MenuItem[] = [
 
                     <Link method="post" :href="route('logout')" @click="handleLogout" as="button"
                         class="first:pt-3 last:pb-3 first:rounded-t-lg flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
-                    <LogOut class="w-5 h-5 mr-3" />
-                    Đăng xuất
+                        <LogOut class="w-5 h-5 mr-3" />
+                        Đăng xuất
                     </Link>
                 </div>
 
