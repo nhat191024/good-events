@@ -60,7 +60,7 @@
                     {{ __('partner/bill.new_bill_description') }}
                 </h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    {{ __('partner/bill.last_updated') }}:{{ $lastUpdated ?? 'Never' }}
+                    {{ __('partner/bill.last_updated') }}: {{ $lastUpdated ?? 'Never' }}
                 </p>
             </div>
             <button
