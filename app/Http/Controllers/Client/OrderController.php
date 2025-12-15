@@ -31,8 +31,9 @@ use App\Models\User;
 use App\Services\PartnerProfilePayload;
 use App\Services\PartnerWidgetCacheService;
 
-use Inertia\Inertia;
+use Codebyray\ReviewRateable\Models\Review;
 
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
@@ -270,7 +271,7 @@ class OrderController extends Controller
             'partner_bill_id' => $data['order_id'],
         ], $request->user()->id);
 
-        $latest = \Codebyray\ReviewRateable\Models\Review::where('reviewable_type', User::class)
+        $latest = Review::where('reviewable_type', User::class)
             ->where('reviewable_id', $partner->id)
             ->where('user_id', $request->user()->id)
             ->latest('id')
