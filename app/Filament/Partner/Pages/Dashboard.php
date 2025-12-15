@@ -9,18 +9,22 @@ use App\Settings\PartnerSettings;
 
 class Dashboard extends BaseDashboard
 {
-    public $defaultAction = 'callToAction';
+    public $defaultAction = null;
 
-    protected int $balance = 0;
-    protected int $minBalance = 0;
+    public int $balance = 0;
+    public int $minBalance = 0;
+    public int $amount = 0;
 
     public function mount(): void
     {
         $this->balance = auth()->user()->balanceInt ?? 0;
         $this->minBalance = app(PartnerSettings::class)->minimum_balance;
+        $this->amount = $this->minBalance - $this->balance > 0 ? $this->minBalance - $this->balance : 0;
 
         if (! $this->shouldShowCallToAction()) {
             $this->defaultAction = null;
+        } else {
+            $this->defaultAction = 'callToAction';
         }
     }
 
@@ -40,11 +44,9 @@ class Dashboard extends BaseDashboard
 
     public function callToAction(): Action
     {
-        $amount = $this->minBalance - $this->balance;
-
         return Action::make('callToAction')
             ->modalHeading(__('notification.balance_low_title'))
-            ->modalDescription(__('notification.balance_low_body', ['balance' => number_format($this->balance), 'amount' => number_format($amount)]))
+            ->modalDescription(__('notification.balance_low_body', ['balance' => number_format($this->balance), 'amount' => number_format($this->amount)]))
             ->action(function (array $data) {
                 return redirect()->route('filament.partner.resources.wallets.index');
             })
