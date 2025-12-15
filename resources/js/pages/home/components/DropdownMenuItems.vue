@@ -2,11 +2,11 @@
 import { Link } from '@inertiajs/vue3';
 import type { Component } from 'vue';
 
-type MenuItem = {
+export type MenuItem = {
     label: string;
-    route: () => string;
+    route?: () => string;
+    href?: () => string; // use this if navigating to an external link or a page route that does not use Inertia to render
     icon: Component;
-    external?: boolean;
     hoverClass?: string;
     textClass?: string;
 };
@@ -30,12 +30,14 @@ const getClasses = (item: MenuItem) => [
 
 <template>
     <template v-for="(item, index) in items" :key="index">
-        <Link v-if="!item.external" :href="item.route()" :class="getClasses(item)">
+        <!-- Use Inertia Link for route property -->
+        <Link v-if="item.route" :href="item.route()" :class="getClasses(item)">
             <component :is="item.icon" :class="iconClasses" />
             {{ item.label }}
         </Link>
 
-        <a v-else :href="item.route()" :class="getClasses(item)">
+        <!-- Use regular anchor tag for href property -->
+        <a v-else-if="item.href" :href="item.href()" :class="getClasses(item)">
             <component :is="item.icon" :class="iconClasses" />
             {{ item.label }}
         </a>
