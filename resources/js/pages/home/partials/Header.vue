@@ -5,7 +5,7 @@ import HamburgerMenu from './HamburgerMenu.vue';
 import NotificationPopover from '@/components/notification/NotificationPopover.vue';
 // import { NotiItem } from '@/components/notification';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useEcho, useEchoNotification } from '@laravel/echo-vue';
+import { Handshake } from 'lucide-vue-next';
 import axios from 'axios';
 import { getImg } from '@/pages/booking/helper';
 import { AppSettings } from '@/types';
@@ -21,6 +21,14 @@ const page = usePage()
 
 const settings = computed(() => page.props.app_settings as AppSettings)
 const user = page.props.auth?.user
+
+// Check if user has partner role
+const isPartner = computed(() => {
+    if (!user) return false
+    const userWithRoles = user as any
+    if (!userWithRoles.roles) return false
+    return userWithRoles.roles.some((role: any) => role.name === 'partner')
+})
 
 withDefaults(defineProps<Props>(), {
     // showBannerBackground: () => true,
@@ -157,10 +165,10 @@ onUnmounted(() => {
                     <HamburgerMenu class="block lg:hidden" :menu-items="menuItems" />
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center md:gap-2 gap-1">
-                    <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot"
-                        class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
-                    <span
-                        class="font-bold tracking-tight text-primary-700 uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
+                        <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot"
+                            class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
+                        <span
+                            class="font-bold tracking-tight text-primary-700 uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
                     </Link>
                 </div>
 
@@ -174,7 +182,7 @@ onUnmounted(() => {
                                 'transition-colors duration-200',
                                 route().current(item.routeName) ? 'text-[#ED3B50] text-md font-semibold ' : 'text-black hover:text-black/80'
                             ]">
-                            {{ item.shortName }}
+                                {{ item.shortName }}
                             </Link>
                         </motion.div>
                     </nav>
@@ -183,16 +191,22 @@ onUnmounted(() => {
                 <!-- RIGHT: actions -->
                 <div class="flex items-center gap-1">
                     <!-- Pill: Đặt show nhanh -->
-                    <Link :href="route('quick-booking.choose-category')"
+                    <Link v-if="!isPartner" :href="route('quick-booking.choose-category')"
                         class="self-start inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path
-                            d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
-                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M15.5 10.5v3m-1.5-1.5h3" stroke="white" stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                    <span class="hidden sm:inline">Đặt show</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M15.5 10.5v3m-1.5-1.5h3" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <span class="hidden sm:inline">Đặt show</span>
                     </Link>
+                    <!-- Pill: Chuyển sang trang đối tác  -->
+                    <a v-else :href="route('filament.partner.pages.dashboard')"
+                        class="self-start inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
+                        <Handshake width="20" height="20" />
+                        <span class="hidden sm:inline">Đối tác</span>
+                    </a>
                     <DropdownMenu />
                     <NotificationPopover :items="notificationItems" :loading="isFetching" @mark-all-read="markAllAsRead"
                         @select="markAsRead" @reload="reloadNotifications" />
