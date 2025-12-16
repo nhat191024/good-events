@@ -36,7 +36,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         if ($request->user()->hasRole(Role::PARTNER)) {
-            $intendedUrl = session()->pull('url.intended', route('filament.admin.pages.dashboard'));
+            $intendedUrl = session()->pull('url.intended', route('filament.partner.pages.dashboard'));
             return Inertia::location($intendedUrl);
         }
 
