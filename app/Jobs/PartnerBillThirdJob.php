@@ -74,7 +74,7 @@ class PartnerBillThirdJob implements ShouldQueue
             'new_balance' => $oldBalance - $amount
         ], true);
 
-        $timeAfterOneDay = now()->addDay();
+        $timeAfterOneDay = now()->addHours(6);
         PartnerBillFourthJob::dispatch($partnerBill)->delay($timeAfterOneDay);
     }
 }
