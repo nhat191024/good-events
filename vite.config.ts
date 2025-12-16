@@ -4,17 +4,6 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-    server: {
-        host: '0.0.0.0',
-        port: 5173,
-        cors: true,
-        allowedHosts: ['sukientot.test'],
-        hmr: {
-            host: 'sukientot.test',
-            clientPort: 443,
-            protocol: 'wss', // Use secure WebSocket
-        },
-    },
     plugins: [
         laravel({
             input: ['resources/js/app.ts', 'resources/js/calendar.js', 'resources/css/filament/partner/theme.css', 'resources/css/filament/admin/theme.css'],
