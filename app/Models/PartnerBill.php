@@ -8,9 +8,12 @@ use App\Enum\StatisticType;
 use App\Services\PartnerWidgetCacheService;
 use App\Services\PartnerBillMailService;
 
+use App\Settings\PartnerSettings;
+
 use Filament\Notifications\Notification;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -322,6 +325,20 @@ class PartnerBill extends Model implements HasMedia
         if ($thread) {
             $thread->delete();
         }
+
+        //with draw to partner balance
+        $user = Auth::user();
+        $feePercentage = app(PartnerSettings::class)->fee_percentage;
+        $withdrawAmount = floor($partnerBill->total * ($feePercentage / 100));
+
+        $id = date('YmdHis') . rand(1000, 9999) + $partnerBill->id + rand(100, 999);
+        $old_balance = $user->balanceInt;
+        $transaction = $user->forceWithdraw($withdrawAmount, ['transaction_codes' => $id, 'reason' => 'Thu phí nền tảng show mã: ' . $partnerBill->code, 'old_balance' => $old_balance]);
+        $new_balance = $user->balanceInt;
+        $transaction->meta = array_merge($transaction->meta ?? [], [
+            'new_balance' => $new_balance,
+        ]);
+        $transaction->save();
     }
 
     /**
