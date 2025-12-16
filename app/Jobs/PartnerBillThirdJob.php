@@ -12,7 +12,7 @@ use Illuminate\Foundation\Queue\Queueable;
 
 use App\Enum\PartnerBillStatus;
 
-use App\Settings\PartnerSettings;
+use Filament\Notifications\Notification;
 
 class PartnerBillThirdJob implements ShouldQueue
 {
@@ -47,34 +47,12 @@ class PartnerBillThirdJob implements ShouldQueue
      */
     private function sendPartnerReminder(PartnerBill $partnerBill)
     {
-        if ($partnerBill->status !== PartnerBillStatus::IN_JOB) {
-            $partnerBill->status = PartnerBillStatus::IN_JOB;
-            $partnerBill->save();
-        }
+        $partnerBill->status = PartnerBillStatus::COMPLETED;
+        $partnerBill->save();
 
-        $admin = User::whereName('Admin')->first();
-        $partner = User::find($partnerBill->partner_id);
-
-        Message::create([
-            'thread_id' => $partnerBill->thread_id,
-            'user_id' => $admin->id,
-            'body' => __('notification.partner_bill_followup_reminder_body', ['code' => $partnerBill->code]),
-        ]);
-
-        $partnerSettings = app(PartnerSettings::class);
-        $feePercentage = $partnerSettings->fee_percentage;
-        $amount = floor($partnerBill->final_total * ($feePercentage / 100));
-
-        $id = date('YmdHis') . rand(1000, 9999) + $partnerBill->id + rand(100, 999);
-        $oldBalance = $partner->balanceInt;
-        $partner->forceWithdraw($amount, [
-            'reason' => "Phí nền tảng cho show mã {$partnerBill->code}",
-            'transaction_codes' => $id,
-            'old_balance' => $oldBalance,
-            'new_balance' => $oldBalance - $amount
-        ], true);
-
-        $timeAfterOneDay = now()->addHours(6);
-        PartnerBillFourthJob::dispatch($partnerBill)->delay($timeAfterOneDay);
+        Notification::make()
+            ->title(__('partner/bill.order_completed_success'))
+            ->success()
+            ->sendToDatabase(User::find($partnerBill->partner_id));
     }
 }
