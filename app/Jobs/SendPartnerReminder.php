@@ -40,7 +40,6 @@ class SendPartnerReminder implements ShouldQueue
             $partnerId = $this->partnerBill->partner_id;
             $clientId = $this->partnerBill->client_id;
             $partner = User::find($partnerId);
-            $client = User::find($clientId);
 
             //send notification
             Notification::make()
