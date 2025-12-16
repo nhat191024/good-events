@@ -96,12 +96,16 @@ return [
     // Unauthorized action
     'unauthorized_action' => 'Unauthorized Action',
     'cannot_complete_order' => 'Cannot complete show',
+    'must_be_confirmed' => 'Show must be confirmed before marking it as in job',
+    'must_be_in_job' => 'Show must be marked as in job before it can be completed',
 
     // Mark in job translations
+    'mark_as_arrived' => 'Mark as Arrived',
     'mark_in_job' => 'Mark as In Job',
     'mark_in_job_confirm_title' => 'Confirm Mark as In Job',
     'mark_in_job_confirm' => 'Are you sure you want to mark this show as in job? This action cannot be undone.',
     'confirm_arrived' => 'Confirm Arrived',
+    'marked_as_in_job' => 'Show has been marked as in job',
     'marked_as_arrived' => 'Show has been marked as in job',
 
     // Complete order translations
