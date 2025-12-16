@@ -38,7 +38,6 @@ class SendPartnerReminder implements ShouldQueue
 
         if ($eventDateTime->isFuture() && $eventDateTime->diffInHours(now()) <= 2) {
             $partnerId = $this->partnerBill->partner_id;
-            $clientId = $this->partnerBill->client_id;
             $partner = User::find($partnerId);
 
             //send notification
