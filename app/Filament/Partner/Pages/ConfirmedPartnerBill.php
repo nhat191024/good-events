@@ -270,15 +270,6 @@ class ConfirmedPartnerBill extends Page
             return;
         }
 
-        // Withdraw money
-        $old_balance = $user->balanceInt;
-        $transaction = $user->withdraw($withdrawAmount, ['reason' => 'Thu phí nền tảng show mã: ' . $bill->code, 'old_balance' => $old_balance]);
-        $new_balance = $user->balanceInt;
-        $transaction->meta = array_merge($transaction->meta ?? [], [
-            'new_balance' => $new_balance,
-        ]);
-        $transaction->save();
-
         // Update status
         $bill->status = PartnerBillStatus::COMPLETED;
         $bill->save();
