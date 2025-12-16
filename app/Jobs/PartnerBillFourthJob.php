@@ -31,12 +31,12 @@ class PartnerBillFourthJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(PartnerBillMailService $mailService): void
+    public function handle(): void
     {
         $this->partnerBill->refresh();
 
         match ($this->partnerBill->status) {
-            PartnerBillStatus::IN_JOB => $this->completePartnerBill($this->partnerBill, $mailService),
+            PartnerBillStatus::IN_JOB => $this->completePartnerBill($this->partnerBill),
             default => null,
         };
     }
