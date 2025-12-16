@@ -95,12 +95,15 @@ return [
     // Unauthorized action
     'unauthorized_action' => 'Hành động không được phép',
     'cannot_complete_order' => 'Không thể hoàn thành show',
+    'must_be_confirmed' => 'Show cần được xác nhận trước khi đánh dấu đã đến nơi',
+    'must_be_in_job' => 'Show cần được đánh dấu đã đến nơi trước khi có thể hoàn thành',
 
     // Mark in job translations
     'mark_as_arrived' => 'Đã đến nơi',
     'mark_in_job_confirm_title' => 'Xác nhận đã đến nơi',
     'mark_in_job_confirm' => 'Bạn có chắc chắn muốn đánh dấu show này là đã đến nơi?',
     'confirm_arrived' => 'Xác nhận đã đến nơi',
+    'marked_as_in_job' => 'Show đã được đánh dấu là đã đến nơi',
     'marked_as_arrived' => 'Show đã được đánh dấu là đã đến nơi',
 
     // Complete order translations
