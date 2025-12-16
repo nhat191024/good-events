@@ -4,6 +4,7 @@ namespace App\Filament\Partner\Resources\PartnerBillHistories\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 use Filament\Actions\ViewAction;
 use Filament\Actions\BulkActionGroup;
@@ -11,6 +12,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 
 use App\Enum\PartnerBillStatus;
+
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class PartnerBillHistoriesTable
 {
@@ -78,7 +81,11 @@ class PartnerBillHistoriesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                DateRangeFilter::make('created_at')
+                    ->label(__('partner/bill.filter_date')),
+                SelectFilter::make('status')
+                    ->label(__('partner/bill.filter_status'))
+                    ->options(PartnerBillStatus::asSelectArray()),
             ])
             ->recordActions([
                 //

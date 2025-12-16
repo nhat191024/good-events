@@ -2,6 +2,9 @@
 
 namespace App\Http\Resources\OrderHistory;
 
+use App\Enum\StatisticType;
+use App\Helper\TemporaryImage;
+use App\Models\Statistical;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +14,7 @@ class PartnerBillHistoryResource extends JsonResource
 {
     public function toArray(Request $request)
     {
-        $expireAt = now()->addMinutes(60 * 24);
+        $expireAt = now()->addMinutes(200 * 24);
         $review = null;
 
         if ($request->user()) {
@@ -47,6 +50,7 @@ class PartnerBillHistoryResource extends JsonResource
             "total" => $this->total,
             "final_total" => $this->final_total,
             "note" => $this->note,
+            'arrival_photo' => TemporaryImage::getTemporaryImageUrl($this, $expireAt,'arrival_photo'),
             "status" => $this->status,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
@@ -83,14 +87,7 @@ class PartnerBillHistoryResource extends JsonResource
                     "name" => $cat->name,
                     'statistics' => $this->when(
                         $cat->relationLoaded('statistics') && $cat->statistics,
-                        fn() => $cat->statistics
-                            ->whereIn('metrics_name', [
-                                'average_stars',
-                                'total_ratings'
-                            ])
-                            ->mapWithKeys(fn($stat) => [
-                                $stat->metrics_name => $stat->metrics_value,
-                            ])
+                        fn() => $this->formatStatistics($cat)
                     ),
                     'partner_profile' => $this->when(
                         $cat->relationLoaded('partnerProfile') && $cat->partnerProfile,
@@ -102,7 +99,37 @@ class PartnerBillHistoryResource extends JsonResource
                 ];
             }),
 
+            "voucher" => $this->whenLoaded('voucher', function () {
+                return [
+                    'id' => $this->voucher?->id,
+                    'code' => $this->voucher?->code,
+                ];
+            }),
+
             "review" => $review,
+        ];
+    }
+
+    private function formatStatistics($partner): array
+    {
+        $stats = $partner->statistics
+            ->whereIn('metrics_name', [
+                StatisticType::AVERAGE_STARS->value,
+                StatisticType::TOTAL_RATINGS->value,
+            ])
+            ->mapWithKeys(fn ($stat) => [
+                $stat->metrics_name => $stat->metrics_value,
+            ]);
+
+        if ($stats->count() < 2) {
+            $stats = collect($stats)->merge(
+                Statistical::calculatePartnerRatingMetrics($partner->id)
+            );
+        }
+
+        return [
+            StatisticType::AVERAGE_STARS->value => (float) ($stats[StatisticType::AVERAGE_STARS->value] ?? 0),
+            StatisticType::TOTAL_RATINGS->value => (int) ($stats[StatisticType::TOTAL_RATINGS->value] ?? 0),
         ];
     }
 

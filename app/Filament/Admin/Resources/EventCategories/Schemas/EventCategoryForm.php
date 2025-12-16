@@ -5,7 +5,7 @@ namespace App\Filament\Admin\Resources\EventCategories\Schemas;
 use Filament\Schemas\Schema;
 
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class EventCategoryForm
@@ -26,8 +26,9 @@ class EventCategoryForm
                     ->collection('images')
                     ->image()
                     ->maxFiles(1)
+                    ->visibility('public')
                     ->columnSpanFull(),
-                Textarea::make('description')
+                RichEditor::make('description')
                     ->label(__('admin/partnerCategory.fields.description'))
                     ->columnSpanFull(),
             ]);

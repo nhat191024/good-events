@@ -55,9 +55,36 @@ const STATUS_RANK: Record<string, number> = STATUS_ORDER.reduce(
     {} as Record<string, number>,
 )
 
+function parseOrderDateTime(order: Pick<ClientOrder, 'date' | 'start_time'>): number | null {
+    const datePart = order.date?.trim()
+    if (!datePart) return null
+
+    const timePart = order.start_time?.trim()
+    const normalizedTime = timePart
+        ? /^\d{2}:\d{2}$/.test(timePart)
+            ? `${timePart}:00`
+            : timePart
+        : '00:00:00'
+
+    const combined = `${datePart}T${normalizedTime}`
+    const parsed = Date.parse(combined)
+    if (!Number.isNaN(parsed)) return parsed
+
+    const fallback = Date.parse(datePart)
+    return Number.isNaN(fallback) ? null : fallback
+}
+
 function baseCompare(a: ClientOrder, b: ClientOrder) {
-    if (sortBy.value === 'newest') return Date.parse(a.start_time) - Date.parse(b.start_time)
-    if (sortBy.value === 'oldest') return Date.parse(b.start_time) - Date.parse(a.start_time)
+    if (sortBy.value === 'newest' || sortBy.value === 'oldest') {
+        const aTime = parseOrderDateTime(a)
+        const bTime = parseOrderDateTime(b)
+
+        if (aTime === null && bTime === null) return 0
+        if (aTime === null) return 1
+        if (bTime === null) return -1
+
+        return sortBy.value === 'newest' ? aTime - bTime : bTime - aTime
+    }
 
     if (sortBy.value === 'most-applicants') {
         const ca = a.partners?.count ?? 0
@@ -237,8 +264,8 @@ const selectedHistoryId = computed(() =>
                         <div class="space-y-2">
                             <select v-model="sortBy"
                                 class="w-full h-9 rounded-md bg-white border border-gray-200 px-3 text-sm">
-                                <option value="newest">Gần đây</option>
-                                <option value="oldest">Cũ hơn</option>
+                                <option value="newest">Đơn sắp tới</option>
+                                <option value="oldest">Đơn muộn nhất</option>
                                 <option v-if="activeTab == 'current'" value="most-applicants">Nhiều ứng viên nhất
                                 </option>
                                 <option value="highest-budget">Ngân sách cao nhất</option>

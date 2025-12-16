@@ -11,6 +11,7 @@ return [
     'save' => 'Lưu',
     'confirm' => 'Xác nhận',
     'ban' => 'Cấm',
+    'close' => 'Đóng',
 
     'no' => 'Không',
     'yes' => 'Có',
@@ -29,6 +30,8 @@ return [
     'next' => 'Tiếp',
     'previous' => 'Trước',
 
+    'log_viewer' => 'Nhật ký hệ thống',
+
     'system_message' => [
         'order_confirmed' => 'Đơn hàng :code đã được xác nhận. Đây là đoạn chat trao đổi giữa khách hàng và đối tác. Admin sẽ có thể theo dõi để hỗ trợ khi cần thiết.',
     ],
@@ -44,5 +47,15 @@ return [
     'filter' => [
         'hidden_include' => 'Bao gồm bản ghi bị ẩn',
         'hidden_only' => 'Chỉ bản ghi bị ẩn'
-    ]
+    ],
+
+    'role' => [
+        'admin' => 'Quản trị viên',
+        'super_admin' => 'Siêu quản trị viên',
+        'partner' => 'Đối tác',
+        'client' => 'Khách hàng',
+        'human_resource_manager' => 'Quản lý đối tác',
+        'design_manager' => 'Quản lý thiết kế',
+        'rental_manager' => 'Quản lý cho thuê vật tư',
+    ],
 ];

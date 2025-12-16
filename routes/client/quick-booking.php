@@ -3,7 +3,7 @@
 use App\Http\Controllers\Client\QuickBookingController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::prefix("dat-show")->name('quick-booking.')->group(
         function () {
             Route::get(

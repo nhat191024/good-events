@@ -13,7 +13,7 @@ class SyncVietNamLocation extends Command
      *
      * @var string
      */
-    protected $signature = 'app:sync-viet-nam-location';
+    protected $signature = 'app:sync-viet-nam-location {--export : Export location data to JSON file}';
 
     /**
      * The console command description.
@@ -40,6 +40,10 @@ class SyncVietNamLocation extends Command
         }
 
         $locations = $response->json();
+
+        if ($this->option('export')) {
+            return $this->exportToJson($locations);
+        }
 
         //data example
         // {
@@ -86,6 +90,37 @@ class SyncVietNamLocation extends Command
         }
 
         $this->info('Viet Nam locations synced successfully.');
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Export location data to JSON file.
+     */
+    protected function exportToJson(array $locations): int
+    {
+        $dataPath = database_path('data');
+
+        // Create directory if it doesn't exist
+        if (!file_exists($dataPath)) {
+            mkdir($dataPath, 0755, true);
+        }
+
+        $filePath = $dataPath . '/vietnam_locations.json';
+
+        $exportData = [
+            'exported_at' => now()->toIso8601String(),
+            'total_provinces' => count($locations),
+            'locations' => $locations,
+        ];
+
+        file_put_contents(
+            $filePath,
+            json_encode($exportData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
+
+        $this->info('Location data exported successfully to: ' . $filePath);
+        $this->info('Total provinces: ' . count($locations));
+
         return Command::SUCCESS;
     }
 }

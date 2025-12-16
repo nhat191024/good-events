@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug');
+            $table->string('type')->default('general');
+            $table->integer('order')->default(0);
+            $table->boolean('is_show')->default(true);
             $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();
             $table->text('description')->nullable();
             $table->softDeletes();

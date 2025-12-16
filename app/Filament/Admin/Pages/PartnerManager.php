@@ -5,7 +5,7 @@ namespace App\Filament\Admin\Pages;
 use UnitEnum;
 use BackedEnum;
 
-use App\Enum\FilamentNavigationGroup;
+use App\Enum\NavigationGroup;
 
 use App\Settings\PartnerSettings;
 
@@ -17,12 +17,20 @@ use Filament\Schemas\Components\Section;
 
 use Filament\Forms\Components\TextInput;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+
 class PartnerManager extends SettingsPage
 {
+    use HasPageShield;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::SETTINGS;
 
     protected static string $settings = PartnerSettings::class;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return NavigationGroup::SETTINGS->value;
+    }
 
     public static function getNavigationLabel(): string
     {

@@ -18,7 +18,9 @@ return [
     'fields' => [
         'image' => 'Hình ảnh',
         'name' => 'Tên',
+        'parent_id' => 'Danh mục cha',
         'slug' => 'Slug',
+        'order' => 'Thứ tự',
         'min_price' => 'Giá thấp nhất',
         'max_price' => 'Giá cao nhất',
 

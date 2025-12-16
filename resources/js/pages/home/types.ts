@@ -37,5 +37,10 @@ export interface AssetCardItemProps {
     name: string;
     slug: string;
     image?: string | null;
+    description?: string | null;
     category: Category // additional field
 }
+
+export interface RentProduct extends FileProduct {}
+
+export type RentCardItemProps = AssetCardItemProps;

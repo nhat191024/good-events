@@ -17,7 +17,7 @@ class OrderCompleted
             ->actions([
                 Action::make('review')
                     ->label(__('notification.action_review'))
-                    ->url(route('client-orders.dashboard', ['single_order' => $bill->id]))
+                    ->url(route('client-orders.dashboard', ['order' => $bill->id]))
             ])
             ->sendToDatabase($user);
     }

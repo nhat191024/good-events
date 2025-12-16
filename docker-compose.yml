@@ -6,7 +6,7 @@ services:
         container_name: sukientot
         restart: unless-stopped
         ports:
-            - '10010:80'
+            - '10011:80'
         volumes:
             # Mount source code (excluding vendor)
             - ./app:/var/www/html/app

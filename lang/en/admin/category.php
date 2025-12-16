@@ -3,6 +3,12 @@ return [
     'plural' => 'Categories',
     'singular' => 'Category',
 
+    'singulars' => [
+        'blog' => 'Blog Category',
+        'design' => 'Design Category',
+        'rental' => 'Supplies Category',
+    ],
+
     'cannot_hidden_category_has_children' => 'Cannot hide category because it has child categories.',
     'manage_children_categories' => 'Manage child categories of :name',
     'children_category' => 'Child Category',
@@ -10,13 +16,22 @@ return [
     'fields' => [
         'name' => 'Category Name',
         'slug' => 'Slug',
+        'is_show' => 'Show',
+        'order' => 'Order',
         'image' => 'Image',
         'parents' => 'Parent Categories',
         'children' => 'Child Categories',
+        'type' => 'Category Type',
         'description' => 'Description',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
         'deleted_at' => 'Deleted At',
+    ],
+
+    'category_options' => [
+        'good_location' => 'Good Location',
+        'vocational_knowledge' => 'Vocational Knowledge',
+        'event_organization_guide' => 'Event Organization Guide',
     ],
 
     'placeholders' => [

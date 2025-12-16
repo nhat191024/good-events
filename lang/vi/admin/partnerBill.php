@@ -21,13 +21,13 @@ return [
     ],
 
     'actions' => [
-        'change_status' => 'Thay đổi trạng thái',
-        'change_status_description' => 'Chọn trạng thái mới cho hóa đơn này',
-        'update' => 'Cập nhật',
+        'cancel_bill' => 'Hủy đơn',
+        'cancel_bill_heading' => 'Xác nhận hủy đơn',
+        'cancel_bill_description' => 'Bạn có chắc chắn muốn hủy đơn này không? Hành động này không thể hoàn tác.',
     ],
 
     'notifications' => [
-        'status_changed' => 'Trạng thái đã được thay đổi',
-        'status_changed_body' => 'Hóa đơn :code đã được thay đổi từ :old_status sang :new_status',
+        'bill_cancelled' => 'Hủy thành công.',
+        'bill_cancelled_body' => 'Đơn :code đã được hủy.',
     ],
 ];

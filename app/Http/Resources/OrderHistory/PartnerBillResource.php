@@ -2,6 +2,9 @@
 
 namespace App\Http\Resources\OrderHistory;
 
+use App\Enum\StatisticType;
+use App\Helper\TemporaryImage;
+use App\Models\Statistical;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -10,7 +13,7 @@ class PartnerBillResource extends JsonResource
 {
     public function toArray(Request $request)
     {
-        $expireAt = now()->addMinutes(60 * 24);
+        $expireAt = now()->addMinutes(200 * 24);
         $review = null;
 
         return [
@@ -23,6 +26,7 @@ class PartnerBillResource extends JsonResource
             'total' => $this->total,
             'final_total' => $this->final_total,
             'note' => $this->note,
+            'arrival_photo' => TemporaryImage::getTemporaryImageUrl($this, $expireAt,'arrival_photo'),
             'status' => $this->status,
             'thread_id' => $this->thread_id,
             'created_at' => $this->created_at,
@@ -35,13 +39,13 @@ class PartnerBillResource extends JsonResource
                     'name' => $cat->name,
                     'max_price' => $cat->max_price,
                     'min_price' => $cat->min_price,
-                    'image' => $this->getTemporaryImageUrl($cat, $expireAt),
+                    'image' => TemporaryImage::getTemporaryImageUrl($cat, $expireAt),
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,
                         fn () => [
                             'id' => $cat->parent->id,
                             'name' => $cat->parent->name,
-                            'image' => $this->getTemporaryImageUrl($cat->parent, $expireAt),
+                            'image' => TemporaryImage::getTemporaryImageUrl($cat->parent, $expireAt),
                         ]
                     ),
                 ];
@@ -68,14 +72,7 @@ class PartnerBillResource extends JsonResource
                     'name' => $cat->name,
                     'statistics' => $this->when(
                         $cat->relationLoaded('statistics') && $cat->statistics,
-                        fn () => $cat->statistics
-                            ->whereIn('metrics_name', [
-                                'average_stars',
-                                'total_ratings',
-                            ])
-                            ->mapWithKeys(fn ($stat) => [
-                                $stat->metrics_name => $stat->metrics_value,
-                            ])
+                        fn () => $this->formatStatistics($cat)
                     ),
                     'partner_profile' => $this->when(
                         $cat->relationLoaded('partnerProfile') && $cat->partnerProfile,
@@ -86,22 +83,36 @@ class PartnerBillResource extends JsonResource
                     ),
                 ];
             }),
+            'voucher' => $this->whenLoaded('voucher', function () {
+                return [
+                    'id' => $this->voucher?->id,
+                    'code' => $this->voucher?->code,
+                ];
+            }),
             'review' => $review,
         ];
     }
 
-    private function getTemporaryImageUrl($model, $expireAt)
+    private function formatStatistics($partner): array
     {
-        if (! $model || ! method_exists($model, 'getFirstTemporaryUrl')) {
-            return null;
+        $stats = $partner->statistics
+            ->whereIn('metrics_name', [
+                StatisticType::AVERAGE_STARS->value,
+                StatisticType::TOTAL_RATINGS->value,
+            ])
+            ->mapWithKeys(fn ($stat) => [
+                $stat->metrics_name => $stat->metrics_value,
+            ]);
+
+        if ($stats->count() < 2) {
+            $stats = collect($stats)->merge(
+                Statistical::calculatePartnerRatingMetrics($partner->id)
+            );
         }
 
-        try {
-            return $model->getFirstTemporaryUrl($expireAt, 'images');
-        } catch (\Throwable $e) {
-            return method_exists($model, 'getFirstMediaUrl')
-                ? $model->getFirstMediaUrl('images')
-                : null;
-        }
+        return [
+            StatisticType::AVERAGE_STARS->value => (float) ($stats[StatisticType::AVERAGE_STARS->value] ?? 0),
+            StatisticType::TOTAL_RATINGS->value => (int) ($stats[StatisticType::TOTAL_RATINGS->value] ?? 0),
+        ];
     }
 }

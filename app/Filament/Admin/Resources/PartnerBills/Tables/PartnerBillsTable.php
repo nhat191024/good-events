@@ -4,7 +4,7 @@ namespace App\Filament\Admin\Resources\PartnerBills\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Filters\SelectFilter;
 
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -19,6 +19,8 @@ use Filament\Notifications\Notification;
 
 use App\Enum\PartnerBillStatus;
 use App\Models\PartnerBill;
+
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class PartnerBillsTable
 {
@@ -55,10 +57,17 @@ class PartnerBillsTable
                     ->label(__('admin/partnerBill.fields.final_total'))
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('event.name')
+                TextColumn::make('event_name')
                     ->label(__('admin/partnerBill.fields.event'))
-                    ->searchable()
-                    ->sortable(),
+                    ->getStateUsing(fn(PartnerBill $record): string => $record->event?->name ?? $record->custom_event ?? 'N/A')
+                    ->searchable(query: function ($query, string $search): void {
+                        $query->whereHas('event', function ($query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        })->orWhere('custom_event', 'like', "%{$search}%");
+                    })
+                    ->sortable(query: function ($query, string $direction): void {
+                        $query->orderByRaw("COALESCE((SELECT name FROM events WHERE events.id = partner_bills.event_id), custom_event) {$direction}");
+                    }),
                 TextColumn::make('client.name')
                     ->label(__('admin/partnerBill.fields.client'))
                     ->searchable()
@@ -98,55 +107,46 @@ class PartnerBillsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                DateRangeFilter::make('created_at')
+                    ->label(__('admin/partnerBill.fields.created_at')),
+                SelectFilter::make('status')
+                    ->label(__('admin/partnerBill.fields.status'))
+                    ->options(PartnerBillStatus::asSelectArray()),
             ])
             ->recordActions([
-                Action::make('changeStatus')
-                    ->label(__('admin/partnerBill.actions.change_status'))
-                    ->icon('heroicon-o-arrows-right-left')
-                    ->color('warning')
-                    ->schema([
-                        Select::make('status')
-                            ->label(__('admin/partnerBill.fields.status'))
-                            ->options([
-                                PartnerBillStatus::PENDING->value => PartnerBillStatus::PENDING->label(),
-                                PartnerBillStatus::CONFIRMED->value => PartnerBillStatus::CONFIRMED->label(),
-                                PartnerBillStatus::IN_JOB->value => PartnerBillStatus::IN_JOB->label(),
-                                PartnerBillStatus::COMPLETED->value => PartnerBillStatus::COMPLETED->label(),
-                                PartnerBillStatus::EXPIRED->value => PartnerBillStatus::EXPIRED->label(),
-                                PartnerBillStatus::CANCELLED->value => PartnerBillStatus::CANCELLED->label(),
-                            ])
-                            ->default(fn(PartnerBill $record): string => $record->status->value)
-                            ->required()
-                            ->native(false),
-                    ])
-                    ->action(function (PartnerBill $record, array $data): void {
-                        $oldStatus = $record->status->label();
+                Action::make('cancelBill')
+                    ->label(__('admin/partnerBill.actions.cancel_bill'))
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn(PartnerBill $record): bool => $record->status === PartnerBillStatus::CONFIRMED)
+                    ->requiresConfirmation()
+                    ->modalHeading(__('admin/partnerBill.actions.cancel_bill_heading'))
+                    ->modalDescription(__('admin/partnerBill.actions.cancel_bill_description'))
+                    ->action(function (PartnerBill $record): void {
                         $record->update([
-                            'status' => PartnerBillStatus::from($data['status']),
+                            'status' => PartnerBillStatus::CANCELLED,
                         ]);
-                        $newStatus = $record->status->label();
 
                         Notification::make()
-                            ->title(__('admin/partnerBill.notifications.status_changed'))
-                            ->body(__('admin/partnerBill.notifications.status_changed_body', [
+                            ->title(__('admin/partnerBill.notifications.bill_cancelled'))
+                            ->body(__('admin/partnerBill.notifications.bill_cancelled_body', [
                                 'code' => $record->code,
-                                'old_status' => $oldStatus,
-                                'new_status' => $newStatus,
                             ]))
                             ->success()
                             ->send();
-                    })
-                    ->modalHeading(__('admin/partnerBill.actions.change_status'))
-                    ->modalDescription(__('admin/partnerBill.actions.change_status_description'))
-                    ->modalSubmitActionLabel(__('admin/partnerBill.actions.update'))
-                    ->modalWidth('md'),
+                    }),
                 Action::make('viewArrivalPhoto')
                     ->label(__('admin/partnerBill.fields.arrival_photo'))
                     ->icon('heroicon-o-photo')
                     ->color('info')
-                    ->url(fn(PartnerBill $record): ?string => $record->getFirstMedia('arrival_photo')?->getUrl())
-                    ->openUrlInNewTab()
+                    ->modalHeading(__('admin/partnerBill.fields.arrival_photo'))
+                    ->modalContent(fn(PartnerBill $record) => view('filament.admin.modals.arrival-photo', [
+                        'media' => $record->getFirstMedia('arrival_photo'),
+                    ]))
+                    ->modalWidth('3xl')
+                    ->slideOver()
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close')
                     ->visible(fn(PartnerBill $record): bool => $record->getFirstMedia('arrival_photo') !== null),
             ])
             ->toolbarActions([

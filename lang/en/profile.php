@@ -9,6 +9,7 @@ return [
         'email' => 'Email',
         'country_code' => 'Country Code',
         'phone' => 'Phone Number',
+        'bio' => 'Bio',
     ],
 
     'partner_info' => 'Partner Information',
@@ -16,10 +17,17 @@ return [
     'partner_label' => [
         'partner_name' => 'Partner/Business Name',
         'identity_card_number' => 'Identity Card Number',
-        'location_id' => 'Location',
+        'city_id' => 'City',
+        'location_id' => 'Ward',
     ],
 
     'buttons' => [
         'save_changes' => 'Save Changes',
+    ],
+
+    'notifications' => [
+        'update_success_title' => 'Cập nhật hồ sơ thành công',
+        'update_error_title' => 'Lỗi khi cập nhật hồ sơ',
+        'update_error_body' => 'Vui lòng thử lại sau.',
     ],
 ];

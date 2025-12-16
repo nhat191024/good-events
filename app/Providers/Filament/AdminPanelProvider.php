@@ -22,20 +22,41 @@ use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use Illuminate\Support\Facades\Gate;
+
 use Jacobtims\FilamentLogger\FilamentLoggerPlugin;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use BinaryBuilds\FilamentFailedJobs\FilamentFailedJobsPlugin;
+use Boquizo\FilamentLogViewer\FilamentLogViewerPlugin;
+use Tapp\FilamentMailLog\FilamentMailLogPlugin;
+use Hugomyb\FilamentErrorMailer\FilamentErrorMailerPlugin;
+
+use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
 
 use App\Filament\Admin\Widgets\AdminStatisticsWidget;
 use App\Filament\Admin\Widgets\AdminRevenueChart;
 use App\Filament\Admin\Widgets\AdminTopPartnersWidget;
 
+use App\Enum\FilamentNavigationGroup;
+
+use App\Settings\AppSettings;
+
+use App\Filament\Admin\Pages\ListLogs;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        try {
+            $settings = app(AppSettings::class);
+            $favicon = asset($settings->app_favicon);
+        } catch (\Exception $e) {
+            $favicon = asset('images/favicon.ico');
+        }
+
         return $panel
             ->default()
             ->id('admin')
@@ -44,7 +65,10 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Red,
             ])
+            ->brandName('Sự Kiện tốt - Admin')
+            ->favicon($favicon)
             ->maxContentWidth(Width::Full)
+            ->navigationGroups(FilamentNavigationGroup::class)
 
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
@@ -63,7 +87,34 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->plugins([
+                FilamentShieldPlugin::make()
+                    ->navigationGroup('settings')
+                    ->globallySearchable(false)
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ]),
                 FilamentLoggerPlugin::make(),
+                FilamentFailedJobsPlugin::make()
+                    ->authorize(fn() => Gate::check('viewAny', FailedJob::class))
+                    ->navigationGroup('system'),
+                FilamentLogViewerPlugin::make()
+                    ->listLogs(ListLogs::class)
+                    ->navigationGroup('system')
+                    ->navigationLabel(__('global.log_viewer')),
+                FilamentMailLogPlugin::make(),
+                FilamentErrorMailerPlugin::make(),
             ])
 
             ->middleware([

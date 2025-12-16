@@ -8,14 +8,20 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 use App\Enum\FileProductBillStatus;
+use App\Enum\PaymentMethod;
 
 /**
  * @property int $id
  * @property int $file_product_id
  * @property int $client_id
  * @property float $total
+ * @property float|null $tax
  * @property float|null $final_total
- * @property string $status
+ * @property int|null $tax_number
+ * @property string|null $company_name
+ * @property string|null $note
+ * @property FileProductBillStatus $status
+ * @property PaymentMethod $payment_method
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
@@ -26,11 +32,16 @@ use App\Enum\FileProductBillStatus;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereCompanyName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereFileProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereFinalTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill wherePaymentMethod($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereTax($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereTaxNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereUpdatedAt($value)
  * @mixin \Eloquent
@@ -48,8 +59,13 @@ class FileProductBill extends Model
         'file_product_id',
         'client_id',
         'total',
+        'tax',
         'final_total',
+        'tax_number',
+        'company_name',
+        'note',
         'status',
+        'payment_method',
     ];
 
     /**
@@ -61,6 +77,7 @@ class FileProductBill extends Model
     {
         return [
             'status' => FileProductBillStatus::class,
+            'payment_method' => PaymentMethod::class,
         ];
     }
 

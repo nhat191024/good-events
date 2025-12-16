@@ -18,20 +18,18 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        if (Location::count() == 0) {
-            $this->command->info('Location table is empty. Syncing Viet Nam locations...');
-            //run location sync command
-            Artisan::call('app:sync-viet-nam-location');
-        } else {
-            $this->command->info('Location table already has data. Skipping location sync.');
-        }
+        Artisan::call('shield:generate --all --panel=admin --option=no');
 
-        if (env('APP_ENV') === 'production') {
+        if (env('APP_ENV') === 'production' || env('APP_ENV') === 'testing') {
             $this->command->info('Production environment detected. Skipping seeders that may affect production data.');
             $this->call([
+                LocationSeeder::class,
                 RoleSeeder::class,
                 AdminSeeder::class,
+                BannerSeeder::class,
+                ShieldSeeder::class,
             ]);
+
             return;
         }
 
@@ -40,15 +38,18 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             // CategorySeeder::class,
             PartnerCategorySeeder::class,
-            // LocationSeeder::class,
+            LocationSeeder::class,
             EventSeeder::class,
+            AdminSeeder::class,
             TestAccountSeeder::class,
             PartnerSeeder::class,
             ClientSeeder::class,
-            // New comprehensive data seeders (order matters)
             StatisticalSeeder::class,
+            AppSettingSeeder::class,
+            BannerSeeder::class,
             // PartnerBillSeeder::class,
             // ReviewSeeder::class,
+            ShieldSeeder::class,
         ]);
     }
 }

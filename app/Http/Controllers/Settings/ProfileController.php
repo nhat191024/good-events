@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -37,6 +38,11 @@ class ProfileController extends Controller
 
         $user->fill($validated);
 
+        if (array_key_exists('bio', $validated)) {
+            $bio = trim((string) ($validated['bio'] ?? ''));
+            $user->bio = $bio === '' ? null : $bio;
+        }
+
         if ($request->hasFile('avatar')) {
             $avatar = $request->file('avatar');
             $filename = Str::ulid() . '.' . $avatar->getClientOriginalExtension();
@@ -54,6 +60,8 @@ class ProfileController extends Controller
         }
 
         $user->save();
+        Cache::forget("profile:client:v2:{$user->id}");
+        Cache::forget("profile:partner:v2:{$user->id}");
 
         return to_route('profile.edit')->with('success', __('client/settings.profile.form.success'));
     }

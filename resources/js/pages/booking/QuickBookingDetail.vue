@@ -1,141 +1,266 @@
 <script setup lang="ts">
-    import { Head, useForm, usePage } from '@inertiajs/vue3';
-    import { route } from 'ziggy-js';
-    import { toISODate } from '../../lib/helper';
-    import { PartnerCategory, Event, Ward, Province, WardTypeSelectBox } from '@/types/database';
-    import { confirm } from '@/composables/useConfirm'
-    import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
-    import SelectPartnerHeader from '@/pages/booking/layout/Header.vue'
-    import FormGroupLayout from '@/pages/booking/layout/FormGroup.vue'
-    import FormItemLayout from '@/pages/booking/layout/FormItem.vue'
-    import DatePickerSingle from '@/components/date-picker/DatePicker.vue'
-    import TimePickerSingle from '@/components/time-picker/TimePicker.vue'
-    import SelectBox from '@/components/Select.vue'
-    import Input from '@/components/ui/input/Input.vue'
-    import Button from '@/components/ui/button/Button.vue'
-    import { reactive, ref, watch } from 'vue';
-    import { showLoading, hideLoading } from '@/composables/useLoading'
-    import { getImg } from './helper';
-    import axios from 'axios';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { route } from '@/utils/ziggy';
+import { toISODate } from '../../lib/helper';
+import { PartnerCategory, Event, Ward, Province, WardTypeSelectBox } from '@/types/database';
+import { confirm } from '@/composables/useConfirm'
+import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
+import SelectPartnerHeader from '@/pages/booking/layout/Header.vue'
+import FormGroupLayout from '@/pages/booking/layout/FormGroup.vue'
+import FormItemLayout from '@/pages/booking/layout/FormItem.vue'
+import DatePickerSingle from '@/components/date-picker/DatePicker.vue'
+import { toDate } from '@/components/date-picker'
+import TimePickerSingle from '@/components/time-picker/TimePicker.vue'
+import { toMinutes } from '@/components/time-picker'
+import SelectBox from '@/components/Select.vue'
+import Input from '@/components/ui/input/Input.vue'
+import Button from '@/components/ui/button/Button.vue'
+import { reactive, ref, watch } from 'vue';
+import { showLoading, hideLoading } from '@/composables/useLoading'
+import { getImg } from './helper';
+import axios from 'axios';
 
-    const pageProps = usePage().props
+const pageProps = usePage().props
 
-    type PartnerBillForm = {
-        order_date: Date | null
-        start_time: string
-        end_time: string
-        province_id: string | null
-        ward_id: string | null
-        event_id: string | null
-        custom_event: string | null
-        category_id: number | null
-        location_detail: string | number | undefined
-        note: string
-    }
+type PartnerBillForm = {
+    order_date: Date | null
+    start_time: string
+    end_time: string
+    province_id: string | null
+    ward_id: string | null
+    event_id: string | null
+    custom_event: string | null
+    category_id: number | null
+    location_detail: string | number | undefined
+    note: string
+}
 
-    // parent
-    const partnerCategory = pageProps.partnerCategory as PartnerCategory
-    const partnerChildrenCategory = pageProps.partnerChildrenCategory as PartnerCategory
-    const eventListProp = pageProps.eventList as Event[]
-    const provinceListProp = pageProps.provinces as Province[]
-    const eventList = [{ name: 'DS nội dung sự kiện', children: eventListProp.map(event => ({ name: event.name, value: String(event.id) })) }]
-    const provinceList = [{ name: 'Chọn tỉnh thành', children: provinceListProp.map(province => ({ name: province.name, value: String(province.id) })) }]
+// parent
+const partnerCategory = pageProps.partnerCategory as PartnerCategory
+const partnerChildrenCategory = pageProps.partnerChildrenCategory as PartnerCategory
+const eventListProp = pageProps.eventList as Event[]
+const provinceListProp = pageProps.provinces as Province[]
+const eventList = [{ name: 'DS nội dung sự kiện', children: eventListProp.map(event => ({ name: event.name, value: String(event.id) })) }]
+const provinceList = [{ name: 'Chọn tỉnh thành', children: provinceListProp.map(province => ({ name: province.name, value: String(province.id) })) }]
 
-    const LS_KEY = `quick-booking:partner-form:ls`
+const LS_KEY = `quick-booking:partner-form:ls`
+const MIN_LEAD_MINUTES = 15
+const MIN_EVENT_DURATION_MINUTES = 30
 
-    const initial : PartnerBillForm = JSON.parse(localStorage.getItem(LS_KEY) || 'null') ?? {
-        order_date: null,
-        start_time: '',
-        end_time: '',
-        province_id: null,
-        ward_id: null,
-        event_id: null,
-        custom_event: null,
-        category_id: null,
-        location_detail: '',
-        note: '',
-    }
+const initial: PartnerBillForm = JSON.parse(localStorage.getItem(LS_KEY) || 'null') ?? {
+    order_date: null,
+    start_time: '',
+    end_time: '',
+    province_id: null,
+    ward_id: null,
+    event_id: null,
+    custom_event: null,
+    category_id: null,
+    location_detail: '',
+    note: '',
+}
 
-    const location = reactive({
-        provinceId: null as string | null,
-    })
+const location = reactive({
+    provinceId: initial.province_id as string | null,
+})
 
-    const wardList = ref<WardTypeSelectBox[]>([])
-    const loadingWards = ref(false)
-    const wardsError = ref('')
-    const lastProvinceProcessed = ref<string | null>(null)
+const wardList = ref<WardTypeSelectBox[]>([])
+const loadingWards = ref(false)
+const wardsError = ref('')
+const lastProvinceProcessed = ref<string | null>(null)
 
-    watch(() => location.provinceId, async (provinceId, old) => {
-        if (!provinceId) {
-            wardList.value = []
-            lastProvinceProcessed.value = null
-            return
-        }
-
-        if (lastProvinceProcessed.value === provinceId) {
-            return
-        }
-        lastProvinceProcessed.value = provinceId
-
-        form.ward_id = null
+watch(() => location.provinceId, async (provinceId, old) => {
+    if (!provinceId) {
         wardList.value = []
-        wardsError.value = ''
-        loadingWards.value = true
+        lastProvinceProcessed.value = null
+        return
+    }
 
-        form.province_id = provinceId
+    if (lastProvinceProcessed.value === provinceId) {
+        return
+    }
+    lastProvinceProcessed.value = provinceId
 
-        try {
-            const response = await axios.get<Ward[]>(`/api/locations/${provinceId}/wards`, {
+    form.ward_id = null
+    wardList.value = []
+    wardsError.value = ''
+    loadingWards.value = true
+
+    form.province_id = provinceId
+
+    try {
+        const response = await axios.get<Ward[]>(`/api/locations/${provinceId}/wards`, {
             headers: { 'Accept': 'application/json' }
-            })
-            const data = response.data
-            wardList.value = data.map((w: Ward) => ({ name: w.name, value: String(w.id) }))
-        } catch (err) {
-            wardsError.value = 'không tải được danh sách phường/xã'
-            console.error(err)
-        } finally {
-            loadingWards.value = false
+        })
+        const data = response.data
+        wardList.value = data.map((w: Ward) => ({ name: w.name, value: String(w.id) }))
+    } catch (err) {
+        wardsError.value = 'không tải được danh sách phường/xã'
+        console.error(err)
+    } finally {
+        loadingWards.value = false
+    }
+})
+
+const headerImageSrc = getImg(partnerChildrenCategory.media)
+const title = 'Điền thông tin thuê chi tiết'
+const subtitle = `Bạn đang tìm '${partnerCategory.name}' - '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin và mô tả rõ sự kiện của bạn dưới đây nhé`
+
+const form = useForm<PartnerBillForm>(initial)
+const isCustomEvent = ref(Boolean(initial.custom_event))
+
+watch(() => form.data(), (val) => {
+    try {
+        localStorage.setItem(LS_KEY, JSON.stringify(val))
+    } catch (e) {
+        console.error('cannot write ls', e)
+    }
+}, { deep: true })
+
+function handleCustomOption(selected: boolean) {
+    isCustomEvent.value = selected
+    if (!selected) {
+        form.custom_event = null
+    }
+}
+
+watch(() => form.event_id, (val) => {
+    if (val) {
+        isCustomEvent.value = false
+        form.custom_event = null
+    }
+})
+
+const buildDateTime = (date: Date, minutes: number) => {
+    const next = new Date(date.getTime())
+    next.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0)
+    return next
+}
+
+const validateClient = (): boolean => {
+    form.clearErrors()
+    let hasError = false
+
+    const parsedDate = toDate(form.order_date)
+    const startMinutes = toMinutes(form.start_time)
+    const endMinutes = toMinutes(form.end_time)
+    const provinceId = location.provinceId ?? form.province_id
+
+    if (!form.order_date) {
+        form.setError('order_date', 'Vui lòng chọn ngày đặt lịch.')
+        hasError = true
+    } else if (!parsedDate) {
+        form.setError('order_date', 'Ngày đặt lịch không đúng định dạng (Y-m-d).')
+        hasError = true
+    }
+
+    if (!form.start_time) {
+        form.setError('start_time', 'Vui lòng chọn giờ bắt đầu.')
+        hasError = true
+    } else if (startMinutes === null) {
+        form.setError('start_time', 'Giờ bắt đầu không đúng định dạng (H:i).')
+        hasError = true
+    }
+
+    if (!form.end_time) {
+        form.setError('end_time', 'Vui lòng chọn giờ kết thúc.')
+        hasError = true
+    } else if (endMinutes === null) {
+        form.setError('end_time', 'Giờ kết thúc không đúng định dạng (H:i).')
+        hasError = true
+    }
+
+    if (!provinceId) {
+        form.setError('province_id', 'Vui lòng chọn tỉnh/thành phố.')
+        hasError = true
+    } else {
+        form.province_id = provinceId
+    }
+
+    if (!form.ward_id) {
+        form.setError('ward_id', 'Vui lòng chọn phường/xã.')
+        hasError = true
+    }
+
+    const locationDetail = form.location_detail == null ? '' : String(form.location_detail).trim()
+    if (!locationDetail) {
+        form.setError('location_detail', 'Vui lòng nhập địa chỉ chi tiết.')
+        hasError = true
+    } else if (locationDetail.length < 5) {
+        form.setError('location_detail', 'Địa chỉ chi tiết phải có ít nhất 5 ký tự.')
+        hasError = true
+    } else {
+        form.location_detail = locationDetail
+    }
+
+    const customEventVal = form.custom_event == null ? '' : String(form.custom_event).trim()
+    if (customEventVal && customEventVal.length < 5) {
+        form.setError('custom_event', 'Chi tiết sự kiện phải có ít nhất 5 ký tự.')
+        hasError = true
+    } else {
+        form.custom_event = customEventVal || null
+    }
+
+    if (parsedDate && startMinutes !== null && endMinutes !== null) {
+        const startDateTime = buildDateTime(parsedDate, startMinutes)
+        const endDateTime = buildDateTime(parsedDate, endMinutes)
+        const now = new Date()
+
+        if (startDateTime < now) {
+            form.setError('order_date', 'Thời gian tổ chức sự kiện phải là thời gian tới.')
+            form.setError('start_time', 'Thời gian tổ chức sự kiện phải là thời gian tới.')
+            hasError = true
+        } else {
+            const minStart = new Date(now.getTime() + MIN_LEAD_MINUTES * 60_000)
+            if (startDateTime < minStart) {
+                form.setError('start_time', 'Bạn phải đặt lịch trước ít nhất 15 phút.')
+                hasError = true
+            }
         }
+
+        if (startDateTime >= endDateTime) {
+            form.setError('start_time', 'Giờ bắt đầu phải nhỏ hơn giờ kết thúc.')
+            hasError = true
+        }
+
+        const duration = (endDateTime.getTime() - startDateTime.getTime()) / 60_000
+        if (duration < MIN_EVENT_DURATION_MINUTES) {
+            form.setError('end_time', 'Thời gian tổ chức sự kiện phải ít nhất 30 phút.')
+            hasError = true
+        }
+    }
+
+    return !hasError
+}
+
+async function submit() {
+    if (!validateClient()) {
+        return
+    }
+
+    const ok = await confirm({
+        title: 'Xác nhận đặt đơn ngay?',
+        message: 'Vui lòng kiểm tra kỹ thông tin trước khi xác nhận',
+        okText: 'Đặt đơn ngay!',
+        cancelText: 'Kiểm tra lại'
     })
 
-    const headerImageSrc = getImg(partnerChildrenCategory.media)
-    const title = 'Điền thông tin thuê chi tiết'
-    const subtitle = `Bạn đang tìm '${partnerCategory.name}' - '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin và mô tả rõ sự kiện của bạn dưới đây nhé`
+    if (!ok) {
+        return
+    }
 
-    const form = useForm<PartnerBillForm>(initial)
-
-    watch(() => form.data(), (val) => {
-        try {
-            localStorage.setItem(LS_KEY, JSON.stringify(val))
-        } catch (e) {
-            console.error('cannot write ls', e)
-        }
-    }, { deep: true })
-
-    async function submit() {
-        const ok = await confirm({
-            title: 'Xác nhận đặt đơn ngay?',
-            message: 'Vui lòng kiểm tra kỹ thông tin trước khi xác nhận',
-            okText: 'Đặt đơn ngay!',
-            cancelText: 'Kiểm tra lại'
-        })
-
-        if (!ok) {
-            return
-        }
-
-        form.transform(() => ({
-            order_date: toISODate(form.order_date),
-            start_time: form.start_time,
-            end_time: form.end_time,
-            province_id: form.province_id,
-            ward_id: form.ward_id,
-            event_id: form.event_id,
-            custom_event: form.custom_event,
-            location_detail: form.location_detail,
-            note: form.note,
-            category_id: partnerChildrenCategory.id
-        }))
+    form.transform(() => ({
+        order_date: toISODate(form.order_date),
+        start_time: form.start_time,
+        end_time: form.end_time,
+        province_id: form.province_id,
+        ward_id: form.ward_id,
+        event_id: form.event_id,
+        custom_event: form.custom_event,
+        location_detail: form.location_detail,
+        note: form.note,
+        category_id: partnerChildrenCategory.id
+    }))
         .post(route('quick-booking.save-info'), {
             preserveScroll: true,
             onBefore: () => {
@@ -149,29 +274,31 @@
                 hideLoading(true)
             }
         })
-    }
+}
 
-    async function onGoBack() {
-        const ok = await confirm({
-            title: 'Chọn lại kiểu đối tác?',
-            message: 'Thông tin đã nhập <b>sẽ được lưu lại</b>!',
-            okText: 'Đồng ý!',
-            cancelText: 'Không, tôi ổn'
-        })
+async function onGoBack() {
+    const ok = await confirm({
+        title: 'Chọn lại kiểu đối tác?',
+        message: 'Thông tin đã nhập <b>sẽ được lưu lại</b>!',
+        okText: 'Đồng ý!',
+        cancelText: 'Không, tôi ổn'
+    })
 
-        if (ok) {
-            window.history.back()
-        }
+    if (ok) {
+        window.history.back()
     }
+}
 
-    function clearStorage() {
-        localStorage.removeItem(LS_KEY)
-        form.reset('order_date','start_time','end_time','province_id','ward_id','event_id','category_id','location_detail','note')
-    }
+function clearStorage() {
+    localStorage.removeItem(LS_KEY)
+    form.reset('order_date', 'start_time', 'end_time', 'province_id', 'ward_id', 'event_id', 'category_id', 'location_detail', 'note')
+    isCustomEvent.value = false
+}
 </script>
 
 <!-- quick booking page FINAL step -->
 <template>
+
     <Head title="Đặt show nhanh - Chọn đối tác" />
     <!-- layout -->
     <ClientAppHeaderLayout>
@@ -180,63 +307,79 @@
             <form @submit.prevent="submit" :action="route('quick-booking.save-info')"
                 class="bg-gray-50 will-change-transform rounded md:rounded-lg flex flex-col items-center max-w-[800px] gap-[20px] w-full md:w-[86%] h-min p-3 md:p-7 relative">
                 <FormGroupLayout>
-                    <FormItemLayout :for-id="'select-start-time'" :label="'Thời gian bắt đầu'" :error="form.errors.start_time">
+                    <FormItemLayout :for-id="'select-start-time'" :label="'Thời gian bắt đầu'"
+                        :error="form.errors.start_time">
                         <TimePickerSingle use24h v-model="form.start_time" :id="'select-start-time'" />
                     </FormItemLayout>
 
-                    <FormItemLayout :for-id="'select-end-time'" :label="'Thời gian kết thúc'" :error="form.errors.end_time">
+                    <FormItemLayout :for-id="'select-end-time'" :label="'Thời gian kết thúc'"
+                        :error="form.errors.end_time">
                         <TimePickerSingle use24h v-model="form.end_time" :id="'select-end-time'" />
                     </FormItemLayout>
                 </FormGroupLayout>
 
                 <FormGroupLayout>
                     <!-- date picker  -->
-                    <FormItemLayout :for-id="'select-event-date'" :label="'Ngày tổ chức sự kiện'" :error="form.errors.order_date">
+                    <FormItemLayout :for-id="'select-event-date'" :label="'Ngày tổ chức sự kiện'"
+                        :error="form.errors.order_date">
                         <DatePickerSingle :id="'select-event-date'" v-model="form.order_date" />
                     </FormItemLayout>
-                    <FormItemLayout :for-id="'select-event-type'" :label="'Nội dung sự kiện'" :error="form.errors.event_id??form.errors.custom_event">
-                        <SelectBox
-                            :id="'select-event-type'"
-                            v-model="form.event_id"
-                            :custom-value="form.custom_event"
-                            @update:custom-value="val => form.custom_event = val"
-                            :options="eventList"
-                            :allow-custom="true"
-                            placeholder="Chọn nội dung sự kiện..."
-                        />
+                    <FormItemLayout :for-id="'select-event-type'" :label="'Nội dung sự kiện'"
+                        :error="form.errors.event_id ?? form.errors.custom_event">
+                        <SelectBox :id="'select-event-type'" v-model="form.event_id" :options="eventList"
+                            :allow-custom="true" @custom-option-selected="handleCustomOption"
+                            placeholder="Chọn nội dung sự kiện..." />
                     </FormItemLayout>
-                </FormGroupLayout>
-
-                <FormGroupLayout>
-                    <FormItemLayout :for-id="'optional-note'" :label="'Ghi chú bổ sung (Tùy chọn)'" :error="form.errors.note">
-                        <Input placeholder="VD: Cần người mặc đồng phục có tông màu vàng" :id="'optional-note'" v-model="form.note"
+                    <FormItemLayout v-if="isCustomEvent" :for-id="'event-custom'" :label="'Nội dung sự kiện (Tùy chọn)'"
+                        :error="form.errors.custom_event">
+                        <Input placeholder="VD: Tổ chức thăm lăng bác" :id="'event-custom'" v-model="form.custom_event"
                             class="text-black" />
                     </FormItemLayout>
                 </FormGroupLayout>
 
                 <FormGroupLayout>
-                    <FormItemLayout :for-id="'event-order-location-province'" :label="'Địa điểm tổ chức'" :error="form.errors.province_id">
-                        <SelectBox :allowCustom="false" :id="'event-order-location-province'" v-model="location.provinceId" :options="provinceList" placeholder="Chọn Tỉnh thành..." />
+                    <FormItemLayout :for-id="'optional-note'" :label="'Ghi chú bổ sung (Tùy chọn)'"
+                        :error="form.errors.note">
+                        <Input placeholder="VD: Cần người mặc đồng phục có tông màu vàng" :id="'optional-note'"
+                            v-model="form.note" class="text-black" />
                     </FormItemLayout>
-                    <FormItemLayout class="hidden md:block" :for-id="'event-order-location-ward'" :label="' '" :error="form.errors.ward_id">
-                        <SelectBox :allowCustom="false" :is-enable="location.provinceId !== null" :id="'event-order-location-ward'" v-model="form.ward_id" :options="wardList" placeholder="Chọn xã, phường..." />
+                </FormGroupLayout>
+
+                <FormGroupLayout>
+                    <FormItemLayout :for-id="'event-order-location-province'" :label="'Địa điểm tổ chức'"
+                        :error="form.errors.province_id">
+                        <SelectBox :allowCustom="false" :id="'event-order-location-province'"
+                            v-model="location.provinceId" :options="provinceList" placeholder="Chọn Tỉnh thành..." />
                     </FormItemLayout>
-                    <FormItemLayout class="block md:hidden" :for-id="'event-order-location-ward-mobile'" :label="''" :error="form.errors.ward_id">
-                        <SelectBox :allowCustom="false" :is-enable="location.provinceId !== null" :id="'event-order-location-ward-mobile'" v-model="form.ward_id" :options="wardList" placeholder="Chọn xã, phường..." />
+                    <FormItemLayout class="hidden md:block" :for-id="'event-order-location-ward'" :label="' '"
+                        :error="form.errors.ward_id">
+                        <SelectBox :allowCustom="false" :is-enable="location.provinceId !== null"
+                            :id="'event-order-location-ward'" v-model="form.ward_id" :options="wardList"
+                            placeholder="Chọn xã, phường..." />
+                    </FormItemLayout>
+                    <FormItemLayout class="block md:hidden" :for-id="'event-order-location-ward-mobile'" :label="''"
+                        :error="form.errors.ward_id">
+                        <SelectBox :allowCustom="false" :is-enable="location.provinceId !== null"
+                            :id="'event-order-location-ward-mobile'" v-model="form.ward_id" :options="wardList"
+                            placeholder="Chọn xã, phường..." />
                     </FormItemLayout>
                 </FormGroupLayout>
 
                 <FormGroupLayout v-if="form.ward_id !== null" class="p-0 m-0 h-min">
-                    <FormItemLayout :for-id="'event-order-location-detail'" :label="'Địa chỉ chi tiết'" :error="form.errors.location_detail">
-                        <Input placeholder="Số nhà, đường..." :id="'event-order-location-detail'" v-model="form.location_detail" class="text-black" />
+                    <FormItemLayout :for-id="'event-order-location-detail'" :label="'Địa chỉ chi tiết'"
+                        :error="form.errors.location_detail">
+                        <Input placeholder="Số nhà, đường..." :id="'event-order-location-detail'"
+                            v-model="form.location_detail" class="text-black" />
                     </FormItemLayout>
                 </FormGroupLayout>
 
                 <FormGroupLayout class="mb-3">
                     <div class="w-3/4 md:w-1/2">
-                        <Button type="button" @click="onGoBack" :variant="'outlineWhite'" :size="'lg'" :class="'w-full cursor-pointer'">Chọn lại loại đối tác</Button>
+                        <Button type="button" @click="onGoBack" :variant="'outlineWhite'" :size="'lg'"
+                            :class="'w-full cursor-pointer'">Chọn lại loại đối tác</Button>
                     </div>
-                    <Button type="submit" :variant="'secondary'" :size="'lg'" :class="'w-3/4 md:w-1/2 font-extrabold text-white'">
+                    <Button type="submit" :variant="'secondary'" :size="'lg'"
+                        :class="'w-3/4 md:w-1/2 font-extrabold text-white'">
                         Đặt show ngay
                     </Button>
                 </FormGroupLayout>

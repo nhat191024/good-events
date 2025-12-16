@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\OrderHistory;
 
+use App\Enum\StatisticType;
+use App\Models\Statistical;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,18 +21,10 @@ class PartnerBillDetailResource extends JsonResource {
                 return [
                     'id' => $part->id,
                     'name' => $part->name,
-                    'avatar' => $part->avatar,
+                    'avatar' => asset($part->avatar),
                     'statistics' => $this->when(
                         $part->relationLoaded('statistics') && $part->statistics,
-                        fn() => $part->statistics
-                            //* need to add more, missing a few
-                            ->whereIn('metrics_name', [
-                                'average_stars',
-                                'total_ratings'
-                            ])
-                            ->mapWithKeys(fn($stat) => [
-                                $stat->metrics_name => $stat->metrics_value,
-                            ])
+                        fn() => $this->formatStatistics($part)
                     ),
                     'partner_profile' => $this->when(
                         $part->relationLoaded('partnerProfile') && $part->partnerProfile,
@@ -41,6 +35,29 @@ class PartnerBillDetailResource extends JsonResource {
                     ),
                 ];
             }),
+        ];
+    }
+
+    private function formatStatistics($partner): array
+    {
+        $stats = $partner->statistics
+            ->whereIn('metrics_name', [
+                StatisticType::AVERAGE_STARS->value,
+                StatisticType::TOTAL_RATINGS->value,
+            ])
+            ->mapWithKeys(fn ($stat) => [
+                $stat->metrics_name => $stat->metrics_value,
+            ]);
+
+        if ($stats->count() < 2) {
+            $stats = collect($stats)->merge(
+                Statistical::calculatePartnerRatingMetrics($partner->id)
+            );
+        }
+
+        return [
+            StatisticType::AVERAGE_STARS->value => (float) ($stats[StatisticType::AVERAGE_STARS->value] ?? 0),
+            StatisticType::TOTAL_RATINGS->value => (int) ($stats[StatisticType::TOTAL_RATINGS->value] ?? 0),
         ];
     }
 }

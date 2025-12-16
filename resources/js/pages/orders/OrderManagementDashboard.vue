@@ -35,7 +35,67 @@ const selectedOrder = ref<ClientOrder | null>(null)
 const selectedMode = ref<'current' | 'history'>('current')
 const detailsMap = ref<Record<number, { items: ClientOrderDetail[]; version?: number }>>({})
 const showMobileDetail = ref(false)
+const historyStatuses = new Set([
+    OrderStatus.COMPLETED,
+    OrderStatus.CANCELLED,
+    OrderStatus.EXPIRED,
+])
+const queryOrderId = ref<number | null>(null)
+const hasAppliedOrderParam = ref(false)
 let lastRequestedId: number | null = null
+
+function parseInitialOrderId() {
+    if (typeof window === 'undefined') return
+    const value = new URL(window.location.href).searchParams.get('order')
+    if (!value) {
+        queryOrderId.value = null
+        return
+    }
+    const parsed = Number(value)
+    queryOrderId.value = Number.isFinite(parsed) && parsed > 0 ? parsed : null
+}
+
+function updateOrderQueryParam(orderId: number | null) {
+    if (typeof window === 'undefined') return
+    const url = new URL(window.location.href)
+    if (orderId) {
+        url.searchParams.set('order', String(orderId))
+    } else {
+        url.searchParams.delete('order')
+    }
+    window.history.replaceState({}, '', url)
+}
+
+function resolveMode(status: OrderStatus): 'current' | 'history' {
+    return historyStatuses.has(status) ? 'history' : 'current'
+}
+
+function ensureOrderCached(order: ClientOrder) {
+    const mode = resolveMode(order.status)
+
+    if (mode === 'current') {
+        if (!currentOrders.value.some(o => o.id === order.id)) {
+            currentOrders.value.unshift(order)
+            loadedOrderIds.value.add(order.id)
+        }
+        return
+    }
+
+    if (!historyItems.value.some(o => o.id === order.id)) {
+        historyItems.value.unshift(order as any)
+        loadedHistoryIds.value.add(order.id)
+    }
+}
+
+function applySelection(order: ClientOrder, mode?: 'current' | 'history') {
+    const resolvedMode = mode ?? resolveMode(order.status)
+    selectedOrder.value = order
+    selectedMode.value = resolvedMode
+    activeTab.value = resolvedMode
+    showMobileDetail.value = true
+    updateOrderQueryParam(order.id)
+    fetchDetails(order.id)
+}
 
 function syncSelectedOrder(freshOrders: ClientOrder[], isAppend: boolean) {
     if (!selectedOrder.value || selectedMode.value !== 'current') return
@@ -60,8 +120,8 @@ function syncSelectedOrder(freshOrders: ClientOrder[], isAppend: boolean) {
     }
 }
 
-function fetchSingleOrder(orderId: number) {
-    router.get(route('client-orders.dashboard'), { single_order: orderId }, {
+function fetchSingleOrder(orderId: number, options: { select?: boolean } = {}) {
+    router.get(route('client-orders.dashboard'), { order: orderId }, {
         only: ['singleOrder'],
         preserveState: true,
         preserveScroll: true,
@@ -69,11 +129,27 @@ function fetchSingleOrder(orderId: number) {
             const response = pageResp.props.singleOrder as SingleClientOrderPayload
             const order = (response?.data || response) as ClientOrder
 
-            if (order && selectedOrder.value?.id === orderId) {
-                selectedOrder.value = order
+            if (!order) {
+                if (options.select) {
+                    hasAppliedOrderParam.value = true
+                }
+                return
+            }
 
-                if (order.status !== 'pending') {
-                    console.log('Order status changed to:', order.status)
+            ensureOrderCached(order)
+
+            if (options.select) {
+                applySelection(order)
+                hasAppliedOrderParam.value = true
+                return
+            }
+
+            if (selectedOrder.value?.id === orderId) {
+                selectedOrder.value = order
+                const nextMode = resolveMode(order.status)
+
+                if (selectedMode.value !== nextMode) {
+                    applySelection(order, nextMode)
                 }
             }
         },
@@ -81,6 +157,28 @@ function fetchSingleOrder(orderId: number) {
             console.error('Failed to fetch single order:', e)
         },
     })
+}
+
+function tryApplyOrderFromQuery() {
+    if (!queryOrderId.value || hasAppliedOrderParam.value) return
+
+    const id = queryOrderId.value
+
+    const currentMatch = currentOrders.value.find(o => o.id === id)
+    if (currentMatch) {
+        applySelection(currentMatch, 'current')
+        hasAppliedOrderParam.value = true
+        return
+    }
+
+    const historyMatch = historyItems.value.find(h => h.id === id)
+    if (historyMatch) {
+        applySelection(historyMatch as any, 'history')
+        hasAppliedOrderParam.value = true
+        return
+    }
+
+    fetchSingleOrder(id, { select: true })
 }
 
 const currentOrders = ref<ClientOrder[]>([])
@@ -121,9 +219,13 @@ function loadOrders(page: number, append: boolean) {
             }
 
             syncSelectedOrder(incoming, append)
+            tryApplyOrderFromQuery()
 
             currentNextPage.value = parseNextPage(payload)
             stripPagingFromUrl()
+            if (selectedOrder.value?.id) {
+                updateOrderQueryParam(selectedOrder.value.id)
+            }
         },
         onError: (error) => {
             console.error('Failed to load orders:', error)
@@ -182,7 +284,11 @@ function fetchHistory(page: number, append = false) {
 
             historyNextPage.value = parseNextPage(payload, 'history_page')
             historyLoadedOnce = true
+            tryApplyOrderFromQuery()
             stripPagingFromUrl()
+            if (selectedOrder.value?.id) {
+                updateOrderQueryParam(selectedOrder.value.id)
+            }
         },
         onError: (e) => {
             console.error('Failed to fetch history:', e)
@@ -236,6 +342,11 @@ function fetchDetails(id: number, reload = false) {
             if (reload && selectedOrder.value?.id === id) {
                 fetchSingleOrder(id)
             }
+
+            stripPagingFromUrl(['page', 'history_page', 'active'])
+            if (selectedOrder.value?.id) {
+                updateOrderQueryParam(selectedOrder.value.id)
+            }
         },
         onError: (e) => {
             console.error('Failed to fetch details for order', id, e)
@@ -243,16 +354,19 @@ function fetchDetails(id: number, reload = false) {
     })
 }
 
-function refreshDetails(id: number | undefined) {
-    if (!id) return
-    fetchDetails(id, true)
+function refreshDetails(order : ClientOrder | undefined) {
+    if (!order?.id || activeTab.value !== 'current') {
+        return
+    } else {
+        if (order.status == OrderStatus.COMPLETED) {
+            return
+        }
+        fetchDetails(order.id, true)
+    }
 }
 
 function handleSelect(payload: { order: ClientOrder; mode: 'current' | 'history' }) {
-    selectedOrder.value = payload.order
-    selectedMode.value = payload.mode
-    fetchDetails(payload.order.id)
-    showMobileDetail.value = true
+    applySelection(payload.order, payload.mode)
 }
 
 const applicants = computed<ClientOrderDetail[]>(() => {
@@ -303,10 +417,10 @@ async function handleConfirmChoosePartner(
         const ok = await confirm({
             title: `Bạn có muốn chọn đối tác (${partner.partner_profile?.partner_name ?? partner.name})?`,
             message: `
-              Xác nhận chốt đơn sẽ mở khóa chat với đối tác và 
+              Xác nhận chốt đơn sẽ mở khóa chat với đối tác và
               <b class="font-lexend">không thể chọn lại đối tác khác cho đơn này.</b>
               <br>Đối tác trả giá: <span class="text-red-800 font-bold text-md">
-              ${formatPrice(total??0)}đ ${(voucherDiscountAmount > 0)?'<br>Giá đã giảm từ mã giảm giá: '+formatPrice(finalTotal)+'đ (-'+formatPrice(voucherDiscountAmount)+'đ)':''}</span>
+              ${formatPrice(total ?? 0)}đ ${(voucherDiscountAmount > 0) ? '<br>Giá đã giảm từ mã giảm giá: ' + formatPrice(finalTotal) + 'đ (-' + formatPrice(voucherDiscountAmount) + 'đ)' : ''}</span>
               <br> Bạn có chấp nhận mức giá này không?
             `,
             okText: 'Chốt đơn luôn!',
@@ -332,7 +446,7 @@ async function handleConfirmChoosePartner(
                 debounce(() => {
                     fetchDetails(orderId, true);
                 }, 1000, { leading: false, trailing: true })();
-                
+
                 debounce(() => {
                     refreshCurrentOrders();
                     hideLoading(true);
@@ -381,6 +495,7 @@ async function handleCancelOrder() {
         onSuccess: () => {
             selectedOrder.value = null
             delete detailsMap.value[orderId]
+            updateOrderQueryParam(null)
             refreshCurrentOrders()
         },
         onFinish: () => {
@@ -500,10 +615,11 @@ const loadingForSidebar = computed(() =>
 let pollInterval: number | undefined
 
 onMounted(() => {
+    parseInitialOrderId()
     initOrders()
     pollInterval = window.setInterval(() => {
         pollForUpdates()
-        refreshDetails(selectedOrder.value?.id ?? undefined)
+        refreshDetails(selectedOrder.value ?? undefined)
     }, 64_000)
 })
 
@@ -518,44 +634,25 @@ onBeforeUnmount(() => {
 
     <Head title="Đơn hàng của tôi" />
     <ClientHeaderLayout :show-footer="false">
-        <div class="flex h-[90vh] bg-background w-full overflow-visible">
+        <div class="flex h-[95vh] bg-background w-full overflow-visible">
             <div :class="[showMobileDetail ? 'hidden md:block' : 'block', 'w-full md:w-auto']">
-                <Sidebar
-                    :orderList="currentOrders"
-                    :history-loading="loadingForSidebar"
-                    :order-loading="loadingForSidebar"
-                    :orderHistory="historyItems"
-                    :selected-order-id="selectedOrder?.id ?? null"
-                    :selected-mode="selectedMode"
-                    v-model:activeTab="activeTab"
-                    @select="handleSelect"
-                    @load-history-more="loadMoreHistory"
-                    @reload="reloadHistory"
-                    @load-orders-more="loadMoreOrders"
-                    @reload-orders="refreshCurrentOrders"
-                />
+                <Sidebar :orderList="currentOrders" :history-loading="loadingForSidebar"
+                    :order-loading="loadingForSidebar" :orderHistory="historyItems"
+                    :selected-order-id="selectedOrder?.id ?? null" :selected-mode="selectedMode"
+                    v-model:activeTab="activeTab" @select="handleSelect" @load-history-more="loadMoreHistory"
+                    @reload="reloadHistory" @load-orders-more="loadMoreOrders" @reload-orders="refreshCurrentOrders" />
             </div>
 
             <div :class="[showMobileDetail ? 'block' : 'hidden md:block']" class="flex-1">
-                <OrderDetailPanel
-                    @reload-detail="refreshDetails"
-                    :mode="selectedMode"
-                    :order="selectedOrder"
-                    :applicants="applicants"
-                    @back="showMobileDetail = false"
-                    @rate="openRating"
+                <OrderDetailPanel @reload-detail="refreshDetails" :mode="selectedMode" :order="selectedOrder"
+                    :applicants="applicants" @back="showMobileDetail = false" @rate="openRating"
                     @cancel-order="handleCancelOrder"
                     @confirm-choose-partner="(partner, total, voucher_code) => handleConfirmChoosePartner(partner, total, voucher_code)"
-                    @view-partner-profile="handleViewPartnerProfile($event)"
-                />
+                    @view-partner-profile="handleViewPartnerProfile($event)" />
             </div>
 
-            <RatingDialog
-                v-model:showRatingDialog="showRatingDialog"
-                v-model:rating="rating"
-                v-model:comment="comment"
-                @submit="submitRating"
-            />
+            <RatingDialog v-model:showRatingDialog="showRatingDialog" v-model:rating="rating" v-model:comment="comment"
+                @submit="submitRating" />
         </div>
     </ClientHeaderLayout>
 

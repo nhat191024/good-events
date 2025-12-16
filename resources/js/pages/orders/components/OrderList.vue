@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import OrderCard from './OrderCard.vue'
 import { createSearchFilter } from '../../../lib/search-filter'
 import { ClientOrder, OrderStatus } from '../types';
+import { RefreshCw } from 'lucide-vue-next';
 
 const props = withDefaults(defineProps<{
     orders: ClientOrder[]
@@ -40,7 +41,11 @@ onBeforeUnmount(() => {
         <div v-for="o in orders" :key="o.id" @click="emit('select', o)">
             <OrderCard v-bind="o" :selected="o.id === props.selectedId" />
         </div>
-        <div v-if="orders.length === 0" class="text-xs text-muted-foreground">Không có kết quả</div>
+
+        <div v-if="orders.length === 0" class="flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <RefreshCw class="h-8 w-8 mb-3 animate-spin-slow" />
+            <p class="text-sm mb-2">Hiện chưa có đơn hàng nào</p>
+        </div>
         <!-- sentinel + loading -->
         <div ref="sentinel" class="h-8"></div>
         <div v-if="props.loading" class="pb-4 text-center text-xs text-muted-foreground">

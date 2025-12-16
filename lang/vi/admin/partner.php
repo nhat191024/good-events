@@ -31,6 +31,8 @@ return [
 
     'actions.deposit' => 'Nạp tiền',
     'actions.confirm_deposit' => 'Xác nhận nạp tiền',
+    'actions.ban_accept_show' => 'Cấm nhận show',
+    'actions.ban_accept_hide' => 'Bỏ cấm nhận show',
 
     'modals.deposit_heading' => 'Nạp tiền vào ví đối tác',
 
@@ -39,4 +41,7 @@ return [
     'notifications.deposit_success.title' => 'Nạp tiền thành công',
     'notifications.deposit_success.body' => 'Đã nạp :amount VND vào ví của :partner',
     'notifications.deposit_error.title' => 'Lỗi nạp tiền',
+
+    'ban_success_message' => 'Người dùng đã bị cấm thành công.',
+    'unban_success_message' => 'Người dùng đã được bỏ cấm thành công.',
 ];

@@ -75,8 +75,12 @@ class UserFactory extends Factory
                 'location_id' => fake()->randomElement($locationIds),
             ]);
 
+            if (env('APP_ENV') === 'production') {
+                return;
+            }
+
             $usedCategoryIds = [];
-            $services = collect(['Service A', 'Service B'])->map(function ($service) use ($categoryIds, &$usedCategoryIds) {
+            $services = collect(['Service A', 'Service B'])->map(function ($service) use ($categoryIds, $usedCategoryIds) {
                 $availableIds = array_diff($categoryIds, $usedCategoryIds);
                 $categoryId = fake()->randomElement($availableIds);
                 $usedCategoryIds[] = $categoryId;

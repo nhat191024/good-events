@@ -11,6 +11,7 @@ return [
     'save' => 'Save',
     'confirm' => 'Confirm',
     'ban' => 'Ban',
+    'close' => 'Close',
 
     'no' => 'No',
     'yes' => 'Yes',
@@ -27,6 +28,8 @@ return [
     'next' => 'Next',
     'previous' => 'Previous',
 
+    'log_viewer' => 'Log Viewer',
+
     'system_message' => [
         'order_confirmed' => 'The order :code has been confirmed. This is the chat between customer and partner. Admin can monitor to support when necessary.',
     ],
@@ -42,5 +45,15 @@ return [
     'filter' => [
         'hidden_include' => 'Include hidden records',
         'hidden_only' => 'Only hidden records'
-    ]
+    ],
+
+    'role' => [
+        'admin' => 'Admin',
+        'super_admin' => 'Super Admin',
+        'partner' => 'Partner',
+        'client' => 'Client',
+        'human_resource_manager' => 'Human Resource Manager',
+        'design_manager' => 'Design Manager',
+        'rental_manager' => 'Rental Manager',
+    ],
 ];

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enum\StatisticType;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property int $id
@@ -45,5 +47,56 @@ class Statistical extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Calculate and persist rating-related metrics for a partner.
+     */
+    public static function syncPartnerRatingMetrics(int $partnerId): array
+    {
+        $metrics = self::calculatePartnerRatingMetrics($partnerId);
+
+        foreach ($metrics as $metric => $value) {
+            self::updateOrCreate(
+                [
+                    'user_id' => $partnerId,
+                    'metrics_name' => $metric,
+                ],
+                [
+                    'metrics_value' => $value,
+                ]
+            );
+        }
+
+        return $metrics;
+    }
+
+    /**
+     * Calculate rating-related metrics for a partner without persisting them.
+     */
+    public static function calculatePartnerRatingMetrics(int $partnerId): array
+    {
+        $ratingQuery = DB::table('ratings')
+            ->join('reviews', 'reviews.id', '=', 'ratings.review_id')
+            ->where('reviews.reviewable_type', User::class)
+            ->where('reviews.reviewable_id', $partnerId)
+            ->where('reviews.approved', true)
+            ->where('ratings.key', 'rating');
+
+        $totalRatings = (int) (clone $ratingQuery)->count();
+        $averageStars = $totalRatings > 0
+            ? (float) ((clone $ratingQuery)->avg('ratings.value') ?? 0)
+            : 0;
+
+        $satisfiedRatings = (int) (clone $ratingQuery)->where('ratings.value', '>=', 4)->count();
+        $satisfactionRate = $totalRatings > 0
+            ? ($satisfiedRatings / $totalRatings) * 100
+            : 0;
+
+        return [
+            StatisticType::AVERAGE_STARS->value => round($averageStars, 2),
+            StatisticType::TOTAL_RATINGS->value => $totalRatings,
+            StatisticType::SATISFACTION_RATE->value => round($satisfactionRate, 2),
+        ];
     }
 }

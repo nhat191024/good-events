@@ -20,6 +20,15 @@ class WalletsTable
             ->columns([
                 TextColumn::make('id')
                     ->label(__('partner/transaction.label.id')),
+                TextColumn::make('meta.new_balance')
+                    ->label(__('partner/transaction.label.balance'))
+                    ->money('vnd', true),
+                TextColumn::make('meta.old_balance')
+                    ->label(__('partner/transaction.label.old_balance'))
+                    ->money('vnd', true),
+                TextColumn::make('amount')
+                    ->label(__('partner/transaction.label.amount'))
+                    ->money('vnd', true),
                 TextColumn::make('type')
                     ->label(__('partner/transaction.label.type'))
                     ->badge()
@@ -28,17 +37,8 @@ class WalletsTable
                         'success' => TransactionType::DEPOSIT,
                         'danger' => TransactionType::WITHDRAW,
                     ]),
-                TextColumn::make('amount')
-                    ->label(__('partner/transaction.label.amount'))
-                    ->money('vnd', true),
                 TextColumn::make('meta.reason')
                     ->label(__('partner/transaction.label.reason')),
-                TextColumn::make('meta.old_balance')
-                    ->label(__('partner/transaction.label.old_balance'))
-                    ->money('vnd', true),
-                TextColumn::make('meta.new_balance')
-                    ->label(__('partner/transaction.label.balance'))
-                    ->money('vnd', true),
                 TextColumn::make('created_at')
                     ->label(__('partner/transaction.label.created_at'))
                     ->dateTime('d/m/Y H:i'),

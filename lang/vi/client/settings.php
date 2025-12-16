@@ -39,6 +39,10 @@ return [
                 'label' => 'Số điện thoại',
                 'placeholder' => 'Số điện thoại của bạn',
             ],
+            'bio' => [
+                'label' => 'Giới thiệu',
+                'placeholder' => 'Chia sẻ đôi lời về bạn để đối tác hiểu hơn',
+            ],
             'unverified_notice' => 'Email của bạn chưa được xác minh.',
             'resend_verification' => 'Bấm vào đây để gửi lại email xác minh.',
             'verification_sent' => 'Đường dẫn xác minh mới đã được gửi đến email của bạn.',

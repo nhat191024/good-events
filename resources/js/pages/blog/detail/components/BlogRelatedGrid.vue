@@ -1,0 +1,31 @@
+<template>
+    <section class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-semibold text-gray-900">Bài viết liên quan</h2>
+            <Link :href="route(discoverRouteName)" class="text-sm font-medium text-primary-600 hover:text-primary-700">
+                Xem tất cả
+            </Link>
+        </div>
+
+        <div class="grid gap-2 grid-cols-2 lg:grid-cols-3">
+            <BlogCard
+                v-for="item in blogs"
+                :key="item.id"
+                :blog="item"
+                variant="compact"
+                :detail-route-name="detailRouteName"
+            />
+        </div>
+    </section>
+</template>
+
+<script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
+import BlogCard from '../../discover/components/BlogCard.vue';
+import type { BlogSummary } from '../../types';
+
+withDefaults(defineProps<{ blogs: BlogSummary[]; discoverRouteName?: string; detailRouteName?: string }>(), {
+    discoverRouteName: 'blog.discover',
+    detailRouteName: 'blog.show',
+});
+</script>

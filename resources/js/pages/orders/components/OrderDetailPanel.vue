@@ -5,10 +5,11 @@ import ApplicantCard from './ApplicantCard.vue'
 import { ArrowLeft, Star } from 'lucide-vue-next'
 import { ClientOrder, ClientOrderDetail, OrderDetailStatus, OrderStatus, Partner } from '../types';
 import BookingSummaryCardEmpty from './BookingSummaryCardEmpty.vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import ReloadButton from './ReloadButton.vue';
 import { debounce } from '../helper';
 import { cn } from '@/lib/utils';
+import ArrivalPhotoModal from './ArrivalPhotoModal.vue'
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
@@ -42,7 +43,13 @@ const bookedPartner = computed<ClientOrderDetail | undefined>(() => {
     return props.applicants.find(item => item.status === OrderDetailStatus.CLOSED)
 })
 
+console.log('applicant list '
+    , props.applicants
+);
+
+
 const isReloading = ref(false)
+const applyVoucher = ref(true)
 
 const reloadOrderDetails = debounce(() => {
     isReloading.value = true
@@ -53,12 +60,24 @@ const reloadOrderDetails = debounce(() => {
 }, 5000)
 
 const classIfBookedPartnerFound = computed(()=>{
-    return (bookedPartner && props.mode === 'current' && (props.order?.status==OrderStatus.CONFIRMED || props.order?.status==OrderStatus.IN_JOB)) ? 'hidden' : '';
+    return (bookedPartner.value && props.mode === 'current' && (props.order?.status==OrderStatus.CONFIRMED || props.order?.status==OrderStatus.IN_JOB)) ? 'hidden' : '';
 });
 
+const shouldShowArrivalPhoto = computed(() => Boolean(props.order?.arrival_photo))
+
+const arrivalPhotoAlt = computed(() => {
+    if (!props.order?.code) return 'Arrival Photo'
+    return `Ảnh xác nhận đối tác đã đến cho đơn ${props.order.code}`
+})
+
 function emitConfirmChoosePartnerWithVoucher(partner?: Partner | null | undefined, total?: number | null | undefined) {
-    emit('confirm-choose-partner', partner, total, voucher_code.value)
+    const voucherToSend = applyVoucher.value ? voucher_code.value : null
+    emit('confirm-choose-partner', partner, total, voucherToSend)
 }
+
+watch(() => props.order?.id, () => {
+    applyVoucher.value = true
+})
 
 </script>
 
@@ -83,7 +102,7 @@ function emitConfirmChoosePartnerWithVoucher(partner?: Partner | null | undefine
             </div>
 
             <template v-if="order">
-                <div v-if="props.mode === 'current'" :class="cn('border-2 border-primary/20 rounded-xl bg-card p-3 md:p-3', classIfBookedPartnerFound)">
+                <div v-if="props.mode === 'current'" :class="cn('border-2 border-primary/20 rounded-xl bg-card p-3 md:p-3 mb-2', classIfBookedPartnerFound)">
                     <div class="grid gap-2 md:gap-3">
                         <p v-text="description" class="text-secondary text-sm md:text-md"></p>
                         <div v-if="props.applicants.length > 0" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
@@ -110,7 +129,22 @@ function emitConfirmChoosePartnerWithVoucher(partner?: Partner | null | undefine
                         <!-- </div> -->
                     </div>
                 </div>
-                <BookingSummaryCard v-model="voucher_code" @view-partner-profile="emit('view-partner-profile', $event)" :mode="props.mode" :booked-partner="bookedPartner" :order="props.order" class="mt-6" @cancel-order="emit('cancel-order')" />
+                <ArrivalPhotoModal
+                    v-if="shouldShowArrivalPhoto"
+                    class="mt-4"
+                    :arrival-photo="order?.arrival_photo"
+                    :alt-text="arrivalPhotoAlt"
+                />
+                <BookingSummaryCard
+                    v-model="voucher_code"
+                    v-model:applyVoucher="applyVoucher"
+                    @view-partner-profile="emit('view-partner-profile', $event)"
+                    :mode="props.mode"
+                    :booked-partner="bookedPartner"
+                    :order="props.order"
+                    class="mt-6"
+                    @cancel-order="emit('cancel-order')"
+                />
 
             </template>
             <template v-else>

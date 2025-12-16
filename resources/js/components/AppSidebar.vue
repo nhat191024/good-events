@@ -5,7 +5,7 @@
     import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
     import { type NavItem } from '@/types';
     import { Link } from '@inertiajs/vue3';
-    import { BookOpen, Folder, LayoutGrid, UserCircle } from 'lucide-vue-next';
+    import { Lock, UserCircle } from 'lucide-vue-next';
     import AppLogo from './AppLogo.vue';
 
     const mainNavItems: NavItem[] = [
@@ -13,6 +13,11 @@
             title: 'Tổng quan',
             href: route('profile.edit'),
             icon: UserCircle,
+        },
+        {
+            title: 'Bảo mật',
+            href: route('profile.password.edit'),
+            icon: Lock,
         },
     ];
 

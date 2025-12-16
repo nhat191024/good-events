@@ -1,11 +1,16 @@
 import { Event, Metrics } from '@/types/database'
 
+export interface OrderVoucher {
+    id: number
+    code: string
+}
+
 export interface ClientOrderDetail {
     id: number
     total: number | null
     status: OrderDetailStatus
-    created_at: string
-    updated_at: string
+    created_at: string | null
+    updated_at: string | null
     partner?: Partner | null
 }
 
@@ -17,18 +22,20 @@ export interface ClientOrder {
     start_time: string
     end_time: string
     total: number | null
+    arrival_photo: string | null
     final_total: number | null
     note: string
     status: OrderStatus
     thread_id: number
+    voucher?: OrderVoucher | null
     created_at: string
     updated_at: string
     category: Category
-    custom_event: string
-    event: Pick<Event, 'name'>
-    partners: { count: number }
-    partner: Partner
-    review: Review
+    custom_event: string | null
+    event: Pick<Event, 'name'> | null
+    partners: { count: number } | null
+    partner: Partner | null
+    review: Review | null
 }
 
 export interface Review {
@@ -48,6 +55,7 @@ export interface ClientOrderHistory {
     final_total: number | null
     note: string
     status: OrderStatus
+    voucher?: OrderVoucher | null
     created_at: string
     updated_at: string
     category: Category

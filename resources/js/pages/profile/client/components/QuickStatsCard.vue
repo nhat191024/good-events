@@ -6,6 +6,7 @@ const props = defineProps<{
     cancelled_orders_pct: string
     total_spent: number
     last_active_human: string | null
+    avg_rating?: number | null
   }
 }>()
 
@@ -17,10 +18,10 @@ const money = (v: number) => (v || 0).toLocaleString('vi-VN') + ' đ'
     <h3 class="font-semibold text-rose-600 mb-3">Thông kê nhanh</h3>
 
     <!-- Total spent -->
-    <div class="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
+    <!-- <div class="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
       <span class="text-sm text-gray-600">Tổng chi tiêu</span>
       <span class="text-lg font-bold text-rose-600">{{ money(stats.total_spent) }}</span>
-    </div>
+    </div> -->
 
     <!-- Stats grid -->
     <div class="space-y-2 mb-3">

@@ -5,7 +5,7 @@ namespace App\Filament\Admin\Pages;
 use UnitEnum;
 use BackedEnum;
 
-use App\Enum\FilamentNavigationGroup;
+use App\Enum\NavigationGroup;
 
 use App\Settings\AppSettings;
 
@@ -18,14 +18,19 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class AppManager extends SettingsPage
 {
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::SETTINGS;
+    use HasPageShield;
 
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
     protected static string $settings = AppSettings::class;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return NavigationGroup::SETTINGS->value;
+    }
 
     public static function getNavigationLabel(): string
     {
@@ -50,15 +55,41 @@ class AppManager extends SettingsPage
                             ->columnSpanFull()
                             ->required(),
 
+                        TextInput::make('app_partner_title')
+                            ->label(__(__('admin/setting.fields.titles.partner')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('app_design_title')
+                            ->label(__(__('admin/setting.fields.titles.design')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('app_rental_title')
+                            ->label(__(__('admin/setting.fields.titles.rental')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('contact_hotline')
+                            ->label(__(__('admin/setting.fields.contact_hotline')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('contact_email')
+                            ->label(__(__('admin/setting.fields.contact_email')))
+                            ->columnSpanFull()
+                            ->required(),
+
                         FileUpload::make('app_logo')
                             ->label(__(__('admin/setting.fields.logo')))
                             ->image()
                             ->directory('uploads/app')
                             ->disk('public')
                             ->visibility('public')
+                            ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? $state : ($record?->app_logo ?? null);
+                                return filled($state) ? 'storage/' . $state : ($record?->app_logo ?? null);
                             }),
 
                         FileUpload::make('app_favicon')
@@ -67,9 +98,10 @@ class AppManager extends SettingsPage
                             ->directory('uploads/app')
                             ->disk('public')
                             ->visibility('public')
+                            ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? $state : ($record?->app_favicon ?? null);
+                                return filled($state) ? 'storage/' . $state : ($record?->app_favicon ?? null);
                             }),
                     ]),
             ]);

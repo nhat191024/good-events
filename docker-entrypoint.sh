@@ -10,20 +10,25 @@ sleep 2
 echo "Generating application key..."
 php artisan key:generate --force
 
-#run migrations
-php artisan migrate --force
+# run migrations
+# php artisan migrate --force
 
-#run storage link
+# run seeders
+# php artisan db:seed --force
+
+# run storage link
 php artisan storage:link
 
-#run npm build
+# run npm build
 echo "building assets..."
-npm run build
+npm run build:ssr
 
 # Set proper permissions
 echo "Setting permissions..."
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+chgrp -R www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R g+w /var/www/html/storage /var/www/html/bootstrap/cache
+find /var/www/html/storage -type d -exec chmod g+s {} +
+find /var/www/html/bootstrap/cache -type d -exec chmod g+s {} +
 
 # Clear and cache configurations
 echo "Clearing and caching configurations..."
@@ -35,6 +40,12 @@ php artisan route:cache
 php artisan view:cache
 php artisan event:cache
 php artisan filament:optimize
+
+# fix nginx tmp dir permission
+echo "Fixing nginx client_body_temp_path permissions..."
+mkdir -p /var/lib/nginx/tmp/client_body
+chown -R www-data:www-data /var/lib/nginx/
+chmod -R 755 /var/lib/nginx/
 
 echo "Laravel application setup completed!"
 

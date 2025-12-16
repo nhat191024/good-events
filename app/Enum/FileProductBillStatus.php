@@ -16,4 +16,13 @@ enum FileProductBillStatus: string
             self::CANCELLED => __('admin/fileProductBill.status.cancelled'),
         };
     }
+
+    public static function asSelectArray(): array
+    {
+        return [
+            self::PENDING->value => self::PENDING->label(),
+            self::PAID->value => self::PAID->label(),
+            self::CANCELLED->value => self::CANCELLED->label(),
+        ];
+    }
 }

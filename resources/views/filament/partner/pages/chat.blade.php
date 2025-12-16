@@ -14,10 +14,10 @@
         ])>
             <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
                 <div class="space-y-3">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Danh sách cuộc hội thoại</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('chat.thread_list') }}</h3>
                     <div class="relative">
                         <input class="focus:border-primary-500 focus:ring-primary-500 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-white" type="search" wire:model.live.debounce.400ms="searchTerm"
-                            placeholder="Tìm kiếm hội thoại..." aria-label="Tìm kiếm hội thoại" />
+                            placeholder="{{ __('chat.search_placeholder') }}" aria-label="Tìm kiếm hội thoại" />
                         <div class="absolute inset-y-0 right-3 items-center text-sm text-gray-400 dark:text-gray-500" wire:loading.flex wire:target="searchTerm">
                             <x-filament::loading-indicator class="h-4 w-4" />
                         </div>
@@ -64,7 +64,7 @@
                             <div class="ml-2 flex flex-col items-end gap-1">
                                 @if ($thread->is_unread)
                                     <span class="bg-primary-600 inline-flex items-center justify-center rounded-full px-2 py-1 text-xs font-bold leading-none text-white">
-                                        Mới
+                                        {{ __('chat.new') }}
                                     </span>
                                 @endif
                                 @if ($thread->updated_at)
@@ -77,14 +77,14 @@
                     </button>
                 @empty
                     <div class="flex h-32 items-center justify-center text-gray-500 dark:text-gray-400">
-                        <p>Chưa có cuộc hội thoại nào</p>
+                        <p>{{ __('chat.no_threads') }}</p>
                     </div>
                 @endforelse
 
                 @if ($hasMoreThreads)
                     <div class="flex items-center justify-center py-4" wire:loading.delay wire:target="loadMoreThreads">
                         <x-filament::loading-indicator class="h-5 w-5" />
-                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Đang tải thêm...</span>
+                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ __('chat.loading') }}</span>
                     </div>
                 @endif
             </div>
@@ -100,30 +100,28 @@
             @if ($selectedThreadId)
                 <!-- Chat Header -->
                 <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0 flex-1">
-                            <h3 class="truncate text-lg font-semibold text-gray-900 dark:text-white">
-                                {{ $selectedThread->subject ?: 'Không có tiêu đề' }}
-                            </h3>
-                            @if ($selectedThread->participants->isNotEmpty())
-                                <p class="truncate text-sm text-gray-600 dark:text-gray-400">
-                                    Người tham gia: {{ $selectedThread->participants->pluck('name')->filter()->join(', ') }}
-                                </p>
-                            @endif
-                            <p class="mt-2 truncate text-sm text-gray-600 dark:text-gray-400">
-                                Thông tin đơn hàng:
+                    <button class="focus:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-200/70 focus:outline-none focus:ring-2 focus:ring-offset-2 lg:hidden dark:text-gray-300 dark:hover:bg-gray-700" type="button"
+                        wire:click="showThreadList">
+                        <x-filament::icon class="h-4 w-4" icon="heroicon-m-arrow-left" />
+                        Trở lại
+                    </button>
+                    <div class="min-w-0 flex-1">
+                        <h3 class="truncate text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ $selectedThread->subject ?: 'Không có tiêu đề' }}
+                        </h3>
+                        @if ($selectedThread->participants->isNotEmpty())
+                            <p class="truncate text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('chat.info.participants') }} {{ $selectedThread->participants->pluck('name')->filter()->join(', ') }}
                             </p>
-                            <div class="truncate text-sm text-gray-600 dark:text-gray-400">
-                                Sự kiện: {{ $selectedThread->bill->event_name ?? 'N/A' }} <br />
-                                Thời gian: {{ $selectedThread->bill->datetime ?? 'N/A' }} <br />
-                                Địa điểm: {{ $selectedThread->bill->address ?? 'N/A' }}
-                            </div>
+                        @endif
+                        <p class="mt-2 truncate text-sm text-gray-600 dark:text-gray-400">
+                            {{ __('chat.info.bill') }}
+                        </p>
+                        <div class="truncate text-sm text-gray-600 dark:text-gray-400">
+                            {{ __('chat.info.events') }}: {{ $selectedThread->bill->event_name ?? 'N/A' }} <br />
+                            {{ __('chat.info.time') }}: {{ $selectedThread->bill->datetime ?? 'N/A' }} <br />
+                            {{ __('chat.info.location') }}: {{ $selectedThread->bill->address ?? 'N/A' }}
                         </div>
-                        <button class="focus:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-200/70 focus:outline-none focus:ring-2 focus:ring-offset-2 lg:hidden dark:text-gray-300 dark:hover:bg-gray-700" type="button"
-                            wire:click="showThreadList">
-                            <x-filament::icon class="h-4 w-4" icon="heroicon-m-arrow-left" />
-                            Trở lại
-                        </button>
                     </div>
                 </div>
 
@@ -188,7 +186,7 @@
                     @if ($hasMoreMessages)
                         <div class="flex items-center justify-center py-2" wire:loading.delay wire:target="loadMoreMessages">
                             <x-filament::loading-indicator class="h-5 w-5" />
-                            <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Đang tải tin nhắn cũ...</span>
+                            <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ __('chat.loading') }}</span>
                         </div>
                     @endif
 
@@ -210,7 +208,7 @@
                         </div>
                     @empty
                         <div class="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
-                            <p>Chưa có tin nhắn nào</p>
+                            <p>{{ __('chat.no_messages') }}</p>
                         </div>
                     @endforelse
                 </div>
@@ -218,7 +216,7 @@
                 <!-- Message Input -->
                 <div class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <form class="flex flex-col gap-2 sm:flex-row" wire:submit="sendMessage">
-                        <input class="focus:border-primary-500 focus:ring-primary-500 flex-1 rounded-lg border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" type="text" wire:model="messageBody" placeholder="Nhập tin nhắn..." />
+                        <input class="focus:border-primary-500 focus:ring-primary-500 flex-1 rounded-lg border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" type="text" wire:model="messageBody" placeholder="{{ __('chat.message_placeholder') }}" />
                         <button class="bg-primary-600 hover:bg-primary-700 inline-flex items-center justify-center rounded-lg px-6 py-2 text-sm font-medium text-white transition" type="submit">
                             Gửi
                         </button>
@@ -228,9 +226,9 @@
                 <div class="flex h-full items-center justify-center text-gray-500 dark:text-gray-400">
                     <div class="text-center">
                         <x-filament::icon class="mx-auto mb-4 h-16 w-16 text-gray-400" icon="heroicon-o-chat-bubble-left-right" />
-                        <p>Chọn một cuộc hội thoại để bắt đầu</p>
+                        <p>{{ __('chat.select_thread') }}</p>
                         <button class="bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 mt-4 inline-flex items-center rounded-lg border border-transparent px-4 py-2 text-sm font-medium text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 lg:hidden" type="button" wire:click="showThreadList">
-                            Mở danh sách hội thoại
+                            {{ __('chat.button.open_thread_list') }}
                         </button>
                     </div>
                 </div>

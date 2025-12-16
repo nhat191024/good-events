@@ -17,9 +17,11 @@ return new class extends Migration
             $table->string('avatar');
             $table->string('email')->unique();
             $table->string('country_code');
+            $table->string('bio')->nullable();
             $table->string('phone');
             $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
+            $table->boolean('can_accept_shows')->default(true);
             $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();

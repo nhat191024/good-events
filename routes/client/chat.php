@@ -5,7 +5,7 @@ use App\Http\Controllers\Client\QuickBookingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::get(
         '/chat',
         [ChatController::class, 'index']

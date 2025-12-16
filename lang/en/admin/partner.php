@@ -31,6 +31,8 @@ return [
 
     'actions.deposit' => 'Deposit',
     'actions.confirm_deposit' => 'Confirm Deposit',
+    'actions.ban_accept_show' => 'Ban Accepting Shows',
+    'actions.ban_accept_hide' => 'Unban Accepting Shows',
 
     'modals.deposit_heading' => 'Deposit to Partner Wallet',
 
@@ -39,4 +41,7 @@ return [
     'notifications.deposit_success.title' => 'Deposit Successful',
     'notifications.deposit_success.body' => 'Deposited :amount VND to :partner\'s wallet',
     'notifications.deposit_error.title' => 'Deposit Error',
+
+    'ban_success_message' => 'Người dùng đã bị cấm thành công.',
+    'unban_success_message' => 'Người dùng đã được bỏ cấm thành công.',
 ];

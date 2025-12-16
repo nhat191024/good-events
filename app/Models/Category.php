@@ -21,6 +21,9 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property string $name
  * @property string $slug
+ * @property string $type
+ * @property int $order
+ * @property int $is_show
  * @property int|null $parent_id
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -34,7 +37,7 @@ use Spatie\Activitylog\LogOptions;
  * @property-read int|null $children_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FileProduct> $fileProducts
  * @property-read int|null $file_products_count
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read Category|null $parent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RentProduct> $rentProducts
@@ -47,9 +50,12 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereIsShow($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereParentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category withoutTrashed()
@@ -67,6 +73,9 @@ class Category extends Model implements HasMedia
     protected $fillable = [
         'name',
         'slug',
+        'type',
+        'order',
+        'is_show',
         'parent_id',
         'description',
     ];
@@ -82,6 +91,17 @@ class Category extends Model implements HasMedia
     }
 
     /**
+     * Summary of registerMediaCollections
+     * @return void
+     */
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('images')
+            ->useDisk('public');
+    }
+
+    /**
      * Summary of registerMediaConversions
      * @param Media|null $media
      * @return void
@@ -89,15 +109,18 @@ class Category extends Model implements HasMedia
     public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumb')
-            ->width(300)
-            ->height(300)
+            ->width(400)
+            ->height(400)
             ->sharpen(10)
+            ->withResponsiveImages()
+            ->format('webp')
             ->queued();
 
         $this->addMediaConversion('mobile_optimized')
-            ->width(320)
-            ->height(240)
-            ->crop(320, 240, CropPosition::Center)
+            ->width(300)
+            ->height(300)
+            ->withResponsiveImages()
+            ->format('webp')
             ->queued();
     }
 

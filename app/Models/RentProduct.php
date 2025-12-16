@@ -22,7 +22,7 @@ use Spatie\Activitylog\LogOptions;
  * @property string $name
  * @property string $slug
  * @property string $description
- * @property float $price
+ * @property float|null $price
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -31,6 +31,8 @@ use Spatie\Activitylog\LogOptions;
  * @property-read \App\Models\Category $category
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
+ * @property \Illuminate\Database\Eloquent\Collection<int, \Spatie\Tags\Tag> $tags
+ * @property-read int|null $tags_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct onlyTrashed()
@@ -44,7 +46,13 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct withAllTagsOfAnyType($tags)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct withAnyTagsOfAnyType($tags)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct withAnyTagsOfType(array|string $type)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentProduct withoutTrashed()
  * @mixin \Eloquent
  */
@@ -73,6 +81,13 @@ class RentProduct extends Model implements HasMedia
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('thumbnails')
+            ->useDisk('public')
+            ->withResponsiveImages();
     }
 
     /**

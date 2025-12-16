@@ -16,6 +16,7 @@ class CreateReviewsTable extends Migration
             $table->string('department')->default('default');
             $table->boolean('recommend')->default(false);
             $table->boolean('approved')->default(false);
+            $table->foreignId('partner_bill_id')->nullable()->constrained('partner_bills')->nullOnDelete();;
             $table->timestamps();
         });
     }
@@ -25,4 +26,3 @@ class CreateReviewsTable extends Migration
         Schema::dropIfExists('reviews');
     }
 }
-

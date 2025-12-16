@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, type Ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { route } from 'ziggy-js';
+import { route } from '@/utils/ziggy';
 
 //! Waring: before using this component, please take note that the route? props (string) HAVE to match the route names on laravel side
 interface MenuItem {
@@ -46,7 +46,7 @@ onBeforeUnmount(() => {
 <template>
     <div class="relative" ref="menuRef">
         <button type="button" aria-label="Mở menu" @click="toggleMenu"
-            class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md hover:shadow-lg transition">
+            class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/70 shadow-md hover:shadow-lg transition">
             <span class="sr-only">Menu</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="transition-transform duration-200"
                 :class="{ 'rotate-90': isOpen }">
@@ -61,13 +61,12 @@ onBeforeUnmount(() => {
             <div v-if="isOpen"
                 class="absolute left-0 mt-2 w-64 rounded-lg shadow-lg bg-white ring-1 ring-primary-200 ring-opacity-5 z-100">
                 <div class="py-1">
-                    <Link v-for="item in menuItems" :key="item.slug" :href="item.route?route(item.route, { slug: item.slug }):'#'"
-                        @click="closeMenu"
+                    <Link v-for="item in menuItems" :key="item.slug" :href="item.route ?? '#'" @click="closeMenu"
                         class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-0">
-                    <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span class="font-medium">{{ item.name }}</span>
+                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                        <span class="font-medium">{{ item.name }}</span>
                     </Link>
 
                     <div v-if="menuItems.length === 0" class="px-4 py-6 text-center text-gray-500 text-sm">

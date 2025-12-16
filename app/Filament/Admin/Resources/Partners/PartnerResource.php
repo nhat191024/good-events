@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Partners;
 
-use App\Models\User;
+use App\Models\Partner;
 
 use BackedEnum;
 use UnitEnum;
@@ -26,7 +26,7 @@ use App\Enum\FilamentNavigationGroup;
 
 class PartnerResource extends Resource
 {
-    protected static ?string $model = User::class;
+    protected static ?string $model = Partner::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
     protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::USER_MANAGEMENT;
@@ -49,7 +49,7 @@ class PartnerResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with('partnerProfile', 'roles')
+            ->with(['partnerProfile', 'roles', 'wallet'])
             ->whereHas('roles', function ($query) {
                 $query->where('name', Role::PARTNER);
             });

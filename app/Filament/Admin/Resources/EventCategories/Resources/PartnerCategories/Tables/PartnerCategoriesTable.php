@@ -23,12 +23,14 @@ class PartnerCategoriesTable
     {
         return $table
             ->columns([
+                TextColumn::make('order')
+                    ->label(__('admin/partnerCategory.fields.order')),
                 SpatieMediaLibraryImageColumn::make('media')
                     ->label(__('admin/partnerCategory.fields.image'))
                     ->collection('images')
                     ->circular()
-                    ->imageSize(60),
-                // ->conversion('thumb'),
+                    ->imageSize(60)
+                    ->conversion('thumb'),
                 TextColumn::make('name')
                     ->label(__('admin/partnerCategory.fields.name'))
                     ->searchable(),
@@ -44,7 +46,9 @@ class PartnerCategoriesTable
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('description')
-                    ->label(__('admin/partnerCategory.fields.description')),
+                    ->label(__('admin/partnerCategory.fields.description'))
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->label(__('admin/partnerCategory.fields.deleted_at'))
                     ->dateTime()
@@ -79,6 +83,8 @@ class PartnerCategoriesTable
                 BulkActionGroup::make([
                     //
                 ]),
-            ]);
+            ])
+            ->defaultSort('order', 'asc')
+            ->reorderable('order');
     }
 }

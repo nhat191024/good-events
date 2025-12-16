@@ -28,12 +28,14 @@ class EventCategoriesTable
     {
         return $table
             ->columns([
+                TextColumn::make('order')
+                    ->label(__('admin/partnerCategory.fields.order')),
                 SpatieMediaLibraryImageColumn::make('media')
                     ->label(__('admin/partnerCategory.fields.image'))
                     ->collection('images')
                     ->circular()
-                    ->imageSize(60),
-                // ->conversion('thumb'),
+                    ->imageSize(60)
+                    ->conversion('thumb'),
                 TextColumn::make('name')
                     ->label(__('admin/partnerCategory.fields.name'))
                     ->searchable(),
@@ -87,6 +89,8 @@ class EventCategoriesTable
                     RestoreBulkAction::make()
                         ->label(__('global.restore')),
                 ]),
-            ]);
+            ])
+            ->defaultSort('order', 'asc')
+            ->reorderable('order');
     }
 }

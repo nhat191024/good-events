@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $type
  * @property string|null $phone_code
  * @property int|null $parent_id
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read Location|null $province
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $wards
  * @property-read int|null $wards_count

@@ -7,7 +7,7 @@ use App\Models\Category;
 use Filament\Schemas\Schema;
 
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
@@ -21,10 +21,18 @@ class RentProductForm
                 Select::make('category_id')
                     ->label(__('admin/rentProduct.fields.category'))
                     ->searchable()
+                    ->options(
+                        fn() => Category::query()
+                            ->whereType('rental')
+                            ->orderBy('created_at', 'desc')
+                            ->limit(10)
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    )
                     ->getSearchResultsUsing(
                         fn(string $search): array =>
                         Category::query()
-                            ->whereNotNull('parent_id')
+                            ->whereType('rental')
                             ->where('name', 'like', "%{$search}%")
                             ->limit(50)
                             ->pluck('name', 'id')
@@ -53,14 +61,14 @@ class RentProductForm
                     ->placeholder(__('admin/rentProduct.placeholders.tags'))
                     ->required()
                     ->columnSpanFull(),
-                Textarea::make('description')
+                RichEditor::make('description')
                     ->label(__('admin/rentProduct.fields.description'))
                     ->placeholder(__('admin/rentProduct.placeholders.description'))
                     ->required()
                     ->columnSpanFull(),
-                SpatieMediaLibraryFileUpload::make('images')
+                SpatieMediaLibraryFileUpload::make('thumbnails')
                     ->label(__('admin/rentProduct.fields.image'))
-                    ->collection('images')
+                    ->collection('thumbnails')
                     ->required()
                     ->image()
                     ->multiple()

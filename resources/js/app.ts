@@ -25,7 +25,28 @@ import Pusher from 'pusher-js';
     disableStats: true,
 });
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const getAppSettingsFromInitialPage = () => {
+    if (typeof document === 'undefined') return undefined;
+
+    const appEl = document.getElementById('app');
+    if (!appEl) return undefined;
+
+    const pageData = appEl.getAttribute('data-page') ?? appEl.dataset.page;
+    if (!pageData) return undefined;
+
+    try {
+        const parsedPage = JSON.parse(pageData);
+        return parsedPage?.props?.app_settings;
+    } catch {
+        return undefined;
+    }
+};
+
+const appName =
+    (getAppSettingsFromInitialPage()?.app_name as string | undefined) ||
+    import.meta.env.VITE_APP_NAME ||
+    'Laravel';
+
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

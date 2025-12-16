@@ -2,7 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\User;
+
 use App\Enum\PartnerBillDetailStatus;
+use App\Events\PartnerBillDetailCreated;
+use App\Events\PartnerBillDetailStatusChanged;
+
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\User $partner
+ * @property-read User $partner
  * @property-read \App\Models\PartnerBill $partnerBill
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBillDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBillDetail newQuery()
@@ -42,7 +49,52 @@ class PartnerBillDetail extends Model
         'status',
     ];
 
-    //model helpers methods
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($partnerBillDetail) {
+            $existingDetail = PartnerBillDetail::wherePartnerBillId($partnerBillDetail->partner_bill_id)
+                ->wherePartnerId($partnerBillDetail->partner_id)
+                ->first();
+            if ($existingDetail) {
+                throw new \Exception('Partner bill detail already exists for this partner and partner bill.');
+            }
+        });
+
+        static::created(function ($partnerBillDetail) {
+            static::handleBillDetailCreated($partnerBillDetail);
+        });
+
+        static::updated(function ($partnerBillDetail) {
+            match ($partnerBillDetail->status) {
+                PartnerBillDetailStatus::NEW => static::handleNewStatus($partnerBillDetail),
+                PartnerBillDetailStatus::CLOSED => static::handleClosedStatus($partnerBillDetail),
+                default => null,
+            };
+        });
+    }
+
+    protected static function handleBillDetailCreated(PartnerBillDetail $partnerBillDetail): void
+    {
+        $partner = User::find($partnerBillDetail->partner_id)->name ?? 'Đối tác';
+        Notification::make()
+            ->title(__('notification.partner_accepted_title'))
+            ->body(__('notification.partner_accepted_body', [
+                'partner_name' => $partner,
+                'code' => $partnerBillDetail->partnerBill->code,
+            ]))
+            ->success()
+            ->actions([
+                Action::make('open')
+                    ->label('Xem đơn')
+                    ->url(route('client-orders.dashboard', ['order' => $partnerBillDetail->partner_bill_id])),
+            ])
+            ->sendToDatabase(User::find($partnerBillDetail->partnerBill->client_id));
+    }
+
+    protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void {}
+
     public function isNew(): bool
     {
         return $this->status === PartnerBillDetailStatus::NEW;

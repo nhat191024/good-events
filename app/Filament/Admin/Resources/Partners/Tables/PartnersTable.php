@@ -8,9 +8,11 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\Action;
+use Filament\Actions\RestoreAction;
+
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -81,14 +83,15 @@ class PartnersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->default('trashed'),
             ])
             ->recordActions([
                 Action::make('deposit')
                     ->label(__('admin/partner.actions.deposit'))
                     ->icon('heroicon-o-banknotes')
                     ->color('success')
-                    ->form([
+                    ->schema([
                         TextInput::make('amount')
                             ->label(__('admin/partner.fields.label.deposit_amount'))
                             ->numeric()
@@ -103,6 +106,8 @@ class PartnersTable
                             $amount = (int) $data['amount'];
                             $meta = [
                                 'reason' => __('admin/partner.messages.admin_deposit'),
+                                'old_balance' => $record->balanceInt,
+                                'new_balance' => $record->balanceInt + $amount,
                             ];
 
                             $record->deposit($amount, $meta);
@@ -132,6 +137,36 @@ class PartnersTable
                     ->modalHeading(__('admin/user.ban_title'))
                     ->modalDescription(__('admin/user.ban_description'))
                     ->modalSubmitActionLabel(__('global.ban'))
+                    ->successNotificationTitle(__('admin/user.ban_success_message')),
+                RestoreAction::make(),
+                Action::make('ban_accept_show')
+                    ->label(__('admin/partner.actions.ban_accept_show'))
+                    ->icon('heroicon-o-minus-circle')
+                    ->color('danger')
+                    ->visible(fn(User $record): bool => $record->deleted_at === null && $record->can_accept_shows)
+                    ->action(function (User $record): void {
+                        $record->can_accept_shows = false;
+                        $record->save();
+
+                        Notification::make()
+                            ->success()
+                            ->title(__('admin/partner.ban_success_message'))
+                            ->send();
+                    }),
+                Action::make('ban_accept_hide')
+                    ->label(__('admin/partner.actions.ban_accept_hide'))
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn(User $record): bool => $record->deleted_at === null && ! $record->can_accept_shows)
+                    ->action(function (User $record): void {
+                        $record->can_accept_shows = true;
+                        $record->save();
+
+                        Notification::make()
+                            ->success()
+                            ->title(__('admin/partner.unban_success_message'))
+                            ->send();
+                    }),
             ])
             ->toolbarActions([
                 //

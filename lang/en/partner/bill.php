@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'bill' => 'My shows',
+    'bill_pending' => 'Pending shows',
+    'bill_confirmed' => 'Confirmed shows',
     'bill_history' => 'Show History',
 
     'new_bill' => 'Take shows',
@@ -22,13 +23,16 @@ return [
     'client' => 'Client',
     'need_to_find' => 'Need to find',
     'event' => 'Event',
+    'time' => 'Time',
     'date' => 'Date',
     'address' => 'Address',
     'note' => 'Note',
+    'event_type' => 'Event Type',
+    'price' => 'Price',
+    'total' => 'Total Price',
     'accept_order' => 'Accept Show',
     'view_details' => 'View Details',
 
-    'search_placeholder' => 'Search by order code, client...',
     'filter_date' => 'Filter by Date',
     'today' => 'Today',
     'this_week' => 'This Week',
@@ -54,13 +58,14 @@ return [
     'status_in_job' => 'In Job',
     'status_cancelled' => 'Cancelled',
 
+    'go_to_show' => 'Go to Show',
+
     // View page sections
-    'basic_information' => 'Basic Information',
-    'contact_information' => 'Contact Information',
-    'time_information' => 'Time Information',
-    'payment_information' => 'Payment Information',
-    'notes' => 'Notes',
-    'system_information' => 'System Information',
+    'bill_info' => 'Show Information',
+    'client_info' => 'Client Information',
+    'bill' => 'Bill',
+    'services' => 'Services',
+    'event_info' => 'Event Information',
 
     // View page fields
     'order_code' => 'Show Code',
@@ -91,12 +96,16 @@ return [
     // Unauthorized action
     'unauthorized_action' => 'Unauthorized Action',
     'cannot_complete_order' => 'Cannot complete show',
+    'must_be_confirmed' => 'Show must be confirmed before marking it as in job',
+    'must_be_in_job' => 'Show must be marked as in job before it can be completed',
 
     // Mark in job translations
+    'mark_as_arrived' => 'Mark as Arrived',
     'mark_in_job' => 'Mark as In Job',
     'mark_in_job_confirm_title' => 'Confirm Mark as In Job',
     'mark_in_job_confirm' => 'Are you sure you want to mark this show as in job? This action cannot be undone.',
     'confirm_arrived' => 'Confirm Arrived',
+    'marked_as_in_job' => 'Show has been marked as in job',
     'marked_as_arrived' => 'Show has been marked as in job',
 
     // Complete order translations
@@ -118,6 +127,7 @@ return [
     'click_to_upload_photo' => 'Click to upload photo',
     'max_5mb' => 'Max 5MB',
     'arrival_photo_description' => 'This photo will be used as proof that you have arrived at the event location.',
+    'no_arrival_photo' => 'No arrival photo',
 
     // Completion photo translations (for complete order)
     'completion_photo' => 'Completion Photo',
@@ -147,4 +157,11 @@ return [
     'detail_status' => 'Detail Status',
     'updated' => 'Updated',
     'no_bills_filter_description' => 'No shows match your current filters.',
+
+    'back_to_list' => 'Back to show list',
+    'bill_not_found' => 'No shows found.',
+
+    //banned modal
+    'ban_partner_title' => 'You have been banned from accepting shows',
+    'ban_partner_description' => 'You cannot accept new shows until the administrator lifts the ban.',
 ];

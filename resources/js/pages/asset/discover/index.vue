@@ -1,0 +1,335 @@
+<template>
+    <Head :title="pageTitle" />
+
+    <ClientHeaderLayout>
+        <section class="bg-white w-full pb-12 pt-6">
+            <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
+                <DiscoverHeader
+                    :is-category-page="isCategoryPage"
+                    :category-name="props.category?.name ?? null"
+                    :heading-text="headingText"
+                    :sub-heading-text="subHeadingText"
+                    v-model:search-term="searchTerm"
+                    @search="submitSearch"
+                />
+
+                <div v-if="keywordSuggestions.length" class="flex flex-wrap gap-2">
+                    <button
+                        v-for="suggestion in keywordSuggestions"
+                        :key="`${suggestion.type}-${suggestion.slug ?? suggestion.label}`"
+                        type="button"
+                        class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
+                        @click="applySuggestion(suggestion)"
+                    >
+                        <span v-if="suggestion.type === 'tag'" class="mr-1 text-[11px] uppercase text-primary-500">Tag</span>
+                        {{ suggestion.label }}
+                    </button>
+                </div>
+
+                <PartnerCategoryIcons
+                    v-if="showChildCategoryIcons"
+                    :categories="childCategoryItems"
+                />
+
+                <DiscoverFilters
+                    :category-options="categoryOptions"
+                    :tag-options="tagOptions"
+                    :selected-tags="selectedTags"
+                    :selected-tag-items="selectedTagItems"
+                    :has-active-filters="hasActiveFilters"
+                    @toggle-tag="toggleTag"
+                    @reset="resetFilters"
+                    @remove-tag="removeTag"
+                />
+
+                <DiscoverProductGrid :products="displayProducts" />
+
+                <DiscoverPagination
+                    v-if="pagination"
+                    :pagination="pagination"
+                    @change="changePage"
+                />
+            </div>
+        </section>
+    </ClientHeaderLayout>
+</template>
+
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+
+import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
+import DiscoverFilters from './components/DiscoverFilters.vue';
+import DiscoverHeader from './components/DiscoverHeader.vue';
+import DiscoverPagination from './components/DiscoverPagination.vue';
+import DiscoverProductGrid from './components/DiscoverProductGrid.vue';
+import PartnerCategoryIcons from '@/pages/home/partials/PartnerCategoryIcons/index.vue';
+import { formatPrice } from '@/lib/helper';
+import { normText } from '@/lib/search-filter';
+
+import type { Category, FileProduct, Tag } from '@/pages/home/types';
+import type { PartnerCategoryItems } from '@/pages/home/partials/PartnerCategoryIcons/type';
+
+type ResourceCollection<T> = { data?: T[] | null };
+
+export interface DiscoverPageProps {
+    fileProducts: Paginated<FileProduct>;
+    categories?: ResourceCollection<Category> | Paginated<Category> | Category[];
+    tags?: ResourceCollection<Tag> | Paginated<Tag> | Tag[];
+    category?: Category | null;
+    childCategories?: ResourceCollection<Category> | Paginated<Category> | Category[];
+    filters?: {
+        q?: string | null;
+        tags?: string[] | null;
+        tag?: string | null;
+    };
+}
+
+const props = withDefaults(defineProps<DiscoverPageProps>(), {
+    categories: undefined,
+    tags: undefined,
+    category: null,
+    childCategories: undefined,
+    filters: () => ({}),
+});
+
+const searchTerm = ref(props.filters?.q ?? '');
+const suggestionVisibleTerm = computed(() => searchTerm.value.trim());
+const initialTags = (() => {
+    const provided = props.filters?.tags ?? [];
+    if (Array.isArray(provided) && provided.length) {
+        return [...provided];
+    }
+    if (props.filters?.tag) {
+        return [props.filters.tag];
+    }
+    return [];
+})();
+const selectedTags = ref<string[]>(initialTags);
+
+watch(
+    () => props.filters?.q,
+    (next) => {
+        searchTerm.value = next ?? '';
+    }
+);
+
+watch(
+    () => props.filters?.tags,
+    (next) => {
+        if (Array.isArray(next)) {
+            selectedTags.value = [...next];
+        } else {
+            selectedTags.value = [];
+        }
+    },
+    { deep: true }
+);
+
+watch(
+    () => props.filters?.tag,
+    (next) => {
+        if (!props.filters?.tags?.length) {
+            selectedTags.value = next ? [next] : [];
+        }
+    }
+);
+
+const isCategoryPage = computed(() => Boolean(props.category));
+
+const pageTitle = computed(() => {
+    if (!props.category) return 'Khám phá thiết kế';
+    return `${props.category.name} - Kho thiết kế`;
+});
+
+const headingText = computed(() => (props.category ? props.category.name : 'Khám phá kho thiết kế'));
+
+const totalItems = computed(() => props.fileProducts?.meta?.total ?? props.fileProducts?.data?.length ?? 0);
+
+const subHeadingText = computed(() => {
+    if (props.category) {
+        return `${totalItems.value} thiết kế trong danh mục này.`;
+    }
+    return `${totalItems.value} thiết kế được biên tập bởi đội ngũ Sukientot.`;
+});
+
+function toArray<T>(input: ResourceCollection<T> | Paginated<T> | T[] | undefined): T[] {
+    if (!input) return [];
+    if (Array.isArray(input)) return input;
+    if ('data' in input) {
+        const data = input.data;
+        return Array.isArray(data) ? data : [];
+    }
+    return [];
+}
+
+const tagOptions = computed(() => toArray<Tag>(props.tags));
+const categoryOptions = computed(() => toArray<Category>(props.categories));
+const childCategoryOptions = computed(() => toArray<Category>(props.childCategories));
+const selectedTagItems = computed(() => {
+    const lookup = new Map(tagOptions.value.map((tag) => [tag.slug, tag]));
+    return selectedTags.value.map((slug) => {
+        const match = lookup.get(slug);
+        return {
+            slug,
+            name: match?.name ?? slug,
+        };
+    });
+});
+
+const pagination = computed(() => props.fileProducts?.meta ?? null);
+
+const displayProducts = computed(() =>
+    (props.fileProducts?.data ?? []).map((item) => {
+        const card = {
+            id: item.id,
+            name: item.name,
+            slug: item.slug,
+            image: item.image,
+            description: item.description,
+        };
+
+        const hasCategory = Boolean(item.category?.slug);
+        const href = hasCategory
+            ? route('asset.show', {
+                  category_slug: item.category?.slug,
+                  file_product_slug: item.slug,
+              })
+            : '#';
+
+        const priceNumber = Number(item.price);
+        const priceText = Number.isFinite(priceNumber) ? `${formatPrice(priceNumber)} đ` : 'Liên hệ';
+
+        return {
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            categoryName: item.category?.name ?? null,
+            priceText,
+            href,
+            hasValidRoute: hasCategory,
+            card,
+        };
+    })
+);
+
+const hasActiveFilters = computed(() => Boolean(searchTerm.value.trim() || selectedTags.value.length));
+const childCategoryItems = computed<PartnerCategoryItems[]>(() =>
+    childCategoryOptions.value.map((item) => ({
+        id: item.id,
+        name: item.name,
+        slug: item.slug,
+        href: route('asset.category', { category_slug: item.slug }),
+        icon: '',
+        image: item.image ?? null,
+    }))
+);
+const showChildCategoryIcons = computed(() => isCategoryPage.value && childCategoryItems.value.length > 0);
+
+type Suggestion = { label: string; type: 'tag' | 'keyword'; slug?: string };
+
+const keywordSuggestions = computed<Suggestion[]>(() => {
+    const term = suggestionVisibleTerm.value;
+    if (term.length < 2) return [];
+    const normalizedTerm = normText(term);
+    const suggestions: Suggestion[] = [];
+    const seen = new Set<string>();
+
+    // Tag suggestions
+    tagOptions.value.forEach((tag) => {
+        const label = tag.name ?? tag.slug ?? '';
+        if (!label) return;
+        if (seen.has(`tag:${label}`)) return;
+        if (normText(label).includes(normalizedTerm)) {
+            seen.add(`tag:${label}`);
+            suggestions.push({ label, type: 'tag', slug: tag.slug ?? label });
+        }
+    });
+
+    // Keyword suggestions from products
+    (props.fileProducts?.data ?? []).forEach((item) => {
+        const label = item.name ?? '';
+        if (!label) return;
+        if (seen.has(`kw:${label}`)) return;
+        if (normText(label).includes(normalizedTerm)) {
+            seen.add(`kw:${label}`);
+            suggestions.push({ label, type: 'keyword' });
+        }
+    });
+
+    return suggestions.slice(0, 10);
+});
+
+function buildQuery(extra: Partial<{ page: number }> = {}) {
+    const query: Record<string, unknown> = { tag: null };
+    const trimmed = searchTerm.value.trim();
+    if (trimmed.length) query.q = trimmed;
+    if (selectedTags.value.length) query.tags = [...selectedTags.value];
+    if (extra.page && extra.page > 1) query.page = extra.page;
+    return query;
+}
+
+function visitWithFilters(extra: Partial<{ page: number }> = {}) {
+    const query = buildQuery(extra);
+    const url = props.category?.slug
+        ? route('asset.category', { category_slug: props.category.slug })
+        : route('asset.discover');
+
+    router.get(url, query, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    });
+}
+
+function submitSearch(value?: string) {
+    if (typeof value === 'string') {
+        searchTerm.value = value;
+    }
+    visitWithFilters();
+}
+
+function applySuggestion(suggestion: Suggestion) {
+    if (suggestion.type === 'tag') {
+        const slug = suggestion.slug ?? suggestion.label;
+        if (!slug) return;
+        if (!selectedTags.value.includes(slug)) {
+            selectedTags.value.push(slug);
+        }
+        visitWithFilters();
+        return;
+    }
+    submitSearch(suggestion.label);
+}
+
+function toggleTag(tagSlug: string | null | undefined) {
+    if (!tagSlug) return;
+    const index = selectedTags.value.findIndex((slug) => slug === tagSlug);
+    if (index >= 0) {
+        selectedTags.value.splice(index, 1);
+    } else {
+        selectedTags.value.push(tagSlug);
+    }
+    visitWithFilters();
+}
+
+function resetFilters() {
+    searchTerm.value = '';
+    selectedTags.value = [];
+    visitWithFilters();
+}
+
+function removeTag(tagSlug: string) {
+    const index = selectedTags.value.findIndex((slug) => slug === tagSlug);
+    if (index < 0) return;
+    selectedTags.value.splice(index, 1);
+    visitWithFilters();
+}
+
+function changePage(page: number) {
+    if (!pagination.value) return;
+    if (page < 1 || page > pagination.value.last_page || page === pagination.value.current_page) return;
+    visitWithFilters({ page });
+}
+
+</script>

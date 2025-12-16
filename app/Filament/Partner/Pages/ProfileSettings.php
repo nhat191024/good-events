@@ -13,12 +13,15 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
 
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 
 use Filament\Actions\Action;
 
@@ -103,6 +106,12 @@ class ProfileSettings extends Page implements HasForms
                                     ->label(__('profile.label.phone'))
                                     ->tel()
                                     ->maxLength(20),
+
+                                Textarea::make('bio')
+                                    ->label(__('profile.label.bio'))
+                                    ->columnSpanFull()
+                                    ->maxLength(500)
+                                    ->nullable(),
                             ])
                     ]),
 
@@ -121,11 +130,70 @@ class ProfileSettings extends Page implements HasForms
                                     ->required()
                                     ->maxLength(20),
 
-                                Select::make('location_id')
-                                    ->label(__('profile.partner_label.location_id'))
-                                    ->options(Location::all()->pluck('name', 'id'))
+                                Select::make('city_id')
+                                    ->label(__('profile.partner_label.city_id'))
                                     ->searchable()
                                     ->preload()
+                                    ->live()
+                                    ->options(
+                                        Location::query()
+                                            ->whereNull('parent_id')
+                                            ->pluck('name', 'id')
+                                    )
+                                    ->getSearchResultsUsing(
+                                        fn(string $search): array =>
+                                        Location::query()
+                                            ->whereNull('parent_id')
+                                            ->where('name', 'like', "%{$search}%")
+                                            ->limit(50)
+                                            ->pluck('name', 'id')
+                                            ->toArray()
+                                    )
+                                    ->getOptionLabelUsing(
+                                        fn($value): ?string =>
+                                        Location::find($value)?->name
+                                    )
+                                    ->afterStateUpdated(fn(callable $set) => $set('location_id', null))
+                                    ->afterStateHydrated(function ($state, $record, Set $set): void {
+                                        if ($record && $record->location_id) {
+                                            $ward = Location::find($record->location_id);
+                                            if ($ward && $ward->parent_id) {
+                                                $set('city_id', $ward->parent_id);
+                                            }
+                                        }
+                                    })
+                                    ->dehydrated(false)
+                                    ->required(),
+
+                                Select::make('location_id')
+                                    ->label(__('profile.partner_label.location_id'))
+                                    ->searchable()
+                                    ->options(function (Get $get): array {
+                                        $cityId = $get('city_id');
+                                        if (!$cityId) {
+                                            return [];
+                                        }
+                                        return Location::query()
+                                            ->where('parent_id', $cityId)
+                                            ->whereNotNull('parent_id')
+                                            ->pluck('name', 'id')
+                                            ->toArray();
+                                    })
+                                    ->getSearchResultsUsing(
+                                        fn(string $search, Get $get): array =>
+                                        Location::query()
+                                            ->where('parent_id', $get('city_id'))
+                                            ->whereNotNull('parent_id')
+                                            ->where('name', 'like', "%{$search}%")
+                                            ->limit(50)
+                                            ->pluck('name', 'id')
+                                            ->toArray()
+                                    )
+                                    ->getOptionLabelUsing(
+                                        fn($value): ?string =>
+                                        Location::find($value)?->name
+                                    )
+                                    ->disabled(fn(Get $get): bool => !$get('city_id'))
                                     ->required(),
                             ])
                     ])
@@ -152,8 +220,7 @@ class ProfileSettings extends Page implements HasForms
         try {
             // Simple validation (Filament form validation is already applied)
             $userData = [
-                // 'avatar' => "storage/{$data['avatar']}" ?? null,
-                'avatar' => $data['avatar'] ?? null,
+                'avatar' => $data['avatar'] ?? $user->avatar,
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'country_code' => $data['country_code'] ?? null,
@@ -181,13 +248,13 @@ class ProfileSettings extends Page implements HasForms
             }
 
             Notification::make()
-                ->title('Profile updated successfully!')
+                ->title(__('profile.notifications.update_success_title'))
                 ->success()
                 ->send();
         } catch (\Exception $e) {
             Notification::make()
-                ->title('Error updating profile')
-                ->body('Please try again later.')
+                ->title(__('profile.notifications.update_error_title'))
+                ->body(__('profile.notifications.update_error_body'))
                 ->danger()
                 ->send();
         }

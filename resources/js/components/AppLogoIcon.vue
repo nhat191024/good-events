@@ -1,17 +1,23 @@
 <script setup lang="ts">
-    import type { HTMLAttributes } from 'vue';
+import { getImg } from '@/pages/booking/helper';
+import { AppSettings } from '@/types';
+import { usePage } from '@inertiajs/vue3';
+import { computed, type HTMLAttributes } from 'vue';
 
-    defineOptions({
-        inheritAttrs: false,
-    });
+const page = usePage();
+const settings = computed(() => page.props.app_settings as AppSettings);
 
-    interface Props {
-        className?: HTMLAttributes['class'];
-    }
+defineOptions({
+    inheritAttrs: false,
+});
 
-    defineProps<Props>();
+interface Props {
+    className?: HTMLAttributes['class'];
+}
+
+defineProps<Props>();
 </script>
 
 <template>
-    <img src="/images/logo.svg" alt="Sukientot" class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
+    <img :src="getImg(`${settings.app_logo}`)" alt="Sukientot" class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
 </template>

@@ -11,7 +11,7 @@ import SelectBox from '@/components/Select.vue'
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3'
 import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next'
 import { reactive, ref, watch, computed } from 'vue'
-import { route } from 'ziggy-js'
+import { route } from '@/utils/ziggy'
 import type { Province, Ward, WardTypeSelectBox } from '@/types/database'
 import axios from 'axios'
 
@@ -191,14 +191,14 @@ function submit() {
                 </FormGroupLayout>
 
                 <FormGroupLayout>
-                    <FormItemLayout class="hidden md:block" :for-id="'event-order-location-ward'" :label="'Phường, Huyện'"
-                        :error="form.errors.ward_id || wardsError">
+                    <FormItemLayout class="hidden md:block" :for-id="'event-order-location-ward'"
+                        :label="'Phường, Huyện'" :error="form.errors.ward_id || wardsError">
                         <SelectBox :is-enable="location.provinceId !== null" :id="'event-order-location-ward'"
                             v-model="form.ward_id" :options="wardList" :loading="loadingWards"
                             placeholder="Chọn xã, phường..." />
                     </FormItemLayout>
-                    <FormItemLayout class="block md:hidden" :for-id="'event-order-location-ward-mobile'" :label="'Phường, Huyện'"
-                        :error="form.errors.ward_id || wardsError">
+                    <FormItemLayout class="block md:hidden" :for-id="'event-order-location-ward-mobile'"
+                        :label="'Phường, Huyện'" :error="form.errors.ward_id || wardsError">
                         <SelectBox :is-enable="location.provinceId !== null" :id="'event-order-location-ward-mobile'"
                             v-model="form.ward_id" :options="wardList" :loading="loadingWards"
                             placeholder="Chọn xã, phường..." />
@@ -220,7 +220,8 @@ function submit() {
             <div class="text-sm text-center text-muted-foreground"> Bạn không muốn làm đối tác? </div>
             <Button type="button"
                 class="p-0 w-full mb-4 font-bold text-white bg-cyan-700 hover:bg-cyan-800 active:bg-cyan-900">
-                <Link :href="route('register')" class="w-full text-white font-bold h-full p-2">Đăng ký tài khoản khách</Link>
+                <Link :href="route('register')" class="w-full text-white font-bold h-full p-2">Đăng ký tài khoản khách
+                </Link>
             </Button>
         </form>
     </AuthBase>

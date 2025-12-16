@@ -21,13 +21,13 @@ return [
     ],
 
     'actions' => [
-        'change_status' => 'Change Status',
-        'change_status_description' => 'Select a new status for this bill',
-        'update' => 'Update',
+        'cancel_bill' => 'Cancel Bill',
+        'cancel_bill_heading' => 'Confirm Cancel Partner Bill',
+        'cancel_bill_description' => 'Are you sure you want to cancel this partner bill? This action cannot be undone.',
     ],
 
     'notifications' => [
-        'status_changed' => 'Status Changed',
-        'status_changed_body' => 'Bill :code has been changed from :old_status to :new_status',
+        'bill_cancelled' => 'Bill Cancelled',
+        'bill_cancelled_body' => 'Bill :code has been cancelled.',
     ],
 ];

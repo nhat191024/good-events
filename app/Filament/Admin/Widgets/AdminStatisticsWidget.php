@@ -11,17 +11,27 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Settings\PartnerSettings;
 
 class AdminStatisticsWidget extends StatsOverviewWidget
 {
+    protected int | string | array $columnSpan = 'full';
+
+    protected function getColumns(): int
+    {
+        return 4;
+    }
+
     protected function getStats(): array
     {
         // Cache thống kê trong 10 phút
         $stats = Cache::remember('admin_dashboard_stats', 600, function () {
+            $partnerRevenue = $this->getPartnerBillRevenue();
             return [
                 'total_revenue' => $this->getTotalRevenue(),
-                'partner_bill_revenue' => $this->getPartnerBillRevenue(),
+                'partner_bill_revenue' => $partnerRevenue,
                 'file_product_revenue' => $this->getFileProductRevenue(),
+                'profit_revenue' => $this->getProfitRevenue($partnerRevenue),
                 'total_partners' => User::whereHas('partnerProfile')->count(),
                 'total_clients' => User::whereDoesntHave('partnerProfile')->count(),
                 'total_orders' => PartnerBill::count(),
@@ -50,6 +60,12 @@ class AdminStatisticsWidget extends StatsOverviewWidget
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('warning'),
 
+            // Lợi nhuận
+            Stat::make('Lợi nhuận', $this->formatCurrency($stats['profit_revenue']))
+                ->description('Từ phí dịch vụ')
+                ->descriptionIcon('heroicon-m-banknotes')
+                ->color('success'),
+
             // Tổng số Partners
             Stat::make('Tổng đối tác', $stats['total_partners'])
                 ->description('Đang hoạt động')
@@ -67,6 +83,12 @@ class AdminStatisticsWidget extends StatsOverviewWidget
                 ->description($stats['completed_orders'] . ' đơn hoàn thành')
                 ->descriptionIcon('heroicon-m-shopping-bag')
                 ->color('success'),
+
+            // Tổng đơn hàng File Products
+            Stat::make('Đơn thiết kế bán ra', $stats['file_product_sales'])
+                ->description('Đơn đã thanh toán')
+                ->descriptionIcon('heroicon-m-archive-box')
+                ->color('warning'),
         ];
     }
 
@@ -97,6 +119,12 @@ class AdminStatisticsWidget extends StatsOverviewWidget
     {
         return FileProductBill::where('status', FileProductBillStatus::PAID)
             ->sum('final_total');
+    }
+
+    private function getProfitRevenue(float $partnerRevenue): float
+    {
+        $feePercentage = app(PartnerSettings::class)->fee_percentage;
+        return $partnerRevenue * $feePercentage / 100;
     }
 
     private function getRevenueSparkline(): array

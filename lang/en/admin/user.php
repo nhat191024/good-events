@@ -24,4 +24,8 @@ return [
 
     'ban_title' => 'Ban User',
     'ban_description' => 'Are you sure you want to ban this user?',
+
+    'ban_success_message' => 'User has been banned successfully.',
+
+    'cannot_ban_self' => 'You cannot ban yourself.',
 ];

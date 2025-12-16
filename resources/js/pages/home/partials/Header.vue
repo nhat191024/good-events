@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import DropdownMenu from './DropdownMenu.vue';
 import HamburgerMenu from './HamburgerMenu.vue';
 import NotificationPopover from '@/components/notification/NotificationPopover.vue';
 // import { NotiItem } from '@/components/notification';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useEcho, useEchoNotification } from '@laravel/echo-vue';
+import { Handshake } from 'lucide-vue-next';
 import axios from 'axios';
+import { getImg } from '@/pages/booking/helper';
+import { AppSettings } from '@/types';
+import { motion } from 'motion-v';
 
 interface Props {
     // showBannerBackground?: boolean;
@@ -15,7 +18,17 @@ interface Props {
 }
 
 const page = usePage()
+
+const settings = computed(() => page.props.app_settings as AppSettings)
 const user = page.props.auth?.user
+
+// Check if user has partner role
+const isPartner = computed(() => {
+    if (!user) return false
+    const userWithRoles = user as any
+    if (!userWithRoles.roles) return false
+    return userWithRoles.roles.some((role: any) => role.name === 'partner')
+})
 
 withDefaults(defineProps<Props>(), {
     // showBannerBackground: () => true,
@@ -24,11 +37,20 @@ withDefaults(defineProps<Props>(), {
 });
 
 const menuItems = [
-    { name: 'Sự kiện', slug: 'home', route: null },
-    { name: 'Vật tư', slug: 'supply', route: null },
-    { name: 'Tài liệu', slug: 'document', route: null },
-    { name: 'Khách sạn', slug: 'blog', route: null }
+    { name: 'Nhân sự', shortName: 'Nhân sự', slug: 'home', routeName: 'home', route: route('home') },
+    { name: 'Thiết bị sự kiện', shortName: 'Thiết bị', slug: 'supply', routeName: 'rent.home', route: route('rent.home') },
+    { name: 'Thiết kế ', shortName: 'Tài liệu', slug: 'document', routeName: 'asset.home', route: route('asset.home') },
+    { name: 'Địa điểm tổ chức', shortName: 'Địa điểm', slug: 'blog', routeName: 'blog.discover', route: route('blog.discover') },
+    { name: 'Hướng dẫn tổ chức', shortName: 'Hướng dẫn', slug: 'guides', routeName: 'blog.guides.discover', route: route('blog.guides.discover') },
+    { name: 'Kiến thức nghề', shortName: 'Kiến thức', slug: 'knowledge', routeName: 'blog.knowledge.discover', route: route('blog.knowledge.discover') },
+    { name: 'Về chúng tôi', shortName: 'Giới thiệu', slug: 'about', routeName: 'about.index', route: route('about.index') },
 ];
+
+const navLinkMotion = {
+    hover: { translateY: -2, scale: 1.02 },
+    tap: { scale: 0.98 },
+    transition: { type: 'spring', stiffness: 260, damping: 22 },
+} as const;
 
 
 type NotiItem = {
@@ -37,6 +59,7 @@ type NotiItem = {
     message: string
     unread: boolean
     created_at: string // iso8601
+    href?: string
     payload?: Record<string, any>
 }
 
@@ -99,7 +122,9 @@ async function markAsRead(item: NotiItem) {
             n.unread = false
             unreadCount.value = Math.max(0, unreadCount.value - 1)
         }
+        return true
     } catch (e) {
+        return false
     }
 }
 
@@ -111,6 +136,13 @@ async function markAllAsRead() {
         notificationItems.value = notificationItems.value.map(n => ({ ...n, unread: false }))
         unreadCount.value = 0
     } catch (e) { }
+}
+
+async function handleNotificationSelect(item: NotiItem) {
+    if (item.href) {
+        router.visit(item.href)
+    }
+    if (item.unread) await markAsRead(item)
 }
 
 function handleScroll() {
@@ -137,50 +169,57 @@ onUnmounted(() => {
         'fixed top-0 left-0 w-full z-50 transition-all duration-300',
         isFloating ? 'shadow-md bg-white/30 backdrop-blur-md' : backgroundClassNames + ' backdrop-blur-md'
     ]">
-        <div class="sm:px-4 lg:px-8 mx-auto">
-            <div class="flex items-center justify-between h-16 md:px-3 px-1">
-                <div class="flex items-center md:gap-3 gap-1">
-                    <HamburgerMenu class="block md:hidden" :menu-items="menuItems" />
+        <div class="md:px-1 lg:px-2 mx-auto">
+            <div class="flex items-center justify-between h-16 px-0 px-1 gap-1">
+                <div class="flex items-center gap-2">
+                    <HamburgerMenu class="block lg:hidden" :menu-items="menuItems" />
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center md:gap-2 gap-1">
-                    <img src="/images/logo.svg" alt="Sukientot"
-                        class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
-                    <span
-                        class="font-bold tracking-tight text-black uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
+                        <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot"
+                            class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
+                        <span
+                            class="font-bold tracking-tight text-primary-700 uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
                     </Link>
                 </div>
 
-                <div class="hidden md:flex items-center gap-8">
+                <div class="hidden lg:flex items-center gap-8">
                     <!-- Nav items (đậm, hover không đổi kích thước) -->
-                    <nav class="flex items-center md:gap-3 lg:gap-6">
-                        <Link :href="route('home')" class="font-semibold text-black hover:text-black/80">Sự Kiện</Link>
-                        <Link :href="route('asset.home')" class="font-semibold text-black hover:text-black/80">Vật Tư</Link>
-                        <Link :href="route('rent.home')" class="font-semibold text-black hover:text-black/80">Tài Liệu</Link>
-                        <Link :href="'#'" class="font-semibold text-black hover:text-black/80">Khách sạn</Link>
+                    <nav class="flex items-center gap-3">
+                        <motion.div v-for="item in menuItems" :key="item.slug" class="inline-flex"
+                            :while-hover="navLinkMotion.hover" :while-tap="navLinkMotion.tap"
+                            :transition="navLinkMotion.transition">
+                            <Link :href="item.route" :class="[
+                                'transition-colors duration-200',
+                                route().current(item.routeName) ? 'text-[#ED3B50] text-md font-semibold ' : 'text-black hover:text-black/80'
+                            ]">
+                                {{ item.shortName }}
+                            </Link>
+                        </motion.div>
                     </nav>
                 </div>
 
                 <!-- RIGHT: actions -->
-                <div class="flex items-center md:gap-3 gap-1">
+                <div class="flex items-center gap-1">
                     <!-- Pill: Đặt show nhanh -->
-                    <Link :href="route('quick-booking.choose-category')"
-                        class="inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-4 sm:px-5 py-2 h-10 text-white font-semibold shadow-md shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path
-                            d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
-                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M15.5 10.5v3m-1.5-1.5h3" stroke="white" stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                    <span class="hidden sm:inline">Đặt show nhanh</span>
+                    <Link v-if="!isPartner" :href="route('quick-booking.choose-category')"
+                        class="self-start inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M7 3v3M17 3v3M3.5 9h17M7 13h4m-4 4h10M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M15.5 10.5v3m-1.5-1.5h3" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                        <span class="hidden sm:inline">Đặt show</span>
                     </Link>
+                    <!-- Pill: Chuyển sang trang đối tác  -->
+                    <a v-else :href="route('filament.partner.pages.dashboard')"
+                        class="self-start inline-flex items-center md:gap-2 gap-1 rounded-full bg-[#ED3B50] px-[10px] py-[20px] h-10 text-white font-semibold shadow-lg shadow-[#ED3B50]/30 hover:bg-[#d93a4a] active:translate-y-[0.5px] whitespace-nowrap flex-shrink-0 transition">
+                        <Handshake width="20" height="20" />
+                        <span class="hidden sm:inline">Đối tác</span>
+                    </a>
                     <DropdownMenu />
-                    <NotificationPopover
-                        :items="notificationItems"
-                        :loading="isFetching"
-                        @mark-all-read="markAllAsRead"
-                        @select="markAsRead"
-                        @reload="reloadNotifications"
-                    />
+                    <NotificationPopover :items="notificationItems" :loading="isFetching" @mark-all-read="markAllAsRead"
+                        @select="handleNotificationSelect" @reload="reloadNotifications" />
                 </div>
             </div>
         </div>

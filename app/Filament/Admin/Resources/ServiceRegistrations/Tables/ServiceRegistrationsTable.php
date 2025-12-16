@@ -25,10 +25,12 @@ class ServiceRegistrationsTable
             ->columns([
                 TextColumn::make('category.name')
                     ->label(__('admin/partnerService.fields.category'))
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('user.name')
                     ->label(__('admin/partnerService.fields.user'))
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('status')
                     ->label(__('admin/partnerService.fields.status'))
                     ->searchable()

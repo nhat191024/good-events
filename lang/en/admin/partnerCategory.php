@@ -16,8 +16,11 @@ return [
     'cannot_hidden_category_has_services' => 'Cannot hide category that has services',
 
     'fields' => [
+        'image' => 'Image',
         'name' => 'Name',
+        'parent_id' => 'Parent Category',
         'slug' => 'Slug',
+        'order' => 'Order',
         'min_price' => 'Minimum Price',
         'max_price' => 'Maximum Price',
 

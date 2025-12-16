@@ -23,6 +23,7 @@ use Bavix\Wallet\Traits\CanConfirm;
 use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
 
 use Codebyray\ReviewRateable\Traits\ReviewRateable;
+use Codebyray\ReviewRateable\Models\Review;
 
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
@@ -32,7 +33,6 @@ use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 
 use App\Enum\Role;
-use App\Enum\StatisticType;
 
 /**
  * @property int $id
@@ -40,19 +40,23 @@ use App\Enum\StatisticType;
  * @property string $avatar
  * @property string $email
  * @property string $country_code
+ * @property string|null $bio
  * @property string $phone
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property bool $can_accept_shows
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $authoredReviews
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Review> $authoredReviews
  * @property-read int|null $authored_reviews_count
+ * @property-read string|null $avatar_url
  * @property-read non-empty-string $balance
  * @property-read int $balance_int
+ * @property-read string|null $partner_profile_name
  * @property-read \Bavix\Wallet\Models\Wallet $wallet
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Message> $messages
  * @property-read int|null $messages_count
@@ -73,7 +77,7 @@ use App\Enum\StatisticType;
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $receivedTransfers
  * @property-read int|null $received_transfers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $reviews
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Review> $reviews
  * @property-read int|null $reviews_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read int|null $roles_count
@@ -97,6 +101,8 @@ use App\Enum\StatisticType;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User role($roles, $guard = null, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCanAcceptShows($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCountryCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDeletedAt($value)
@@ -129,8 +135,10 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'avatar',
         'email',
         'country_code',
+        'bio',
         'phone',
         'password',
+        'can_accept_shows',
     ];
 
     /**
@@ -163,6 +171,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'can_accept_shows' => 'boolean',
         ];
     }
 
@@ -183,9 +192,15 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($panel->getId() === 'admin' && $this->hasRole(Role::ADMIN)) {
+        if ($panel->getId() === 'admin' && $this->hasAnyRole([
+            Role::SUPER_ADMIN,
+            Role::ADMIN,
+            Role::HUMAN_RESOURCE_MANAGER,
+            Role::DESIGN_MANAGER,
+            Role::RENTAL_MANAGER
+        ])) {
             return true;
-        } else if ($panel->getId() === 'partner' && $this->hasRole(Role::PARTNER)) {
+        } elseif ($panel->getId() === 'partner' && $this->hasRole(Role::PARTNER)) {
             return true;
         }
         return false;
@@ -235,6 +250,13 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             }
         });
 
+        static::updating(function ($user) {
+            if ($user->isDirty('name') && Str::startsWith($user->avatar, 'https://ui-avatars.com/')) {
+                $name = urlencode($user->name);
+                $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
+            }
+        });
+
         static::deleting(function ($user) {
             $user->partnerProfile()->delete();
             $user->partnerServices()->delete();
@@ -254,12 +276,12 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
 
     public function partnerProfile()
     {
-        return $this->hasOne(PartnerProfile::class);
+        return $this->hasOne(PartnerProfile::class, 'user_id');
     }
 
     public function partnerServices()
     {
-        return $this->hasMany(PartnerService::class);
+        return $this->hasMany(PartnerService::class, 'user_id');
     }
 
     public function partnerBillsAsClient()
@@ -282,6 +304,6 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
      */
     public function authoredReviews()
     {
-        return $this->hasMany(\Codebyray\ReviewRateable\Models\Review::class, 'user_id');
+        return $this->hasMany(Review::class, 'user_id');
     }
 }

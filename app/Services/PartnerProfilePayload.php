@@ -11,8 +11,13 @@ class PartnerProfilePayload
 {
     public static function for(User $user): array
     {
-        $key = "profile:partner:{$user->id}";
-        
+        $latestReviewUpdated = optional(
+            $user->reviews()->latest('updated_at')->first()
+        )->updated_at?->timestamp ?? 0;
+
+        // bump cache when reviews change so fresh feedback is returned
+        $key = "profile:partner:v3:{$user->id}:r{$latestReviewUpdated}";
+
         return Cache::remember($key, now()->addDay(), function () use ($user) {
             $stats = $user->statistics()->get()->keyBy('metrics_name');
 
@@ -30,23 +35,26 @@ class PartnerProfilePayload
                     'id' => $user->id,
                     'name' => $user->name,
                     'avatar_url' => $user->avatar_url,
-                    'location' => $user->location ?? 'nonne',
+                    'location' => $user->location,
                     'joined_year' => optional($user->created_at)->format('Y'),
                     'is_pro' => true,
-                    'rating' => (float) ($stats['rating']->metrics_value ?? 5),
-                    'total_reviews' => (int) ($stats['total_reviews']->metrics_value ?? 0),
-                    'total_customers' => (int) ($stats['number_customer']->metrics_value ?? null),
+                    'rating' => (float) (optional($stats->get('rating'))->metrics_value ?? 5),
+                    'total_reviews' => (int) (optional($stats->get('total_reviews'))->metrics_value ?? 0),
+                    'total_customers' => (int) (optional($stats->get('number_customer'))->metrics_value ?? null),
+                    'bio' => $user->bio,
+                    'email_verified_at' => optional($user->email_verified_at)->toIso8601String(),
+                    'is_verified' => $user->hasVerifiedEmail(),
                 ],
                 'stats' => [
-                    'customers' => (int) ($stats['number_customer']->metrics_value ?? 0),
-                    'years' => now()->year - (int) optional($user->created_at)->format('Y'),
-                    'satisfaction_pct' => ($stats['satisfaction_rate']->metrics_value ?? '—') . "%",
+                    'customers' => (int) (optional($stats->get('number_customer'))->metrics_value ?? 0),
+                    'years' => $user->created_at ? now()->diffInYears($user->created_at) : 0,
+                    'satisfaction_pct' => (optional($stats->get('satisfaction_rate'))->metrics_value ?? '—') . "%",
                     'avg_response' => '14h',
                 ],
                 'quick' => [
-                    'orders_placed' => (int) ($stats['orders_placed']->metrics_value ?? $user->partnerBillsAsPartner()->count()),
-                    'completed_orders' => (int) ($stats['completed_orders']->metrics_value ?? $user->partnerBillsAsPartner()->where('status', 'paid')->count()),
-                    'cancelled_orders_pct' => (string) ($stats['cancelled_orders_percentage']->metrics_value ?? $calcCancelPct($user)),
+                    'orders_placed' => (int) (optional($stats->get('orders_placed'))->metrics_value ?? $user->partnerBillsAsPartner()->count()),
+                    'completed_orders' => (int) (optional($stats->get('completed_orders'))->metrics_value ?? $user->partnerBillsAsPartner()->where('status', 'paid')->count()),
+                    'cancelled_orders_pct' => (string) (optional($stats->get('cancelled_orders_percentage'))->metrics_value ?? $calcCancelPct($user)),
                     'last_active_human' => optional($user->updated_at)->diffForHumans(),
                 ],
                 'contact' => [
@@ -110,10 +118,13 @@ class PartnerProfilePayload
                     $authors = \App\Models\User::whereIn('id', $authorIds)->pluck('name', 'id');
 
                     return $reviews->map(function ($r) use ($authors) {
+                        $rating = optional($r->ratings->firstWhere('key', 'rating'))->value
+                            ?? optional($r->ratings->firstWhere('key', 'overall'))->value;
+
                         return [
                             'id' => $r->id,
                             'author' => $authors[$r->user_id] ?? '—',
-                            'rating' => optional($r->ratings->firstWhere('key', 'overall'))->value,
+                            'rating' => $rating,
                             'review' => $r->review,
                             'created_human' => optional($r->created_at)->diffForHumans(),
                         ];

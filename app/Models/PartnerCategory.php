@@ -21,6 +21,8 @@ use Spatie\Activitylog\LogOptions;
  * @property int $id
  * @property string $name
  * @property string $slug
+ * @property string $type
+ * @property int $order
  * @property int|null $parent_id
  * @property float|null $min_price
  * @property float|null $max_price
@@ -48,8 +50,10 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereMaxPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereMinPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereParentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withoutTrashed()
@@ -67,6 +71,7 @@ class PartnerCategory extends Model implements HasMedia
     protected $fillable = [
         'name',
         'slug',
+        'order',
         'parent_id',
         'min_price',
         'max_price',
@@ -84,6 +89,17 @@ class PartnerCategory extends Model implements HasMedia
     }
 
     /**
+     * Summary of registerMediaCollections
+     * @return void
+     */
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('images')
+            ->useDisk('public');
+    }
+
+    /**
      * Summary of registerMediaConversions
      * @param Media|null $media
      * @return void
@@ -91,14 +107,19 @@ class PartnerCategory extends Model implements HasMedia
     public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumb')
-            ->width(300)
-            ->height(300)
-            ->sharpen(10);
+            ->width(400)
+            ->height(400)
+            ->sharpen(10)
+            ->withResponsiveImages()
+            ->format('webp')
+            ->queued();
 
         $this->addMediaConversion('mobile_optimized')
-            ->width(320)
-            ->height(240)
-            ->crop(320, 240, CropPosition::Center);
+            ->width(300)
+            ->height(300)
+            ->withResponsiveImages()
+            ->format('webp')
+            ->queued();
     }
 
     /**

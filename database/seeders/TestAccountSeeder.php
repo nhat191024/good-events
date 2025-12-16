@@ -3,9 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Customer;
+use App\Models\Partner;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 use App\Enum\Role;
 
@@ -17,23 +20,26 @@ class TestAccountSeeder extends Seeder
     public function run(): void
     {
         //move test accounts from other seeders to here for easier management
-
-        User::factory()->withRole(Role::ADMIN)->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
+        $partner = User::factory()->createPartner()->create([
+            'name' => 'Partner User',
+            'email' => 'partner@example.com',
         ]);
+        $partner->assignRole(Role::PARTNER);
 
-        User::factory()->withRole(Role::PARTNER)
-            ->createPartner()
-            ->create([
-                'name' => 'Partner User',
-                'email' => 'partner@example.com',
-            ]);
+        DB::table('model_has_roles')
+            ->where('model_id', $partner->id)
+            ->where('model_type', User::class)
+            ->update(['model_type' => Partner::class]);
 
-        User::factory()->withRole(Role::CLIENT)
-            ->create([
-                'name' => 'Client User',
-                'email' => 'client@example.com',
-            ]);
+        $client = User::factory()->create([
+            'name' => 'Client User',
+            'email' => 'client@example.com',
+        ]);
+        $client->assignRole(Role::CLIENT);
+
+        DB::table('model_has_roles')
+            ->where('model_id', $client->id)
+            ->where('model_type', User::class)
+            ->update(['model_type' => Customer::class]);
     }
 }

@@ -30,6 +30,8 @@ return new class extends Migration
             $table->string('status');
             $table->unsignedInteger('thread_id')->nullable();
             $table->foreign('thread_id')->references('id')->on('threads')->restrictOnDelete();
+            $table->unsignedBigInteger('voucher_id')->nullable();
+            $table->foreign('voucher_id')->references('id')->on('vouchers')->restrictOnDelete();
             $table->timestamps();
         });
     }
@@ -39,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bills');
+        Schema::dropIfExists('partner_bills');
     }
 };

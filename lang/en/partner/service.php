@@ -38,6 +38,7 @@ return [
         'service_unique' => 'You have already registered a service for this category. Please choose another category.',
         'service_media' => 'Add introduction videos of your service for admin approval. Can only be added when creating a new service.',
         'service_images' => 'Upload up to 10 service images. Supported formats: JPG, PNG, GIF, WEBP.',
+        'video_url_valid' => 'The video URL must be in a valid format or include "https://" (you can copy the link from YouTube)',
     ],
 
     'action' => [

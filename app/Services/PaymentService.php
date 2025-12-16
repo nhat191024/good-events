@@ -13,7 +13,8 @@ class PaymentService
         $this->payOS = new PayOS(
             env("PAYOS_CLIENT_ID"),
             env("PAYOS_API_KEY"),
-            env("PAYOS_CHECKSUM_KEY")
+            env("PAYOS_CHECKSUM_KEY"),
+            env("PAYOS_PARTNER_CODE")
         );
     }
 
@@ -25,7 +26,13 @@ class PaymentService
      * @param bool $isAppRequest
      * @return array
      */
-    public function processAppointmentPayment(array $data, $paymentMethod, bool $isAppRequest)
+    public function processAppointmentPayment(
+        array $data,
+        $paymentMethod,
+        bool $isAppRequest,
+        ?string $returnUrl = null,
+        ?string $cancelUrl = null,
+    )
     {
         // This would integrate with your payment gateway
         // For now, we'll simulate payment processing
@@ -46,6 +53,8 @@ class PaymentService
                     $data['items'] ?? null,
                     $data['expiryTime'] ?? null,
                     $isAppRequest,
+                    $returnUrl,
+                    $cancelUrl,
                 );
             default:
                 throw new \Exception('Invalid payment method');
@@ -83,6 +92,8 @@ class PaymentService
      * @param array|null $items
      * @param int|null $expiryTime
      * @param bool $isAppRequest
+     * @param string|null $returnUrl
+     * @param string|null $cancelUrl
      *
      * @return array
      */
@@ -96,14 +107,23 @@ class PaymentService
         ?array $items = null,
         ?int $expiryTime = null,
         bool $isAppRequest,
+        ?string $returnUrl = null,
+        ?string $cancelUrl = null,
     ) {
         $expiryTime ??= intval(now()->addMinutes(5)->timestamp);
 
-        $url = null;
-        if ($isAppRequest) {
-            $url = env("APP_PAYMENT_RESULT_DEEPLINK_URL");
-        } else {
-            $url = route('payment.result');
+        $url = $returnUrl;
+        if (!$url) {
+            $url = $isAppRequest
+                ? env('APP_PAYMENT_RESULT_DEEPLINK_URL')
+                : route('payment.result');
+        }
+
+        $cancelTarget = $cancelUrl;
+        if (!$cancelTarget) {
+            $cancelTarget = $isAppRequest
+                ? env('APP_PAYMENT_RESULT_DEEPLINK_URL')
+                : route('payment.result');
         }
 
         $paymentRequest = [
@@ -114,7 +134,7 @@ class PaymentService
             'buyerEmail' => $buyerEmail,
             'buyerPhone' => $buyerPhone,
             'items' => $items,
-            'cancelUrl' => $url,
+            'cancelUrl' => $cancelTarget,
             'returnUrl' => $url,
             'expiredAt' => $expiryTime,
         ];
@@ -125,8 +145,6 @@ class PaymentService
         );
 
         $paymentRequest['signature'] = $signature;
-
-        ds($paymentRequest);
 
         $response = $this->payOS->createPaymentLink($paymentRequest);
 

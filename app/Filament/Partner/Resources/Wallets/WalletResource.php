@@ -45,7 +45,8 @@ class WalletResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('payable_id', auth()->id())
-            ->where('confirmed', 1);
+            ->where('confirmed', 1)
+            ->orderByDesc('created_at');
     }
 
     public static function getRelations(): array

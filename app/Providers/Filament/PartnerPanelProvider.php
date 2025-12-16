@@ -9,6 +9,8 @@ use Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
 use Filament\Enums\ThemeMode;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -24,7 +26,12 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 
 use Filament\Actions\Action;
 
+use App\Models\Partner;
+use App\Http\Middleware\CheckPartnerAccess;
+use App\Livewire\Component\ChatNotificationIndicator;
+
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
@@ -34,17 +41,29 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use App\Settings\AppSettings;
+
 class PartnerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        try {
+            $settings = app(AppSettings::class);
+            $favicon = asset($settings->app_favicon);
+        } catch (\Exception $e) {
+            $favicon = asset('images/favicon.ico');
+        }
+
         return $panel
             ->id('partner')
             ->path('partner')
-            ->login()
+            ->authGuard('web')
+            ->authPasswordBroker('users')
             ->emailVerification()
             ->passwordReset()
 
+            ->brandName('Sự Kiện tốt - Đối tác')
+            ->favicon($favicon)
             ->colors([
                 'primary' => Color::Rose
             ])
@@ -63,8 +82,14 @@ class PartnerPanelProvider extends PanelProvider
             ])
 
             ->databaseNotifications()
-            ->lazyLoadedDatabaseNotifications(true)
-            ->databaseNotificationsPolling('30s')
+            // ->lazyLoadedDatabaseNotifications(true)
+            ->databaseNotificationsPolling('90s')
+
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn() => Blade::render('@livewire(\'component.chat-notification-indicator\')') .
+                    Blade::render('filament.partner.hooks.user-menu-before')
+            )
 
             ->discoverResources(in: app_path('Filament/Partner/Resources'), for: 'App\Filament\Partner\Resources')
             ->discoverPages(in: app_path('Filament/Partner/Pages'), for: 'App\Filament\Partner\Pages')
@@ -75,7 +100,7 @@ class PartnerPanelProvider extends PanelProvider
             ->defaultThemeMode(ThemeMode::Light)
 
             ->pages([
-                Dashboard::class,
+                \App\Filament\Partner\Pages\Dashboard::class,
             ])
 
             ->widgets([
@@ -97,6 +122,7 @@ class PartnerPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                CheckPartnerAccess::class,
             ]);
     }
 }

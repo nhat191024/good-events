@@ -13,8 +13,7 @@ class ListEventCategories extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()
-                ->label(__('admin/partnerCategory.actions.create')),
+            CreateAction::make(),
         ];
     }
 }

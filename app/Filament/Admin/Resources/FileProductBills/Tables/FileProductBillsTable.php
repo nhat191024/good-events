@@ -4,7 +4,7 @@ namespace App\Filament\Admin\Resources\FileProductBills\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Filters\SelectFilter;
 
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -15,6 +15,8 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 
 use App\Enum\FileProductBillStatus;
+
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class FileProductBillsTable
 {
@@ -56,7 +58,11 @@ class FileProductBillsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                DateRangeFilter::make('created_at')
+                    ->label(__('admin/fileProductBill.fields.created_at')),
+                SelectFilter::make('status')
+                    ->label(__('admin/fileProductBill.fields.status'))
+                    ->options(FileProductBillStatus::asSelectArray()),
             ])
             ->recordActions([
                 //

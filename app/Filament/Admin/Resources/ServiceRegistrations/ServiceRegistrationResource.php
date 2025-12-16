@@ -20,19 +20,27 @@ use Filament\Tables\Table;
 
 use Illuminate\Database\Eloquent\Builder;
 
-use App\Enum\FilamentNavigationGroup;
+use App\Enum\NavigationGroup;
 
 class ServiceRegistrationResource extends Resource
 {
     protected static ?string $model = PartnerService::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedVideoCamera;
-    protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::SYSTEM;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM;
     protected static ?int $navigationSort = 3;
 
     public static function getModelLabel(): string
     {
         return __('admin/partnerService.singular');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::$model::query()
+            ->where('status', '=', 'pending')
+            ->count();
+        return $count > 0 ? (string)$count : null;
     }
 
     public static function form(Schema $schema): Schema

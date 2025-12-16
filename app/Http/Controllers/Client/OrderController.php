@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
@@ -25,10 +26,14 @@ use App\Notifications\PartnerAcceptedOrder;
 use App\Models\Voucher;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
+use App\Models\Statistical;
 use App\Models\User;
+use App\Services\PartnerProfilePayload;
+use App\Services\PartnerWidgetCacheService;
+
+use Codebyray\ReviewRateable\Models\Review;
 
 use Inertia\Inertia;
-
 
 class OrderController extends Controller
 {
@@ -50,9 +55,10 @@ class OrderController extends Controller
 
     public function getSingleOrder(Request $request)
     {
-        $orderId = (int) $request->query('single_order');
-        if (!$orderId)
+        $orderId = (int) ($request->query('order') ?? $request->query('single_order'));
+        if (!$orderId) {
             return null;
+        }
 
         $order = PartnerBill::query()
             ->where('id', $orderId)
@@ -96,6 +102,20 @@ class OrderController extends Controller
             'items' => PartnerBillDetailResource::collection($details),
             'version' => $billUpdatedTs,
         ];
+    }
+
+    public function getPartnerProfile(User $user)
+    {
+        $user->loadMissing('partnerProfile','reviews');
+
+        // only expose partner profiles that actually exist
+        if (! $user->partnerProfile) {
+            abort(404);
+        }
+        $data = response()->json(PartnerProfilePayload::for($user));
+        Log::debug('Getting partner profile for user id: ' . $user->id);
+
+        return $data;
     }
 
     public function getOrderHistoryList(Request $request)
@@ -151,6 +171,31 @@ class OrderController extends Controller
         $bill_id = $request->input('order_id');
         $bill = PartnerBill::findOrFail($bill_id);
 
+        if ($bill->status != PartnerBillStatus::PENDING) return;
+
+        if ($bill->date && $bill->start_time) {
+            $tz = config('app.timezone') ?: 'UTC';
+
+            try {
+                $startDate = $bill->date->format('Y-m-d');
+                $startTime = $bill->start_time->format('H:i');
+                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $startDate . ' ' . $startTime, $tz);
+            } catch (\Throwable $exception) {
+                $startDateTime = null;
+            }
+
+            if ($startDateTime) {
+                $cutoff = $startDateTime->copy()->subHours(8);
+                $now = Carbon::now($tz);
+
+                if ($now->greaterThanOrEqualTo($cutoff)) {
+                    throw ValidationException::withMessages([
+                        'order_id' => 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.',
+                    ]);
+                }
+            }
+        }
+
         $bill->status = PartnerBillStatus::CANCELLED;
         $bill->save();
 
@@ -174,6 +219,12 @@ class OrderController extends Controller
             $partnerBillDetail = PartnerBillDetail::where('partner_bill_id', $bill_id)
                 ->where('partner_id', $user_id)
                 ->first();
+            Log::debug('[controller] confirmChoosePartner bill loaded', [
+                'bill_id' => $bill->id,
+                'bill_status' => $bill->status,
+                'bill_total' => $bill->total,
+                'bill_final_total' => $bill->final_total,
+            ]);
 
             $discount = 0;
 
@@ -221,7 +272,7 @@ class OrderController extends Controller
             'partner_bill_id' => $data['order_id'],
         ], $request->user()->id);
 
-        $latest = \Codebyray\ReviewRateable\Models\Review::where('reviewable_type', User::class)
+        $latest = Review::where('reviewable_type', User::class)
             ->where('reviewable_id', $partner->id)
             ->where('user_id', $request->user()->id)
             ->latest('id')
@@ -231,6 +282,9 @@ class OrderController extends Controller
             $latest->partner_bill_id = $data['order_id'];
             $latest->save();
         }
+
+        Statistical::syncPartnerRatingMetrics($partner->id);
+        PartnerWidgetCacheService::clearPartnerCaches($partner->id);
 
         return back()->with('review_submitted', true);
     }
@@ -244,14 +298,47 @@ class OrderController extends Controller
 
         $partnerBill = PartnerBill::find($data['order_id']);
         $voucher = Voucher::where('code', $data['voucher_input'])->first();
+
         if (!$voucher || !$partnerBill) {
-            return (object) [
+            return response()->json([
                 'status' => false,
-                'message' => __('Voucher không tồn tại')
-            ];
+                'message' => __('Voucher không tồn tại'),
+            ], 404);
         }
-        $result = $voucher->validate($partnerBill->total);
-        return $result;
+
+        $now = now();
+        $isExpired = $voucher->expires_at && $now->greaterThan($voucher->expires_at);
+        $notStarted = $voucher->startAt() && $now->lessThan($voucher->startAt());
+        $limitReached = !$voucher->isUnlimited()
+            && $voucher->usageLimit() !== null
+            && $voucher->timesUsed() >= $voucher->usageLimit();
+
+        $status = !($isExpired || $notStarted || $limitReached);
+
+        $message = __('voucher.valid');
+        if ($isExpired) {
+            $message = __('voucher.expired');
+        } elseif ($notStarted) {
+            $message = __('voucher.not_yet_valid');
+        } elseif ($limitReached) {
+            $message = __('voucher.usage_limit_reached');
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'details' => [
+                'code' => $voucher->code,
+                'discount_percent' => $voucher->discountPercentage(),
+                'max_discount_amount' => $voucher->maxDiscountAmount(),
+                'min_order_amount' => $voucher->minOrderAmount(),
+                'usage_limit' => $voucher->usageLimit(),
+                'times_used' => $voucher->timesUsed(),
+                'is_unlimited' => $voucher->isUnlimited(),
+                'starts_at' => optional($voucher->startAt())->toIso8601String(),
+                'expires_at' => optional($voucher->expires_at)->toIso8601String(),
+            ],
+        ]);
     }
 
     /**
@@ -276,7 +363,7 @@ class OrderController extends Controller
             return self::voucherFail(__('Đối tác không tồn tại'));
 
         $partnerBillDetail = PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
-            ->orWhere('partner_id', $partner->id)->first();
+            ->where('partner_id', $partner->id)->first();
         if (!$partnerBillDetail)
             return self::voucherFail(__('Đối tác không tồn tại'));
 

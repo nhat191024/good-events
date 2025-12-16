@@ -7,6 +7,8 @@ import PartnerIntroCard from '@/pages/profile/partner/components/PartnerIntroCar
 import PartnerReviewsCard from '@/pages/profile/partner/components/PartnerReviewsCard.vue'
 import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesCard.vue'
 import axios from 'axios'
+import { getImg } from '@/pages/booking/helper'
+import { X } from 'lucide-vue-next'
 
 type UserInfo = {
     id: number; name: string; avatar_url: string; location: string | null;
@@ -46,7 +48,7 @@ watch([open, () => props.userId], async ([isOpen, id]) => {
 
     status.value = 'loading'
     try {
-        const url = route('profile.partner.show.json', { user: id })
+        const url = route('client-orders.partner-profile', { user: id })
         const response = await axios.get<Payload>(url, { headers: { 'Accept': 'application/json' } })
         const payload = response.data
         cache.set(id, payload)
@@ -77,17 +79,19 @@ const user = computed(() => data.value?.user)
                     <!-- header: sticky để luôn hiện khi cuộn -->
                     <div class="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white z-10">
                         <div class="flex items-center gap-3">
-                            <img v-if="user?.avatar_url" :src="user!.avatar_url" :alt="user!.name"
+                            <img v-if="user?.avatar_url" :src="getImg(user!.avatar_url)" :alt="user!.name"
                                 class="w-10 h-10 rounded-full object-cover" />
                             <div>
                                 <div class="font-semibold">{{ user?.name ?? '—' }}</div>
                                 <div class="text-xs text-muted-foreground">
-                                    {{ user?.location || '—' }} • {{ user?.joined_year ? `từ ${user?.joined_year}` : '—'
+                                    Thành viên • {{ user?.joined_year ? `từ ${user?.joined_year}` : '—'
                                     }}
                                 </div>
                             </div>
                         </div>
-                        <button class="px-2 py-1 text-sm rounded hover:bg-gray-100" @click="open = false">đóng</button>
+                        <button class="p-2 rounded hover:bg-gray-100" @click="open = false" aria-label="Đóng hồ sơ">
+                            <X class="w-4 h-4" />
+                        </button>
                     </div>
 
                     <!-- body: phần này mới là phần cuộn, giữ header đứng yên -->
@@ -113,7 +117,7 @@ const user = computed(() => data.value?.user)
                                     <PartnerServiceCard :services="data.services" />
                                     <PartnerReviewsCard :items="data.reviews" />
                                 </div>
-                                
+
                                 <div class="md:col-span-12 space-y-4">
                                     <PartnerImagesCard :services="data.services" />
                                 </div>
