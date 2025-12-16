@@ -10,6 +10,7 @@ use App\Services\PartnerBillMailService;
 
 use App\Settings\PartnerSettings;
 
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 use Illuminate\Database\Eloquent\Model;
@@ -411,6 +412,11 @@ class PartnerBill extends Model implements HasMedia
             ->title(__('notification.client_accepted_title'))
             ->body(__('notification.client_accepted_body', ['code' => $partnerBill->code, 'client_name' => $client->name]))
             ->warning()
+            ->actions([
+                Action::make('open')
+                    ->label('Mở chat')
+                    ->url(route('chat.index', ['chat' => $partnerBill->thread_id])),
+            ])
             ->sendToDatabase($partner);
     }
 
@@ -429,6 +435,11 @@ class PartnerBill extends Model implements HasMedia
             ->title(__('notification.partner_bill_expired_title', ['code' => $partnerBill->code]))
             ->body(__('notification.partner_bill_expired_body', ['code' => $partnerBill->code]))
             ->danger()
+            ->actions([
+                Action::make('open')
+                    ->label('Xem đơn')
+                    ->url(route('client-orders.dashboard', ['order' => $partnerBill->id])),
+            ])
             ->sendToDatabase(User::find($partnerBill->client_id));
     }
 

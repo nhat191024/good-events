@@ -194,7 +194,7 @@ watch(() => form.voucher_input, (newVal) => {
 
 <template>
     <div class="border-2 border-primary/20 rounded-xl bg-card">
-        <div class="p-3 md:p-6">
+        <div class="px-3 md:px-6 pt-3 md:pt-6 pb-12">
             <div class="text-center mb-3 md:mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-3">
                     <img :src="getImg(props.order?.category.image)" alt="Traditional Vietnamese scholar"
@@ -361,7 +361,8 @@ watch(() => form.voucher_input, (newVal) => {
                         :class="(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB) ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"
                         class="h-10 rounded-md text-white flex-1">Chat ngay</button>
 
-                    <button v-if="(props.mode === 'current')" @click="emit('cancel-order')"
+                    <button v-if="props.mode === 'current' && !(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB)"
+                        @click="emit('cancel-order')"
                         class="h-10 cursor-pointer rounded-md border border-destructive text-destructive bg-transparent flex-1 hover:bg-destructive/5">
                         Hủy đơn
                     </button>

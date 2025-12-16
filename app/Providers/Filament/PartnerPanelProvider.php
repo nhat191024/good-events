@@ -82,7 +82,7 @@ class PartnerPanelProvider extends PanelProvider
             ])
 
             ->databaseNotifications()
-            ->lazyLoadedDatabaseNotifications(true)
+            // ->lazyLoadedDatabaseNotifications(true)
             ->databaseNotificationsPolling('90s')
 
             ->renderHook(

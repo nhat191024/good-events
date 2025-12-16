@@ -8,6 +8,7 @@ use App\Enum\PartnerBillDetailStatus;
 use App\Events\PartnerBillDetailCreated;
 use App\Events\PartnerBillDetailStatusChanged;
 
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 use Illuminate\Database\Eloquent\Model;
@@ -84,6 +85,11 @@ class PartnerBillDetail extends Model
                 'code' => $partnerBillDetail->partnerBill->code,
             ]))
             ->success()
+            ->actions([
+                Action::make('open')
+                    ->label('Xem đơn')
+                    ->url(route('client-orders.dashboard', ['order' => $partnerBillDetail->partner_bill_id])),
+            ])
             ->sendToDatabase(User::find($partnerBillDetail->partnerBill->client_id));
     }
 

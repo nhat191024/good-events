@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\PartnerBill;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 class OrderCreated
@@ -13,6 +14,11 @@ class OrderCreated
             ->title(__('notification.order_created_title'))
             ->body(__('notification.order_created_body', ['code' => $bill->code]))
             ->info()
+            ->actions([
+                Action::make('open')
+                    ->label('Xem đơn')
+                    ->url(route('client-orders.dashboard', ['order' => $bill->id])),
+            ])
             ->sendToDatabase($user);
     }
 }

@@ -8,6 +8,7 @@ import PartnerReviewsCard from '@/pages/profile/partner/components/PartnerReview
 import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesCard.vue'
 import axios from 'axios'
 import { getImg } from '@/pages/booking/helper'
+import { X } from 'lucide-vue-next'
 
 type UserInfo = {
     id: number; name: string; avatar_url: string; location: string | null;
@@ -83,12 +84,14 @@ const user = computed(() => data.value?.user)
                             <div>
                                 <div class="font-semibold">{{ user?.name ?? '—' }}</div>
                                 <div class="text-xs text-muted-foreground">
-                                    {{ user?.location || '—' }} • {{ user?.joined_year ? `từ ${user?.joined_year}` : '—'
+                                    Thành viên • {{ user?.joined_year ? `từ ${user?.joined_year}` : '—'
                                     }}
                                 </div>
                             </div>
                         </div>
-                        <button class="px-2 py-1 text-sm rounded hover:bg-gray-100" @click="open = false">đóng</button>
+                        <button class="p-2 rounded hover:bg-gray-100" @click="open = false" aria-label="Đóng hồ sơ">
+                            <X class="w-4 h-4" />
+                        </button>
                     </div>
 
                     <!-- body: phần này mới là phần cuộn, giữ header đứng yên -->
