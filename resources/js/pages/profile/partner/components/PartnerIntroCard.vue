@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 const props = defineProps<{
-  intro:string|null;
-  stats: { customers:number; years:number; satisfaction_pct:string; avg_response:string }
+  intro: string | null
+  stats: { customers: number; years: number; satisfaction_pct: string; avg_response: string }
 }>()
+
+const hasYears = computed(() => props.stats.years > 0)
 </script>
 
 <template>
@@ -12,12 +16,15 @@ const props = defineProps<{
     <p class="text-gray-700 leading-relaxed whitespace-pre-line mb-4">{{ intro || 'Chưa có mô tả.' }}</p>
 
     <!-- Stats grid below description -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
+    <div
+      class="grid grid-cols-2 gap-4 pt-4 border-t justify-items-center"
+      :class="hasYears ? 'md:grid-cols-3' : 'md:grid-cols-2'"
+    >
       <div class="text-center">
         <div class="text-2xl font-bold text-rose-600">{{ stats.customers }}+</div>
         <div class="text-sm text-gray-600 mt-1">Khách hàng</div>
       </div>
-      <div class="text-center">
+      <div v-if="hasYears" class="text-center">
         <div class="text-2xl font-bold text-rose-600">{{ stats.years }}</div>
         <div class="text-sm text-gray-600 mt-1">Năm KN</div>
       </div>
@@ -25,10 +32,10 @@ const props = defineProps<{
         <div class="text-2xl font-bold text-rose-600">{{ stats.satisfaction_pct }}</div>
         <div class="text-sm text-gray-600 mt-1">Hài lòng</div>
       </div>
-      <div class="text-center">
+      <!-- <div class="text-center">
         <div class="text-2xl font-bold text-rose-600">{{ stats.avg_response }}</div>
         <div class="text-sm text-gray-600 mt-1">Phản hồi</div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
