@@ -55,9 +55,10 @@ class OrderController extends Controller
 
     public function getSingleOrder(Request $request)
     {
-        $orderId = (int) $request->query('single_order');
-        if (!$orderId)
+        $orderId = (int) ($request->query('order') ?? $request->query('single_order'));
+        if (!$orderId) {
             return null;
+        }
 
         $order = PartnerBill::query()
             ->where('id', $orderId)
