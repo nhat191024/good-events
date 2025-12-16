@@ -53,6 +53,13 @@ class PartnerBillSecondJob implements ShouldQueue
 
         //send email
         $mailService->sendOrderExpiredNotification($partnerBill);
+
+        $client = User::find($partnerBill->client_id);
+        Notification::make()
+            ->title(__('notification.client_order_expired_title', ['code' => $partnerBill->code]))
+            ->body(__('notification.client_order_expired_body', ['code' => $partnerBill->code]))
+            ->danger()
+            ->sendToDatabase($client);
     }
 
     /**
