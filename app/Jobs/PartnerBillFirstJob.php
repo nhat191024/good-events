@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 use App\Services\PartnerBillMailService;
@@ -59,6 +60,11 @@ class PartnerBillFirstJob implements ShouldQueue
                 ->title(__('notification.partner_show_reminder_title', ['code' => $partnerBill->code]))
                 ->body(__('notification.partner_show_reminder_body', ['code' => $partnerBill->code, 'start_time' => $eventDateTime]))
                 ->warning()
+                ->actions([
+                    Action::make('open')
+                        ->label('Mở chat')
+                        ->url(route('chat.index', ['chat' => $partnerBill->thread_id])),
+                ])
                 ->sendToDatabase($partner);
 
             $mailService->sendUpcomingEventReminder($partnerBill);
