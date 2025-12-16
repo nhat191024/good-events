@@ -24,6 +24,6 @@ class OrderStatusChanged
                     ->label('Xem đơn')
                     ->url(route('client-orders.dashboard', ['order' => $bill->id])),
             ])
-            ->sendToDatabase($user);
+            ->sendToDatabase($user, isEventDispatched: true);
     }
 }

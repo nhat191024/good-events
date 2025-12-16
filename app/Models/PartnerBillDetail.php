@@ -77,6 +77,7 @@ class PartnerBillDetail extends Model
 
     protected static function handleBillDetailCreated(PartnerBillDetail $partnerBillDetail): void
     {
+        // this is the client-side notification, check lang/vi/notification.php and find for key 'partner_accepted_title' for more info
         $partner = User::find($partnerBillDetail->partner_id)->name ?? 'Đối tác';
         Notification::make()
             ->title(__('notification.partner_accepted_title'))
@@ -93,7 +94,9 @@ class PartnerBillDetail extends Model
             ->sendToDatabase(User::find($partnerBillDetail->partnerBill->client_id));
     }
 
-    protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void {}
+    protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void {
+        // client does not need to know about their own partner-confirmation, they problably know it already
+    }
 
     public function isNew(): bool
     {
