@@ -36,6 +36,9 @@ return [
 
     'partner_bill_followup_reminder_body' => 'Đơn hàng với mã :code đã hoàn thành thời gian đặt. Vui lòng hoàn tất đơn hàng để đảm bảo chất lượng dịch vụ.',
 
+    'client_order_expired_title' => 'Đơn hàng :code của bạn đã hết hạn',
+    'client_order_expired_body' => 'Đơn hàng :code của bạn đã hết thời gian xác nhận từ đối tác và đã bị hủy.',
+
     'balance_low_title' => 'Cảnh báo số dư tài khoản!',
     'balance_low_body' => 'Xin chào đối tác! Số dư tài khoản của bạn hiện chỉ còn :balance VNĐ. Vui lòng nạp thêm ít nhất :amount VNĐ để tiếp tục sử dụng dịch vụ mà không bị gián đoạn.',
 
