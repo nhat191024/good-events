@@ -95,11 +95,6 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
         route: () => route('about.index'),
         icon: Info,
     },
-    {
-        label: 'Trang đối tác',
-        href: () => route('filament.partner.pages.dashboard'),
-        icon: Handshake,
-    },
     // {
     //     label: 'Trang quản trị',
     //     route: () => '/admin/login',
@@ -130,11 +125,6 @@ const loggedOutMenuItems: MenuItem[] = [
         label: 'Liên hệ',
         route: () => route('contact.index'),
         icon: PhoneCall,
-    },
-    {
-        label: 'Trang đối tác',
-        href: () => route('filament.partner.pages.dashboard'),
-        icon: Handshake,
     },
     // {
     //     label: 'Trang quản trị',
