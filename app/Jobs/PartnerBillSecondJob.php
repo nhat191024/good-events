@@ -82,8 +82,8 @@ class PartnerBillSecondJob implements ShouldQueue
 
             $mailService->sendUpcomingEventReminder($partnerBill);
 
-            $eventDuration = $partnerBill->start_time->diffInMinutes($partnerBill->end_time);
-            $timeAfterEvent = $eventDateTime->copy()->addMinutes($eventDuration + 20);
+            $eventDuration = $partnerBill->start_time->diffInHours($partnerBill->end_time);
+            $timeAfterEvent = $eventDateTime->copy()->addHours($eventDuration + 6);
             PartnerBillThirdJob::dispatch($partnerBill)->delay($timeAfterEvent);
         } else {
             $timeUntilReminder = $eventDateTime->copy()->subHours(2);
