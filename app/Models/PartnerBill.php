@@ -406,18 +406,32 @@ class PartnerBill extends Model implements HasMedia
         $mailService->sendOrderConfirmedNotification($partnerBill);
 
         $partner = User::find($partnerBill->partner_id);
+
+        if (!$partner) {
+            Log::warning('Partner bill confirmed but partner record missing', [
+                'partner_bill_id' => $partnerBill->id,
+                'partner_id' => $partnerBill->partner_id,
+            ]);
+
+            return;
+        }
+
         $client = User::find($partnerBill->client_id);
+        $clientName = $client?->name ?? 'Khách hàng';
 
         Notification::make()
             ->title(__('notification.client_accepted_title'))
-            ->body(__('notification.client_accepted_body', ['code' => $partnerBill->code, 'client_name' => $client->name]))
+            ->body(__('notification.client_accepted_body', [
+                'code' => $partnerBill->code,
+                'client_name' => $clientName,
+            ]))
             ->warning()
             ->actions([
                 Action::make('open')
                     ->label('Mở chat')
                     ->url(route('chat.index', ['chat' => $partnerBill->thread_id])),
             ])
-            ->sendToDatabase($partner);
+            ->sendToDatabase($partner, isEventDispatched: true);
     }
 
     /**
