@@ -164,22 +164,22 @@ class PartnerBill extends Model implements HasMedia
         });
 
         static::updated(function ($partnerBill) {
-            match ($partnerBill->status) {
-                PartnerBillStatus::COMPLETED => static::handleCompletedStatus($partnerBill),
-                PartnerBillStatus::CANCELLED => static::handleCancelledStatus($partnerBill),
-                PartnerBillStatus::CONFIRMED => static::handleConfirmedStatus($partnerBill),
-                PartnerBillStatus::PENDING => static::handlePendingStatus($partnerBill),
-                PartnerBillStatus::EXPIRED => static::handleExpiredStatus($partnerBill),
-                default => null,
-            };
+            if ($partnerBill->wasChanged('status')) {
+                match ($partnerBill->status) {
+                    PartnerBillStatus::COMPLETED => static::handleCompletedStatus($partnerBill),
+                    PartnerBillStatus::CANCELLED => static::handleCancelledStatus($partnerBill),
+                    PartnerBillStatus::CONFIRMED => static::handleConfirmedStatus($partnerBill),
+                    PartnerBillStatus::PENDING => static::handlePendingStatus($partnerBill),
+                    PartnerBillStatus::EXPIRED => static::handleExpiredStatus($partnerBill),
+                    default => null,
+                };
+
+                PartnerBillStatusChanged::dispatch($partnerBill);
+            }
 
             // Clear widget caches when bill is updated
             if ($partnerBill->partner_id) {
                 PartnerWidgetCacheService::clearPartnerCaches($partnerBill->partner_id);
-            }
-
-            if ($partnerBill->isDirty('status')) {
-                PartnerBillStatusChanged::dispatch($partnerBill);
             }
         });
     }
@@ -389,6 +389,7 @@ class PartnerBill extends Model implements HasMedia
 
         $partner = User::find($partnerBill->partner_id);
         $client = User::find($partnerBill->client_id);
+
         Notification::make()
             ->title(__('notification.client_accepted_title'))
             ->body(__('notification.client_accepted_body', ['code' => $partnerBill->code, 'client_name' => $client->name]))
