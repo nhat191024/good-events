@@ -9,6 +9,7 @@ use App\Models\FileProductBill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 class PaymentController extends Controller
@@ -71,6 +72,11 @@ class PaymentController extends Controller
                 ->title(__('partner/transaction.notification.add_funds_success'))
                 ->body(__('partner/transaction.notification.add_funds_success_message', ['transactionId' => $transactionId]))
                 ->success()
+                ->actions([
+                    Action::make('open')
+                        ->label(__('notification.open_wallet'))
+                        ->url(route('filament.partner.resources.wallets.index')),
+                ])
                 ->sendToDatabase($user);
 
             return redirect()->route('filament.partner.resources.wallets.index');
@@ -79,6 +85,11 @@ class PaymentController extends Controller
                 ->title(__('partner/transaction.notification.add_funds_failed'))
                 ->body(__('partner/transaction.notification.add_funds_failed_message'))
                 ->danger()
+                ->actions([
+                    Action::make('open')
+                        ->label(__('notification.open_wallet'))
+                        ->url(route('filament.partner.resources.wallets.index')),
+                ])
                 ->sendToDatabase($user);
 
             return redirect()->route('filament.partner.resources.wallets.index');
