@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import DropdownMenu from './DropdownMenu.vue';
 import HamburgerMenu from './HamburgerMenu.vue';
 import NotificationPopover from '@/components/notification/NotificationPopover.vue';
@@ -59,6 +59,7 @@ type NotiItem = {
     message: string
     unread: boolean
     created_at: string // iso8601
+    href?: string
     payload?: Record<string, any>
 }
 
@@ -121,7 +122,9 @@ async function markAsRead(item: NotiItem) {
             n.unread = false
             unreadCount.value = Math.max(0, unreadCount.value - 1)
         }
+        return true
     } catch (e) {
+        return false
     }
 }
 
@@ -133,6 +136,13 @@ async function markAllAsRead() {
         notificationItems.value = notificationItems.value.map(n => ({ ...n, unread: false }))
         unreadCount.value = 0
     } catch (e) { }
+}
+
+async function handleNotificationSelect(item: NotiItem) {
+    if (item.href) {
+        router.visit(item.href)
+    }
+    if (item.unread) await markAsRead(item)
 }
 
 function handleScroll() {
@@ -209,7 +219,7 @@ onUnmounted(() => {
                     </a>
                     <DropdownMenu />
                     <NotificationPopover :items="notificationItems" :loading="isFetching" @mark-all-read="markAllAsRead"
-                        @select="markAsRead" @reload="reloadNotifications" />
+                        @select="handleNotificationSelect" @reload="reloadNotifications" />
                 </div>
             </div>
         </div>

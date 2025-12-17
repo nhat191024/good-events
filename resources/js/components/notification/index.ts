@@ -5,4 +5,5 @@ export type NotiItem = {
     href?: string
     unread?: boolean
     created_at?: string
+    payload?: Record<string, any>
 }

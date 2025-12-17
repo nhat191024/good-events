@@ -12,6 +12,7 @@ use Illuminate\Foundation\Queue\Queueable;
 
 use App\Enum\PartnerBillStatus;
 
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 class PartnerBillThirdJob implements ShouldQueue
@@ -53,6 +54,11 @@ class PartnerBillThirdJob implements ShouldQueue
         Notification::make()
             ->title(__('partner/bill.order_completed_success'))
             ->success()
+            ->actions([
+                Action::make('open')
+                    ->label('Mở chat')
+                    ->url(route('chat.index', ['chat' => $partnerBill->thread_id])),
+            ])
             ->sendToDatabase(User::find($partnerBill->partner_id));
     }
 }

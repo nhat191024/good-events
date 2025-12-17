@@ -35,7 +35,7 @@ class PartnerProfilePayload
                     'id' => $user->id,
                     'name' => $user->name,
                     'avatar_url' => $user->avatar_url,
-                    'location' => $user->location ?? 'nonne',
+                    'location' => $user->location,
                     'joined_year' => optional($user->created_at)->format('Y'),
                     'is_pro' => true,
                     'rating' => (float) (optional($stats->get('rating'))->metrics_value ?? 5),
@@ -47,7 +47,7 @@ class PartnerProfilePayload
                 ],
                 'stats' => [
                     'customers' => (int) (optional($stats->get('number_customer'))->metrics_value ?? 0),
-                    'years' => now()->year - (int) optional($user->created_at)->format('Y'),
+                    'years' => $user->created_at ? now()->diffInYears($user->created_at) : 0,
                     'satisfaction_pct' => (optional($stats->get('satisfaction_rate'))->metrics_value ?? '—') . "%",
                     'avg_response' => '14h',
                 ],

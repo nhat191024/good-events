@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\PartnerBill;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 class PartnerAcceptedOrder
@@ -16,6 +17,11 @@ class PartnerAcceptedOrder
                 'partner_name' => $bill->partner->name
             ]))
             ->success()
-            ->sendToDatabase($user);
+            ->actions([
+                Action::make('open')
+                    ->label('Xem đơn')
+                    ->url(route('client-orders.dashboard', ['order' => $bill->id])),
+            ])
+            ->sendToDatabase($user, isEventDispatched: true);
     }
 }

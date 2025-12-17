@@ -7,10 +7,10 @@ const props = defineProps<{ quick: { orders_placed:number; completed_orders:numb
     <!-- Red title and list layout matching design -->
     <h3 class="font-semibold mb-3 text-rose-600">Thống kê nhanh</h3>
     <div class="space-y-3">
-      <div class="flex justify-between items-center">
+      <!-- <div class="flex justify-between items-center">
         <span class="text-sm text-gray-600">Tổng chi tiêu</span>
         <span class="font-semibold text-rose-600">10.000 đ</span>
-      </div>
+      </div> -->
       <div class="flex justify-between items-center">
         <span class="text-sm text-gray-600">Đơn hàng hoàn thành</span>
         <span class="font-semibold text-gray-900">{{ quick.completed_orders }}</span>
