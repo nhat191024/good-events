@@ -51,10 +51,18 @@ class PartnerManager extends SettingsPage
                     ->schema([
                         TextInput::make('minimum_balance')
                             ->label(__(__('admin/setting.fields.minimum_balance')))
+                            ->integer()
                             ->required(),
 
                         TextInput::make('fee_percentage')
                             ->label(__(__('admin/setting.fields.fee_percentage')))
+                            ->integer()
+                            ->required(),
+
+                        TextInput::make('default_balance')
+                            ->label(__(__('admin/setting.fields.default_balance')))
+                            ->integer()
+                            ->placeholder(__('admin/setting.placeholders.default_balance'))
                             ->required(),
                     ]),
             ]);
