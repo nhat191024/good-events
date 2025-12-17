@@ -89,7 +89,13 @@ class AppManager extends SettingsPage
                             ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? 'storage/' . $state : ($record?->app_logo ?? null);
+                                if (filled($state)) {
+                                    if (str_starts_with($state, 'images/')) {
+                                        return $state;
+                                    }
+                                    return 'storage/' . $state;
+                                }
+                                return $record?->app_logo ?? null;
                             }),
 
                         FileUpload::make('app_favicon')
@@ -101,7 +107,13 @@ class AppManager extends SettingsPage
                             ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
-                                return filled($state) ? 'storage/' . $state : ($record?->app_favicon ?? null);
+                                if (filled($state)) {
+                                    if (str_starts_with($state, 'images/')) {
+                                        return $state;
+                                    }
+                                    return 'storage/' . $state;
+                                }
+                                return $record?->app_favicon ?? null;
                             }),
                     ]),
             ]);
