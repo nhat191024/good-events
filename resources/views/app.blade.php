@@ -35,7 +35,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     @if (!empty($settings['app_favicon']))
-        <link rel="icon" href="{{ asset($settings['app_favicon']) }}" sizes="any">
+        <link rel="icon" href="{{ $settings['app_favicon'] }}" sizes="any">
     @endif
 
     <link rel="preconnect" href="https://fonts.bunny.net">
