@@ -97,6 +97,7 @@ class Customer extends User
     use HasFactory;
 
     protected $table = 'users';
+    protected $guard_name = 'web';
 
     /**
      * Create a new factory instance for the model.
