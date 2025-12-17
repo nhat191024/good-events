@@ -46,5 +46,10 @@ return [
 
         'minimum_balance' => 'Số dư tối thiểu',
         'fee_percentage' => 'Phần trăm phí',
-    ]
+        'default_balance' => 'Số dư mặc định',
+    ],
+
+    'placeholders' => [
+        'default_balance' => 'Số dư mặc định cho đối tác mới',
+    ],
 ];
