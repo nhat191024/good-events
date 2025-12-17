@@ -2,20 +2,29 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enum\Role;
 use App\Http\Controllers\Controller;
+
+use App\Enum\Role;
+
 use App\Models\User;
 use App\Models\Customer;
 use App\Models\Partner;
 use App\Models\PartnerProfile;
 use App\Models\Location;
-use Illuminate\Auth\Events\Registered;
+
+use App\Services\EmailVerificationMailService;
+
+use App\Settings\PartnerSettings;
+
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+
 use Illuminate\Validation\Rules;
+
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -60,7 +69,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
+        $user = Customer::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'],
@@ -71,13 +80,7 @@ class RegisteredUserController extends Controller
 
         $user->assignRole(Role::CLIENT);
 
-        // Update model_type in model_has_roles to Customer
-        DB::table('model_has_roles')
-            ->where('model_id', $user->id)
-            ->where('model_type', User::class)
-            ->update(['model_type' => Customer::class]);
-
-        app(\App\Services\EmailVerificationMailService::class)->sendVerificationLink($user);
+        app(EmailVerificationMailService::class)->sendVerificationLink($user);
         Auth::login($user);
 
         return redirect()->route('verification.notice');
@@ -104,7 +107,7 @@ class RegisteredUserController extends Controller
 
         $ward = Location::findOrFail($validated['ward_id']);
 
-        $user = User::create([
+        $user = Partner::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'],
@@ -115,11 +118,13 @@ class RegisteredUserController extends Controller
 
         $user->assignRole(Role::PARTNER);
 
-        // Update model_type in model_has_roles to Partner
-        DB::table('model_has_roles')
-            ->where('model_id', $user->id)
-            ->where('model_type', User::class)
-            ->update(['model_type' => Partner::class]);
+        $defaultBalance = app(PartnerSettings::class)->default_balance;
+        $meta = [
+            'reason' => __('admin/partner.messages.app_deposit'),
+            'old_balance' => $user->balanceInt,
+            'new_balance' => $user->balanceInt + $defaultBalance,
+        ];
+        $user->deposit($defaultBalance, $meta)->save();
 
         PartnerProfile::create([
             'user_id' => $user->id,
@@ -128,7 +133,8 @@ class RegisteredUserController extends Controller
             'location_id' => $ward->id,
         ]);
 
-        app(\App\Services\EmailVerificationMailService::class)->sendVerificationLink($user);
+        app(EmailVerificationMailService::class)->sendVerificationLink($user);
+        Auth::login($user);
         return Inertia::location(route('filament.partner.pages.dashboard'));
     }
 }
