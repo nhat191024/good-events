@@ -37,6 +37,7 @@ return [
     'modals.deposit_heading' => 'Nạp tiền vào ví đối tác',
 
     'messages.admin_deposit' => 'Nạp tiền từ quản trị viên',
+    'messages.app_deposit' => 'Nền tảng tặng tiền đối tác đăng ký lần đầu',
 
     'notifications.deposit_success.title' => 'Nạp tiền thành công',
     'notifications.deposit_success.body' => 'Đã nạp :amount VND vào ví của :partner',

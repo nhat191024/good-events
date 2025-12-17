@@ -37,6 +37,7 @@ return [
     'modals.deposit_heading' => 'Deposit to Partner Wallet',
 
     'messages.admin_deposit' => 'Deposit from administrator',
+    'messages.app_deposit' => 'The platform gives money to partners who register for the first time',
 
     'notifications.deposit_success.title' => 'Deposit Successful',
     'notifications.deposit_success.body' => 'Deposited :amount VND to :partner\'s wallet',
