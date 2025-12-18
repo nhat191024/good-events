@@ -10,7 +10,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('activitylog:clean')->daily();
+Schedule::command('activitylog:clean --force')->daily();
 
 Schedule::call(function () {
     if (class_exists(MailLog::class)) {
