@@ -54,6 +54,12 @@ class ProfileSettings extends Page implements HasForms
         $user = Auth::user();
         $partnerProfile = $user->partnerProfile;
 
+        $cityId = null;
+        if ($partnerProfile?->location_id) {
+            $location = Location::find($partnerProfile->location_id);
+            $cityId = $location?->parent_id;
+        }
+
         $this->data = [
             'avatar' => $user->avatar,
             'name' => $user->name,
@@ -63,6 +69,7 @@ class ProfileSettings extends Page implements HasForms
             'partner_name' => $partnerProfile?->partner_name,
             'identity_card_number' => $partnerProfile?->identity_card_number,
             'location_id' => $partnerProfile?->location_id,
+            'city_id' => $cityId,
         ];
 
         $this->form->fill($this->data);
@@ -154,14 +161,6 @@ class ProfileSettings extends Page implements HasForms
                                         Location::find($value)?->name
                                     )
                                     ->afterStateUpdated(fn(callable $set) => $set('location_id', null))
-                                    ->afterStateHydrated(function ($state, $record, Set $set): void {
-                                        if ($record && $record->location_id) {
-                                            $ward = Location::find($record->location_id);
-                                            if ($ward && $ward->parent_id) {
-                                                $set('city_id', $ward->parent_id);
-                                            }
-                                        }
-                                    })
                                     ->dehydrated(false)
                                     ->required(),
 
