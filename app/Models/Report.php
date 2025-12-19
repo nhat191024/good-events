@@ -17,6 +17,7 @@ class Report extends Model
         'user_id',
         'reported_user_id',
         'reported_bill_id',
+        'thread_id',
         'title',
         'description',
         'status',

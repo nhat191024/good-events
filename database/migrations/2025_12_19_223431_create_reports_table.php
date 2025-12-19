@@ -18,6 +18,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('reported_user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('reported_bill_id')->nullable()->constrained('partner_bills')->onDelete('cascade');
+            $table->unsignedInteger('thread_id')->nullable();
+            $table->foreign('thread_id')->references('id')->on('threads')->restrictOnDelete();
             $table->string('title');
             $table->text('description');
             $table->string('status')->default(ReportStatus::PENDING->value);
