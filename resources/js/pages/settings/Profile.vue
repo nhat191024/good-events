@@ -353,7 +353,7 @@ const hasPendingAvatar = computed(() => Boolean(form.avatar));
                                         </div>
                                         <Button as-child variant="default"
                                             class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md shadow-indigo-200">
-                                            <Link :href="route('partner.register.create')">
+                                            <Link :href="route('partner.register.from-client.create')">
                                                 Đăng ký ngay
                                             </Link>
                                         </Button>
