@@ -31,7 +31,7 @@ onMounted(() => {
 <template>
     <Header v-if="showNav" :background-class-names="backgroundClassNames" />
     <main :class="showNav ? 'pt-16' : 'pt-0'">
-        <div class="flex min-h-screen flex-col bg-white">
+        <div :class="['flex flex-col bg-white', showNav ? 'min-h-[calc(100vh-4rem)]' : 'min-h-screen']">
             <AppContent class="flex-1">
                 <!-- the red bg banner on top of the page -->
                 <!-- <div v-if="showBannerBackground" :class="`absolute top-0 left-0 z-0 flex w-full h-48 items-center ${bannerBackgroundClassName || ''}`"> -->
