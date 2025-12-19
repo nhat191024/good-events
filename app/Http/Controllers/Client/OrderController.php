@@ -176,7 +176,7 @@ class OrderController extends Controller
 
         if ($bill->status != PartnerBillStatus::PENDING) {
             Log::debug('[cancelOrder] Bill status is not PENDING, skipping cancellation', ['status' => $bill->status]);
-            return;
+            return back()->with('error', 'Không thể hủy đơn hàng này.');
         }
 
         if ($bill->date && $bill->start_time) {
@@ -199,9 +199,7 @@ class OrderController extends Controller
 
                 if ($now->greaterThanOrEqualTo($cutoff)) {
                     Log::debug('[cancelOrder] Cancellation failed: within 8-hour cutoff');
-                    throw ValidationException::withMessages([
-                        'order_id' => 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.',
-                    ]);
+                    return back()->with('error', 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.');
                 }
             }
         }
