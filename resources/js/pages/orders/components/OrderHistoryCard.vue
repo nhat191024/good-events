@@ -26,7 +26,7 @@ const orders = withDefaults(defineProps<ClientOrderHistory & { selected?: boolea
         <div class="p-4">
             <div class="flex items-start gap-3">
                 <div class="h-10 w-10 rounded-full overflow-hidden bg-muted grid place-items-center">
-                    <img :src="getImg(orders.category?.image)" alt="org" class="h-full w-full object-cover" />
+                    <img :src="getImg(orders.category?.image)" alt="org" class="h-full w-full object-cover" loading="lazy" />
                 </div>
                 <div class="flex-1 min-w-0">
                     <h3 class="font-semibold text-card-foreground text-sm mb-1">{{ orders.category?.name ?? '' }}</h3>
