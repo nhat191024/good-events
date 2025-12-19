@@ -45,7 +45,7 @@ const iconsMotion = {
                         <div
                             class="w-16 h-16 md:w-15 md:h-15 bg-white ring-1 ring-gray-200 rounded-full flex items-center justify-center overflow-hidden mb-3">
                             <img :src="getImageForCategory(category.image ?? '')" :alt="category.name"
-                                class="w-12 h-12 object-cover rounded-full" />
+                                class="w-12 h-12 object-cover rounded-full" loading="lazy" />
                         </div>
                         <span
                             class="text-sm md:text-base text-gray-700 font-medium text-center group-hover:text-red-600 transition-colors">

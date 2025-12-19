@@ -62,7 +62,7 @@
             <div v-if="hasVideo" class="flex w-full items-center justify-center bg-white" :class="isVerticalVideo ? '' : 'relative aspect-video'">
                 <div ref="videoContainer" class="video-embed-container" :class="isVerticalVideo ? 'video-vertical' : 'video-horizontal'" />
             </div>
-            <img v-else-if="blog.thumbnail" :src="getImg(blog.thumbnail)" :alt="blog.title" class="h-full max-h-[420px] w-full object-cover" />
+            <img v-else-if="blog.thumbnail" :src="getImg(blog.thumbnail)" :alt="blog.title" class="h-full max-h-[420px] w-full object-cover" loading="lazy" />
             <div
                 v-else
                 class="flex h-full min-h-[280px] w-full items-center justify-center bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white"

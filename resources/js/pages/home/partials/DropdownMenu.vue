@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onBeforeUnmount, computed, watch, type Ref, type Component } from 'vue';
-import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, LogOut, FileCheck, PhoneCall, Info } from 'lucide-vue-next';
+import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, LogOut, FileCheck, PhoneCall, Info, Briefcase } from 'lucide-vue-next';
 import DropdownMenuItems, { MenuItem } from '../components/DropdownMenuItems.vue';
 import { getImg } from '@/pages/booking/helper';
 
@@ -95,6 +95,11 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
         route: () => route('about.index'),
         icon: Info,
     },
+    {
+        label: 'Đăng ký làm nhân sự',
+        route: () => route('partner.register.from-client.create'),
+        icon: Briefcase,
+    },
     // {
     //     label: 'Trang quản trị',
     //     route: () => '/admin/login',
@@ -126,6 +131,11 @@ const loggedOutMenuItems: MenuItem[] = [
         route: () => route('contact.index'),
         icon: PhoneCall,
     },
+    {
+        label: 'Đăng ký làm nhân sự',
+        route: () => route('partner.register'),
+        icon: Briefcase,
+    },
     // {
     //     label: 'Trang quản trị',
     //     route: () => '/admin/login',
@@ -142,7 +152,7 @@ const loggedOutMenuItems: MenuItem[] = [
             <img v-if="shouldRenderImage" :src="getImg(avatarUrl)" alt="Avatar"
                 class="absolute rounded-full inset-0 h-full w-full object-cover transition-opacity duration-200 z-0"
                 :class="avatarStatus === 'loaded' ? 'opacity-100' : 'opacity-0'" @load="handleAvatarLoad"
-                @error="handleAvatarError">
+                @error="handleAvatarError" loading="lazy" >
             <div v-if="showFallbackIcon" class="grid h-full w-full place-items-center">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"

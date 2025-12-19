@@ -14,7 +14,7 @@
             </Swiper>
 
             <div v-else class="hero-slide">
-                <img :src="getImg(headerBannerImg)" alt="Hero banner" class="hero-img" />
+                <img :src="getImg(headerBannerImg)" alt="Hero banner" class="hero-img" loading="lazy" />
                 <div class="hero-overlay"></div>
             </div>
 

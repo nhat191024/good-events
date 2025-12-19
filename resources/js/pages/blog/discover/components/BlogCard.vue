@@ -15,6 +15,7 @@
                 :src="getImg(blog.thumbnail)"
                 :alt="blog.title"
                 class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                loading="lazy"
             />
             <div
                 v-else

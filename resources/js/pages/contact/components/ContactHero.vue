@@ -39,7 +39,7 @@
                         <!-- Zalo Group Link -->
                         <div class="flex items-start gap-4">
                             <div class="bg-primary/10 rounded-full p-3">
-                                <img class="h-6 w-6 text-primary" src="/images/social/zalo.png" alt="Zalo Icon">
+                                <img class="h-6 w-6 text-primary" src="/images/social/zalo.png" alt="Zalo Icon" loading="lazy">
                             </div>
                             <a class="group transition-colors duration-200 hover:text-primary"
                                 href="https://zalo.me/g/mudhks623" target="_blank" rel="noopener noreferrer">
@@ -55,7 +55,7 @@
                         <!-- Facebook Link -->
                         <div class="flex items-start gap-4">
                             <div class="bg-primary/10 rounded-full p-3">
-                                <img class="h-6 w-6 text-primary" src="/images/social/facebook.png" alt="Facebook Icon">
+                                <img class="h-6 w-6 text-primary" src="/images/social/facebook.png" alt="Facebook Icon" loading="lazy">
                             </div>
                             <a class="group transition-colors duration-200 hover:text-primary"
                                 href="https://www.facebook.com/share/16WPcoU7x7/?mibextid=wwXIfr" target="_blank"
@@ -72,7 +72,7 @@
                         <!-- Facebook Group Link -->
                         <div class="flex items-start gap-4">
                             <div class="bg-primary/10 rounded-full p-3">
-                                <img class="h-6 w-6 text-primary" src="/images/social/facebook.png" alt="Facebook Icon">
+                                <img class="h-6 w-6 text-primary" src="/images/social/facebook.png" alt="Facebook Icon" loading="lazy">
                             </div>
                             <a class="group transition-colors duration-200 hover:text-primary"
                                 href="https://www.facebook.com/share/g/1D9PCXgbbq/?mibextid=wwXIfr" target="_blank"
@@ -89,7 +89,7 @@
                         <!-- YouTube Link -->
                         <div class="flex items-start gap-4">
                             <div class="bg-primary/10 rounded-full p-3">
-                                <img class="h-6 w-6 text-primary" src="/images/social/youtube.png" alt="YouTube Icon">
+                                <img class="h-6 w-6 text-primary" src="/images/social/youtube.png" alt="YouTube Icon" loading="lazy">
                             </div>
                             <a class="group transition-colors duration-200 hover:text-primary"
                                 href="https://youtube.com/@sukientot?si=00L9WnYoZyxfuPDb" target="_blank"
@@ -106,7 +106,7 @@
                         <!-- TikTok Link -->
                         <div class="flex items-start gap-4">
                             <div class="bg-primary/10 rounded-full p-3">
-                                <img class="h-6 w-6 text-primary" src="/images/social/tiktok.png" alt="TikTok Icon">
+                                <img class="h-6 w-6 text-primary" src="/images/social/tiktok.png" alt="TikTok Icon" loading="lazy">
                             </div>
                             <a class="group transition-colors duration-200 hover:text-primary"
                                 href="https://www.tiktok.com/@sukien.com?_r=1&_t=ZS-92A2PZ54gxJ" target="_blank"

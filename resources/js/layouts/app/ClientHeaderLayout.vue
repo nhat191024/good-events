@@ -4,6 +4,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import Loading from '@/components/Loading.vue';
 import Footer from '@/pages/home/partials/Footer.vue';
 import Header from '@/pages/home/partials/Header.vue';
+import Toast from '@/components/Toast.vue';
 import type { BreadcrumbItemType } from '@/types';
 import { onMounted } from 'vue';
 
@@ -43,5 +44,6 @@ onMounted(() => {
 
         <ConfirmModal />
         <Loading />
+        <Toast />
     </main>
 </template>

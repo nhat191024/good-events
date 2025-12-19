@@ -69,7 +69,7 @@ import { getImg } from '../helper';
         <div class="overflow-hidden flex items-center justify-center" :class="[shapeClass, innerBgClass]"
             :style="innerStyle">
             <img v-if="src && !hasError" @error.once="onError" :src="getImg(src)" :alt="alt || 'media'" class="w-full h-full select-none pointer-events-none"
-                :class="[fitClass, shapeClass]" draggable="false" />
+                :class="[fitClass, shapeClass]" draggable="false" loading="lazy" />
             <div v-else class="flex items-center justify-center w-full h-full">
                 <slot />
             </div>

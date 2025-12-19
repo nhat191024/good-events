@@ -165,9 +165,15 @@ class OrderController extends Controller
     public function cancelOrder(CancelOrderRequest $request)
     {
         $bill_id = $request->input('order_id');
-        $bill = PartnerBill::findOrFail($bill_id);
+        Log::debug('[cancelOrder] Request to cancel order', ['bill_id' => $bill_id]);
 
-        if ($bill->status != PartnerBillStatus::PENDING) return;
+        $bill = PartnerBill::findOrFail($bill_id);
+        Log::debug('[cancelOrder] Bill found', ['status' => $bill->status]);
+
+        if ($bill->status != PartnerBillStatus::PENDING) {
+            Log::debug('[cancelOrder] Bill status is not PENDING, skipping cancellation', ['status' => $bill->status]);
+            return back()->with('error', 'Không thể hủy đơn hàng này.');
+        }
 
         if ($bill->date && $bill->start_time) {
             $tz = config('app.timezone') ?: 'UTC';
@@ -176,24 +182,28 @@ class OrderController extends Controller
                 $startDate = $bill->date->format('Y-m-d');
                 $startTime = $bill->start_time->format('H:i');
                 $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $startDate . ' ' . $startTime, $tz);
+                Log::debug('[cancelOrder] Calculated start date time', ['startDateTime' => $startDateTime->toDateTimeString()]);
             } catch (\Throwable $exception) {
+                Log::debug('[cancelOrder] Failed to parse start date time', ['error' => $exception->getMessage()]);
                 $startDateTime = null;
             }
 
             if ($startDateTime) {
                 $cutoff = $startDateTime->copy()->subHours(8);
                 $now = Carbon::now($tz);
+                Log::debug('[cancelOrder] Checking cutoff time', ['cutoff' => $cutoff->toDateTimeString(), 'now' => $now->toDateTimeString()]);
 
                 if ($now->greaterThanOrEqualTo($cutoff)) {
-                    throw ValidationException::withMessages([
-                        'order_id' => 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.',
-                    ]);
+                    Log::debug('[cancelOrder] Cancellation failed: within 8-hour cutoff');
+                    return back()->with('error', 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.');
                 }
             }
         }
 
         $bill->status = PartnerBillStatus::CANCELLED;
         $bill->save();
+
+        return back()->with('success', 'Đã hủy đơn hàng thành công.');
     }
 
     public function confirmChoosePartner(ConfirmPartnerRequest $request)
