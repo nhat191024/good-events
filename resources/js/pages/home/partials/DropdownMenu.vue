@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, onBeforeUnmount, computed, watch, type Ref, type Component } from 'vue';
-import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, LogOut, FileCheck, PhoneCall, Info } from 'lucide-vue-next';
+import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, LogOut, FileCheck, PhoneCall, Info, Briefcase } from 'lucide-vue-next';
 import DropdownMenuItems, { MenuItem } from '../components/DropdownMenuItems.vue';
 import { getImg } from '@/pages/booking/helper';
 
@@ -94,6 +94,11 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
         label: 'Về chúng tôi',
         route: () => route('about.index'),
         icon: Info,
+    },
+    {
+        label: 'Đăng ký làm nhân sự',
+        route: () => route('partner.register.create'),
+        icon: Briefcase,
     },
     // {
     //     label: 'Trang quản trị',
