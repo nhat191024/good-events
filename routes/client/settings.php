@@ -44,7 +44,7 @@ Route::middleware('auth')->group(callback: function () {
             // })->name('appearance');
 
 
-            Route::prefix("dang-ky-nhan-su")->name('partner.register.')->group(
+            Route::prefix("dang-ky-nhan-su")->name('partner.register.from-client.')->group(
                 function () {
                     Route::get('/', [RegisteredUserController::class, 'createPartnerFromClient'])->name('create');
                     Route::post('/', [RegisteredUserController::class, 'makePartner'])->name('store');
