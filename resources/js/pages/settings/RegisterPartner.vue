@@ -96,8 +96,9 @@ function submit() {
         form.setError('ward_id', 'hãy chọn phường/xã');
         return;
     }
+    console.log('submitting to ', route('partner.register.from-client.store'));
 
-    form.post(route('partner.register.store'), {
+    form.post(route('partner.register.from-client.store'), {
         preserveScroll: true,
         onSuccess: () => {
             // Redirect handled by backend/Inertia location
@@ -108,7 +109,7 @@ function submit() {
 
 <template>
     <ClientHeaderLayout :show-footer="false">
-        <AppLayout :breadcrumbs="[{ title: 'Đăng ký làm nhân sự', href: route('partner.register.create') }]">
+        <AppLayout :breadcrumbs="[{ title: 'Đăng ký làm nhân sự', href: route('partner.register.from-client.create') }]">
 
             <Head title="Đăng ký làm nhân sự" />
 
@@ -124,12 +125,17 @@ function submit() {
                             class="flex flex-col items-center justify-center py-10 space-y-6 text-center">
                             <h2 class="text-xl font-semibold text-neutral-800">Bạn đã là đối tác</h2>
                             <p class="max-w-md text-neutral-500">
-                                Tài khoản của bạn đã được đăng ký vai trò nhân sự. Bạn có thể truy cập trang quản trị
-                                thông tin nhân sự để cập nhật hồ sơ.
+                                Tài khoản của bạn đã được đăng ký vai trò nhân sự. Bạn có thể truy cập trang nhân sự
+                                để cập nhật hồ sơ.
                             </p>
-                            <a :href="props.partnerDashboardUrl"
+                            <!-- <a :href="props.partnerDashboardUrl"
                                 class="inline-flex items-center justify-center px-8 py-2 text-sm font-bold text-white transition-colors rounded-md bg-primary hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
-                                Truy cập trang quản trị
+                                Truy cập trang nhân sự
+                            </a> -->
+                            <a :href="props.partnerDashboardUrl">
+                                <Button :variant="'default'" size="lg" class="px-8 font-bold">
+                                    Truy cập trang nhân sự
+                                </Button>
                             </a>
                         </div>
 
@@ -142,7 +148,7 @@ function submit() {
                                 Khi trở thành nhân sự, bạn có thể nhận các công việc từ hệ thống và gia tăng thu nhập.
                                 Vui lòng đảm bảo bạn có đầy đủ giấy tờ tùy thân hợp lệ.
                             </p>
-                            <Button @click="showForm = true" size="lg" class="px-8 font-bold text-white">
+                            <Button :variant="'outline'" @click="showForm = true" size="lg" class="px-8 font-bold">
                                 Đăng ký ngay
                             </Button>
                         </div>
