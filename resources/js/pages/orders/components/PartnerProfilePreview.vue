@@ -8,7 +8,8 @@ import PartnerReviewsCard from '@/pages/profile/partner/components/PartnerReview
 import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesCard.vue'
 import axios from 'axios'
 import { getImg } from '@/pages/booking/helper'
-import { X } from 'lucide-vue-next'
+import { X, Flag } from 'lucide-vue-next'
+import ReportModal from '@/components/ReportModal.vue'
 
 type UserInfo = {
     id: number; name: string; avatar_url: string; location: string | null;
@@ -32,6 +33,7 @@ const props = defineProps<{
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
+const isReportModalOpen = ref(false)
 
 const data = ref<Payload | null>(null)
 const status = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
@@ -106,6 +108,15 @@ const user = computed(() => data.value?.user)
 
                         <template v-else-if="status === 'success' && data">
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                <div class="md:col-span-12 space-y-4">
+                                    <button
+                                        @click="isReportModalOpen = true"
+                                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
+                                    >
+                                        <Flag class="h-4 w-4" />
+                                        Báo cáo người dùng này
+                                    </button>
+                                </div>
                                 <!-- sidebar -->
                                 <div class="md:col-span-4 space-y-4">
                                     <PartnerContactCard :contact="data.contact" />
@@ -128,4 +139,6 @@ const user = computed(() => data.value?.user)
             </div>
         </div>
     </div>
+
+    <ReportModal v-model:open="isReportModalOpen" :user-id="user?.id" />
 </template>
