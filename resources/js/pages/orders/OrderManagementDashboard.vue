@@ -562,9 +562,14 @@ function submitRating(payload: { rating: number; comment: string }) {
                     ; (selectedOrder.value as any).user_comment = payload.comment
             }
             showRatingDialog.value = false
+            showToast('Đã gửi đánh giá của bạn thành công!')
         },
         onError: (e) => {
             console.error('[submit rating] lỗi', e)
+            showToast({
+                message: 'Gửi đánh giá không thành công. Vui lòng kiểm tra lại!',
+                type: 'error'
+            })
         },
         onBefore: () => {
             showLoading({ title: 'Đang tải lên đánh giá của bạn', message: 'Đợi xíu nhé' })
