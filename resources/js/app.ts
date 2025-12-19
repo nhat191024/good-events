@@ -48,18 +48,45 @@ const appName =
     'Laravel';
 
 
+// ... existing imports
+import { startPageLoading, finishPageLoading, setPageProgress, isPageLoadingStarted, resetPageLoading } from './composables/usePageLoading';
+import LoadingPopup from './components/LoadingPopup.vue';
+import { router } from '@inertiajs/vue3';
+
+// ... existing code
+
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
+        createApp({ render: () => h('div', [h(App, props), h(LoadingPopup)]) })
             .use(plugin)
             .use(ZiggyVue)
             .mount(el);
     },
-    progress: {
-        color: '#4B5563',
-    },
+    progress: false, // Disable default Inertia progress
+});
+
+// Setup Inertia router events for loading state
+router.on('start', () => {
+    startPageLoading();
+});
+
+router.on('progress', (event) => {
+    if (isPageLoadingStarted() && event.detail.progress.percentage) {
+        setPageProgress(event.detail.progress.percentage);
+    }
+});
+
+router.on('finish', (event) => {
+    finishPageLoading();
+
+    // Handle cancelled/interrupted visits
+    if (event.detail.visit.interrupted) {
+        resetPageLoading();
+    } else if (event.detail.visit.cancelled) {
+        finishPageLoading();
+    }
 });
 
 // This will set light / dark mode on page load...
