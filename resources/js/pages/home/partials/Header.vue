@@ -167,7 +167,7 @@ onUnmounted(() => {
     <header :class="[
         backgroundClassNames || '',
         'fixed top-0 left-0 w-full z-50 transition-all duration-300',
-        isFloating ? 'shadow-md bg-white/30 backdrop-blur-md' : backgroundClassNames + ' backdrop-blur-md'
+        isFloating ? 'shadow-md bg-white/70 backdrop-blur-md' : backgroundClassNames + ' backdrop-blur-md'
     ]">
         <div class="md:px-1 lg:px-2 mx-auto">
             <div class="flex items-center justify-between h-16 px-0 px-1 gap-1">
