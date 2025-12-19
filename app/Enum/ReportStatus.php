@@ -11,9 +11,9 @@ enum ReportStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::PENDING => __('report.status.pending'),
-            self::REVIEWED => __('report.status.reviewed'),
-            self::RESOLVED => __('report.status.resolved'),
+            self::PENDING => __('admin/report.status.pending'),
+            self::REVIEWED => __('admin/report.status.reviewed'),
+            self::RESOLVED => __('admin/report.status.resolved'),
         };
     }
 }
