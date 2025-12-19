@@ -185,6 +185,11 @@ class ChatController extends Controller
                 'latest_message' => $thread->latestMessage ? [
                     'body' => $thread->latestMessage->body,
                     'created_at' => $thread->latestMessage->created_at->toIso8601String(),
+                    'user_id' => $thread->latestMessage->user_id,
+                    'user' => [
+                        'id' => $thread->latestMessage->user->id,
+                        'name' => $thread->latestMessage->user->name,
+                    ],
                 ] : null,
                 'bill' => $thread->bill ? [
                     'id' => $thread->bill->id,
