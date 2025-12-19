@@ -4,12 +4,8 @@
 
     <ClientHeaderLayout>
         <div class="bg-primary-50 w-full">
-            <motion.section
-                :initial="sectionMotion.initial"
-                :while-in-view="sectionMotion.visible"
-                :viewport="sectionMotion.viewport"
-                :transition="getSectionTransition(0)"
-            >
+            <motion.section :initial="sectionMotion.initial" :while-in-view="sectionMotion.visible"
+                :viewport="sectionMotion.viewport" :transition="getSectionTransition(0)">
                 <ContactHero :hotline="settings.contact_hotline" />
             </motion.section>
             <motion.section :initial="sectionMotion.initial" :while-in-view="sectionMotion.visible"
@@ -85,6 +81,7 @@ const contactChannels = computed(() => [
         description: 'Kết nối để trở thành nhà cung cấp dịch vụ chính thức của Sukientot.',
         detail: settings.value.contact_email ?? 'partners@sukientot.vn',
         hint: 'Chia sẻ hồ sơ năng lực để được duyệt nhanh.',
+        action: { label: 'Đăng ký ngay', route: route('partner.register.create') },
     },
     {
         title: 'Chăm sóc khách hàng',
