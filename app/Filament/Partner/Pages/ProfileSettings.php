@@ -33,6 +33,8 @@ class ProfileSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
+    protected ?Location $cachedLocation = null;
+
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-user-circle';
     protected string $view = 'filament.partner.pages.profile-settings';
     protected static ?int $navigationSort = 7;
@@ -56,8 +58,8 @@ class ProfileSettings extends Page implements HasForms
 
         $cityId = null;
         if ($partnerProfile?->location_id) {
-            $location = Location::find($partnerProfile->location_id);
-            $cityId = $location?->parent_id;
+            $this->cachedLocation = Location::find($partnerProfile->location_id);
+            $cityId = $this->cachedLocation?->parent_id;
         }
 
         $this->data = [
@@ -190,7 +192,9 @@ class ProfileSettings extends Page implements HasForms
                                     )
                                     ->getOptionLabelUsing(
                                         fn($value): ?string =>
-                                        Location::find($value)?->name
+                                        ($this->cachedLocation?->id == $value)
+                                            ? $this->cachedLocation->name
+                                            : Location::find($value)?->name
                                     )
                                     ->disabled(fn(Get $get): bool => !$get('city_id'))
                                     ->required(),
