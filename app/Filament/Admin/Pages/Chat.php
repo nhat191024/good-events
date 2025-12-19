@@ -14,6 +14,7 @@ use App\Models\Thread;
 
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Filament\Notifications\Notification;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
@@ -535,5 +536,51 @@ class Chat extends Page
         $threads->prepend($thread);
 
         $this->threads = $threads->values()->all();
+    }
+
+    /**
+     * Soft delete the chat
+     */
+    public function deleteChat()
+    {
+        if ($this->selectedThreadId == null) return;
+
+        $thread = Thread::find($this->selectedThreadId);
+        if ($thread) {
+            $thread->delete();
+
+            Notification::make()
+                ->title('Đã xóa đoạn chat')
+                ->success()
+                ->send();
+
+            $this->selectedThreadId = null;
+            $this->selectedThread = null;
+            $this->messages = [];
+            $this->loadThreads();
+        }
+    }
+
+    /**
+     * Restore the soft deleted chat
+     */
+    public function restoreChat()
+    {
+        if ($this->selectedThreadId == null) return;
+
+        $thread = Thread::withTrashed()->find($this->selectedThreadId);
+        if ($thread && $thread->trashed()) {
+            $thread->restore();
+
+            Notification::make()
+                ->title('Đã khôi phục đoạn chat')
+                ->success()
+                ->send();
+
+            $this->selectedThreadId = null;
+            $this->selectedThread = null;
+            $this->messages = [];
+            $this->loadThreads();
+        }
     }
 }
