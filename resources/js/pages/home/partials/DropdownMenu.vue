@@ -97,7 +97,7 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
     },
     {
         label: 'Đăng ký làm nhân sự',
-        route: () => route('partner.register.create'),
+        route: () => route('partner.register.from-client.create'),
         icon: Briefcase,
     },
     // {
@@ -130,6 +130,11 @@ const loggedOutMenuItems: MenuItem[] = [
         label: 'Liên hệ',
         route: () => route('contact.index'),
         icon: PhoneCall,
+    },
+    {
+        label: 'Đăng ký làm nhân sự',
+        route: () => route('partner.register'),
+        icon: Briefcase,
     },
     // {
     //     label: 'Trang quản trị',
