@@ -167,37 +167,21 @@ class RegisteredUserController extends Controller
     {
         $user = $request->user();
 
-        // Check if user already has partner role to avoid duplicates/errors?
-        // Assuming the UI hides the link if they are already a partner, but good to be safe.
-        // However, user just asked for the logic. I'll stick to the core requirement.
-
         $validated = $request->validate([
-            'identity_card_number' => 'required|string|max:50|unique:partner_profiles,identity_card_number',
+            'identity_card_number' => 'required|string|min:12|max:50|unique:partner_profiles,identity_card_number',
             'ward_id' => 'required|integer|exists:locations,id',
         ], [
+            'identity_card_number.required' => 'Vui lòng nhập số CMND/CCCD',
+            'identity_card_number.string' => 'Số CMND/CCCD không hợp lệ',
+            'identity_card_number.min' => 'Số CMND/CCCD phải có ít nhất :min ký tự',
+            'identity_card_number.max' => 'Số CMND/CCCD không được vượt quá :max ký tự',
+            'identity_card_number.unique' => 'Số CMND/CCCD đã được sử dụng',
             'ward_id.required' => 'Vui lòng chọn phường/xã',
+            'ward_id.integer' => 'Phường/xã không hợp lệ',
             'ward_id.exists' => 'Phường/xã không hợp lệ',
         ]);
 
         $ward = Location::findOrFail($validated['ward_id']);
-
-        $user->assignRole(Role::PARTNER);
-
-        // Update model_type in model_has_roles to Partner
-        // existing storePartner logic updates where model_type is User::class.
-        // assignRole adds a row with User::class.
-        // We want to update ONLY the new row, or just generally ensure the Partner role row has the right model_type.
-        // Since we just assigned it, it should be there.
-
-        // To be safe and target correctly:
-        // We can look for the role ID of PARTNER.
-        $partnerRole = \Spatie\Permission\Models\Role::findByName(Role::PARTNER->value); // Assuming Role::PARTNER is the name string
-
-        DB::table('model_has_roles')
-            ->where('model_id', $user->id)
-            ->where('role_id', $partnerRole->id)
-            ->where('model_type', User::class)
-            ->update(['model_type' => Partner::class]);
 
         PartnerProfile::create([
             'user_id' => $user->id,
@@ -205,6 +189,18 @@ class RegisteredUserController extends Controller
             'identity_card_number' => $validated['identity_card_number'],
             'location_id' => $ward->id,
         ]);
+
+        $roleId = \Spatie\Permission\Models\Role::where('name', Role::PARTNER->value)->value('id');
+
+        $user->removeRole(Role::CLIENT);
+
+        DB::table('model_has_roles')->insert([
+            'role_id' => $roleId,
+            'model_type' => 'App\Models\Partner',
+            'model_id' => $user->id,
+        ]);
+
+        $user->save();
 
         return Inertia::location(route('filament.partner.pages.profile-settings'));
     }
