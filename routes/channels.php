@@ -14,6 +14,14 @@ if (
         return (int) $user->id === (int) $id;
     });
 
+    Broadcast::channel('App.Models.Partner.{id}', function ($user, $id) {
+        return (int) $user->id === (int) $id;
+    });
+
+    Broadcast::channel('App.Models.Customer.{id}', function ($user, $id) {
+        return (int) $user->id === (int) $id;
+    });
+
     Broadcast::channel('category.{categoryId}', function ($user, $categoryId) {
         return $user->partnerServices()->where('id', $categoryId)->exists();
     });
