@@ -21,7 +21,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Đăng ký làm nhân sự',
-        href: route('partner.register.create'),
+        href: route('partner.register.from-client.create'),
         icon: Briefcase,
     },
 ];
