@@ -104,7 +104,7 @@ async function loadNotifications(initial = false) {
 
 function startPolling() {
     if (pollTimer) window.clearInterval(pollTimer)
-    pollTimer = window.setInterval(() => loadNotifications(false), 60_000) as unknown as number
+    pollTimer = window.setInterval(() => loadNotifications(false), 90_000) as unknown as number
 }
 
 function reloadNotifications() {
@@ -176,7 +176,7 @@ onUnmounted(() => {
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center md:gap-2 gap-1">
                         <img :src="getImg(`${settings.app_logo}`)" alt="Sukientot"
-                            class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
+                            class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" loading="lazy" />
                         <span
                             class="font-bold tracking-tight text-primary-700 uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
                     </Link>
