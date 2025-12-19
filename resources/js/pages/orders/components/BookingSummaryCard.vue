@@ -198,7 +198,7 @@ watch(() => form.voucher_input, (newVal) => {
             <div class="text-center mb-3 md:mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-3">
                     <img :src="getImg(props.order?.category.image)" alt="Traditional Vietnamese scholar"
-                        class="w-[95%] h-full object-cover rounded-full border" />
+                        class="w-[95%] h-full object-cover rounded-full border" loading="lazy" />
                 </div>
                 <h3 class="text-xl font-bold text-foreground mb-1" v-text="getCurrentTitle"></h3>
                 <div v-if="props.order?.status"
