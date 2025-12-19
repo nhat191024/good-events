@@ -29,6 +29,7 @@ const props = defineProps<{
             :src="getImg(media.url)"
             :alt="service.name ?? 'Service image'"
             class="w-full aspect-square object-cover rounded-lg border border-gray-200"
+            loading="lazy"
           />
         </div>
         <p v-else class="text-sm text-muted-foreground">Chưa có hình ảnh nào.</p>
