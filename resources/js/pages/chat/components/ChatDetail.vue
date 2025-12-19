@@ -154,7 +154,9 @@ function onKeydown(e: KeyboardEvent) {
 
 function scrollToBottom() {
     nextTick(() => {
-        endRef.value?.scrollIntoView({ behavior: 'smooth' });
+        if (messagesContainer.value) {
+            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+        }
     });
 }
 
