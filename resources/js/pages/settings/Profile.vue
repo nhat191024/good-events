@@ -329,7 +329,7 @@ const hasPendingAvatar = computed(() => Boolean(form.avatar));
                                             {{ translations.form.unverified_notice }}
                                             <Link :href="route('verification.send')" method="post" as="button"
                                                 class="ml-1 font-medium text-amber-900 underline decoration-dotted underline-offset-4 transition hover:text-amber-700">
-                                            {{ translations.form.resend_verification }}
+                                                {{ translations.form.resend_verification }}
                                             </Link>
                                         </p>
 
@@ -337,6 +337,26 @@ const hasPendingAvatar = computed(() => Boolean(form.avatar));
                                             class="mt-2 font-medium text-amber-700">
                                             {{ translations.form.verification_sent }}
                                         </p>
+                                    </div>
+                                </section>
+
+                                <section class="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-800">
+                                    <div
+                                        class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100">
+                                        <div class="space-y-1">
+                                            <h3 class="text-base font-semibold text-indigo-900">
+                                                Đăng ký làm nhân sự
+                                            </h3>
+                                            <p class="text-sm text-indigo-600/80">
+                                                Trở thành đối tác của chúng tôi để gia tăng thu nhập
+                                            </p>
+                                        </div>
+                                        <Button as-child variant="default"
+                                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md shadow-indigo-200">
+                                            <Link :href="route('partner.register.create')">
+                                                Đăng ký ngay
+                                            </Link>
+                                        </Button>
                                     </div>
                                 </section>
                             </div>
