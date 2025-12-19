@@ -5,9 +5,11 @@ import PartnerServiceCard from './components/PartnerServiceCard.vue'
 import PartnerIntroCard from './components/PartnerIntroCard.vue'
 import PartnerReviewsCard from './components/PartnerReviewsCard.vue'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, usePage, Link } from '@inertiajs/vue3'
 import PartnerImagesCard from './components/PartnerImagesCard.vue'
 import { getImg } from '@/pages/booking/helper'
+import ReportModal from '@/components/ReportModal.vue'
+import { ref, computed } from 'vue'
 
 interface UserInfo {
     id: number; name: string; avatar_url: string; location: string | null;
@@ -28,10 +30,16 @@ interface Props {
     intro: string | null;
 }
 const props = defineProps<Props>();
+const page = usePage()
+const isReportModalOpen = ref(false)
+const isOwnProfile = computed(() => {
+    return page.props.auth?.user?.id === props.user.id
+})
 </script>
 
 <template>
-    <Head :title="'Hồ sơ đối tác - '+ user.name"/>
+
+    <Head :title="'Hồ sơ đối tác - ' + user.name" />
     <ClientHeaderLayout>
         <div class="min-h-screen w-full bg-gray-50">
             <!-- Banner (match client profile spacing) -->
@@ -67,8 +75,7 @@ const props = defineProps<Props>();
                         <div class="flex-1 text-white">
                             <div class="flex items-center gap-2 mb-1">
                                 <h1 class="text-2xl md:text-3xl font-bold">{{ user.name }}</h1>
-                                <span
-                                    v-if="user.is_verified"
+                                <span v-if="user.is_verified"
                                     class="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white text-xs rounded border border-white/30">
                                     Đã xác minh
                                 </span>
@@ -139,6 +146,13 @@ const props = defineProps<Props>();
                                         d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                                 </svg>
                             </button>
+                            <button title="Báo cáo người dùng" @click="isReportModalOpen = true" v-if="!isOwnProfile"
+                                class="p-2 bg-white/10 backdrop-blur-sm hover:bg-red-500/80 rounded-lg border border-white/30 text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -167,4 +181,5 @@ const props = defineProps<Props>();
             </div>
         </div>
     </ClientHeaderLayout>
+    <ReportModal v-model:open="isReportModalOpen" :user-id="user.id" />
 </template>
