@@ -22,11 +22,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\PermissionRegistrar;
+use Symfony\Component\HttpKernel\Log\Logger;
 
 class RegisteredUserController extends Controller
 {
@@ -165,7 +167,7 @@ class RegisteredUserController extends Controller
      */
     public function makePartner(Request $request)
     {
-        $user = $request->user();
+        $authUser = $request->user();
 
         $validated = $request->validate([
             'identity_card_number' => 'required|string|min:12|max:50|unique:partner_profiles,identity_card_number',
@@ -183,25 +185,35 @@ class RegisteredUserController extends Controller
 
         $ward = Location::findOrFail($validated['ward_id']);
 
-        PartnerProfile::create([
-            'user_id' => $user->id,
-            'partner_name' => $user->name,
-            'identity_card_number' => $validated['identity_card_number'],
-            'location_id' => $ward->id,
-        ]);
+        try {
+            DB::beginTransaction();
+            PartnerProfile::create([
+                'user_id' => $authUser->id,
+                'partner_name' => $authUser->name,
+                'identity_card_number' => $validated['identity_card_number'],
+                'location_id' => $ward->id,
+            ]);
 
-        $roleId = \Spatie\Permission\Models\Role::where('name', Role::PARTNER->value)->value('id');
+            // dọn role cũ theo đúng class đã từng được dùng để gán role
+            $asCustomer = Customer::find($authUser->id);
 
-        $user->removeRole(Role::CLIENT);
+            $authUser->syncRoles([]);
+            if ($asCustomer) $asCustomer->syncRoles([]); // xóa hết roles dưới model_type=Customer
 
-        DB::table('model_has_roles')->insert([
-            'role_id' => $roleId,
-            'model_type' => 'App\Models\Partner',
-            'model_id' => $user->id,
-        ]);
+            // gán role Partner dưới model_type=Partner
+            $asPartner = Partner::findOrFail($authUser->id);
+            $asPartner->assignRole(\App\Enum\Role::PARTNER->value);
 
-        $user->save();
+            DB::commit();
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        return Inertia::location(route('filament.partner.pages.profile-settings'));
+            // return Inertia::location(route('filament.partner.pages.profile-settings'));
+            return back()->with('success', 'Đã đăng ký thành công vai trò nhân sự, hãy bấm "Truy cập trang nhân sự" để xem ngay.');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Error upgrading user to partner: ' . $th->getMessage());
+            return back()->with('error', 'Đã có lỗi xảy ra. Vui lòng thử lại.');
+        }
+
     }
 }
