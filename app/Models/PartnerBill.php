@@ -22,15 +22,10 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-use App\Events\PartnerBillCreated;
-use App\Events\NewThreadCreated;
-use App\Events\PartnerBillStatusChanged;
-
 use App\Jobs\PartnerBillFirstJob;
 
 use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
-use Cmgmyr\Messenger\Models\Message;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -177,8 +172,6 @@ class PartnerBill extends Model implements HasMedia
                     PartnerBillStatus::EXPIRED => static::handleExpiredStatus($partnerBill),
                     default => null,
                 };
-
-                PartnerBillStatusChanged::dispatch($partnerBill);
             }
 
             // Clear widget caches when bill is updated
@@ -405,7 +398,7 @@ class PartnerBill extends Model implements HasMedia
         $mailService = new PartnerBillMailService();
         $mailService->sendOrderConfirmedNotification($partnerBill);
 
-        $partner = User::find($partnerBill->partner_id);
+        $partner = Partner::find($partnerBill->partner_id);
 
         if (!$partner) {
             Log::warning('Partner bill confirmed but partner record missing', [
@@ -429,9 +422,9 @@ class PartnerBill extends Model implements HasMedia
             ->actions([
                 Action::make('open')
                     ->label('Mở chat')
-                    ->url(route('chat.index', ['chat' => $partnerBill->thread_id])),
+                    ->url(route('filament.partner.pages.chat', ['chat' => $partnerBill->thread_id])),
             ])
-            ->sendToDatabase($partner, isEventDispatched: true);
+            ->sendToDatabase($partner,  true);
     }
 
     /**
@@ -452,9 +445,9 @@ class PartnerBill extends Model implements HasMedia
             ->actions([
                 Action::make('open')
                     ->label('Xem đơn')
-                    ->url(route('client-orders.dashboard', ['order' => $partnerBill->id])),
+                    ->url(route('filament.partner.resources.partner-bill-histories.index', ['order' => $partnerBill->id])),
             ])
-            ->sendToDatabase(User::find($partnerBill->client_id));
+            ->sendToDatabase(Partner::find($partnerBill->client_id), true);
     }
 
     //model helpers method
