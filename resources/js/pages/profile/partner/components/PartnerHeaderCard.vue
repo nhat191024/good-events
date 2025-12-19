@@ -9,7 +9,7 @@ const props = defineProps<{
 <template>
   <div class="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-4">
     <div class="flex items-center gap-4">
-      <img :src="getImg(user.avatar_url)" :alt="user.name" class="w-20 h-20 rounded-full object-cover ring-2 ring-white" />
+      <img :src="getImg(user.avatar_url)" :alt="user.name" class="w-20 h-20 rounded-full object-cover ring-2 ring-white" loading="lazy" />
       <div class="flex-1">
         <div class="flex items-center gap-2">
           <h1 class="text-xl font-semibold">{{ user.name }}</h1>
