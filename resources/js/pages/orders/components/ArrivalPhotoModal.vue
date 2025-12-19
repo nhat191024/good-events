@@ -9,6 +9,7 @@
         :src="thumbnailSrc"
         :alt="props.altText"
         class="w-12 h-12 rounded object-cover"
+        loading="lazy"
       />
       <div class="text-left">
         <p class="text-md font-semibold text-foreground">Ảnh đã đến nơi</p>
@@ -45,6 +46,7 @@
           :src="modalSrc"
           :alt="props.altText"
           class="w-full h-full object-contain"
+          loading="lazy"
         />
 
         <!-- Info Footer -->
