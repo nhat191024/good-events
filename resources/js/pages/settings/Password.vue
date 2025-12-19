@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { Form, Head, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import { Eye, EyeOff } from 'lucide-vue-next';
 
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,10 @@ const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
 
 const passwordInput = ref<HTMLInputElement | null>(null);
 const currentPasswordInput = ref<HTMLInputElement | null>(null);
+
+const showCurrentPassword = ref(false);
+const showNewPassword = ref(false);
+const showConfirmationPassword = ref(false);
 </script>
 
 <template>
@@ -67,25 +72,51 @@ const currentPasswordInput = ref<HTMLInputElement | null>(null);
                         class="space-y-6" v-slot="{ errors, processing, recentlySuccessful }">
                         <div class="grid gap-2">
                             <Label for="current_password">{{ translations.form.current.label }}</Label>
-                            <Input id="current_password" ref="currentPasswordInput" name="current_password"
-                                type="password" class="block w-full mt-1" autocomplete="current-password"
-                                :placeholder="translations.form.current.placeholder" />
+                            <div class="relative">
+                                <Input id="current_password" ref="currentPasswordInput" name="current_password"
+                                    :type="showCurrentPassword ? 'text' : 'password'" class="block w-full mt-1 pr-10"
+                                    autocomplete="current-password"
+                                    :placeholder="translations.form.current.placeholder" />
+                                <button type="button"
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                                    @click="showCurrentPassword = !showCurrentPassword">
+                                    <Eye v-if="!showCurrentPassword" class="h-4 w-4" />
+                                    <EyeOff v-else class="h-4 w-4" />
+                                </button>
+                            </div>
                             <InputError :message="errors.current_password" />
                         </div>
 
                         <div class="grid gap-2">
                             <Label for="password">{{ translations.form.new.label }}</Label>
-                            <Input id="password" ref="passwordInput" name="password" type="password"
-                                class="block w-full mt-1" autocomplete="new-password"
-                                :placeholder="translations.form.new.placeholder" />
+                            <div class="relative">
+                                <Input id="password" ref="passwordInput" name="password"
+                                    :type="showNewPassword ? 'text' : 'password'" class="block w-full mt-1 pr-10"
+                                    autocomplete="new-password" :placeholder="translations.form.new.placeholder" />
+                                <button type="button"
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                                    @click="showNewPassword = !showNewPassword">
+                                    <Eye v-if="!showNewPassword" class="h-4 w-4" />
+                                    <EyeOff v-else class="h-4 w-4" />
+                                </button>
+                            </div>
                             <InputError :message="errors.password" />
                         </div>
 
                         <div class="grid gap-2">
                             <Label for="password_confirmation">{{ translations.form.confirmation.label }}</Label>
-                            <Input id="password_confirmation" name="password_confirmation" type="password"
-                                class="block w-full mt-1" autocomplete="new-password"
-                                :placeholder="translations.form.confirmation.placeholder" />
+                            <div class="relative">
+                                <Input id="password_confirmation" name="password_confirmation"
+                                    :type="showConfirmationPassword ? 'text' : 'password'"
+                                    class="block w-full mt-1 pr-10" autocomplete="new-password"
+                                    :placeholder="translations.form.confirmation.placeholder" />
+                                <button type="button"
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                                    @click="showConfirmationPassword = !showConfirmationPassword">
+                                    <Eye v-if="!showConfirmationPassword" class="h-4 w-4" />
+                                    <EyeOff v-else class="h-4 w-4" />
+                                </button>
+                            </div>
                             <InputError :message="errors.password_confirmation" />
                         </div>
 
