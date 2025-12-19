@@ -5,6 +5,7 @@ import QuickStatsCard from './components/QuickStatsCard.vue'
 import IntroCard from './components/IntroCard.vue'
 import RecentOrdersCard from './components/RecentOrdersCard.vue'
 import RecentReviewsCard from './components/RecentReviewsCard.vue'
+import ReportModal from '@/components/ReportModal.vue'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
@@ -82,6 +83,7 @@ const introStats = computed(() => ({
 
 const menuOpen = ref(false)
 const menuWrapper = ref<HTMLDivElement | null>(null)
+const isReportModalOpen = ref(false)
 
 const toggleMenu = () => {
     if (!isOwnProfile.value) {
@@ -118,7 +120,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <Head :title="'Hồ sơ - '+ user.name"/>
+
+    <Head :title="'Hồ sơ - ' + user.name" />
     <ClientHeaderLayout>
         <div class="w-full min-h-screen bg-gray-50">
             <!-- Banner with gradient and user header -->
@@ -133,8 +136,8 @@ onBeforeUnmount(() => {
                         <div class="relative flex-shrink-0">
                             <div
                                 class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-                                <img v-if="user.avatar_url" :key="user.avatar_url" :src="getImg(user.avatar_url)" :alt="user.name"
-                                    class="w-full h-full object-cover" loading="lazy" />
+                                <img v-if="user.avatar_url" :key="user.avatar_url" :src="getImg(user.avatar_url)"
+                                    :alt="user.name" class="w-full h-full object-cover" loading="lazy" />
                                 <div v-else class="w-full h-full flex items-center justify-center bg-gray-200">
                                     <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400" fill="currentColor"
                                         viewBox="0 0 20 20">
@@ -155,8 +158,7 @@ onBeforeUnmount(() => {
                         <div class="flex-1 pt-2">
                             <div class="flex items-center gap-2 flex-wrap mb-2">
                                 <h1 class="text-2xl md:text-3xl font-bold text-white">{{ partnerDisplayName }}</h1>
-                                <span
-                                    v-if="isVerified"
+                                <span v-if="isVerified"
                                     class="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs rounded-md border border-white/30">
                                     Đã xác minh
                                 </span>
@@ -193,13 +195,9 @@ onBeforeUnmount(() => {
 
                         <!-- Menu button -->
                         <div v-if="isOwnProfile" class="relative flex-shrink-0" ref="menuWrapper">
-                            <button
-                                type="button"
-                                aria-haspopup="menu"
-                                :aria-expanded="menuOpen"
+                            <button type="button" aria-haspopup="menu" :aria-expanded="menuOpen"
                                 @click.stop="toggleMenu"
-                                class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-                            >
+                                class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-colors">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
@@ -212,15 +210,11 @@ onBeforeUnmount(() => {
                                 leave-active-class="transition ease-in duration-75"
                                 leave-from-class="transform opacity-100 scale-100"
                                 leave-to-class="transform opacity-0 scale-95">
-                                <div
-                                    v-if="menuOpen"
-                                    class="absolute right-0 mt-2 w-48 rounded-lg bg-white/95 shadow-lg ring-1 ring-black/10 backdrop-blur"
-                                >
-                                    <Link
-                                        :href="route('profile.edit')"
+                                <div v-if="menuOpen"
+                                    class="absolute right-0 mt-2 w-50 rounded-lg bg-white/95 shadow-lg ring-1 ring-black/10 backdrop-blur">
+                                    <Link :href="route('profile.edit')"
                                         class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors rounded-lg"
-                                        @click="menuOpen = false"
-                                    >
+                                        @click="menuOpen = false">
                                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -228,8 +222,29 @@ onBeforeUnmount(() => {
                                         </svg>
                                         Cài đặt hồ sơ
                                     </Link>
+                                    <button type="button"
+                                        class="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors rounded-lg"
+                                        @click="() => { menuOpen = false; isReportModalOpen = true }">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        Báo cáo người dùng
+                                    </button>
                                 </div>
                             </transition>
+                        </div>
+
+                        <!-- Report button for visitor -->
+                        <div v-else class="relative flex-shrink-0">
+                            <button type="button"
+                                class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                                @click="isReportModalOpen = true" title="Báo cáo người dùng">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -254,4 +269,5 @@ onBeforeUnmount(() => {
             </div>
         </div>
     </ClientHeaderLayout>
+    <ReportModal v-model:open="isReportModalOpen" :user-id="user.id" />
 </template>
