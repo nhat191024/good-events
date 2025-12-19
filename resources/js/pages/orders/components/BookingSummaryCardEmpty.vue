@@ -11,7 +11,7 @@ import { Star, CalendarDays, Clock, MapPin, Award } from 'lucide-vue-next';
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-3">
                     <img :src="getImg('')" alt="Traditional Vietnamese scholar"
-                        class="w-12 h-12 object-contain rounded-full" />
+                        class="w-12 h-12 object-contain rounded-full" loading="lazy" />
                 </div>
                 <h3 class="text-xl font-bold text-foreground mb-1">Xem chi tiết</h3>
                 <p class="text-sm text-muted-foreground">Hãy chọn một đơn bất kỳ để xem chi tiết
