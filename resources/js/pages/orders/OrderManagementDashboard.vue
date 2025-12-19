@@ -23,6 +23,7 @@ import {
 
 import { confirm } from '@/composables/useConfirm'
 import { hideLoading, showLoading } from '@/composables/useLoading'
+import { showToast } from '@/composables/useToast'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import { formatPrice } from '@/lib/helper'
 
@@ -354,7 +355,7 @@ function fetchDetails(id: number, reload = false) {
     })
 }
 
-function refreshDetails(order : ClientOrder | undefined) {
+function refreshDetails(order: ClientOrder | undefined) {
     if (!order?.id || activeTab.value !== 'current') {
         return
     } else {
@@ -492,11 +493,18 @@ async function handleCancelOrder() {
         onBefore: () => {
             showLoading({ title: 'Đang tải', message: 'Đợi xíu nhé' })
         },
-        onSuccess: () => {
+        onSuccess: (page) => {
             selectedOrder.value = null
             delete detailsMap.value[orderId]
             updateOrderQueryParam(null)
             refreshCurrentOrders()
+
+            const flash = page.props.flash as any
+            if (flash?.success) {
+                showToast(flash.success)
+            } else if (flash?.error) {
+                showToast({ message: flash.error, type: 'error' })
+            }
         },
         onFinish: () => {
             hideLoading(true)
