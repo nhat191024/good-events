@@ -32,8 +32,14 @@ export function showToast(opts: ToastOptions | string) {
     const toast: Toast = {
         id,
         type: 'success',
-        duration: 3000,
+        duration: 5000,
         ...options,
+    }
+
+    // prevent duplicates: if a toast with the same message and type is already visible, don't add another
+    const isDuplicate = state.toasts.some(t => t.message === toast.message && t.type === toast.type)
+    if (isDuplicate) {
+        return state.toasts.find(t => t.message === toast.message && t.type === toast.type)!.id
     }
 
     state.toasts.push(toast)
