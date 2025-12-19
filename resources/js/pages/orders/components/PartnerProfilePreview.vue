@@ -80,7 +80,7 @@ const user = computed(() => data.value?.user)
                     <div class="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white z-10">
                         <div class="flex items-center gap-3">
                             <img v-if="user?.avatar_url" :src="getImg(user!.avatar_url)" :alt="user!.name"
-                                class="w-10 h-10 rounded-full object-cover" />
+                                class="w-10 h-10 rounded-full object-cover" loading="lazy" />
                             <div>
                                 <div class="font-semibold">{{ user?.name ?? '—' }}</div>
                                 <div class="text-xs text-muted-foreground">
