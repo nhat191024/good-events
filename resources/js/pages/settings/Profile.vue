@@ -238,7 +238,7 @@ const hasPendingAvatar = computed(() => Boolean(form.avatar));
                                         <div
                                             class="relative h-28 w-28 overflow-hidden rounded-full border-4 border-white shadow-xl ring-1 ring-black/5">
                                             <img v-if="avatarPreview" :src="getImg(avatarPreview)"
-                                                :alt="user?.name ?? 'User avatar'" class="h-full w-full object-cover" />
+                                                :alt="user?.name ?? 'User avatar'" class="h-full w-full object-cover" loading="lazy" />
                                             <div v-else
                                                 class="flex h-full w-full items-center justify-center bg-neutral-200 text-2xl font-semibold text-neutral-500">
                                                 {{ userInitials }}
