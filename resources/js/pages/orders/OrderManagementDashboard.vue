@@ -642,7 +642,7 @@ onBeforeUnmount(() => {
 
     <Head title="Đơn hàng của tôi" />
     <ClientHeaderLayout :show-footer="false">
-        <div class="flex h-[95vh] bg-background w-full overflow-visible">
+        <div class="flex h-[calc(100vh-4rem)] bg-background w-full overflow-visible">
             <div :class="[showMobileDetail ? 'hidden md:block' : 'block', 'w-full md:w-auto']">
                 <Sidebar :orderList="currentOrders" :history-loading="loadingForSidebar"
                     :order-loading="loadingForSidebar" :orderHistory="historyItems"
