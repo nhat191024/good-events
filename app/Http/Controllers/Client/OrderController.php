@@ -19,10 +19,6 @@ use App\Http\Resources\OrderHistory\PartnerBillDetailResource;
 use App\Http\Resources\OrderHistory\PartnerBillHistoryResource;
 use App\Http\Resources\OrderHistory\PartnerBillResource;
 
-use App\Notifications\OrderCancelled;
-use App\Notifications\OrderStatusChanged;
-use App\Notifications\PartnerAcceptedOrder;
-
 use App\Models\Voucher;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
@@ -198,13 +194,6 @@ class OrderController extends Controller
 
         $bill->status = PartnerBillStatus::CANCELLED;
         $bill->save();
-
-        $client = $bill->client;
-        OrderCancelled::send($bill, $client);
-
-        if ($bill->partner) {
-            OrderCancelled::send($bill, $bill->partner);
-        }
     }
 
     public function confirmChoosePartner(ConfirmPartnerRequest $request)
@@ -241,12 +230,6 @@ class OrderController extends Controller
 
             $partnerBillDetail->status = PartnerBillDetailStatus::CLOSED;
             $partnerBillDetail->save();
-
-            $client = $bill->client;
-            PartnerAcceptedOrder::send($bill, $client);
-
-            $partner = $bill->partner;
-            OrderStatusChanged::send($bill, $partner, PartnerBillStatus::CONFIRMED);
         } catch (\Throwable $th) {
             Log::error('error in confirming choose partner', context: ['exception' => $th]);
         }
