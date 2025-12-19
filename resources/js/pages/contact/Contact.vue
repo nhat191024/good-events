@@ -81,7 +81,7 @@ const contactChannels = computed(() => [
         description: 'Kết nối để trở thành nhà cung cấp dịch vụ chính thức của Sukientot.',
         detail: settings.value.contact_email ?? 'partners@sukientot.vn',
         hint: 'Chia sẻ hồ sơ năng lực để được duyệt nhanh.',
-        action: { label: 'Đăng ký ngay', route: route('partner.register.create') },
+        action: { label: 'Đăng ký ngay', route: route('partner.register') },
     },
     {
         title: 'Chăm sóc khách hàng',
