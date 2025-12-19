@@ -2,7 +2,27 @@
 import { useToastState, removeToast, type Toast } from '@/composables/useToast'
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-vue-next'
 
+import { usePage } from '@inertiajs/vue3'
+import { watch, computed } from 'vue'
+import { showToast } from '@/composables/useToast'
+
 const state = useToastState()
+const page = usePage()
+
+watch(() => page.props.flash, (flash: any) => {
+    if (flash?.success) {
+        showToast({ message: flash.success, type: 'success' })
+    }
+    if (flash?.error) {
+        showToast({ message: flash.error, type: 'error' })
+    }
+    if (flash?.warning) {
+        showToast({ message: flash.warning, type: 'warning' })
+    }
+    if (flash?.info) {
+        showToast({ message: flash.info, type: 'info' })
+    }
+}, { deep: true, immediate: true })
 
 const icons = {
     success: CheckCircle,
@@ -25,7 +45,7 @@ function close(id: string) {
 
 <template>
     <div aria-live="assertive"
-        class="fixed top-0 right-0 z-[100] flex flex-col items-end gap-2 p-4 w-full sm:w-auto sm:max-w-sm pointer-events-none">
+        class="fixed top-0 right-0 z-[100] flex flex-col items-end gap-2 p-4 w-full md:max-w-sm pointer-events-none">
         <TransitionGroup enter-active-class="transform ease-out duration-300 transition"
             enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
             enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
