@@ -37,7 +37,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="space-y-4">
+    <div class="space-y-4 pt-8">
         <div v-for="o in orders" :key="o.id" @click="emit('select', o)">
             <OrderCard v-bind="o" :selected="o.id === props.selectedId" />
         </div>
