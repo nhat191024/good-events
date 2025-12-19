@@ -35,5 +35,6 @@ require __DIR__ . '/client/chat.php';
 require __DIR__ . '/client/settings.php';
 require __DIR__ . '/client/test-partner.php';
 require __DIR__ . '/client/notification.php';
+require __DIR__ . '/client/report.php';
 
 require __DIR__ . '/test.php';
