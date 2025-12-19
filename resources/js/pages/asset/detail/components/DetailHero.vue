@@ -17,6 +17,7 @@
                         :src="getImg(media.thumbnail ?? media.url)"
                         :alt="`Xem trước ${fileProduct.name}`"
                         class="h-20 w-28 object-cover brightness-95 transition group-hover:brightness-100"
+                        loading="lazy"
                     />
                 </button>
             </div>
