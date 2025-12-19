@@ -169,9 +169,15 @@ class OrderController extends Controller
     public function cancelOrder(CancelOrderRequest $request)
     {
         $bill_id = $request->input('order_id');
-        $bill = PartnerBill::findOrFail($bill_id);
+        Log::debug('[cancelOrder] Request to cancel order', ['bill_id' => $bill_id]);
 
-        if ($bill->status != PartnerBillStatus::PENDING) return;
+        $bill = PartnerBill::findOrFail($bill_id);
+        Log::debug('[cancelOrder] Bill found', ['status' => $bill->status]);
+
+        if ($bill->status != PartnerBillStatus::PENDING) {
+            Log::debug('[cancelOrder] Bill status is not PENDING, skipping cancellation', ['status' => $bill->status]);
+            return;
+        }
 
         if ($bill->date && $bill->start_time) {
             $tz = config('app.timezone') ?: 'UTC';
@@ -180,15 +186,19 @@ class OrderController extends Controller
                 $startDate = $bill->date->format('Y-m-d');
                 $startTime = $bill->start_time->format('H:i');
                 $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $startDate . ' ' . $startTime, $tz);
+                Log::debug('[cancelOrder] Calculated start date time', ['startDateTime' => $startDateTime->toDateTimeString()]);
             } catch (\Throwable $exception) {
+                Log::debug('[cancelOrder] Failed to parse start date time', ['error' => $exception->getMessage()]);
                 $startDateTime = null;
             }
 
             if ($startDateTime) {
                 $cutoff = $startDateTime->copy()->subHours(8);
                 $now = Carbon::now($tz);
+                Log::debug('[cancelOrder] Checking cutoff time', ['cutoff' => $cutoff->toDateTimeString(), 'now' => $now->toDateTimeString()]);
 
                 if ($now->greaterThanOrEqualTo($cutoff)) {
+                    Log::debug('[cancelOrder] Cancellation failed: within 8-hour cutoff');
                     throw ValidationException::withMessages([
                         'order_id' => 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.',
                     ]);
@@ -198,13 +208,17 @@ class OrderController extends Controller
 
         $bill->status = PartnerBillStatus::CANCELLED;
         $bill->save();
+        Log::debug('[cancelOrder] Bill status updated to CANCELLED');
 
         $client = $bill->client;
         OrderCancelled::send($bill, $client);
 
         if ($bill->partner) {
+            Log::debug('[cancelOrder] Notifying partner of cancellation', ['partner_id' => $bill->partner_id]);
             OrderCancelled::send($bill, $bill->partner);
         }
+
+        return back()->with('success', 'Đã hủy đơn hàng thành công.');
     }
 
     public function confirmChoosePartner(ConfirmPartnerRequest $request)
