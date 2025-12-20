@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { ClientOrder, OrderStatus } from '../types';
 import { calculateEstimatedPrice, formatDate, formatPrice, formatTime, formatTimeRange } from '@/lib/helper';
 import { statusBadge } from '../helper';
@@ -46,8 +47,8 @@ function goToChat(thread_id: number) {
                 <div class="flex flex-col overflow-visible place-items-center h-full">
                     <div
                         class="h-12 w-12 grid rounded-full overflow-visible bg-muted place-items-center ring-2 ring-primary/10">
-                        <img :src="getImg(props.category?.image)" alt="org"
-                            class="h-full w-full object-cover rounded-full" loading="lazy" />
+                        <ImageWithLoader :src="getImg(props.category?.image)" alt="org" class="h-12 w-12 rounded-full"
+                            img-class="h-full w-full object-cover rounded-full" loading="lazy" />
                     </div>
                     <div v-if="props.status == OrderStatus.CONFIRMED || props.status == OrderStatus.IN_JOB"
                         class="h-12 w-12 grid rounded-full overflow-visible place-items-center">
@@ -62,13 +63,13 @@ function goToChat(thread_id: number) {
                         class="h-12 w-12 grid rounded-full overflow-visible place-items-center">
                         <span
                             class="text-sm px-2 py-[2px] ring-primary-700 bg-primary-700 text-white font-bold rounded-sm justify-self-start">{{
-                            props.partners.count }}</span>
+                                props.partners.count }}</span>
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="mb-1 flex flex-row justify-between">
                         <h3 class="font-semibold text-card-foreground truncate text-sm mb-0 md:1">{{ props.category.name
-                            }}</h3>
+                        }}</h3>
                     </div>
                     <p class="text-xs text-muted-foreground mb-1">Ở {{ props.address ?? '' }}</p>
                     <p v-if="props.note" class="text-xs text-muted-foreground mb-1 md:mb-2 truncate">
