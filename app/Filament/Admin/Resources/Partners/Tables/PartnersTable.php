@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Partners\Tables;
 
 use App\Models\User;
+use App\Filament\Admin\Resources\Partners\PartnerResource;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -131,6 +132,10 @@ class PartnersTable
                     ->modalHeading(__('admin/partner.modals.deposit_heading'))
                     ->modalSubmitActionLabel(__('admin/partner.actions.confirm_deposit'))
                     ->modalWidth('md'),
+                Action::make('manage_services')
+                    ->label('Quản lý dịch vụ')
+                    ->icon('heroicon-o-rectangle-stack')
+                    ->url(fn (User $record): string => PartnerResource::getUrl('services', ['record' => $record])),
                 EditAction::make(),
                 DeleteAction::make()
                     ->label(__('global.ban'))
