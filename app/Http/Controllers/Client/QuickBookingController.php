@@ -42,10 +42,7 @@ class QuickBookingController extends Controller
     {
         $expireAt = now()->addMinutes(3600);
 
-        $partnerCategories = PartnerCategory::where('parent_id', '=', null)
-            ->with('media')
-            ->orderBy('order', 'asc')
-            ->get()
+        $partnerCategories = PartnerCategory::getTree()
             ->map(function ($category) use ($expireAt) {
                 return [
                     'id' => $category->id,
@@ -76,21 +73,23 @@ class QuickBookingController extends Controller
     {
         $expireAt = now()->addMinutes(3600);
 
-        $partnerCategory = PartnerCategory::where('slug', $partner_category_slug)
-            ->with([
-                'media',
-                'children' => function ($query) {
-                    $query->orderBy('order', 'asc')
-                        ->limit(8)
-                        ->with('media');
-                },
-            ])
-            ->first();
-
-        if (! $partnerCategory) {
+        $allCategories = PartnerCategory::getTree();
+        $partnerCategory = $allCategories->where('slug', $partner_category_slug)->first();
+        
+        if (!$partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);
         }
+        
+        // Load children with media (limit 8 as before)
+        $partnerCategory->load([
+            'children' => function ($query) {
+                $query->orderBy('order', 'asc')
+                    ->limit(8)
+                    ->with('media');
+            },
+        ]);
 
+        
         if ($partnerCategory->children->count() == 0) {
             return $this->quickBookingService->goBackWithError(self::PARENT_HAS_NO_CHILD);
         }
@@ -140,14 +139,17 @@ class QuickBookingController extends Controller
     {
         $expireAt = now()->addMinutes(3600);
 
-        $partnerCategory = PartnerCategory::where('slug', $partner_category_slug)
-            ->with(['media', 'children.media'])
-            ->first();
-
-        if (! $partnerCategory) {
+        $allCategories = PartnerCategory::getTree();
+        $partnerCategory = $allCategories->where('slug', $partner_category_slug)->first();
+        
+        if (!$partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);
         }
+        
+        // Load all children with media
+        $partnerCategory->load(['children.media']);
 
+        
         if ($partnerCategory->children->count() == 0) {
             return $this->quickBookingService->goBackWithError(self::PARENT_HAS_NO_CHILD);
         }
@@ -227,7 +229,8 @@ class QuickBookingController extends Controller
 
         $provinceItem = Location::find($provinceId);
 
-        if (PartnerCategory::where('id', '=', $categoryId)->where('parent_id', '=', null)->exists()) {
+        $allCategories = PartnerCategory::getAllCached();
+        if ($allCategories->where('id', '=', $categoryId)->where('parent_id', '=', null)->isNotEmpty()) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_CHILD_INVALID);
         }
 
