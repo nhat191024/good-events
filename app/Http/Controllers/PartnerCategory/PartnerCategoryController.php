@@ -23,7 +23,6 @@ class PartnerCategoryController extends Controller
             ->get(['id', 'name', 'slug', 'min_price', 'max_price']);
 
         $category = $item->parent;
-        $expireAt = now()->addMinutes(3600);
 
         return Inertia::render('partner-categories/Show', [
             'item' => [
@@ -35,38 +34,30 @@ class PartnerCategoryController extends Controller
                 'description' => $item->description,
                 'updated_human' => $item->updated_at?->diffForHumans(),
                 // Ảnh từ media library nếu có
-                'image' => $this->getTemporaryImageUrl($item, $expireAt),
+                'image' => $this->getImageUrl($item),
             ],
             'category' => $category ? [
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
             ] : null,
-            'related' => $related->map(function ($r) use ($expireAt) {
-                return [
-                    'id' => $r->id,
-                    'name' => $r->name,
-                    'slug' => $r->slug,
-                    'min_price' => $r->min_price,
-                    'max_price' => $r->max_price,
-                    'image' => $this->getTemporaryImageUrl($r, $expireAt),
-                ];
-            }),
+            'related' => $related->map(fn($r) => [
+                'id' => $r->id,
+                'name' => $r->name,
+                'slug' => $r->slug,
+                'min_price' => $r->min_price,
+                'max_price' => $r->max_price,
+                'image' => $this->getImageUrl($r),
+            ]),
         ]);
     }
 
-    private function getTemporaryImageUrl($model, $expireAt)
+    private function getImageUrl($model)
     {
-        if (! method_exists($model, 'getFirstTemporaryUrl')) {
+        if (!method_exists($model, 'getFirstMediaUrl')) {
             return null;
         }
 
-        try {
-            return $model->getFirstTemporaryUrl($expireAt, 'images');
-        } catch (\Throwable $e) {
-            return method_exists($model, 'getFirstMediaUrl')
-                ? $model->getFirstMediaUrl('images')
-                : null;
-        }
+        return $model->getFirstMediaUrl('images', 'thumb');
     }
 }
