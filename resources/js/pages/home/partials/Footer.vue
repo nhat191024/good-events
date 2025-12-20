@@ -38,7 +38,7 @@ const downloadButtons = [
 ];
 
 const address = '36 Nguyễn Thiện Thuật, phường Bình Thạnh, quận Bình Thạnh, TP. Hồ Chí Minh';
-const taxCode = 'Mã số thuế: 0318063280 do Sở Kế hoạch & Đầu tư TP Hồ Chí Minh cấp lần đầu ngày 25/09/2023';
+const taxCode = 'Mã số thuế: ?';
 </script>
 
 <template>
