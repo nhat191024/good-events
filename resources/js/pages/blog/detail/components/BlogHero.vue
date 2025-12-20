@@ -2,11 +2,8 @@
     <article class="grid gap-2 md:gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <div class="space-y-4">
             <div class="flex flex-wrap items-center gap-3 text-sm font-medium">
-                <Link
-                    v-if="categoryLink"
-                    :href="categoryLink"
-                    class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-4 py-2 text-primary-700 transition hover:bg-primary-200"
-                >
+                <Link v-if="categoryLink" :href="categoryLink"
+                    class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-4 py-2 text-primary-700 transition hover:bg-primary-200">
                     {{ blog.category?.name }}
                 </Link>
                 <span v-else class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-gray-600">
@@ -28,23 +25,19 @@
                 <span v-if="blog.author?.name">Bởi {{ blog.author.name }}</span>
             </div>
             <div v-if="showLocationMeta" class="flex flex-wrap items-center gap-3 text-sm text-primary-800">
-                <span v-if="locationLabel" class="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 font-semibold">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 text-primary-500">
+                <span v-if="locationLabel"
+                    class="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        class="h-4 w-4 text-primary-500">
                         <path
-                            d="M12 2.25c-3.728 0-6.75 3.022-6.75 6.75 0 5.062 5.492 11.159 6.33 12.036a.75.75 0 0 0 1.04.038l.038-.038c.838-.877 6.34-6.974 6.34-12.036 0-3.728-3.022-6.75-6.75-6.75m0 9.563a2.813 2.813 0 1 1 0-5.625 2.813 2.813 0 0 1 0 5.625"
-                        />
+                            d="M12 2.25c-3.728 0-6.75 3.022-6.75 6.75 0 5.062 5.492 11.159 6.33 12.036a.75.75 0 0 0 1.04.038l.038-.038c.838-.877 6.34-6.974 6.34-12.036 0-3.728-3.022-6.75-6.75-6.75m0 9.563a2.813 2.813 0 1 1 0-5.625 2.813 2.813 0 0 1 0 5.625" />
                     </svg>
                     <span>{{ locationLabel }}</span>
                 </span>
-                <span v-if="capacityLabel" class="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 font-semibold">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="h-4 w-4 text-primary-500"
-                    >
+                <span v-if="capacityLabel"
+                    class="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="h-4 w-4 text-primary-500">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-6-6h12" />
                     </svg>
                     <span>{{ capacityLabel }}</span>
@@ -52,21 +45,23 @@
             </div>
 
             <div v-if="hasTags" class="flex flex-wrap gap-2">
-                <span v-for="tag in displayTags" :key="tag.slug" class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                <span v-for="tag in displayTags" :key="tag.slug"
+                    class="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
                     #{{ tag.name }}
                 </span>
             </div>
         </div>
 
         <div class="overflow-hidden rounded-3xl bg-gray-100 shadow-sm">
-            <div v-if="hasVideo" class="flex w-full items-center justify-center bg-white" :class="isVerticalVideo ? '' : 'relative aspect-video'">
-                <div ref="videoContainer" class="video-embed-container" :class="isVerticalVideo ? 'video-vertical' : 'video-horizontal'" />
+            <div v-if="hasVideo" class="flex w-full items-center justify-center bg-white"
+                :class="isVerticalVideo ? '' : 'relative aspect-video'">
+                <div ref="videoContainer" class="video-embed-container"
+                    :class="isVerticalVideo ? 'video-vertical' : 'video-horizontal'" />
             </div>
-            <img v-else-if="blog.thumbnail" :src="getImg(blog.thumbnail)" :alt="blog.title" class="h-full max-h-[420px] w-full object-cover" loading="lazy" />
-            <div
-                v-else
-                class="flex h-full min-h-[280px] w-full items-center justify-center bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white"
-            >
+            <ImageWithLoader v-else-if="blog.thumbnail" :src="getImg(blog.thumbnail)" :alt="blog.title"
+                class="h-full w-full" img-class="h-full max-h-[420px] w-full object-cover" loading="lazy" />
+            <div v-else
+                class="flex h-full min-h-[280px] w-full items-center justify-center bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white">
                 Không có hình ảnh
             </div>
         </div>
@@ -76,6 +71,7 @@
 <script setup lang="ts">
 import { getImg } from '@/pages/booking/helper';
 import { Link } from '@inertiajs/vue3';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import type { BlogDetail } from '../../types';
 
