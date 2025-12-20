@@ -7,7 +7,8 @@ import PartnerIntroCard from '@/pages/profile/partner/components/PartnerIntroCar
 import PartnerReviewsCard from '@/pages/profile/partner/components/PartnerReviewsCard.vue'
 import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesCard.vue'
 import axios from 'axios'
-import { getImg } from '@/pages/booking/helper'
+import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { X, Flag } from 'lucide-vue-next'
 import ReportModal from '@/components/ReportModal.vue'
 
@@ -81,8 +82,9 @@ const user = computed(() => data.value?.user)
                     <!-- header: sticky để luôn hiện khi cuộn -->
                     <div class="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white z-10">
                         <div class="flex items-center gap-3">
-                            <img v-if="user?.avatar_url" :src="getImg(user!.avatar_url)" :alt="user!.name"
-                                class="w-10 h-10 rounded-full object-cover" loading="lazy" />
+                            <ImageWithLoader v-if="user?.avatar_url" :src="getImg(user!.avatar_url)" :alt="user!.name"
+                                class="w-10 h-10 rounded-full" img-class="w-10 h-10 rounded-full object-cover"
+                                loading="lazy" />
                             <div>
                                 <div class="font-semibold">{{ user?.name ?? '—' }}</div>
                                 <div class="text-xs text-muted-foreground">
@@ -109,10 +111,8 @@ const user = computed(() => data.value?.user)
                         <template v-else-if="status === 'success' && data">
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                                 <div class="md:col-span-12 space-y-4">
-                                    <button
-                                        @click="isReportModalOpen = true"
-                                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
-                                    >
+                                    <button @click="isReportModalOpen = true"
+                                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-100">
                                         <Flag class="h-4 w-4" />
                                         Báo cáo người dùng này
                                     </button>
