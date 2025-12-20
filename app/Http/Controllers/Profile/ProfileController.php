@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Profile;
 
 use App\Enum\Role;
 use App\Http\Controllers\Controller;
+use App\Models\Partner;
 use App\Models\User;
 use App\Services\PartnerProfilePayload;
 use Illuminate\Support\Facades\Cache;
@@ -15,7 +16,7 @@ class ProfileController extends Controller
     {
         $user->loadMissing('partnerProfile');
 
-        $isPartner = $user->partnerProfile && $user->hasRole(Role::PARTNER);
+        $isPartner = $user->partnerProfile && Partner::find($user->id)->hasRole(Role::PARTNER->value);
 
         $payload = $isPartner
             ? PartnerProfilePayload::for($user)
