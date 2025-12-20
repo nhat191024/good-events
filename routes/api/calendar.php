@@ -7,5 +7,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/calendar/events', [CalendarPage::class, 'getEvents'])
         ->middleware('throttle:api')
         ->name('calendar.events');
-    Route::get('/api/calendar/locale', [CalendarPage::class, 'getLocaleData'])->name('calendar.locale');
+    Route::get('/api/calendar/locale', [CalendarPage::class, 'getLocaleData'])
+        ->middleware('throttle:api')
+        ->name('calendar.locale');
 });
