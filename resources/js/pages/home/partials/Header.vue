@@ -8,6 +8,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Handshake } from 'lucide-vue-next';
 import axios from 'axios';
 import { getImg } from '@/pages/booking/helper';
+import { debounce } from '@/pages/orders/helper';
 import { AppSettings } from '@/types';
 import { motion } from 'motion-v';
 
@@ -107,9 +108,9 @@ function startPolling() {
     pollTimer = window.setInterval(() => loadNotifications(false), 90_000) as unknown as number
 }
 
-function reloadNotifications() {
+const reloadNotifications = debounce(() => {
     loadNotifications(false)
-}
+}, 500, { leading: true, trailing: false })
 
 async function markAsRead(item: NotiItem) {
     const id = item.id
@@ -128,7 +129,7 @@ async function markAsRead(item: NotiItem) {
     }
 }
 
-async function markAllAsRead() {
+const markAllAsRead = debounce(async () => {
     try {
         await axios.post(route('notifications.readAll'), undefined, {
             headers: { Accept: 'application/json' },
@@ -136,7 +137,7 @@ async function markAllAsRead() {
         notificationItems.value = notificationItems.value.map(n => ({ ...n, unread: false }))
         unreadCount.value = 0
     } catch (e) { }
-}
+}, 500, { leading: true, trailing: false })
 
 async function handleNotificationSelect(item: NotiItem) {
     if (item.href) {

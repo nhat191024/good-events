@@ -13,6 +13,7 @@ use Spatie\Tags\HasTags;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -88,6 +89,29 @@ class RentProduct extends Model implements HasMedia
         $this->addMediaCollection('thumbnails')
             ->useDisk('public')
             ->withResponsiveImages();
+    }
+
+    /**
+     * Summary of registerMediaConversions
+     * @param Media|null $media
+     * @return void
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(400)
+            ->height(400)
+            ->sharpen(10)
+            ->withResponsiveImages()
+            ->format('webp')
+            ->queued();
+
+        $this->addMediaConversion('mobile_optimized')
+            ->width(300)
+            ->height(300)
+            ->withResponsiveImages()
+            ->format('webp')
+            ->queued();
     }
 
     /**

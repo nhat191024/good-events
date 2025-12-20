@@ -21,6 +21,7 @@ Route::get('/api/home/category-children', [HomeController::class, 'loadMoreChild
     ->name('home.category-children');
 
 Route::get('/api/home/search', [HomeController::class, 'search'])
+    ->middleware('throttle:search')
     ->name('home.search');
 
 Route::get('/su-kien/danh-muc/{category_slug}', [HomeController::class, 'showCategory'])
@@ -36,7 +37,7 @@ Route::get('/danh-muc-su-kien/chi-tiet/{slug}', [PartnerCategoryController::clas
     ->where('slug', '[A-Za-z0-9-]+')
     ->name('partner-categories.show');
 
-Route::prefix('/tai-lieu')->name('asset.')->group(function () {
+Route::prefix('/tai-lieu')->name('asset.')->middleware('throttle:search')->group(function () {
     Route::get('/', [AssetHomeController::class, 'index'])->name('home');
     Route::get('/kham-pha', [FileProductController::class, 'assetDiscover'])->name('discover');
     Route::get('/kham-pha/danh-muc/{category_slug}', [FileProductController::class, 'assetCategory'])->name('category');
@@ -45,7 +46,7 @@ Route::prefix('/tai-lieu')->name('asset.')->group(function () {
     Route::post('/thanh-toan', [FileProductController::class, 'assetConfirmPurchase'])->name('buy.confirm');
 });
 
-Route::prefix('/thue-vat-tu')->name('rent.')->group(function () {
+Route::prefix('/thue-vat-tu')->name('rent.')->middleware('throttle:search')->group(function () {
     Route::get('/', [RentHomeController::class, 'index'])->name('home');
     Route::get('/kham-pha', [RentController::class, 'rentDiscover'])->name('discover');
     Route::get('/kham-pha/danh-muc/{category_slug}', [RentController::class, 'rentCategory'])->name('category');

@@ -15,13 +15,13 @@ Route::middleware('auth')->group(callback: function () {
                 function () {
 
                     Route::get('/', [ProfileController::class, 'edit'])->name('edit');
-                    Route::patch('ho-so', [ProfileController::class, 'update'])->name('update');
-                    Route::delete('ho-so', [ProfileController::class, 'destroy'])->name('destroy');
+                    Route::patch('ho-so', [ProfileController::class, 'update'])->middleware('throttle:auth')->name('update');
+                    Route::delete('ho-so', [ProfileController::class, 'destroy'])->middleware('throttle:auth')->name('destroy');
 
                     Route::get('mat-khau', [PasswordController::class, 'edit'])->name('password.edit');
 
                     Route::put('mat-khau', [PasswordController::class, 'update'])
-                        ->middleware('throttle:6,1')
+                        ->middleware('throttle:auth')
                         ->name('password.update');
 
                 }
@@ -33,7 +33,7 @@ Route::middleware('auth')->group(callback: function () {
                     Route::get('/', [PasswordController::class, 'edit'])->name('edit');
 
                     Route::put('/', [PasswordController::class, 'update'])
-                        ->middleware('throttle:6,1')
+                        ->middleware('throttle:auth')
                         ->name('update');
 
                 }
@@ -47,7 +47,7 @@ Route::middleware('auth')->group(callback: function () {
             Route::prefix("dang-ky-nhan-su")->name('partner.register.from-client.')->group(
                 function () {
                     Route::get('/', [RegisteredUserController::class, 'createPartnerFromClient'])->name('create');
-                    Route::post('/', [RegisteredUserController::class, 'makePartner'])->name('store');
+                    Route::post('/', [RegisteredUserController::class, 'makePartner'])->middleware('throttle:auth')->name('store');
                 }
             );
 

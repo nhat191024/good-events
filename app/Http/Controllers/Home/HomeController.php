@@ -75,9 +75,8 @@ class HomeController extends Controller
             'limit' => 'nullable|integer|min:1|max:50',
         ]);
 
-        $category = PartnerCategory::whereNull('parent_id')
-            ->where('slug', $validated['category_slug'])
-            ->firstOrFail();
+        $categories = PartnerCategory::getTree();
+        $category = $categories->where('slug', $validated['category_slug'])->firstOrFail();
 
         $offset = (int) ($validated['offset'] ?? 0);
         $limit = (int) ($validated['limit'] ?? self::CHILD_CATEGORY_LIMIT);
@@ -125,41 +124,43 @@ class HomeController extends Controller
             ]);
         }
 
-        $eventCategories = PartnerCategory::whereNull('parent_id')
-            ->where(function ($query) use ($term) {
-                $query->where('name', 'like', "%{$term}%")
-                    ->orWhere('slug', 'like', "%{$term}%")
-                    ->orWhereHas('children', function ($childQuery) use ($term) {
-                        $childQuery->where('name', 'like', "%{$term}%")
-                            ->orWhere('slug', 'like', "%{$term}%");
-                    });
-            })
-            ->with([
-                'media',
-                'children' => function ($query) use ($term) {
-                    $query->orderBy('order', 'asc')
-                        ->limit(self::CHILD_CATEGORY_LIMIT)
-                        ->where(function ($child) use ($term) {
-                            $child->where('name', 'like', "%{$term}%")
-                                ->orWhere('slug', 'like', "%{$term}%");
-                        })
-                        ->with('media');
-                },
-            ])
-            ->withCount(['children as total_children_count'])
-            ->orderBy('order', 'asc')
-            ->take(self::INITIAL_EVENT_CATEGORY_LIMIT)
-            ->get();
+        // Get cached tree and filter in memory for search
+        $allCategories = PartnerCategory::getTree();
+        
+        $eventCategories = $allCategories->filter(function ($category) use ($term) {
+            // Check if parent name/slug matches
+            if (stripos($category->name, $term) !== false || stripos($category->slug, $term) !== false) {
+                return true;
+            }
+            // Check if any child matches
+            return $category->children->contains(function ($child) use ($term) {
+                return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
+            });
+        })->take(self::INITIAL_EVENT_CATEGORY_LIMIT)->values();
+        
+        // Load media for matched categories and their children
+        $eventCategories->load('media');
+        $eventCategories->each(function ($category) use ($term) {
+            // Filter and limit children based on search term
+            $category->setRelation('children', 
+                $category->children
+                    ->filter(function ($child) use ($term) {
+                        return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
+                    })
+                    ->take(self::CHILD_CATEGORY_LIMIT)
+            );
+            $category->children->load('media');
+            $category->setAttribute('total_children_count', $category->children->count());
+        });
 
         return response()->json($this->transformEventCategoryResponse($eventCategories));
     }
 
     public function showCategory(string $categorySlug, AppSettings $settings): Response
     {
-        $category = PartnerCategory::whereNull('parent_id')
-            ->where('slug', $categorySlug)
-            ->with('media')
-            ->firstOrFail();
+        $categories = PartnerCategory::getTree();
+        $category = $categories->where('slug', $categorySlug)->firstOrFail();
+        $category->load('media');
 
         $children = $category->children()
             ->orderBy('order', 'asc')
@@ -196,20 +197,20 @@ class HomeController extends Controller
 
     private function fetchEventCategories(int $limit, int $offset): array
     {
-        $eventCategories = PartnerCategory::whereNull('parent_id')
-            ->with([
-                'media',
-                'children' => function ($query) {
-                    $query->orderBy('order', 'asc')
-                        ->limit(self::CHILD_CATEGORY_LIMIT)
-                        ->with('media');
-                },
-            ])
-            ->withCount(['children as total_children_count'])
-            ->orderBy('order', 'asc')
-            ->skip($offset)
-            ->take($limit)
-            ->get();
+        // Use cached tree and slice in memory
+        $allCategories = PartnerCategory::getTree();
+        $eventCategories = $allCategories->slice($offset, $limit)->values();
+        
+        // Load media for the sliced categories
+        $eventCategories->load('media');
+        $eventCategories->each(function ($category) {
+            // Limit children and load their media
+            $category->setRelation('children', 
+                $category->children->take(self::CHILD_CATEGORY_LIMIT)
+            );
+            $category->children->load('media');
+            $category->setAttribute('total_children_count', $category->children->count());
+        });
 
         return $this->transformEventCategoryResponse($eventCategories);
     }
@@ -243,7 +244,7 @@ class HomeController extends Controller
             return $this->parentCategoryCount;
         }
 
-        $this->parentCategoryCount = PartnerCategory::whereNull('parent_id')->count();
+        $this->parentCategoryCount = PartnerCategory::getTree()->count();
 
         return $this->parentCategoryCount;
     }

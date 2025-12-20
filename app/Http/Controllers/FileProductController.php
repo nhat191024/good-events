@@ -482,13 +482,11 @@ class FileProductController extends Controller
      */
     private function buildPreviewImages(FileProduct $fileProduct): array
     {
-        $expireAt = now()->addDay();
-
         return $fileProduct
             ->getMedia('thumbnails')
-            ->map(function (Media $media) use ($expireAt) {
+            ->map(function (Media $media) {
                 try {
-                    $url = $media->getTemporaryUrl($expireAt);
+                    $url = $media->getUrl('thumb');
                 } catch (\Throwable $e) {
                     $url = $media->getFullUrl();
                 }
