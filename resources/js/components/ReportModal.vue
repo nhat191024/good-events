@@ -11,9 +11,10 @@ import {
 } from 'reka-ui'
 import { showToast } from '@/composables/useToast'
 import { watch } from 'vue'
-import Icon from './Icon.vue';
+
 import Input from '@/components/ui/input/Input.vue'
 import { cn } from '@/lib/utils'
+import { X } from 'lucide-vue-next';
 
 const props = defineProps<{
     open: boolean
@@ -88,7 +89,7 @@ function close() {
                         {{ billId ? `Báo cáo đơn hàng${billCode ? ' - ' + billCode : ''}` : 'Báo cáo người dùng' }}
                     </DialogTitle>
                     <DialogClose class="text-gray-400 hover:text-gray-500 transition-colors" @click="close">
-                        <Icon name="x" class="w-5 h-5" />
+                        <X class="w-5 h-5" />
                     </DialogClose>
                 </div>
 
