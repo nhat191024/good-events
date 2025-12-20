@@ -9,7 +9,7 @@ import {
     DialogDescription,
     DialogClose,
 } from 'reka-ui'
-import Icon from '@/components/Icon.vue'
+import { X } from 'lucide-vue-next'
 import { useConfirmState } from '@/composables/useConfirm'
 
 const state = useConfirmState()
@@ -43,7 +43,7 @@ function onCancel() {
 
                     <DialogClose as-child>
                         <button aria-label="Close" class="h-8 w-8 rounded-full hover:bg-gray-100 justify-items-center">
-                            <Icon name="x" />
+                            <X />
                         </button>
                     </DialogClose>
                 </div>
