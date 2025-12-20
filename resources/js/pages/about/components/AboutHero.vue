@@ -11,60 +11,35 @@
                     {{ content.description }}
                 </p>
                 <div class="flex flex-wrap gap-3">
-                    <motion.div
-                        v-for="(cta, index) in ctas"
-                        :key="cta.href + cta.label"
-                        :while-hover="buttonInteractions.hover"
-                        :while-tap="buttonInteractions.tap"
-                        :initial="buttonMotion.initial"
-                        :while-in-view="buttonMotion.visible"
-                        :viewport="buttonMotion.viewport"
-                        :transition="getButtonTransition(index)"
-                    >
-                        <Link
-                            :href="cta.href"
-                            :class="cta.class"
-                        >
+                    <motion.div v-for="(cta, index) in ctas" :key="cta.href + cta.label"
+                        :while-hover="buttonInteractions.hover" :while-tap="buttonInteractions.tap"
+                        :initial="buttonMotion.initial" :while-in-view="buttonMotion.visible"
+                        :viewport="buttonMotion.viewport" :transition="getButtonTransition(index)">
+                        <Link :href="cta.href" :class="cta.class">
                             {{ cta.label }}
                         </Link>
                     </motion.div>
                 </div>
-                <motion.div
-                    class="rounded-3xl border border-slate-100 bg-white/80 p-4 shadow-sm shadow-black/[0.03]"
-                    :initial="cardMotion.initial"
-                    :while-in-view="cardMotion.visible"
-                    :viewport="cardMotion.viewport"
-                    :transition="cardMotion.transition"
-                >
+                <motion.div class="rounded-3xl border border-slate-100 bg-white/80 p-4 shadow-sm shadow-black/[0.03]"
+                    :initial="cardMotion.initial" :while-in-view="cardMotion.visible" :viewport="cardMotion.viewport"
+                    :transition="cardMotion.transition">
                     <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">{{ content.subheading }}</p>
                     <div class="mt-4 flex flex-wrap gap-2">
-                        <motion.span
-                            v-for="(service, index) in servicePills"
-                            :key="service.label"
+                        <motion.span v-for="(service, index) in servicePills" :key="service.label"
                             class="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-1 text-sm font-medium text-slate-700"
-                            :initial="pillMotion.initial"
-                            :while-in-view="pillMotion.visible"
-                            :viewport="pillMotion.viewport"
-                            :transition="getPillTransition(index)"
-                            :while-hover="pillInteractions.hover"
-                            :while-tap="pillInteractions.tap"
-                        >
+                            :initial="pillMotion.initial" :while-in-view="pillMotion.visible"
+                            :viewport="pillMotion.viewport" :transition="getPillTransition(index)"
+                            :while-hover="pillInteractions.hover" :while-tap="pillInteractions.tap">
                             {{ service.label }}
                         </motion.span>
                     </div>
                 </motion.div>
                 <div class="grid gap-3 sm:grid-cols-2">
-                    <motion.article
-                        v-for="(highlight, index) in highlights"
-                        :key="highlight.title"
+                    <motion.article v-for="(highlight, index) in highlights" :key="highlight.title"
                         class="rounded-2xl border border-slate-100 bg-white/90 p-5 shadow-sm shadow-black/[0.03]"
-                        :initial="cardMotion.initial"
-                        :while-in-view="cardMotion.visible"
-                        :viewport="cardMotion.viewport"
-                        :transition="getCardTransition(index)"
-                        :while-hover="cardInteractions.hover"
-                        :while-tap="cardInteractions.tap"
-                    >
+                        :initial="cardMotion.initial" :while-in-view="cardMotion.visible"
+                        :viewport="cardMotion.viewport" :transition="getCardTransition(index)"
+                        :while-hover="cardInteractions.hover" :while-tap="cardInteractions.tap">
                         <p class="text-sm font-semibold uppercase tracking-wide text-primary-600">
                             {{ highlight.kicker }}
                         </p>
@@ -77,26 +52,21 @@
             </div>
 
             <div class="relative">
-                <div class="absolute -inset-6 -z-10 rounded-[36px] bg-gradient-to-br from-primary-100 via-white to-amber-50 blur-2xl" />
+                <div
+                    class="absolute -inset-6 -z-10 rounded-[36px] bg-gradient-to-br from-primary-100 via-white to-amber-50 blur-2xl" />
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <motion.figure
-                        v-for="(shot, index) in gallery"
-                        :key="shot.label"
+                    <motion.figure v-for="(shot, index) in gallery" :key="shot.label"
                         class="relative overflow-hidden rounded-3xl border border-slate-100/60 bg-white/60 shadow-lg shadow-black/[0.04]"
-                        :style="{
-                            backgroundImage: `linear-gradient(140deg, rgba(15,23,42,0.45), rgba(15,23,42,0.05)), url(${shot.image})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                        }"
-                        :initial="shotMotion.initial"
-                        :while-in-view="shotMotion.visible"
-                        :viewport="shotMotion.viewport"
-                        :transition="getShotTransition(index)"
-                        :while-hover="shotInteractions.hover"
-                        :while-tap="shotInteractions.tap"
-                    >
-                        <div class="flex h-full flex-col justify-between p-5 text-white">
-                            <div class="inline-flex w-fit items-center rounded-full bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
+                        :initial="shotMotion.initial" :while-in-view="shotMotion.visible"
+                        :viewport="shotMotion.viewport" :transition="getShotTransition(index)"
+                        :while-hover="shotInteractions.hover" :while-tap="shotInteractions.tap">
+                        <ImageWithLoader :src="shot.image" :alt="shot.label" class="absolute inset-0 h-full w-full"
+                            img-class="h-full w-full object-cover" />
+                        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/45 to-slate-900/5"
+                            style="background-image: linear-gradient(140deg, rgba(15,23,42,0.45), rgba(15,23,42,0.05))" />
+                        <div class="relative z-10 flex h-full flex-col justify-between p-5 text-white">
+                            <div
+                                class="inline-flex w-fit items-center rounded-full bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
                                 {{ shot.label }}
                             </div>
                             <p class="mt-10 text-sm font-medium leading-relaxed text-white/90">
@@ -113,6 +83,7 @@
 <script setup lang="ts">
 import { motion } from 'motion-v';
 import { Link } from '@inertiajs/vue3';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 
 interface Highlight {
     kicker: string;

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ArrowLeft, Send } from 'lucide-vue-next';
+import { ArrowLeft, Send, Flag } from 'lucide-vue-next';
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
+import ReportModal from '@/components/ReportModal.vue';
 import type { BroadcastMessagePayload, Message, Thread, ThreadDetail } from '../types';
 import MessageBubble from './MessageBubble.vue';
 
@@ -25,6 +26,7 @@ const isLoadingMessages = ref(false);
 const hasMoreMessages = ref(false);
 const messagesCurrentPage = ref(1);
 const isSending = ref(false);
+const isReportModalOpen = ref(false);
 
 let activeChannelThreadId: number | null = null;
 let activeChannel: any = null;
@@ -62,6 +64,15 @@ watch(
     },
     { immediate: true },
 );
+
+const reportTargetUserId = computed(() => {
+    if (!thread.value && !currentThread.value) return undefined;
+    const t = thread.value || currentThread.value;
+    // Find the participant that is NOT the current user
+    const other = t?.participants?.find((p: any) => p.id !== currentUserId.value);
+    return other?.id;
+});
+
 
 async function loadThread(threadId: number) {
     messagesCurrentPage.value = 1;
@@ -275,9 +286,7 @@ onUnmounted(() => {
             <div class="p-4">
                 <button
                     class="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 md:hidden"
-                    @click="emit('toggleMobileMenu')"
-                    aria-label="Toggle menu"
-                >
+                    @click="emit('toggleMobileMenu')" aria-label="Toggle menu">
                     <ArrowLeft class="h-4 w-4" />
                     <span>Trở lại</span>
                 </button>
@@ -287,7 +296,7 @@ onUnmounted(() => {
                             {{ thread?.subject || currentThread?.subject || 'Không có tiêu đề' }}
                         </h2>
                         <p v-if="thread?.participants" class="text-xs text-gray-600">
-                            Người tham gia: {{ thread.participants.map((p) => p.name).join(', ') }}
+                            Người tham gia: {{thread.participants.map((p) => p.name).join(', ')}}
                         </p>
                         <p v-if="thread?.bill" class="mt-2 text-xs text-gray-600">Thông tin đơn hàng:</p>
                         <div v-if="thread?.bill" class="text-xs text-gray-600">
@@ -296,6 +305,11 @@ onUnmounted(() => {
                             Địa điểm: {{ thread.bill.address || 'N/A' }}
                         </div>
                     </div>
+                    <button title="Báo cáo"
+                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        @click="isReportModalOpen = true">
+                        <Flag class="w-5 h-5" />
+                    </button>
                 </div>
             </div>
         </div>
@@ -308,19 +322,24 @@ onUnmounted(() => {
                 <span class="ml-2 text-sm text-gray-600">Đang tải tin nhắn cũ...</span>
             </div>
 
-            <div class="flex h-fit w-full flex-col gap-2 rounded-md bg-primary-50 p-3 text-center text-xs text-gray-500 ring ring-primary md:text-sm">
+            <div
+                class="flex h-fit w-full flex-col gap-2 rounded-md bg-primary-50 p-3 text-center text-xs text-gray-500 ring ring-primary md:text-sm">
                 <p>
-                    <b>Bảo mật thông tin: </b>Vui lòng không chia sẻ số điện thoại, zalo hay thông tin cá nhân khác để đảm bảo an toàn cho chính bạn.
-                    giao dịch qua ứng dụng : mọi thỏa thuận về giá cả, công việc phát sinh hoặc thay đổi lịch hẹn đều cần được xác nhận trên ứng dụng
+                    <b>Bảo mật thông tin: </b>Vui lòng không chia sẻ số điện thoại, zalo hay thông tin cá nhân khác để
+                    đảm bảo an toàn cho chính bạn.
+                    giao dịch qua ứng dụng : mọi thỏa thuận về giá cả, công việc phát sinh hoặc thay đổi lịch hẹn đều
+                    cần được xác nhận trên ứng dụng
                 </p>
 
                 <p>
-                    <b>Đảm bảo quyền lợi: </b>sukientot.com chỉ bảo vệ và hỗ trợ các vấn đề (bảo hành, khiếu nại) dựa trên các giao dịch được ghi nhận
+                    <b>Đảm bảo quyền lợi: </b>sukientot.com chỉ bảo vệ và hỗ trợ các vấn đề (bảo hành, khiếu nại) dựa
+                    trên các giao dịch được ghi nhận
                     chính thức trên ứng dụng.
                 </p>
 
                 <p>
-                    <b>Báo cáo vi phạm:</b> Nếu CTV sukientot.com có bất kỳ yêu cầu giao dịch riêng nào, hãy báo cáo ngay cho chúng tôi qua hotline
+                    <b>Báo cáo vi phạm:</b> Nếu CTV sukientot.com có bất kỳ yêu cầu giao dịch riêng nào, hãy báo cáo
+                    ngay cho chúng tôi qua hotline
                     <b>0393719095</b>.
                 </p>
             </div>
@@ -328,10 +347,8 @@ onUnmounted(() => {
             <!-- Messages list -->
             <template v-for="(message, idx) in messages" :key="message.id">
                 <!-- Date separator -->
-                <div
-                    v-if="idx === 0 || new Date(messages[idx - 1].created_at).toDateString() !== new Date(message.created_at).toDateString()"
-                    class="flex justify-center py-2"
-                >
+                <div v-if="idx === 0 || new Date(messages[idx - 1].created_at).toDateString() !== new Date(message.created_at).toDateString()"
+                    class="flex justify-center py-2">
                     <div class="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
                         {{ formatDate(message.created_at) }}
                     </div>
@@ -347,25 +364,20 @@ onUnmounted(() => {
         <div class="border-t border-gray-200 bg-white p-4">
             <div class="flex items-end gap-2">
                 <div class="flex-1">
-                    <input
-                        v-model="newMessage"
-                        @keydown="onKeydown"
-                        placeholder="Nhập tin nhắn..."
+                    <input v-model="newMessage" @keydown="onKeydown" placeholder="Nhập tin nhắn..."
                         :disabled="isSending"
                         class="w-full rounded-full border-0 bg-gray-50 px-4 py-2 ring-red-500 focus:ring-1 focus:outline-none disabled:opacity-50"
-                        type="text"
-                    />
+                        type="text" />
                 </div>
 
                 <button
                     class="rounded-full bg-red-500 p-2 text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="!newMessage.trim() || isSending"
-                    @click="sendMessage"
-                    aria-label="send"
-                >
+                    :disabled="!newMessage.trim() || isSending" @click="sendMessage" aria-label="send">
                     <Send class="h-4 w-4" />
                 </button>
             </div>
         </div>
     </div>
+    <ReportModal v-model:open="isReportModalOpen" :user-id="reportTargetUserId" :bill-id="thread?.bill?.id"
+        :bill-code="thread?.bill?.code" />
 </template>

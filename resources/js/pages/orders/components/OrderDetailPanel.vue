@@ -9,6 +9,8 @@ import ReloadButton from './ReloadButton.vue';
 import { debounce } from '../helper';
 import { cn } from '@/lib/utils';
 import ArrivalPhotoModal from './ArrivalPhotoModal.vue'
+import ReportModal from '@/components/ReportModal.vue'
+import { Flag } from 'lucide-vue-next'
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
@@ -44,6 +46,7 @@ const bookedPartner = computed<ClientOrderDetail | undefined>(() => {
 
 const isReloading = ref(false)
 const applyVoucher = ref(true)
+const isReportModalOpen = ref(false)
 
 const reloadOrderDetails = debounce(() => {
     isReloading.value = true
@@ -92,7 +95,14 @@ watch(() => props.order?.id, () => {
                     Chi tiết đơn hàng {{ props.order ? ' - ' + props.order.code : '' }}
                 </h2>
                 <!-- <p class="text-muted-foreground">{{ description }}</p> -->
-                <ReloadButton :is-reloading="isReloading" @reload="reloadOrderDetails()" />
+                <div class="flex items-center gap-2 ml-auto">
+                    <ReloadButton :is-reloading="isReloading" @reload="reloadOrderDetails()" />
+                    <button title="Báo cáo"
+                        class="p-2.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-300 transition-colors"
+                        @click="isReportModalOpen = true">
+                        <Flag class="w-4 h-4" />
+                    </button>
+                </div>
             </div>
 
             <template v-if="order">
@@ -141,4 +151,6 @@ watch(() => props.order?.id, () => {
             </template>
         </div>
     </div>
+    <ReportModal v-model:open="isReportModalOpen" :bill-id="order?.id" :user-id="bookedPartner?.id"
+        :bill-code="order?.code" />
 </template>

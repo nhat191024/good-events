@@ -36,6 +36,7 @@ export interface Message {
 
 export interface Bill {
     id: number
+    code?: string
     event_name: string | null
     datetime: string | null
     address: string | null

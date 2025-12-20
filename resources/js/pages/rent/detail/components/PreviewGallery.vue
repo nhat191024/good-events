@@ -6,17 +6,11 @@
         </header>
 
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <figure
-                v-for="item in media"
-                :key="item.id ?? item.url"
-                class="relative overflow-hidden rounded-3xl border border-gray-100 bg-gray-50"
-            >
-                <img
-                    :src="getImg(item.url)"
-                    :alt="item.alt ?? 'Hình ảnh thiết bị sự kiện'"
-                    class="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"
-                    loading="lazy"
-                />
+            <figure v-for="item in media" :key="item.id ?? item.url"
+                class="relative overflow-hidden rounded-3xl border border-gray-100 bg-gray-50">
+                <ImageWithLoader :src="getImg(item.url)" :alt="item.alt ?? 'Hình ảnh thiết bị sự kiện'"
+                    class="h-full w-full"
+                    img-class="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" loading="lazy" />
             </figure>
         </div>
     </section>
@@ -24,6 +18,7 @@
 
 <script setup lang="ts">
 import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 
 interface PreviewMedia {
     id?: number | string | null;

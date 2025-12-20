@@ -59,9 +59,9 @@ export interface ClientOrderHistory {
     created_at: string
     updated_at: string
     category: Category
-    event: Pick<Event, 'name'>
-    partner: Partner
-    review: Review
+    event: Pick<Event, 'name'> | null
+    partner: Partner | null
+    review: Review | null
 }
 
 export const OrderStatus = {

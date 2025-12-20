@@ -4,17 +4,15 @@ import { ref, onMounted, onBeforeUnmount, computed, watch, type Ref, type Compon
 import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, LogOut, FileCheck, PhoneCall, Info, Briefcase } from 'lucide-vue-next';
 import DropdownMenuItems, { MenuItem } from '../components/DropdownMenuItems.vue';
 import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user ?? null);
 
 const isOpen: Ref<boolean> = ref(false);
 const dropdown: Ref<HTMLDivElement | null> = ref(null);
-const avatarStatus = ref<'idle' | 'loaded' | 'error'>(user.value?.avatar_url ? 'idle' : 'error');
-
 const avatarUrl = computed<string | null>(() => user.value?.avatar_url ?? null);
-const shouldRenderImage = computed(() => !!avatarUrl.value && avatarStatus.value !== 'error');
-const showFallbackIcon = computed(() => !avatarUrl.value || avatarStatus.value !== 'loaded');
+const shouldRenderImage = computed(() => !!avatarUrl.value);
 
 const toggleDropdown = (): void => {
     isOpen.value = !isOpen.value;
@@ -25,22 +23,6 @@ const handleClickOutside = (event: MouseEvent): void => {
         isOpen.value = false;
     }
 };
-
-const handleAvatarLoad = () => {
-    avatarStatus.value = 'loaded';
-};
-
-const handleAvatarError = () => {
-    avatarStatus.value = 'error';
-};
-
-watch(
-    () => avatarUrl.value,
-    (newUrl) => {
-        avatarStatus.value = newUrl ? 'idle' : 'error';
-    },
-    { immediate: true },
-);
 
 onMounted(() => {
     document.addEventListener('click', handleClickOutside);
@@ -149,11 +131,20 @@ const loggedOutMenuItems: MenuItem[] = [
     <div class="relative" ref="dropdown">
         <button type="button" aria-label="Tài khoản" @click="toggleDropdown"
             class="relative cursor-pointer h-10 w-10 rounded-full bg-[#ED3B50] text-white shadow-lg shadow-[#ED3B50]/30 transition focus:outline-none focus-visible:ring-2 border border-primary-200 focus-visible:ring-offset-2 focus-visible:ring-[#ED3B50] overflow-show">
-            <img v-if="shouldRenderImage" :src="getImg(avatarUrl)" alt="Avatar"
-                class="absolute rounded-full inset-0 h-full w-full object-cover transition-opacity duration-200 z-0"
-                :class="avatarStatus === 'loaded' ? 'opacity-100' : 'opacity-0'" @load="handleAvatarLoad"
-                @error="handleAvatarError" loading="lazy" >
-            <div v-if="showFallbackIcon" class="grid h-full w-full place-items-center">
+            <ImageWithLoader v-if="shouldRenderImage" :src="getImg(avatarUrl)" alt="Avatar"
+                class="absolute rounded-full inset-0 h-full w-full z-0"
+                img-class="h-full w-full object-cover rounded-full" loading="lazy">
+                <!-- Fallback slot -->
+                <div class="grid h-full w-full place-items-center bg-[#ED3B50]">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path
+                            d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+            </ImageWithLoader>
+
+            <div v-else class="grid h-full w-full place-items-center">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
                         fill="currentColor" />

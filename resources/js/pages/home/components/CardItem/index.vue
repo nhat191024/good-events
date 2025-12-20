@@ -1,17 +1,13 @@
 <template>
     <Link :href="routeHref" class="block h-full">
-        <motion.div
-            :initial="cardMotion.initial"
-            :animate="cardMotion.animate"
+        <motion.div :initial="cardMotion.initial" :animate="cardMotion.animate"
             class="card bg-base-100 shadow-sm group relative overflow-hidden cursor-pointer rounded-md">
             <figure class="relative aspect-[4/3]">
-                <img
-                    :src="getImg(currentImage)"
-                    :alt="cardItem.name"
-                    loading="lazy"
-                    class="w-full h-full object-cover lazy-image"
-                    @error="handleImageError" />
-                <div v-if="showInfo" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <ImageWithLoader :src="getImg(currentImage)" :alt="cardItem.name" loading="lazy" class="w-full h-full"
+                    img-class="w-full h-full object-cover lazy-image" />
+                <div v-if="showInfo"
+                    class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                </div>
             </figure>
             <div v-if="showInfo"
                 class="card-body absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white flex flex-col justify-center p-4 overflow-scroll scrollbar-hide">
@@ -31,9 +27,10 @@ import { computed, ref, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { Props } from './types';
 import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { motion } from 'motion-v';
 
-const props = withDefaults(defineProps<Props>(),{
+const props = withDefaults(defineProps<Props>(), {
     showInfo: true
 });
 
@@ -54,13 +51,6 @@ const truncate = (value: string | null | undefined, limit: number) => {
 
 const truncatedName = computed(() => truncate(props.cardItem.name, 80));
 const truncatedDescription = computed(() => truncate(props.cardItem.description, 150));
-
-const handleImageError = (event: Event) => {
-    const target = event.target as HTMLImageElement | null;
-    if (!target) return;
-    target.onerror = null;
-    currentImage.value = placeholderImage;
-};
 
 const cardMotion = {
     initial: {
