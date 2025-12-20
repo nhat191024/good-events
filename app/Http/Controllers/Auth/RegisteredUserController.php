@@ -44,8 +44,13 @@ class RegisteredUserController extends Controller
     /**
      * Show the registration page for partner with provinces list.
      */
-    public function createPartner(): Response
+    public function createPartner(): Response | RedirectResponse
     {
+        // no need to create a completely new partner account if the user is logged in
+        if (Auth::check()) {
+            return redirect()->route('partner.register.from-client.create');
+        }
+
         // note: provinces = locations where parent_id is null
         $provinces = Location::query()
             ->whereNull('parent_id')
