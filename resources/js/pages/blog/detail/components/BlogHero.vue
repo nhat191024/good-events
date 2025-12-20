@@ -158,7 +158,7 @@ async function renderEmbed() {
         return;
     }
 
-    const html = props.blog.video_url.trim();
+    const html = props.blog.video_url.trim().replace(/allow="([^"]*)web-share([^"]*)"/g, (match, p1, p2) => `allow="${p1}${p2}"`);
     videoContainer.value.innerHTML = html;
     const embedType = detectEmbedType(html);
 
