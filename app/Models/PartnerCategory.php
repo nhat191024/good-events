@@ -142,28 +142,28 @@ class PartnerCategory extends Model implements HasMedia
         parent::boot();
 
         static::saved(function ($model) {
-            Cache::tags([CacheKey::PARTNER_CATEGORIES])->flush();
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
         });
 
         static::deleted(function ($model) {
-            Cache::tags([CacheKey::PARTNER_CATEGORIES])->flush();
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
         });
 
         static::restored(function ($model) {
-            Cache::tags([CacheKey::PARTNER_CATEGORIES])->flush();
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
         });
     }
 
     public static function getTree()
     {
-        return Cache::tags([CacheKey::PARTNER_CATEGORIES])->rememberForever(CacheKey::PARTNER_CATEGORIES_TREE->value, function () {
+        return Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->rememberForever(CacheKey::PARTNER_CATEGORIES_TREE->value, function () {
             return static::with('children')->whereNull('parent_id')->orderBy('order')->get();
         });
     }
 
     public static function getAllCached()
     {
-        return Cache::tags([CacheKey::PARTNER_CATEGORIES])->rememberForever(CacheKey::PARTNER_CATEGORIES_ALL->value, function () {
+        return Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->rememberForever(CacheKey::PARTNER_CATEGORIES_ALL->value, function () {
             return static::all();
         });
     }
