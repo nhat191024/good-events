@@ -36,7 +36,7 @@ const selectedOrder = ref<ClientOrder | null>(null)
 const selectedMode = ref<'current' | 'history'>('current')
 const detailsMap = ref<Record<number, { items: ClientOrderDetail[]; version?: number }>>({})
 const showMobileDetail = ref(false)
-const historyStatuses = new Set([
+const historyStatuses = new Set<string>([
     OrderStatus.COMPLETED,
     OrderStatus.CANCELLED,
     OrderStatus.EXPIRED,
