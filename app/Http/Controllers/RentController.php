@@ -46,12 +46,15 @@ class RentController extends Controller
         $previewImages = $this->buildPreviewImages($rentProduct);
 
         $related = RentProduct::query()
-            ->with(['category.parent', 'tags', 'media'])
+            ->with(['tags', 'media'])
             ->where('category_id', $rentProduct->category_id)
             ->whereKeyNot($rentProduct->getKey())
             ->latest('created_at')
             ->take(6)
             ->get();
+
+        // Reuse the already-loaded category to avoid duplicate queries
+        $related->each(fn ($product) => $product->setRelation('category', $rentProduct->category));
 
         $rentProductPayload = array_merge(
             RentProductResource::make($rentProduct)->resolve($request),
@@ -243,13 +246,11 @@ class RentController extends Controller
      */
     private function buildPreviewImages(RentProduct $rentProduct): array
     {
-        $expireAt = now()->addDay();
-
         return $rentProduct
             ->getMedia('thumbnails')
-            ->map(function (Media $media) use ($expireAt) {
+            ->map(function (Media $media) {
                 try {
-                    $url = $media->getTemporaryUrl($expireAt);
+                    $url = $media->getUrl('thumb');
                 } catch (\Throwable $e) {
                     $url = $media->getFullUrl();
                 }
@@ -263,4 +264,5 @@ class RentController extends Controller
             ->values()
             ->all();
     }
+
 }
