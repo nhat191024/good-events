@@ -132,8 +132,8 @@ class AppServiceProvider extends ServiceProvider
         try {
             return [
                 'app_name'    => $settings->app_name,
-                'app_logo'    => asset($settings->app_logo),
-                'app_favicon' => asset($settings->app_favicon),
+                'app_logo'    => secure_asset($settings->app_logo),
+                'app_favicon' => secure_asset($settings->app_favicon),
                 'contact_hotline' => $settings->contact_hotline,
                 'contact_email' => $settings->contact_email,
             ];
