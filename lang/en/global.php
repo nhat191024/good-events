@@ -32,6 +32,8 @@ return [
 
     'system_message' => [
         'order_confirmed' => 'The order :code has been confirmed. This is the chat between customer and partner. Admin can monitor to support when necessary.',
+
+        'saved_success' => 'Saved successfully!',
     ],
 
     'paginate' => [

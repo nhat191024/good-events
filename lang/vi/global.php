@@ -34,6 +34,8 @@ return [
 
     'system_message' => [
         'order_confirmed' => 'Đơn hàng :code đã được xác nhận. Đây là đoạn chat trao đổi giữa khách hàng và đối tác. Admin sẽ có thể theo dõi để hỗ trợ khi cần thiết.',
+
+        'saved_success' => 'Lưu thành công!',
     ],
 
     'paginate' => [
