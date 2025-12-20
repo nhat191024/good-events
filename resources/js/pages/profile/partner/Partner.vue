@@ -8,8 +8,10 @@ import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import { Head, usePage, Link } from '@inertiajs/vue3'
 import PartnerImagesCard from './components/PartnerImagesCard.vue'
 import { getImg } from '@/pages/booking/helper'
+import ImageWithLoader from '@/components/ImageWithLoader.vue'
 import ReportModal from '@/components/ReportModal.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import type { AppPageProps } from '@/types'
 
 interface UserInfo {
     id: number; name: string; avatar_url: string; location: string | null;
@@ -30,11 +32,50 @@ interface Props {
     intro: string | null;
 }
 const props = defineProps<Props>();
-const page = usePage()
+const page = usePage<AppPageProps>()
 const isReportModalOpen = ref(false)
 const isOwnProfile = computed(() => {
     return page.props.auth?.user?.id === props.user.id
 })
+
+const menuOpen = ref(false)
+const menuWrapper = ref<HTMLDivElement | null>(null)
+
+const toggleMenu = () => {
+    if (!isOwnProfile.value) {
+        return
+    }
+    menuOpen.value = !menuOpen.value
+}
+
+const closeMenu = (event: MouseEvent) => {
+    if (!menuWrapper.value) {
+        return
+    }
+
+    if (!menuWrapper.value.contains(event.target as Node)) {
+        menuOpen.value = false
+    }
+}
+
+const handleEscape = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+        menuOpen.value = false
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', closeMenu)
+    document.addEventListener('keydown', handleEscape)
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', closeMenu)
+    document.removeEventListener('keydown', handleEscape)
+})
+
+console.log('partner page loaded');
+
 </script>
 
 <template>
@@ -54,8 +95,8 @@ const isOwnProfile = computed(() => {
                         <div class="relative">
                             <div
                                 class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-                                <img v-if="user.avatar_url" :src="getImg(user.avatar_url)" :alt="user.name"
-                                    class="w-full h-full object-cover" loading="lazy" />
+                                <ImageWithLoader v-if="user.avatar_url" :src="getImg(user.avatar_url)" :alt="user.name"
+                                    class="w-full h-full" img-class="w-full h-full object-cover" loading="lazy" />
                                 <div v-else class="w-full h-full flex items-center justify-center bg-gray-200">
                                     <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400" fill="currentColor"
                                         viewBox="0 0 20 20">
@@ -123,31 +164,53 @@ const isOwnProfile = computed(() => {
                             </div>
                         </div>
 
-                        <!-- Action buttons -->
-                        <div class="flex items-center gap-2">
-                            <button
-                                class="p-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-lg border border-white/30 text-white transition-colors">
+                        <!-- Menu button -->
+                        <div v-if="isOwnProfile" class="relative flex-shrink-0" ref="menuWrapper">
+                            <button type="button" aria-haspopup="menu" :aria-expanded="menuOpen"
+                                @click.stop="toggleMenu"
+                                class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-colors">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                 </svg>
                             </button>
-                            <button
-                                class="p-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-lg border border-white/30 text-white transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                            </button>
-                            <button
-                                class="p-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-lg border border-white/30 text-white transition-colors">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                </svg>
-                            </button>
-                            <button title="Báo cáo người dùng" @click="isReportModalOpen = true" v-if="!isOwnProfile"
-                                class="p-2 bg-white/10 backdrop-blur-sm hover:bg-red-500/80 rounded-lg border border-white/30 text-white transition-colors">
+
+                            <transition enter-active-class="transition ease-out duration-100"
+                                enter-from-class="transform opacity-0 scale-95"
+                                enter-to-class="transform opacity-100 scale-100"
+                                leave-active-class="transition ease-in duration-75"
+                                leave-from-class="transform opacity-100 scale-100"
+                                leave-to-class="transform opacity-0 scale-95">
+                                <div v-if="menuOpen"
+                                    class="absolute right-0 mt-2 w-50 rounded-lg bg-white/95 shadow-lg ring-1 ring-black/10 backdrop-blur">
+                                    <Link :href="route('profile.edit')"
+                                        class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors rounded-lg"
+                                        @click="menuOpen = false">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5h2m-1-1v2m0 8v3m-3 0h6a2 2 0 002-2v-5a2 2 0 00-.59-1.41l-4-4a2 2 0 00-2.82 0l-4 4A2 2 0 006 10v5a2 2 0 002 2z" />
+                                        </svg>
+                                        Cài đặt hồ sơ
+                                    </Link>
+                                    <button type="button"
+                                        class="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors rounded-lg"
+                                        @click="() => { menuOpen = false; isReportModalOpen = true }">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        Báo cáo người dùng
+                                    </button>
+                                </div>
+                            </transition>
+                        </div>
+
+                        <!-- Report button for visitor -->
+                        <div v-else class="relative flex-shrink-0">
+                            <button type="button"
+                                class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                                @click="isReportModalOpen = true" title="Báo cáo người dùng">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
