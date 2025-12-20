@@ -11,6 +11,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { AppPageProps } from '@/types'
 import { getImg } from '@/pages/booking/helper'
+import ImageWithLoader from '@/components/ImageWithLoader.vue'
 
 interface UserInfo {
     id: number
@@ -117,6 +118,7 @@ onBeforeUnmount(() => {
     document.removeEventListener('click', closeMenu)
     document.removeEventListener('keydown', handleEscape)
 })
+console.log('client page loaded');
 </script>
 
 <template>
@@ -136,8 +138,9 @@ onBeforeUnmount(() => {
                         <div class="relative flex-shrink-0">
                             <div
                                 class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-                                <img v-if="user.avatar_url" :key="user.avatar_url" :src="getImg(user.avatar_url)"
-                                    :alt="user.name" class="w-full h-full object-cover" loading="lazy" />
+                                <ImageWithLoader v-if="user.avatar_url" :key="user.avatar_url"
+                                    :src="getImg(user.avatar_url)" :alt="user.name" class="w-full h-full"
+                                    img-class="w-full h-full object-cover" loading="lazy" />
                                 <div v-else class="w-full h-full flex items-center justify-center bg-gray-200">
                                     <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400" fill="currentColor"
                                         viewBox="0 0 20 20">
