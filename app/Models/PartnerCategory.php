@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Enum\CacheKey;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
+use Illuminate\Support\Facades\Cache;
 
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -130,6 +134,38 @@ class PartnerCategory extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->logOnlyDirty();
+    }
+
+    //Model Boot
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($model) {
+            Cache::tags([CacheKey::PARTNER_CATEGORIES])->flush();
+        });
+
+        static::deleted(function ($model) {
+            Cache::tags([CacheKey::PARTNER_CATEGORIES])->flush();
+        });
+
+        static::restored(function ($model) {
+            Cache::tags([CacheKey::PARTNER_CATEGORIES])->flush();
+        });
+    }
+
+    public static function getTree()
+    {
+        return Cache::tags([CacheKey::PARTNER_CATEGORIES])->rememberForever(CacheKey::PARTNER_CATEGORIES_TREE->value, function () {
+            return static::with('children')->whereNull('parent_id')->orderBy('order')->get();
+        });
+    }
+
+    public static function getAllCached()
+    {
+        return Cache::tags([CacheKey::PARTNER_CATEGORIES])->rememberForever(CacheKey::PARTNER_CATEGORIES_ALL->value, function () {
+            return static::all();
+        });
     }
 
     //model relationships
