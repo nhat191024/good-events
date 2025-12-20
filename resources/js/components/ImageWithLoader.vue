@@ -38,7 +38,7 @@ watch(() => props.src, () => {
 <template>
     <div :class="cn('relative overflow-hidden', props.class)" :style="[
         props.aspectRatio ? { aspectRatio: props.aspectRatio } : undefined,
-        (hasError || isLoading) && !props.aspectRatio && (!props.class?.match(/\bh-(?!full\b)/)) ? { minHeight: '200px' } : undefined
+        (hasError || isLoading) && !props.aspectRatio && (!props.class?.match(/\bh-(?!full\b)/)) ? { minHeight: '64px' } : undefined
     ]">
         <Skeleton v-if="isLoading" class="absolute inset-0 h-full w-full" />
         <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center z-10">
