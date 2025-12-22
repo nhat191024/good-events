@@ -107,6 +107,10 @@ class ManagePartnerServices extends Page implements HasForms
         DB::transaction(function () use ($data) {
             foreach ($data['services'] as $categoryId => $serviceData) {
                 if ($serviceData['enabled']) {
+                    if (! PartnerCategory::where('id', $categoryId)->exists()) {
+                        continue;
+                    }
+
                     $service = PartnerService::updateOrCreate(
                         [
                             'user_id' => $this->record->id,
