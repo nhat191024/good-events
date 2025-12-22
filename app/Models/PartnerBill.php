@@ -188,7 +188,7 @@ class PartnerBill extends Model implements HasMedia
      */
     protected static function handleBillCreated(PartnerBill $partnerBill): void
     {
-        $superAdmin = User::whereName('Super Admin')->first();
+        // $superAdmin = User::whereName('Super Admin')->first();
         $admin = User::whereName('Admin')->first();
         $mailService = new PartnerBillMailService();
         $mailService->sendOrderReceivedNotification($partnerBill);
