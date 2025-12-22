@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\PartnerService;
+use App\Enum\PartnerBillStatus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -13,14 +14,36 @@ class PartnerProfilePayload
     {
         $stats = $user->statistics()->get()->keyBy('metrics_name');
 
-        $calcCancelPct = function (User $u): string {
-            $total = $u->partnerBillsAsPartner()->count();
-            if ($total === 0)
-                return '0%';
-            $completed = $u->partnerBillsAsPartner()->where('status', 'paid')->count();
-            $cancelled = $total - $completed;
-            return round($cancelled * 100 / $total) . '%';
+        $ordersPlacedStat = optional($stats->get('orders_placed'))->metrics_value;
+        $completedOrdersStat = optional($stats->get('completed_orders'))->metrics_value;
+        $cancelledOrdersPctStat = optional($stats->get('cancelled_orders_percentage'))->metrics_value;
+
+        $realTotal = null;
+        $realCompleted = null;
+
+        $getTotal = function () use ($user, &$realTotal) {
+            return $realTotal ??= $user->partnerBillsAsPartner()->count();
         };
+
+        $getCompleted = function () use ($user, &$realCompleted) {
+            return $realCompleted ??= $user->partnerBillsAsPartner()->where('status', PartnerBillStatus::COMPLETED)->count();
+        };
+
+        $ordersPlaced = (int) ($ordersPlacedStat ?? $getTotal());
+        $completedOrders = (int) ($completedOrdersStat ?? $getCompleted());
+
+        if ($cancelledOrdersPctStat !== null) {
+            $cancelledOrdersPct = (string) $cancelledOrdersPctStat;
+        } else {
+            $total = $getTotal();
+            if ($total === 0) {
+                $cancelledOrdersPct = '0%';
+            } else {
+                $completed = $getCompleted();
+                $cancelled = $total - $completed;
+                $cancelledOrdersPct = round($cancelled * 100 / $total) . '%';
+            }
+        }
 
         return [
             'user' => [
@@ -44,9 +67,9 @@ class PartnerProfilePayload
                 'avg_response' => '14h',
             ],
             'quick' => [
-                'orders_placed' => (int) (optional($stats->get('orders_placed'))->metrics_value ?? $user->partnerBillsAsPartner()->count()),
-                'completed_orders' => (int) (optional($stats->get('completed_orders'))->metrics_value ?? $user->partnerBillsAsPartner()->where('status', 'paid')->count()),
-                'cancelled_orders_pct' => (string) (optional($stats->get('cancelled_orders_percentage'))->metrics_value ?? $calcCancelPct($user)),
+                'orders_placed' => $ordersPlaced,
+                'completed_orders' => $completedOrders,
+                'cancelled_orders_pct' => $cancelledOrdersPct,
                 'last_active_human' => optional($user->updated_at)->diffForHumans(),
             ],
             'contact' => [
@@ -57,7 +80,7 @@ class PartnerProfilePayload
                 'timezone' => 'GMT+7',
             ],
             'services' => $user->partnerServices()
-                ->with(['category:id,name'])
+                ->with(['category:id,name', 'media'])
                 ->select('id', 'category_id')
                 ->get()
                 ->map(function ($s) {
