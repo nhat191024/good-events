@@ -257,10 +257,16 @@ const keywordSuggestions = computed(() => {
     if (term.length < 2) return [];
 
     const names = new Set<string>();
-    const addNames = (items?: { name?: string | null }[] | Record<string, { name?: string | null }> | null) => {
+    const addNames = (
+        items?:
+            | { name?: string | null; parent_id?: number | null }[]
+            | Record<string, { name?: string | null; parent_id?: number | null }>
+            | null
+    ) => {
         if (!items) return;
         const list = Array.isArray(items) ? items : Object.values(items);
         list.forEach((item) => {
+            if (item?.parent_id === null) return;
             if (item?.name) names.add(item.name);
         });
     };
