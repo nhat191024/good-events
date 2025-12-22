@@ -21,7 +21,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 
 use Filament\Actions\Action;
 
@@ -116,10 +116,9 @@ class ProfileSettings extends Page implements HasForms
                                     ->tel()
                                     ->maxLength(20),
 
-                                Textarea::make('bio')
+                                RichEditor::make('bio')
                                     ->label(__('profile.label.bio'))
                                     ->columnSpanFull()
-                                    ->maxLength(500)
                                     ->nullable(),
                             ])
                     ]),
@@ -191,8 +190,7 @@ class ProfileSettings extends Page implements HasForms
                                             ->toArray()
                                     )
                                     ->getOptionLabelUsing(
-                                        fn($value): ?string =>
-                                        ($this->cachedLocation?->id == $value)
+                                        fn($value): ?string => ($this->cachedLocation?->id == $value)
                                             ? $this->cachedLocation->name
                                             : Location::find($value)?->name
                                     )
