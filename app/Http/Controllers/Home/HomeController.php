@@ -124,30 +124,27 @@ class HomeController extends Controller
             ]);
         }
 
-        // Get cached tree and filter in memory for search
         $allCategories = PartnerCategory::getTree();
         
         $eventCategories = $allCategories->filter(function ($category) use ($term) {
-            // Check if parent name/slug matches
             if (stripos($category->name, $term) !== false || stripos($category->slug, $term) !== false) {
                 return true;
             }
-            // Check if any child matches
+
             return $category->children->contains(function ($child) use ($term) {
                 return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
             });
         })->take(self::INITIAL_EVENT_CATEGORY_LIMIT)->values();
         
-        // Load media for matched categories and their children
         $eventCategories->load('media');
         $eventCategories->each(function ($category) use ($term) {
-            // Filter and limit children based on search term
             $category->setRelation('children', 
                 $category->children
                     ->filter(function ($child) use ($term) {
                         return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
                     })
                     ->take(self::CHILD_CATEGORY_LIMIT)
+                    ->values()
             );
             $category->children->load('media');
             $category->setAttribute('total_children_count', $category->children->count());
@@ -206,7 +203,7 @@ class HomeController extends Controller
         $eventCategories->each(function ($category) {
             // Limit children and load their media
             $category->setRelation('children', 
-                $category->children->take(self::CHILD_CATEGORY_LIMIT)
+                $category->children->take(self::CHILD_CATEGORY_LIMIT)->values()
             );
             $category->children->load('media');
             $category->setAttribute('total_children_count', $category->children->count());
@@ -219,7 +216,9 @@ class HomeController extends Controller
     {
         $partnerCategories = [];
         foreach ($eventCategories as $category) {
-            $partnerCategories[$category->id] = $category->children->map(function ($pc) {
+            $partnerCategories[$category->id] = $category->children
+                ->values()
+                ->map(function ($pc) {
                 return [
                     'id' => $pc->id,
                     'name' => $pc->name,
@@ -229,7 +228,8 @@ class HomeController extends Controller
                     'max_price' => $pc->max_price,
                     'image' => $this->getImageUrl($pc),
                 ];
-            });
+            })
+            ->values();
         }
 
         return [

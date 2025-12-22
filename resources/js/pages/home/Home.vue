@@ -109,8 +109,28 @@ interface Props {
 
 interface HomeSearchResponse {
     eventCategories: ParentCategory[];
-    partnerCategories: { [key: number]: PartnerCategory[] };
+    partnerCategories: Record<number, PartnerCategory[]>;
 }
+
+type PartnerCategoryMap = Record<number, PartnerCategory[]>;
+type PartnerCategoryInputMap = Record<number, PartnerCategory[] | Record<string, PartnerCategory>>;
+
+const normalizePartnerCategories = (input?: PartnerCategoryInputMap | null): PartnerCategoryMap => {
+    if (!input) return {};
+    const normalized: PartnerCategoryMap = {};
+    Object.entries(input).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            normalized[Number(key)] = value;
+            return;
+        }
+        if (value && typeof value === 'object') {
+            normalized[Number(key)] = Object.values(value);
+            return;
+        }
+        normalized[Number(key)] = [];
+    });
+    return normalized;
+};
 
 const props = defineProps<Props>();
 const pagination = computed(() => props.pagination);
@@ -167,7 +187,11 @@ const fetchHomeSearch = async (q: string): Promise<HomeSearchResponse> => {
     const { data } = await axios.get(route('home.search'), {
         params: { q },
     });
-    return data as HomeSearchResponse;
+    const response = data as HomeSearchResponse & { partnerCategories?: PartnerCategoryInputMap };
+    return {
+        ...response,
+        partnerCategories: normalizePartnerCategories(response.partnerCategories),
+    };
 };
 
 const {
@@ -202,7 +226,9 @@ const updateIsMobile = () => {
 };
 
 const eventCategoryList = ref<ParentCategory[]>([...props.eventCategories]);
-const partnerCategoriesStore = ref<Record<number, PartnerCategory[]>>({ ...props.partnerCategories });
+const partnerCategoriesStore = ref<PartnerCategoryMap>(
+    normalizePartnerCategories(props.partnerCategories)
+);
 
 const isSearchMode = computed(() => hasSearchQuery.value);
 
@@ -231,9 +257,10 @@ const keywordSuggestions = computed(() => {
     if (term.length < 2) return [];
 
     const names = new Set<string>();
-    const addNames = (items?: { name?: string | null }[]) => {
+    const addNames = (items?: { name?: string | null }[] | Record<string, { name?: string | null }> | null) => {
         if (!items) return;
-        items.forEach((item) => {
+        const list = Array.isArray(items) ? items : Object.values(items);
+        list.forEach((item) => {
             if (item?.name) names.add(item.name);
         });
     };
@@ -304,10 +331,14 @@ const loadMoreCategories = async () => {
                 limit: props.pagination.batchSize,
             },
         });
-        eventCategoryList.value = [...eventCategoryList.value, ...data.eventCategories];
+        const response = data as {
+            eventCategories: ParentCategory[];
+            partnerCategories?: PartnerCategoryInputMap;
+        };
+        eventCategoryList.value = [...eventCategoryList.value, ...response.eventCategories];
         partnerCategoriesStore.value = {
             ...partnerCategoriesStore.value,
-            ...data.partnerCategories,
+            ...normalizePartnerCategories(response.partnerCategories),
         };
     } catch (error) {
         console.error('Failed to load more categories', error);
@@ -383,7 +414,7 @@ watch(
 watch(
     () => props.partnerCategories,
     (newPartnerCategories) => {
-        partnerCategoriesStore.value = { ...newPartnerCategories };
+        partnerCategoriesStore.value = normalizePartnerCategories(newPartnerCategories);
     }
 );
 
