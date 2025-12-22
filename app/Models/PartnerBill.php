@@ -321,7 +321,7 @@ class PartnerBill extends Model implements HasMedia
         }
 
         //with draw to partner balance
-        $user = Auth::user();
+        $user = Partner::find($partnerId);
         $feePercentage = app(PartnerSettings::class)->fee_percentage;
         $withdrawAmount = floor($partnerBill->total * ($feePercentage / 100));
 
