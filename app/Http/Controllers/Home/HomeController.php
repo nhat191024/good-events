@@ -14,9 +14,9 @@ use Inertia\Response;
 
 class HomeController extends Controller
 {
-    public const INITIAL_EVENT_CATEGORY_LIMIT = 8;
-    public const EVENT_CATEGORY_BATCH_SIZE = 4;
-    public const CHILD_CATEGORY_LIMIT = 99;
+    public const int INITIAL_EVENT_CATEGORY_LIMIT = 8;
+    public const int EVENT_CATEGORY_BATCH_SIZE = 4;
+    public const int  CHILD_CATEGORY_LIMIT = 99;
 
     private ?int $parentCategoryCount = null;
 
@@ -125,7 +125,7 @@ class HomeController extends Controller
         }
 
         $allCategories = PartnerCategory::getTree();
-        
+
         $eventCategories = $allCategories->filter(function ($category) use ($term) {
             if (stripos($category->name, $term) !== false || stripos($category->slug, $term) !== false) {
                 return true;
@@ -135,10 +135,10 @@ class HomeController extends Controller
                 return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
             });
         })->take(self::INITIAL_EVENT_CATEGORY_LIMIT)->values();
-        
+
         $eventCategories->load('media');
         $eventCategories->each(function ($category) use ($term) {
-            $category->setRelation('children', 
+            $category->setRelation('children',
                 $category->children
                     ->filter(function ($child) use ($term) {
                         return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
@@ -197,12 +197,12 @@ class HomeController extends Controller
         // Use cached tree and slice in memory
         $allCategories = PartnerCategory::getTree();
         $eventCategories = $allCategories->slice($offset, $limit)->values();
-        
+
         // Load media for the sliced categories
         $eventCategories->load('media');
         $eventCategories->each(function ($category) {
             // Limit children and load their media
-            $category->setRelation('children', 
+            $category->setRelation('children',
                 $category->children->take(self::CHILD_CATEGORY_LIMIT)->values()
             );
             $category->children->load('media');
