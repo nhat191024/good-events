@@ -72,7 +72,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div ref="containerRef" class="relative inline-block self-start">
+    <div ref="containerRef" class="relative inline-block self-start mt-[2px]">
         <!-- Trigger Button -->
         <button type="button"
             class="bg-white/70 relative inline-flex items-center justify-center h-9 w-9 rounded-full hover:bg-muted/60 transition-colors shadow-md cursor-pointer ring ring-primary/20"
