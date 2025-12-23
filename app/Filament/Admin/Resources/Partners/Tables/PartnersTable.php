@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
@@ -88,90 +89,92 @@ class PartnersTable
                     ->default('trashed'),
             ])
             ->recordActions([
-                Action::make('deposit')
-                    ->label(__('admin/partner.actions.deposit'))
-                    ->icon('heroicon-o-banknotes')
-                    ->color('success')
-                    ->schema([
-                        TextInput::make('amount')
-                            ->label(__('admin/partner.fields.label.deposit_amount'))
-                            ->numeric()
-                            ->required()
-                            ->minValue(1000)
-                            ->step(1000)
-                            ->suffix('VND')
-                            ->helperText(__('admin/partner.helpers.minimum_deposit')),
-                    ])
-                    ->action(function (User $record, array $data): void {
-                        try {
-                            $amount = (int) $data['amount'];
-                            $meta = [
-                                'reason' => __('admin/partner.messages.admin_deposit'),
-                                'old_balance' => $record->balanceInt,
-                                'new_balance' => $record->balanceInt + $amount,
-                            ];
+                ActionGroup::make([
+                    Action::make('deposit')
+                        ->label(__('admin/partner.actions.deposit'))
+                        ->icon('heroicon-o-banknotes')
+                        ->color('success')
+                        ->schema([
+                            TextInput::make('amount')
+                                ->label(__('admin/partner.fields.label.deposit_amount'))
+                                ->numeric()
+                                ->required()
+                                ->minValue(1000)
+                                ->step(1000)
+                                ->suffix('VND')
+                                ->helperText(__('admin/partner.helpers.minimum_deposit')),
+                        ])
+                        ->action(function (User $record, array $data): void {
+                            try {
+                                $amount = (int) $data['amount'];
+                                $meta = [
+                                    'reason' => __('admin/partner.messages.admin_deposit'),
+                                    'old_balance' => $record->balanceInt,
+                                    'new_balance' => $record->balanceInt + $amount,
+                                ];
 
-                            $record->deposit($amount, $meta);
+                                $record->deposit($amount, $meta);
+
+                                Notification::make()
+                                    ->success()
+                                    ->title(__('admin/partner.notifications.deposit_success.title'))
+                                    ->body(__('admin/partner.notifications.deposit_success.body', [
+                                        'amount' => number_format($amount, 0, ',', '.'),
+                                        'partner' => $record->name,
+                                    ]))
+                                    ->send();
+                            } catch (\Exception $e) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title(__('admin/partner.notifications.deposit_error.title'))
+                                    ->body($e->getMessage())
+                                    ->send();
+                            }
+                        })
+                        ->modalHeading(__('admin/partner.modals.deposit_heading'))
+                        ->modalSubmitActionLabel(__('admin/partner.actions.confirm_deposit'))
+                        ->modalWidth('md'),
+                    Action::make('manage_services')
+                        ->label('Quản lý dịch vụ')
+                        ->icon('heroicon-o-rectangle-stack')
+                        ->url(fn(User $record): string => PartnerResource::getUrl('services', ['record' => $record])),
+                    EditAction::make(),
+                    DeleteAction::make()
+                        ->label(__('global.ban'))
+                        ->modalHeading(__('admin/user.ban_title'))
+                        ->modalDescription(__('admin/user.ban_description'))
+                        ->modalSubmitActionLabel(__('global.ban'))
+                        ->successNotificationTitle(__('admin/user.ban_success_message')),
+                    RestoreAction::make(),
+                    Action::make('ban_accept_show')
+                        ->label(__('admin/partner.actions.ban_accept_show'))
+                        ->icon('heroicon-o-minus-circle')
+                        ->color('danger')
+                        ->visible(fn(User $record): bool => $record->deleted_at === null && $record->can_accept_shows)
+                        ->action(function (User $record): void {
+                            $record->can_accept_shows = false;
+                            $record->save();
 
                             Notification::make()
                                 ->success()
-                                ->title(__('admin/partner.notifications.deposit_success.title'))
-                                ->body(__('admin/partner.notifications.deposit_success.body', [
-                                    'amount' => number_format($amount, 0, ',', '.'),
-                                    'partner' => $record->name,
-                                ]))
+                                ->title(__('admin/partner.ban_success_message'))
                                 ->send();
-                        } catch (\Exception $e) {
+                        }),
+                    Action::make('ban_accept_hide')
+                        ->label(__('admin/partner.actions.ban_accept_hide'))
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->visible(fn(User $record): bool => $record->deleted_at === null && ! $record->can_accept_shows)
+                        ->action(function (User $record): void {
+                            $record->can_accept_shows = true;
+                            $record->save();
+
                             Notification::make()
-                                ->danger()
-                                ->title(__('admin/partner.notifications.deposit_error.title'))
-                                ->body($e->getMessage())
+                                ->success()
+                                ->title(__('admin/partner.unban_success_message'))
                                 ->send();
-                        }
-                    })
-                    ->modalHeading(__('admin/partner.modals.deposit_heading'))
-                    ->modalSubmitActionLabel(__('admin/partner.actions.confirm_deposit'))
-                    ->modalWidth('md'),
-                Action::make('manage_services')
-                    ->label('Quản lý dịch vụ')
-                    ->icon('heroicon-o-rectangle-stack')
-                    ->url(fn (User $record): string => PartnerResource::getUrl('services', ['record' => $record])),
-                EditAction::make(),
-                DeleteAction::make()
-                    ->label(__('global.ban'))
-                    ->modalHeading(__('admin/user.ban_title'))
-                    ->modalDescription(__('admin/user.ban_description'))
-                    ->modalSubmitActionLabel(__('global.ban'))
-                    ->successNotificationTitle(__('admin/user.ban_success_message')),
-                RestoreAction::make(),
-                Action::make('ban_accept_show')
-                    ->label(__('admin/partner.actions.ban_accept_show'))
-                    ->icon('heroicon-o-minus-circle')
-                    ->color('danger')
-                    ->visible(fn(User $record): bool => $record->deleted_at === null && $record->can_accept_shows)
-                    ->action(function (User $record): void {
-                        $record->can_accept_shows = false;
-                        $record->save();
-
-                        Notification::make()
-                            ->success()
-                            ->title(__('admin/partner.ban_success_message'))
-                            ->send();
-                    }),
-                Action::make('ban_accept_hide')
-                    ->label(__('admin/partner.actions.ban_accept_hide'))
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->visible(fn(User $record): bool => $record->deleted_at === null && ! $record->can_accept_shows)
-                    ->action(function (User $record): void {
-                        $record->can_accept_shows = true;
-                        $record->save();
-
-                        Notification::make()
-                            ->success()
-                            ->title(__('admin/partner.unban_success_message'))
-                            ->send();
-                    }),
+                        }),
+                ]),
             ])
             ->toolbarActions([
                 //
