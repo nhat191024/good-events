@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('partner_name');
             $table->string('identity_card_number');
             $table->foreignId('location_id')->constrained()->restrictOnDelete();
+            $table->string('selfie_image');
+            $table->string('front_identity_card_image');
+            $table->string('back_identity_card_image');
             $table->softDeletes();
             $table->timestamps();
         });

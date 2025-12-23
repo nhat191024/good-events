@@ -55,6 +55,9 @@ class PartnerProfile extends Model
         'partner_name',
         'identity_card_number',
         'location_id',
+        'selfie_image',
+        'front_identity_card_image',
+        'back_identity_card_image',
     ];
 
     /**
