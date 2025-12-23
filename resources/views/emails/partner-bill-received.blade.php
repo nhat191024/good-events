@@ -221,11 +221,6 @@
                 </div>
 
                 <div class="info-row">
-                    <span class="info-label">{{ __('emails.common.phone') }}:</span>
-                    <span class="info-value">{{ $partnerBill->phone }}</span>
-                </div>
-
-                <div class="info-row">
                     <span class="info-label">{{ __('emails.common.status') }}:</span>
                     <span class="info-value">
                         <span class="status-badge status-pending">{{ __('emails.common.status_pending') }}</span>
