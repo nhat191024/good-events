@@ -17,6 +17,8 @@ class PartnerRevenueChart extends ChartWidget
 
     protected  ?string $maxHeight = '400px';
 
+    protected  ?string $pollingInterval = null;
+
     // Cache key cho dữ liệu
     protected function getCacheKey(): string
     {
