@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Partners\Tables;
 
-use App\Models\User;
+use App\Models\Partner;
 use App\Filament\Admin\Resources\Partners\PartnerResource;
 
 use Filament\Tables\Table;
@@ -32,7 +32,7 @@ class PartnersTable
             ->columns([
                 TextColumn::make('avatar')
                     ->label(__('admin/partner.fields.label.avatar'))
-                    ->formatStateUsing(function ($state, User $record) {
+                    ->formatStateUsing(function ($state, Partner $record) {
                         if ($record->avatar) {
                             $url = asset($record->avatar);
                             return '<img src="' . e($url) . '" alt="Avatar" style="height:80px;max-width:80px;object-fit:contain;border-radius:100px;">';
@@ -104,7 +104,7 @@ class PartnersTable
                                 ->suffix('VND')
                                 ->helperText(__('admin/partner.helpers.minimum_deposit')),
                         ])
-                        ->action(function (User $record, array $data): void {
+                        ->action(function (Partner $record, array $data): void {
                             try {
                                 $amount = (int) $data['amount'];
                                 $meta = [
@@ -137,7 +137,7 @@ class PartnersTable
                     Action::make('manage_services')
                         ->label('Quản lý dịch vụ')
                         ->icon('heroicon-o-rectangle-stack')
-                        ->url(fn(User $record): string => PartnerResource::getUrl('services', ['record' => $record])),
+                        ->url(fn(Partner $record): string => PartnerResource::getUrl('services', ['record' => $record])),
                     EditAction::make(),
                     DeleteAction::make()
                         ->label(__('global.ban'))
@@ -150,8 +150,8 @@ class PartnersTable
                         ->label(__('admin/partner.actions.ban_accept_show'))
                         ->icon('heroicon-o-minus-circle')
                         ->color('danger')
-                        ->visible(fn(User $record): bool => $record->deleted_at === null && $record->can_accept_shows)
-                        ->action(function (User $record): void {
+                        ->visible(fn(Partner $record): bool => $record->deleted_at === null && $record->can_accept_shows)
+                        ->action(function (Partner $record): void {
                             $record->can_accept_shows = false;
                             $record->save();
 
@@ -164,8 +164,8 @@ class PartnersTable
                         ->label(__('admin/partner.actions.ban_accept_hide'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->visible(fn(User $record): bool => $record->deleted_at === null && ! $record->can_accept_shows)
-                        ->action(function (User $record): void {
+                        ->visible(fn(Partner $record): bool => $record->deleted_at === null && ! $record->can_accept_shows)
+                        ->action(function (Partner $record): void {
                             $record->can_accept_shows = true;
                             $record->save();
 
