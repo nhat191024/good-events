@@ -17,6 +17,7 @@ use Database\Factories\UserFactory;
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property bool $can_accept_shows
+ * @property string|null $google_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -80,6 +81,7 @@ use Database\Factories\UserFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereGoogleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner wherePassword($value)

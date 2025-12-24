@@ -45,6 +45,7 @@ use App\Enum\Role;
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property bool $can_accept_shows
+ * @property string|null $google_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -108,6 +109,7 @@ use App\Enum\Role;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGoogleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
@@ -139,6 +141,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'phone',
         'password',
         'can_accept_shows',
+        'google_id',
     ];
 
     /**
