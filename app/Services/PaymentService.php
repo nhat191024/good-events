@@ -106,7 +106,7 @@ class PaymentService
         ?string $buyerPhone = null,
         ?array $items = null,
         ?int $expiryTime = null,
-        bool $isAppRequest,
+        ?bool $isAppRequest = false,
         ?string $returnUrl = null,
         ?string $cancelUrl = null,
     ) {
