@@ -14,7 +14,10 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @property int $id
  * @property int $user_id
  * @property string $partner_name
- * @property string $identity_card_number
+ * @property string|null $identity_card_number
+ * @property string|null $selfie_image
+ * @property string|null $front_identity_card_image
+ * @property string|null $back_identity_card_image
  * @property int $location_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -29,12 +32,15 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereBackIdentityCardImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereFrontIdentityCardImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereIdentityCardNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereLocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile wherePartnerName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereSelfieImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile withTrashed(bool $withTrashed = true)
