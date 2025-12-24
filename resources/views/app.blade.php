@@ -41,6 +41,8 @@
     @routes
     @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
     @inertiaHead
+
+    <meta name="google-site-verification" content="xzQBSYjswFBEVPucgfh7szJ9LdS2z7BMZ7kgRFBn7GQ" />
 </head>
 
 <body class="font-sans antialiased" style="margin: 0 !important;">
