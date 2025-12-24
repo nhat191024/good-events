@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('selfie_image')->nullable();
             $table->string('front_identity_card_image')->nullable();
             $table->string('back_identity_card_image')->nullable();
+            $table->boolean('is_legit')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });
