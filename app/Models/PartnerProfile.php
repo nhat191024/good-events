@@ -69,6 +69,18 @@ class PartnerProfile extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_legit' => 'boolean',
+        ];
+    }
+
+    /**
      * Summary of getActivitylogOptions
      * @return LogOptions
      */
