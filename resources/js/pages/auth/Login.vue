@@ -19,6 +19,10 @@ const showPassword = ref(false);
 const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
 };
+
+const redirectToProvider = (provider: string) => {
+    window.location.href = route('socialite.redirect', provider);
+};
 </script>
 
 <template>
@@ -72,7 +76,13 @@ const togglePasswordVisibility = () => {
                     <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
                     Đăng nhập
                 </Button>
+
             </div>
+
+            <Button type="button" class="w-full font-bold text-white hover:bg-primary-700 active:bg-primary-800 cursor-pointer" :tabindex="4" :disabled="processing" @click="redirectToProvider('google')">
+                <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
+                Đăng nhập với Google
+            </Button>
 
             <div class="text-sm text-center text-muted-foreground">
                 Chưa có tài khoản?
