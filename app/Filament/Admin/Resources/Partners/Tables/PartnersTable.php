@@ -174,6 +174,43 @@ class PartnersTable
                                 ->title(__('admin/partner.unban_success_message'))
                                 ->send();
                         }),
+                    Action::make('approve_partner')
+                        ->label(__('admin/partner.actions.view_personal_information'))
+                        ->icon('heroicon-o-credit-card')
+                        ->color('info')
+
+                        ->modalHeading(__('admin/partner.view_partner_personal_information'))
+                        ->modalContent(fn(Partner $record) => view('filament.admin.modals.view-partner-id-card', [
+                            'record' => $record,
+                        ]))
+                        ->modalWidth('3xl')
+                        ->slideOver()
+                        ->modalSubmitAction(false)
+                        ->modalCancelAction(false)
+                        ->extraModalFooterActions(fn (Partner $record): array => [
+                            Action::make('approve')
+                                ->label(__('global.approve'))
+                                ->color('success')
+                                ->visible(fn () => ! $record->partnerProfile->is_legit)
+                                ->requiresConfirmation()
+                                ->action(function () use ($record) {
+                                    $record->partnerProfile->update(['is_legit' => true]);
+                                    Notification::make()->success()->title('Đã phê duyệt')->send();
+                                }),
+                            Action::make('unapprove')
+                                ->label('Hủy phê duyệt')
+                                ->color('danger')
+                                ->visible(fn () => $record->partnerProfile->is_legit)
+                                ->requiresConfirmation()
+                                ->action(function () use ($record) {
+                                    $record->partnerProfile->update(['is_legit' => false]);
+                                    Notification::make()->success()->title('Đã hủy phê duyệt')->send();
+                                }),
+                            Action::make('close')
+                                ->label(__('global.close'))
+                                ->color('gray')
+                                ->cancelParentActions(),
+                        ]),
                 ]),
             ])
             ->toolbarActions([
