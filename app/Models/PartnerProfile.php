@@ -18,6 +18,7 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @property string|null $selfie_image
  * @property string|null $front_identity_card_image
  * @property string|null $back_identity_card_image
+ * @property int $is_legit
  * @property int $location_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -38,6 +39,7 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereFrontIdentityCardImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereIdentityCardNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereIsLegit($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereLocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile wherePartnerName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereSelfieImage($value)
