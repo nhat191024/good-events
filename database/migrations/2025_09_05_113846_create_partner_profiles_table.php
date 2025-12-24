@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('partner_name');
-            $table->string('identity_card_number');
             $table->foreignId('location_id')->constrained()->restrictOnDelete();
-            $table->string('selfie_image');
-            $table->string('front_identity_card_image');
-            $table->string('back_identity_card_image');
+            $table->string('identity_card_number')->nullable();
+            $table->string('selfie_image')->nullable();
+            $table->string('front_identity_card_image')->nullable();
+            $table->string('back_identity_card_image')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
