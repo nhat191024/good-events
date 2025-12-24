@@ -33,6 +33,7 @@ return [
     'actions.confirm_deposit' => 'Xác nhận nạp tiền',
     'actions.ban_accept_show' => 'Cấm nhận show',
     'actions.ban_accept_hide' => 'Bỏ cấm nhận show',
+    'actions.view_personal_information' => 'Xem thông tin cá nhân',
 
     'modals.deposit_heading' => 'Nạp tiền vào ví đối tác',
 
@@ -45,4 +46,6 @@ return [
 
     'ban_success_message' => 'Người dùng đã bị cấm thành công.',
     'unban_success_message' => 'Người dùng đã được bỏ cấm thành công.',
+
+    'view_partner_personal_information' => 'Xem thông tin cá nhân đối tác',
 ];

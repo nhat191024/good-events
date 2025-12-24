@@ -33,6 +33,7 @@ return [
     'actions.confirm_deposit' => 'Confirm Deposit',
     'actions.ban_accept_show' => 'Ban Accepting Shows',
     'actions.ban_accept_hide' => 'Unban Accepting Shows',
+    'actions.view_personal_information' => 'View Personal Information',
 
     'modals.deposit_heading' => 'Deposit to Partner Wallet',
 
@@ -45,4 +46,6 @@ return [
 
     'ban_success_message' => 'Người dùng đã bị cấm thành công.',
     'unban_success_message' => 'Người dùng đã được bỏ cấm thành công.',
+
+    'view_partner_personal_information' => 'View Partner Personal Information',
 ];
