@@ -19,6 +19,9 @@ return [
         'identity_card_number' => 'Số chứng minh thư',
         'city_id' => 'Thành phố',
         'location_id' => 'Phường/Xã',
+        'selfie_image' => 'Ảnh chân dung',
+        'front_identity_card_image' => 'Ảnh mặt trước CMND/CCCD',
+        'back_identity_card_image' => 'Ảnh mặt sau CMND/CCCD',
     ],
 
     'buttons' => [
