@@ -12,6 +12,7 @@ return [
     'confirm' => 'Xác nhận',
     'ban' => 'Cấm',
     'close' => 'Đóng',
+    'approve' => 'Phê duyệt',
 
     'no' => 'Không',
     'yes' => 'Có',

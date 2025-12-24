@@ -12,6 +12,7 @@ return [
     'confirm' => 'Confirm',
     'ban' => 'Ban',
     'close' => 'Close',
+    'approve' => 'Approve',
 
     'no' => 'No',
     'yes' => 'Yes',
