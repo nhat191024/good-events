@@ -69,9 +69,12 @@ class ProfileSettings extends Page implements HasForms
             'country_code' => $user->country_code,
             'phone' => $user->phone,
             'partner_name' => $partnerProfile?->partner_name,
-            'identity_card_number' => $partnerProfile?->identity_card_number,
             'location_id' => $partnerProfile?->location_id,
             'city_id' => $cityId,
+            'identity_card_number' => $partnerProfile?->identity_card_number,
+            'selfie_image' => $partnerProfile?->selfie_image,
+            'front_identity_card_image' => $partnerProfile?->front_identity_card_image,
+            'back_identity_card_image' => $partnerProfile?->back_identity_card_image,
         ];
 
         $this->form->fill($this->data);
@@ -196,6 +199,37 @@ class ProfileSettings extends Page implements HasForms
                                     )
                                     ->disabled(fn(Get $get): bool => !$get('city_id'))
                                     ->required(),
+
+                                FileUpload::make('selfie_image')
+                                    ->label(__('profile.partner_label.selfie_image'))
+                                    ->image()
+                                    ->imageEditor()
+                                    ->directory('uploads/partner_profiles/' . Auth::id() . '/selfies')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->columnSpanFull()
+                                    ->nullable(),
+
+                                FileUpload::make('front_identity_card_image')
+                                    ->label(__('profile.partner_label.front_identity_card_image'))
+                                    ->image()
+                                    ->imageEditor()
+                                    ->directory('uploads/partner_profiles/' . Auth::id() . '/id_cards')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->nullable(),
+
+                                FileUpload::make('back_identity_card_image')
+                                    ->label(__('profile.partner_label.back_identity_card_image'))
+                                    ->image()
+                                    ->imageEditor()
+                                    ->directory('uploads/partner_profiles/' . Auth::id() . '/id_cards')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->nullable(),
                             ])
                     ])
             ])
@@ -215,11 +249,9 @@ class ProfileSettings extends Page implements HasForms
     {
         $user = Auth::user();
 
-        // Get form data and validate
         $data = $this->form->getState();
 
         try {
-            // Simple validation (Filament form validation is already applied)
             $userData = [
                 'avatar' => $data['avatar'] ?? $user->avatar,
                 'name' => $data['name'],
@@ -230,14 +262,15 @@ class ProfileSettings extends Page implements HasForms
 
             $partnerData = [
                 'partner_name' => $data['partner_name'],
-                'identity_card_number' => $data['identity_card_number'],
                 'location_id' => $data['location_id'],
+                'identity_card_number' => $data['identity_card_number'],
+                'selfie_image' => $data['selfie_image'] ?? null,
+                'front_identity_card_image' => $data['front_identity_card_image'] ?? null,
+                'back_identity_card_image' => $data['back_identity_card_image'] ?? null,
             ];
 
-            // Update user information
             $user->update($userData);
 
-            // Update or create partner profile
             $partnerProfile = $user->partnerProfile;
             if ($partnerProfile) {
                 $partnerProfile->update($partnerData);
