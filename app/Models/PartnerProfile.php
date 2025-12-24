@@ -18,7 +18,7 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @property string|null $selfie_image
  * @property string|null $front_identity_card_image
  * @property string|null $back_identity_card_image
- * @property int $is_legit
+ * @property bool $is_legit
  * @property int $location_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
