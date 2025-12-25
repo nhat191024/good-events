@@ -59,6 +59,7 @@ class PartnerProfilePayload
                 'bio' => $user->bio,
                 'email_verified_at' => optional($user->email_verified_at)->toIso8601String(),
                 'is_verified' => $user->hasVerifiedEmail(),
+                'is_legit' => (bool) optional($user->partnerProfile)->is_legit,
             ],
             'stats' => [
                 'customers' => (int) (optional($stats->get('number_customer'))->metrics_value ?? 0),
