@@ -15,6 +15,7 @@ import ReportModal from '@/components/ReportModal.vue'
 type UserInfo = {
     id: number; name: string; avatar_url: string; location: string | null;
     joined_year: string | null; is_pro: boolean; rating: number; total_reviews: number; total_customers: number | null;
+    is_verified?: boolean; is_legit?: boolean;
 }
 type Media = { id: number; url: string }
 type Service = { id: number; name: string | null; field: string | null; price: number | null; media: Media[] }
@@ -86,7 +87,21 @@ const user = computed(() => data.value?.user)
                                 class="w-10 h-10 rounded-full" img-class="w-10 h-10 rounded-full object-cover"
                                 loading="lazy" />
                             <div>
-                                <div class="font-semibold">{{ user?.name ?? '—' }}</div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <div class="font-semibold">{{ user?.name ?? '—' }}</div>
+                                    <span v-if="user?.is_verified"
+                                        class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded border border-slate-200"
+                                        title="Người dùng này đã xác minh email"
+                                        aria-label="Người dùng này đã xác minh email">
+                                        Đã xác minh
+                                    </span>
+                                    <span v-if="user?.is_legit"
+                                        class="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded border border-amber-200"
+                                        title="Người dùng đã xác minh thông tin cá nhân chuẩn thông qua KYC"
+                                        aria-label="Người dùng đã xác minh thông tin cá nhân chuẩn thông qua KYC">
+                                        Đáng tin cậy
+                                    </span>
+                                </div>
                                 <div class="text-xs text-muted-foreground">
                                     Thành viên • {{ user?.joined_year ? `từ ${user?.joined_year}` : '—'
                                     }}

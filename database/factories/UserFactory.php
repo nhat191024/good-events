@@ -80,7 +80,7 @@ class UserFactory extends Factory
             }
 
             $usedCategoryIds = [];
-            $services = collect(['Service A', 'Service B'])->map(function ($service) use ($categoryIds, $usedCategoryIds) {
+            $services = collect(['Service A', 'Service B'])->map(function ($service) use ($categoryIds, &$usedCategoryIds) {
                 $availableIds = array_diff($categoryIds, $usedCategoryIds);
                 $categoryId = fake()->randomElement($availableIds);
                 $usedCategoryIds[] = $categoryId;
