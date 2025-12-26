@@ -111,10 +111,6 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ $bill->client->email ?? '' }}</p>
                             </div>
                         </div>
-                        <div class="border-t border-gray-100 pt-4 dark:border-gray-800">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('partner/bill.phone') }}</p>
-                            <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ $bill->phone }}</p>
-                        </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('partner/bill.address') }}</p>
                             <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ $bill->address }}</p>
