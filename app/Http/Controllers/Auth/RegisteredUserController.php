@@ -127,12 +127,15 @@ class RegisteredUserController extends Controller
         $user->assignRole(Role::PARTNER);
 
         $defaultBalance = app(PartnerSettings::class)->default_balance;
-        $meta = [
-            'reason' => __('admin/partner.messages.app_deposit'),
-            'old_balance' => $user->balanceInt,
-            'new_balance' => $user->balanceInt + $defaultBalance,
-        ];
-        $user->deposit($defaultBalance, $meta)->save();
+
+        if ($defaultBalance > 0) {
+            $meta = [
+                'reason' => __('admin/partner.messages.app_deposit'),
+                'old_balance' => $user->balanceInt,
+                'new_balance' => $user->balanceInt + $defaultBalance,
+            ];
+            $user->deposit($defaultBalance, $meta)->save();
+        }
 
         PartnerProfile::create([
             'user_id' => $user->id,
@@ -220,6 +223,5 @@ class RegisteredUserController extends Controller
             Log::error('Error upgrading user to partner: ' . $th->getMessage());
             return back()->with('error', 'Đã có lỗi xảy ra. Vui lòng thử lại.');
         }
-
     }
 }
