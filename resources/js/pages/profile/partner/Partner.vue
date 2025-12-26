@@ -16,7 +16,7 @@ import type { AppPageProps } from '@/types'
 interface UserInfo {
     id: number; name: string; avatar_url: string; location: string | null;
     joined_year: string | null; is_pro: boolean; rating: number; total_reviews: number; total_customers: number | null;
-    bio?: string | null; is_verified?: boolean; email_verified_at?: string | null;
+    bio?: string | null; is_verified?: boolean; email_verified_at?: string | null; is_legit?: boolean;
 }
 type Media = { id: number; url: string }
 type Service = { id: number; name: string | null; field: string | null; price: number | null; media: Media[] }
@@ -94,7 +94,8 @@ console.log('partner page loaded');
                         <!-- Avatar with badge -->
                         <div class="relative">
                             <div
-                                class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
+                                class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white overflow-hidden bg-white"
+                                :class="user.is_legit ? 'ring-4 ring-amber-300/80 shadow-[0_0_20px_rgba(251,191,36,0.7)]' : 'shadow-lg'">
                                 <ImageWithLoader v-if="user.avatar_url" :src="getImg(user.avatar_url)" :alt="user.name"
                                     class="w-full h-full" img-class="w-full h-full object-cover" loading="lazy" />
                                 <div v-else class="w-full h-full flex items-center justify-center bg-gray-200">
@@ -117,8 +118,15 @@ console.log('partner page loaded');
                             <div class="flex items-center gap-2 mb-1">
                                 <h1 class="text-2xl md:text-3xl font-bold">{{ user.name }}</h1>
                                 <span v-if="user.is_verified"
-                                    class="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white text-xs rounded border border-white/30">
+                                    class="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white text-xs rounded border border-white/30"
+                                    title="Người dùng này đã xác minh email" aria-label="Người dùng này đã xác minh email">
                                     Đã xác minh
+                                </span>
+                                <span v-if="user.is_legit"
+                                    class="px-2 py-0.5 bg-amber-300/30 backdrop-blur-sm text-amber-50 text-xs rounded border border-amber-200/60"
+                                    title="Người dùng đã xác minh thông tin cá nhân chuẩn thông qua KYC"
+                                    aria-label="Người dùng đã xác minh thông tin cá nhân chuẩn thông qua KYC">
+                                    Đáng tin cậy
                                 </span>
                             </div>
 
