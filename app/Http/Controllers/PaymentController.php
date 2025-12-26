@@ -51,48 +51,48 @@ class PaymentController extends Controller
             return redirect()
                 ->route('client-orders.asset.dashboard', ['bill_id' => $bill->getKey()])
                 ->with('error', 'Thanh toán không thành công. Đơn hàng vẫn ở trạng thái chờ thanh toán.');
-        }
-
-        if ($status === 'PAID') {
-            $transactionId = intval(explode('1010', $orderCode)[0] ?? 0);
-            $transaction = Transaction::find($transactionId);
-            if ($transaction) {
-                $metaData = $transaction->meta;
-
-                // Confirm the transaction first
-                $user->confirm($transaction);
-
-                // Update the new balance in meta data
-                $metaData['new_balance'] = $user->balanceInt;
-                $transaction->meta = $metaData;
-                $transaction->save();
-            }
-
-            Notification::make()
-                ->title(__('partner/transaction.notification.add_funds_success'))
-                ->body(__('partner/transaction.notification.add_funds_success_message', ['transactionId' => $transactionId]))
-                ->success()
-                ->actions([
-                    Action::make('open')
-                        ->label(__('notification.open_wallet'))
-                        ->url(route('filament.partner.resources.wallets.index')),
-                ])
-                ->sendToDatabase($user);
-
-            return redirect()->route('filament.partner.resources.wallets.index');
         } else {
-            Notification::make()
-                ->title(__('partner/transaction.notification.add_funds_failed'))
-                ->body(__('partner/transaction.notification.add_funds_failed_message'))
-                ->danger()
-                ->actions([
-                    Action::make('open')
-                        ->label(__('notification.open_wallet'))
-                        ->url(route('filament.partner.resources.wallets.index')),
-                ])
-                ->sendToDatabase($user);
+            if ($status === 'PAID') {
+                $transactionId = intval(explode('1010', $orderCode)[0] ?? 0);
+                $transaction = Transaction::find($transactionId);
+                if ($transaction instanceof Transaction) {
+                    $metaData = $transaction->meta;
 
-            return redirect()->route('filament.partner.resources.wallets.index');
+                    // Confirm the transaction first
+                    $user->confirm($transaction);
+
+                    // Update the new balance in meta data
+                    $metaData['new_balance'] = $user->balanceInt;
+                    $transaction->meta = $metaData;
+                    $transaction->save();
+                }
+
+                Notification::make()
+                    ->title(__('partner/transaction.notification.add_funds_success'))
+                    ->body(__('partner/transaction.notification.add_funds_success_message', ['transactionId' => $transactionId]))
+                    ->success()
+                    ->actions([
+                        Action::make('open')
+                            ->label(__('notification.open_wallet'))
+                            ->url(route('filament.partner.resources.wallets.index')),
+                    ])
+                    ->sendToDatabase($user);
+
+                return redirect()->route('filament.partner.resources.wallets.index');
+            } else {
+                Notification::make()
+                    ->title(__('partner/transaction.notification.add_funds_failed'))
+                    ->body(__('partner/transaction.notification.add_funds_failed_message'))
+                    ->danger()
+                    ->actions([
+                        Action::make('open')
+                            ->label(__('notification.open_wallet'))
+                            ->url(route('filament.partner.resources.wallets.index')),
+                    ])
+                    ->sendToDatabase($user);
+
+                return redirect()->route('filament.partner.resources.wallets.index');
+            }
         }
     }
 }
