@@ -60,5 +60,6 @@ return [
         'human_resource_manager' => 'Quản lý đối tác',
         'design_manager' => 'Quản lý thiết kế',
         'rental_manager' => 'Quản lý cho thuê vật tư',
+        'blog_manager' => 'Quản lý blog',
     ],
 ];

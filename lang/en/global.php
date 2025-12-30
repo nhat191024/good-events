@@ -58,5 +58,6 @@ return [
         'human_resource_manager' => 'Human Resource Manager',
         'design_manager' => 'Design Manager',
         'rental_manager' => 'Rental Manager',
+        'blog_manager' => 'Blog Manager',
     ],
 ];
