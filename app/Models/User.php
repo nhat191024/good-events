@@ -200,7 +200,8 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             Role::ADMIN,
             Role::HUMAN_RESOURCE_MANAGER,
             Role::DESIGN_MANAGER,
-            Role::RENTAL_MANAGER
+            Role::RENTAL_MANAGER,
+            Role::BLOG_MANAGER,
         ])) {
             return true;
         } elseif ($panel->getId() === 'partner' && $this->hasRole(Role::PARTNER)) {
