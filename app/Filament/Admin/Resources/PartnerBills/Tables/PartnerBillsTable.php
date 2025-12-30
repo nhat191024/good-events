@@ -118,7 +118,7 @@ class PartnerBillsTable
                     ->label(__('admin/partnerBill.actions.cancel_bill'))
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn(PartnerBill $record): bool => $record->status === PartnerBillStatus::CONFIRMED)
+                    ->visible(fn(PartnerBill $record): bool => $record->status != PartnerBillStatus::IN_JOB && $record->status != PartnerBillStatus::COMPLETED && $record->status != PartnerBillStatus::CANCELLED)
                     ->requiresConfirmation()
                     ->modalHeading(__('admin/partnerBill.actions.cancel_bill_heading'))
                     ->modalDescription(__('admin/partnerBill.actions.cancel_bill_description'))
