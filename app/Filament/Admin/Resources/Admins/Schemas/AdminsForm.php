@@ -49,6 +49,7 @@ class AdminsForm
                         Role::HUMAN_RESOURCE_MANAGER->value => Role::HUMAN_RESOURCE_MANAGER->label(),
                         Role::DESIGN_MANAGER->value => Role::DESIGN_MANAGER->label(),
                         Role::RENTAL_MANAGER->value => Role::RENTAL_MANAGER->label(),
+                        Role::BLOG_MANAGER->value => Role::BLOG_MANAGER->label(),
                     ])
                     ->afterStateHydrated(function (Select $component, $record) {
                         if ($record && $record->roles->isNotEmpty()) {
