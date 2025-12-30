@@ -47,7 +47,6 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->reorderable()
                             ->downloadable()
                             ->openable()
-                            ->image()
                             ->imageEditor()
                             ->imageEditorAspectRatios([
                                 null,
@@ -57,9 +56,16 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ])
                             ->maxFiles(20)
                             ->maxSize(102400) // 100MB
-                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'application/octet-stream', 'image/vnd.adobe.photoshop', '.psd'])
-                            ->helperText('Có thể upload tối đa 20 ảnh, mỗi ảnh tối đa 100MB. Hỗ trợ: JPG, PNG, WebP, SVG, PSD')
-                            // ->temporary()
+                            ->helperText('Có thể upload tối đa 20 ảnh, mỗi ảnh tối đa 100MB. Hỗ trợ mọi định dạng.')
+                            ->acceptedFileTypes([
+                                'image/*',
+                                'application/pdf',
+                                'application/zip',
+                                'application/x-zip-compressed',
+                                'multipart/x-zip',
+                                'application/x-rar-compressed',
+                                'application/vnd.rar',
+                            ])
                             ->columnSpanFull(),
                     ]),
             ])
