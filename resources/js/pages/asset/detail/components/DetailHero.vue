@@ -66,6 +66,10 @@
                     class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none">
                     Mua ngay
                 </Link>
+                <Link :href="route('contact.index')"
+                    class="inline-flex w-full items-center justify-center rounded-lg border-2 border-red-600 bg-white px-4 py-3 text-base font-bold text-red-600 shadow-sm transition hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:outline-none">
+                    Liên hệ thi công
+                </Link>
                 <button type="button"
                     class="inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 text-base font-semibold text-primary-600 shadow-sm transition hover:bg-primary-50 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                     @click="isContactModalOpen = true">
@@ -115,6 +119,10 @@
                         class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
                         Gọi trực tiếp
                     </a>
+                    <Link :href="route('contact.index')"
+                        class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
+                        Liên hệ thi công
+                    </Link>
                 </div>
             </div>
         </div>
