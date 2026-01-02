@@ -85,8 +85,8 @@ class FileProduct extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         // 1. Collection cho File PRIVATE (Designs)
-        $this->addMediaCollection('designs')
-            ->useDisk('s3');
+        // $this->addMediaCollection('designs')
+        //     ->useDisk('s3');
 
         // 2. Collection cho File PUBLIC (Thumbnails)
         $this->addMediaCollection('thumbnails')
