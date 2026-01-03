@@ -141,7 +141,7 @@ const categories = [
         name: 'Nhân sự',
         slug: 'su-kien',
         icon: 'mdi:flower',
-        image: '/images/logo-su-kien.webp',
+        image: '/images/home/logo-su-kien.webp',
         href: route('home')
     },
     {
@@ -149,7 +149,7 @@ const categories = [
         name: 'Thiết kế',
         slug: 'tai-lieu',
         icon: 'mdi:book-open',
-        image: '/images/logo-tai-lieu.webp',
+        image: '/images/home/logo-tai-lieu.webp',
         href: route('asset.home')
     },
     {
@@ -157,7 +157,7 @@ const categories = [
         name: 'Thiết bị SK',
         slug: 'tim-khach-san',
         icon: 'mdi:bed',
-        image: '/images/logo-loa-dai.webp',
+        image: '/images/home/logo-loa-dai.webp',
         href: route('rent.home')
     },
     {
@@ -165,6 +165,7 @@ const categories = [
         name: 'Địa điểm',
         slug: 'khach-san',
         icon: 'mdi:bag-personal',
+        image: '/images/home/logo-dia-diem.webp',
         href: route('blog.discover')
     },
     {
@@ -172,6 +173,7 @@ const categories = [
         name: 'Hướng dẫn',
         slug: 'huong-dan',
         icon: 'mdi:bag-personal',
+        image: '/images/home/logo-huong-dan.webp',
         href: route('blog.guides.discover')
     },
     {
@@ -179,6 +181,7 @@ const categories = [
         name: 'Kiến thức',
         slug: 'kien-thuc',
         icon: 'mdi:bag-personal',
+        image: '/images/home/logo-kien-thuc.webp',
         href: route('blog.knowledge.discover')
     },
 ];
