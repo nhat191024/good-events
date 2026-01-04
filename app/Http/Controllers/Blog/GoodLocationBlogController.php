@@ -178,18 +178,8 @@ class GoodLocationBlogController extends BaseBlogPageController
     {
         [$min, $max] = $this->maxPeopleRange($maxPeople);
 
-        if ($min !== null && $max !== null) {
-            $query->whereBetween('max_people', [$min, $max]);
-            return;
-        }
-
         if ($min !== null) {
             $query->where('max_people', '>=', $min);
-            return;
-        }
-
-        if ($max !== null) {
-            $query->where('max_people', '<=', $max);
         }
     }
 

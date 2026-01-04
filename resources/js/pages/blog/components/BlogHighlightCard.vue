@@ -15,7 +15,7 @@
                 <div
                     class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-70" />
 
-                <div v-if="label" class="absolute right-4 top-4">
+                <div v-if="label" class="absolute right-1 md:right-4 top-0 md:top-4">
                     <span
                         class="rounded-lg bg-black/50 px-2 py-1 text-[8px] md:text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md">
                         {{ label }}
@@ -43,6 +43,16 @@
                                 clip-rule="evenodd" />
                         </svg>
                         <span class="line-clamp-2 text-[10px] md:text-sm">{{ addressLabel }}</span>
+                    </div>
+
+                    <div v-if="blog.max_people"
+                        class="mb-1 md:mb-4 flex gap-1 md:gap-2 text-xs text-white/90 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-4 h-4 mt-0.5 flex-shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 5.472m0 0a4.857 4.857 0 00-4.681-2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                        </svg>
+                        <span class="line-clamp-2 text-[10px] md:text-sm">{{ blog.max_people }} khách</span>
                     </div>
 
                     <div class="flex items-center justify-between gap-0 md:gap-4">
