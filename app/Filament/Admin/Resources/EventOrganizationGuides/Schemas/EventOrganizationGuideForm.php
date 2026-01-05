@@ -77,6 +77,15 @@ class EventOrganizationGuideForm
                             ->afterStateUpdated(function (Set $set, ?string $state): void {
                                 if ($state) {
                                     try {
+                                        if (str_contains($state, '/shorts/')) {
+                                            $state = strtok($state, '?');
+                                            $state = str_replace('/shorts/', '/watch?v=', $state);
+                                        }
+
+                                        if (!str_contains($state, 'www.') && str_contains($state, 'youtube.com')) {
+                                            $state = str_replace('youtube.com', 'www.youtube.com', $state);
+                                        }
+
                                         $embed = OEmbed::get($state);
                                         if ($embed) {
                                             $set('video_url', $embed->html([
