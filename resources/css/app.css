@@ -9,6 +9,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@plugin "@tailwindcss/typography";
+
 @theme inline {
     --font-sans: 'Lexend', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     --font-lexend: 'Lexend', ui-sans-serif, system-ui, sans-serif;
