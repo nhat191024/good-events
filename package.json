@@ -37,6 +37,7 @@
         "@inertiajs/core": "^2.1.5",
         "@inertiajs/vue3": "^2.1.5",
         "@laravel/echo-vue": "^2.2.0",
+        "@tailwindcss/typography": "^0.5.19",
         "@vue/server-renderer": "^3.5.24",
         "@vueuse/core": "^12.8.2",
         "axios": "^1.12.2",
