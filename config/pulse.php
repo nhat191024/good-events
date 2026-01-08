@@ -4,6 +4,7 @@ use Laravel\Pulse\Http\Middleware\Authorize;
 use Laravel\Pulse\Pulse;
 use Laravel\Pulse\Recorders;
 
+
 return [
 
     /*
@@ -231,6 +232,8 @@ return [
                 '#^/' . env('PULSE_PATH', 'pulse') . '$#', // Pulse dashboard...
                 '#^/telescope#', // Telescope dashboard...
             ],
-        ]
+        ],
+
+
     ],
 ];
