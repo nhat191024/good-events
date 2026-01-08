@@ -3,25 +3,16 @@
 namespace App\Http\Controllers\Api\Partner;
 
 use App\Enum\StatisticType;
-
 use App\Http\Controllers\Controller;
-
+use App\Http\Resources\Api\UserResource;
 use App\Models\PartnerCategory;
 use App\Models\Statistical;
-
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    /**
-     * GET /api/partner/dashboard
-     *
-     * Response: { has_notification, statistical_data, popular_services }
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request)
     {
         $user = $request->user();
@@ -56,32 +47,34 @@ class DashboardController extends Controller
             ->get()
             ->keyBy('category_id');
 
-        $categoryIds = $popularCategories->keys()->map(fn($id) => (int) $id)->all();
+        $categoryIds = $popularCategories->keys()->map(fn ($id) => (int) $id)->all();
         $categories = $categoryIds
             ? PartnerCategory::query()
-            ->whereIn('id', $categoryIds)
-            ->with('media')
-            ->get()
-            ->keyBy('id')
+                ->whereIn('id', $categoryIds)
+                ->with('media')
+                ->get()
+                ->keyBy('id')
             : collect();
 
-        // $popularServices = collect($popularCategories)->map(function ($statsRow, $categoryId) use ($categories) {
-        //     $category = $categories->get((int) $categoryId);
+        $popularServices = collect($popularCategories)->map(function ($statsRow, $categoryId) use ($categories) {
+            $category = $categories->get((int) $categoryId);
 
-        //     return [
-        //         'category_id' => (int) $categoryId,
-        //         'name' => $category?->name,
-        //         'slug' => $category?->slug,
-        //         'image' => $category?->getFirstMediaUrl('images', 'thumb'),
-        //         'order_count' => (int) $statsRow->order_count,
-        //         'total_revenue' => (float) $statsRow->total_revenue,
-        //         'latest_order' => $statsRow->latest_order,
-        //     ];
-        // })->values();
+            return [
+                'category_id' => (int) $categoryId,
+                'name' => $category?->name,
+                'slug' => $category?->slug,
+                'image' => $category?->getFirstMediaUrl('images', 'thumb'),
+                'order_count' => (int) $statsRow->order_count,
+                'total_revenue' => (float) $statsRow->total_revenue,
+                'latest_order' => $statsRow->latest_order,
+            ];
+        })->values();
 
         return response()->json([
-            'has_notification' => $user->unreadNotifications()->count() > 0,
+            'user' => new UserResource($user),
+            'is_has_new_noti' => $user->unreadNotifications()->count() > 0,
             'statistical_data' => $statisticalData,
+            'popular_services' => $popularServices,
         ]);
     }
 }
