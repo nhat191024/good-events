@@ -14,15 +14,6 @@ use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
-    /**
-     * POST /api/login
-     *
-     * Body: email, password
-     * Response: { token, token_type, role, user }
-     *
-     * @param LoginRequest $request
-     * @return JsonResponse
-     */
     public function login(LoginRequest $request): JsonResponse
     {
         $request->authenticate();
@@ -39,15 +30,6 @@ class LoginController extends Controller
         ]);
     }
 
-    /**
-     * POST /api/login/google
-     *
-     * Body: access_token (Google access token)
-     * Response: { token, token_type, role, user } (401/404 on failure)
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function loginGoogle(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -84,16 +66,6 @@ class LoginController extends Controller
         ]);
     }
 
-    /**
-     * POST /api/forgot
-     *
-     * Body: email
-     * Response: { success: bool }
-     *
-     * @param Request $request
-     * @param PasswordResetMailService $passwordResetMailService
-     * @return JsonResponse
-     */
     public function forgot(Request $request, PasswordResetMailService $passwordResetMailService): JsonResponse
     {
         $validated = $request->validate([
@@ -107,14 +79,6 @@ class LoginController extends Controller
         ]);
     }
 
-    /**
-     * POST /api/logout
-     *
-     * Response: { success: true }
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function logout(Request $request): JsonResponse
     {
         $user = $request->user();
