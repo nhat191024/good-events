@@ -7,14 +7,6 @@ use App\Models\PartnerCategory;
 
 class PartnerCategoryController extends Controller
 {
-    /**
-     * GET /api/partner-categories/{slug}
-     *
-     * Response: { item, category, related }
-     *
-     * @param string $slug
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show(string $slug)
     {
         $item = PartnerCategory::query()
