@@ -60,11 +60,16 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->acceptedFileTypes([
                                 'image/*',
                                 'application/pdf',
+                                // Compression
                                 'application/zip',
                                 'application/x-zip-compressed',
                                 'multipart/x-zip',
                                 'application/x-rar-compressed',
                                 'application/vnd.rar',
+                                // Adobe Specific
+                                'image/vnd.adobe.photoshop', // .psd
+                                'application/postscript',     // .ai, .eps
+                                'application/x-indesign',     // .indd
                             ])
                             ->columnSpanFull(),
                     ]),
