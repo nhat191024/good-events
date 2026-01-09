@@ -71,12 +71,15 @@ class AppManager extends SettingsPage
                             ->required(),
 
                         TextInput::make('contact_hotline')
-                            ->label(__(__('admin/setting.fields.contact_hotline')))
-                            ->columnSpanFull()
+                        ->label(__(__('admin/setting.fields.contact_hotline')))
                             ->required(),
 
                         TextInput::make('contact_email')
                             ->label(__(__('admin/setting.fields.contact_email')))
+                            ->required(),
+
+                        TextInput::make('social_facebook')
+                            ->label(__(__('admin/setting.fields.socials.facebook')))
                             ->columnSpanFull()
                             ->required(),
 
@@ -86,7 +89,7 @@ class AppManager extends SettingsPage
                             ->directory('uploads/app')
                             ->disk('public')
                             ->visibility('public')
-                            ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
+                            ->formatStateUsing(fn($state) => $state ? str_replace('storage/', '', $state) : null)
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
                                 if (filled($state)) {
@@ -104,7 +107,7 @@ class AppManager extends SettingsPage
                             ->directory('uploads/app')
                             ->disk('public')
                             ->visibility('public')
-                            ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
+                            ->formatStateUsing(fn($state) => $state ? str_replace('storage/', '', $state) : null)
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(function ($state, $record) {
                                 if (filled($state)) {

@@ -44,6 +44,10 @@ return [
         'contact_hotline' => 'Số điện thoại',
         'contact_email' => 'Email liên hệ',
 
+        'socials' => [
+            'facebook' => 'Link Facebook',
+        ],
+
         'minimum_balance' => 'Số dư tối thiểu',
         'fee_percentage' => 'Phần trăm phí',
         'default_balance' => 'Số dư mặc định',

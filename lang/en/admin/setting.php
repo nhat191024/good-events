@@ -45,6 +45,10 @@ return [
         'contact_hotline' => 'Contact Hotline',
         'contact_email' => 'Contact Email',
 
+        'socials' => [
+            'facebook' => 'Facebook Link',
+        ],
+
         'minimum_balance' => 'Minimum Balance',
         'fee_percentage' => 'Fee Percentage',
         'default_balance' => 'Default Balance',
