@@ -19,6 +19,7 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @property string|null $front_identity_card_image
  * @property string|null $back_identity_card_image
  * @property bool $is_legit
+ * @property string|null $video_url
  * @property int $location_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -45,6 +46,7 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereSelfieImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereVideoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile withoutTrashed()
  * @mixin \Eloquent
