@@ -14,5 +14,6 @@ return new class extends SettingsMigration
         $this->migrator->add('app.app_rental_title', 'Dịch vụ cho thuê thiết bị sự kiện');
         $this->migrator->add('app.contact_hotline', '1800 1234');
         $this->migrator->add('app.contact_email', 'contact@sukientot.com');
+        $this->migrator->add('app.social_facebook', 'https://www.facebook.com/sukientott');
     }
 };

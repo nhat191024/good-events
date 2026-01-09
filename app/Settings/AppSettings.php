@@ -16,6 +16,7 @@ class AppSettings extends Settings
     public ?string $app_rental_title = null;
     public ?string $contact_hotline = null;
     public ?string $contact_email = null;
+    public ?string $social_facebook = null;
 
     public static function group(): string
     {

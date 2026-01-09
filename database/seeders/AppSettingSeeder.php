@@ -26,6 +26,7 @@ class AppSettingSeeder extends Seeder
         $settings->app_rental_title = 'Dịch vụ cho thuê thiết bị sự kiện';
         $settings->contact_hotline = '1800 1234';
         $settings->contact_email = 'contact@sukientot.com';
+        $settings->social_facebook = 'https://www.facebook.com/sukientott';
         $settings->save();
     }
 }
