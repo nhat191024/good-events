@@ -29,6 +29,8 @@ use Filament\Notifications\Notification;
 
 use Illuminate\Support\Facades\Auth;
 
+use Cohensive\OEmbed\Facades\OEmbed;
+
 class ProfileSettings extends Page implements HasForms
 {
     use InteractsWithForms;
@@ -75,6 +77,7 @@ class ProfileSettings extends Page implements HasForms
             'selfie_image' => $partnerProfile?->selfie_image,
             'front_identity_card_image' => $partnerProfile?->front_identity_card_image,
             'back_identity_card_image' => $partnerProfile?->back_identity_card_image,
+            'video_url' => $partnerProfile?->video_url,
         ];
 
         $this->form->fill($this->data);
@@ -199,6 +202,57 @@ class ProfileSettings extends Page implements HasForms
                                     )
                                     ->disabled(fn(Get $get): bool => !$get('city_id'))
                                     ->required(),
+
+                                TextInput::make('video_url')
+                                    ->label(__('profile.partner_label.video_url'))
+                                    ->placeholder(__('profile.partner_placeholder.video_url'))
+                                    ->helperText(__('profile.partner_helpers.video_url'))
+                                    ->columnSpanFull()
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function (Set $set, ?string $state): void {
+                                        if ($state) {
+                                            try {
+                                                if (str_contains($state, '/shorts/')) {
+                                                    $state = strtok($state, '?');
+                                                    $state = str_replace('/shorts/', '/watch?v=', $state);
+                                                }
+
+                                                if (!str_contains($state, 'www.') && str_contains($state, 'youtube.com')) {
+                                                    $state = str_replace('youtube.com', 'www.youtube.com', $state);
+                                                }
+
+                                                $embed = OEmbed::get($state);
+                                                if ($embed) {
+                                                    $set('video_url', $embed->html([
+                                                        'width' => 640,
+                                                        'height' => 360,
+                                                    ]));
+                                                } else {
+                                                    $set('video_url', null);
+                                                }
+                                            } catch (\Exception $e) {
+                                                $set('video_url', null);
+                                            }
+                                        } else {
+                                            $set('video_url', null);
+                                        }
+                                    })
+                                    ->dehydrateStateUsing(function (?string $state): ?string {
+                                        if ($state && !str_starts_with($state, '<iframe') || str_starts_with($state, '<blockquote')) {
+                                            try {
+                                                $embed = OEmbed::get($state);
+                                                if ($embed) {
+                                                    return $embed->html([
+                                                        'width' => 640,
+                                                        'height' => 360,
+                                                    ]);
+                                                }
+                                            } catch (\Exception $e) {
+                                                return null;
+                                            }
+                                        }
+                                        return $state;
+                                    }),
 
                                 FileUpload::make('selfie_image')
                                     ->label(__('profile.partner_label.selfie_image'))
