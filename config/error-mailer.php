@@ -2,7 +2,7 @@
 
 return [
     'email' => [
-        'recipient' => [],
+        'recipient' => ['recipient1@example.com'],
         'bcc' => [],
         'cc' => [],
         'subject' => 'An error has occured - ' . env('APP_NAME'),
