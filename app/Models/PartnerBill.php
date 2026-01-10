@@ -398,7 +398,7 @@ class PartnerBill extends Model implements HasMedia
         $mailService = new PartnerBillMailService();
         $mailService->sendOrderConfirmedNotification($partnerBill);
 
-        $partner = Partner::find($partnerBill->partner_id);
+        $partner = Partner::findOrFail($partnerBill->partner_id);
 
         if (!$partner) {
             Log::warning('Partner bill confirmed but partner record missing', [
@@ -447,7 +447,7 @@ class PartnerBill extends Model implements HasMedia
                     ->label('Xem đơn')
                     ->url(route('filament.partner.resources.partner-bill-histories.index', ['order' => $partnerBill->id])),
             ])
-            ->sendToDatabase(Partner::find($partnerBill->client_id), true);
+            ->sendToDatabase(Partner::findOrFail($partnerBill->client_id), true);
     }
 
     //model helpers method
