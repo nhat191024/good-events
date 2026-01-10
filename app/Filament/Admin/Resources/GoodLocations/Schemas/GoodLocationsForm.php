@@ -193,8 +193,8 @@ class GoodLocationsForm
                                     )
                                     ->afterStateUpdated(fn(callable $set) => $set('location_id', null))
                                     ->afterStateHydrated(function ($state, $record, Set $set): void {
-                                        if ($record && $record->location_id) {
-                                            $ward = Location::find($record->location_id);
+                                        if ($record && $record->location) {
+                                            $ward = $record->location;
                                             if ($ward && $ward->parent_id) {
                                                 $set('city_id', $ward->parent_id);
                                             }
