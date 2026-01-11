@@ -15,6 +15,13 @@ use Illuminate\Http\Request;
 
 class QuickBookingController extends Controller
 {
+    /**
+     * GET /api/quick-booking/categories
+     *
+     * Response: { partner_categories }
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function chooseCategory(): \Illuminate\Http\JsonResponse
     {
         $partnerCategories = PartnerCategory::getTree()
@@ -36,6 +43,14 @@ class QuickBookingController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/quick-booking/{partnerCategorySlug}/children
+     *
+     * Response: { partner_category, partner_children_list }
+     *
+     * @param string $partnerCategorySlug
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function choosePartnerCategory(string $partnerCategorySlug)
     {
         $allCategories = PartnerCategory::getTree();
@@ -91,6 +106,15 @@ class QuickBookingController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/quick-booking/{partnerCategorySlug}/{partnerChildCategorySlug}/form
+     *
+     * Response: { partner_category, partner_children_category, event_list, provinces }
+     *
+     * @param string $partnerCategorySlug
+     * @param string $partnerChildCategorySlug
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function fillOrderInfo(string $partnerCategorySlug, string $partnerChildCategorySlug)
     {
         $allCategories = PartnerCategory::getTree();
@@ -154,6 +178,16 @@ class QuickBookingController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/quick-booking/submit
+     *
+     * Body: order_date, start_time, end_time, province_id, ward_id, event_id,
+     * custom_event, location_detail, note, category_id
+     * Response: { success: true, bill }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function saveBookingInfo(Request $request)
     {
         $validated = $request->validate([
@@ -207,6 +241,14 @@ class QuickBookingController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/quick-booking/finish/{billCode}
+     *
+     * Response: { partner_bill, category_name }
+     *
+     * @param string $billCode
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function finishedBooking(string $billCode)
     {
         $bill = PartnerBill::where('code', $billCode)->with('category')->first();
