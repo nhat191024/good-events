@@ -16,6 +16,14 @@ use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
+    /**
+     * GET /api/partner/profile
+     *
+     * Response: { user, city_name, province_name }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show(Request $request)
     {
         $user = $request->user();
@@ -67,6 +75,16 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/partner/profile (multipart/form-data)
+     *
+     * Body: name, email, country_code, phone, bio, partner_name, identity_card_number,
+     * city_id, location_id, avatar, selfie_image, front_identity_card_image, back_identity_card_image
+     * Response: { success: true, user, partner_profile }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request)
     {
         $user = $request->user();
