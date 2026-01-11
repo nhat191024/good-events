@@ -21,6 +21,15 @@ class BillController extends Controller
     private const DEFAULT_PER_PAGE = 6;
     private const MAX_PER_PAGE = 50;
 
+    /**
+     * GET /api/partner/bills/realtime
+     *
+     * Query: search, date_filter, category_id
+     * Response: { partner_bills, available_categories, last_updated }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function realtime(Request $request)
     {
         $user = $request->user();
@@ -107,6 +116,16 @@ class BillController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/partner/bills/{bill}/accept
+     *
+     * Body: price
+     * Response: { success: true } or { message }
+     *
+     * @param Request $request
+     * @param PartnerBill $bill
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function accept(Request $request, PartnerBill $bill)
     {
         $request->validate([
@@ -142,6 +161,15 @@ class BillController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * GET /api/partner/bills/pending
+     *
+     * Query: search, date_filter, sort, page, per_page
+     * Response: { bills: PartnerBillResource[] (paginated) }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function pending(Request $request)
     {
         $query = PartnerBill::query()
@@ -172,6 +200,15 @@ class BillController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/partner/bills/confirmed
+     *
+     * Query: search, date_filter, sort, page, per_page
+     * Response: { bills: PartnerBillResource[] (paginated) }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function confirmed(Request $request)
     {
         $query = PartnerBill::query()
@@ -204,6 +241,15 @@ class BillController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/partner/bills/{bill}
+     *
+     * Response: { bill: PartnerBillResource }
+     *
+     * @param Request $request
+     * @param PartnerBill $bill
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show(Request $request, PartnerBill $bill)
     {
         if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
@@ -219,6 +265,16 @@ class BillController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/partner/bills/{bill}/mark-in-job (multipart/form-data)
+     *
+     * Body: arrival_photo (image)
+     * Response: { success: true }
+     *
+     * @param Request $request
+     * @param PartnerBill $bill
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function markInJob(Request $request, PartnerBill $bill)
     {
         if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
@@ -247,6 +303,15 @@ class BillController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * POST /api/partner/bills/{bill}/complete
+     *
+     * Response: { success: true }
+     *
+     * @param Request $request
+     * @param PartnerBill $bill
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function complete(Request $request, PartnerBill $bill)
     {
         if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
