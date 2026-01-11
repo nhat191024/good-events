@@ -31,7 +31,11 @@ class CalendarPage extends Page
     }
 
     /**
-     * Get events for the calendar
+     * GET /api/calendar/events
+     *
+     * Response: array of calendar events with extendedProps
+     *
+     * @return JsonResponse
      */
     public function getEvents(): JsonResponse
     {
@@ -98,7 +102,11 @@ class CalendarPage extends Page
     }
 
     /**
-     * Get current locale and translations for frontend
+     * GET /api/calendar/locale
+     *
+     * Response: { locale, translations }
+     *
+     * @return JsonResponse
      */
     public function getLocaleData(): JsonResponse
     {
