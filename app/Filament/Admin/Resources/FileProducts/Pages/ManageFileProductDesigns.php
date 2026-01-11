@@ -43,6 +43,7 @@ class ManageFileProductDesigns extends Page implements HasForms
                         SpatieMediaLibraryFileUpload::make('designs')
                             ->label('Ảnh sản phẩm')
                             ->collection('designs')
+                            ->disk('s3')
                             ->multiple()
                             ->reorderable()
                             ->downloadable()
