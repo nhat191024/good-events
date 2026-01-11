@@ -75,6 +75,7 @@ class PartnerCategory extends Model implements HasMedia
     protected $fillable = [
         'name',
         'slug',
+        'video_url',
         'order',
         'parent_id',
         'min_price',
