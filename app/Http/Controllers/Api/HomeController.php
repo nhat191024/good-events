@@ -24,6 +24,17 @@ class HomeController extends Controller
 
     private ?int $parentCategoryCount = null;
 
+    /**
+     * GET /api/event/home
+     *
+     * Response: event_categories, partner_categories, pagination, blogs, settings,
+     * and when authenticated: user, is_has_new_noti, current_money, pending_orders,
+     * confirmed_orders, pending_partners.
+     *
+     * @param Request $request
+     * @param AppSettings $settings
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function eventHome(Request $request, AppSettings $settings)
     {
         $user = $request->user();
@@ -120,6 +131,15 @@ class HomeController extends Controller
         return response()->json($payload);
     }
 
+    /**
+     * GET /api/event/home/categories
+     *
+     * Query: offset, limit
+     * Response: { event_categories, partner_categories, has_more }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function loadMoreCategories(Request $request)
     {
         $validated = $request->validate([
@@ -138,6 +158,15 @@ class HomeController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/event/home/children
+     *
+     * Query: category_slug, offset, limit
+     * Response: { children, has_more, total }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function loadMoreChildren(Request $request)
     {
         $validated = $request->validate([
@@ -181,6 +210,15 @@ class HomeController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/event/home/search
+     *
+     * Query: q
+     * Response: { event_categories, partner_categories, has_more?, filters? }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search(Request $request)
     {
         $validated = $request->validate([
