@@ -25,6 +25,16 @@ class RentalController extends Controller
     private const DEFAULT_PER_PAGE = 20;
     private const MAX_PER_PAGE = 50;
 
+    /**
+     * GET /api/rental/home
+     *
+     * Query: page, per_page
+     * Response: { rent_products, tags, categories, settings }
+     *
+     * @param Request $request
+     * @param AppSettings $settings
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function home(Request $request, AppSettings $settings)
     {
         $page = max(1, (int) $request->query('page', 1));
@@ -54,6 +64,15 @@ class RentalController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/rental/search
+     *
+     * Query: q, tags[], tag (fallback), category_slug, page, per_page
+     * Response: { rent_products, categories, tags, category, child_categories, filters }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search(Request $request)
     {
         $search = trim((string) $request->query('q', ''));
@@ -147,6 +166,16 @@ class RentalController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/rental/detail/{categorySlug}/{rentProductSlug}
+     *
+     * Response: { rent_product, related, contact_hotline }
+     *
+     * @param Request $request
+     * @param string $categorySlug
+     * @param string $rentProductSlug
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function detail(Request $request, string $categorySlug, string $rentProductSlug)
     {
         $rentProduct = RentProduct::query()
