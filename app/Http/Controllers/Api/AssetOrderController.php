@@ -24,6 +24,15 @@ class AssetOrderController extends Controller
     private const DEFAULT_PER_PAGE = 20;
     private const MAX_PER_PAGE = 50;
 
+    /**
+     * GET /api/asset-orders
+     *
+     * Query: page, per_page
+     * Response: { orders: FileProductBillResource[] (paginated) }
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $userId = $request->user()?->getAuthIdentifier();
@@ -45,6 +54,16 @@ class AssetOrderController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/asset-orders/{bill}
+     *
+     * Path: bill (id)
+     * Response: { order: FileProductBillResource }
+     *
+     * @param Request $request
+     * @param FileProductBill $bill
+     * @return JsonResponse
+     */
     public function show(Request $request, FileProductBill $bill): JsonResponse
     {
         $this->authorizeBill($bill, $request);
@@ -56,6 +75,16 @@ class AssetOrderController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/asset-orders/{bill}/repay
+     *
+     * Response: { checkout_url } or { message } on failure
+     *
+     * @param Request $request
+     * @param FileProductBill $bill
+     * @param PaymentService $paymentService
+     * @return JsonResponse
+     */
     public function repay(Request $request, FileProductBill $bill, PaymentService $paymentService): JsonResponse
     {
         $this->authorizeBill($bill, $request);
@@ -134,6 +163,15 @@ class AssetOrderController extends Controller
         ], 500);
     }
 
+    /**
+     * GET /api/asset-orders/{bill}/download
+     *
+     * Response: streamed ZIP when paid and within rate limits.
+     *
+     * @param Request $request
+     * @param FileProductBill $bill
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\JsonResponse
+     */
     public function download(Request $request, FileProductBill $bill)
     {
         $this->authorizeBill($bill, $request);
