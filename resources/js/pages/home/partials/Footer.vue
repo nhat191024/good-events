@@ -17,7 +17,7 @@ const socialLinks = [
 
 const primaryLinks = [
     { label: 'Câu hỏi thường gặp', routeName: 'static.faq' },
-    { label: 'Hướng dẫn đăng ký thành Thợ', routeName: 'tutorial.index' },
+    { label: 'Hướng dẫn', routeName: 'tutorial.index' },
     { label: 'Về chúng tôi', routeName: 'about.index' },
     { label: 'Chương trình khuyến mãi', href: '#' },
     { label: 'Phiên bản phát hành', href: '#' },

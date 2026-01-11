@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, onBeforeUnmount, computed, watch, type Ref, type Component } from 'vue';
-import { User, ClipboardList, MessageSquare, Settings, HelpCircle, Handshake, LogOut, FileCheck, PhoneCall, Info, Briefcase } from 'lucide-vue-next';
+import { onBeforeUnmount, computed, onMounted, ref, type Component, type Ref } from 'vue';
+import { User, ClipboardList, MessageSquare, Settings, HelpCircle, LogOut, FileCheck, PhoneCall, Info, Briefcase } from 'lucide-vue-next';
 import DropdownMenuItems, { MenuItem } from '../components/DropdownMenuItems.vue';
 import { getImg } from '@/pages/booking/helper';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
@@ -32,9 +32,7 @@ onBeforeUnmount(() => {
     document.removeEventListener('click', handleClickOutside);
 });
 
-const isLoggedIn = () => {
-    return !!page.props.auth?.user;
-};
+const isLoggedIn = () => !!page.props.auth?.user;
 
 const handleLogout = () => {
     router.flushAll();
@@ -66,6 +64,11 @@ const loggedInMenuItems = computed<MenuItem[]>(() => [
         label: 'Cài đặt',
         route: () => route('profile.edit'),
         icon: Settings,
+    },
+    {
+        label: 'Hướng dẫn',
+        route: () => route('tutorial.index'),
+        icon: HelpCircle,
     },
     {
         label: 'Liên hệ',
@@ -104,6 +107,11 @@ const loggedOutMenuItems: MenuItem[] = [
         icon: HelpCircle,
     },
     {
+        label: 'Hướng dẫn',
+        route: () => route('tutorial.index'),
+        icon: HelpCircle,
+    },
+    {
         label: 'Về chúng tôi',
         route: () => route('about.index'),
         icon: Info,
@@ -129,17 +137,26 @@ const loggedOutMenuItems: MenuItem[] = [
 
 <template>
     <div class="relative" ref="dropdown">
-        <button type="button" aria-label="Tài khoản" @click="toggleDropdown"
-            class="relative cursor-pointer h-10 w-10 rounded-full bg-[#ED3B50] text-white shadow-lg shadow-[#ED3B50]/30 transition focus:outline-none focus-visible:ring-2 border border-primary-200 focus-visible:ring-offset-2 focus-visible:ring-[#ED3B50] overflow-show">
-            <ImageWithLoader v-if="shouldRenderImage" :src="getImg(avatarUrl)" alt="Avatar"
-                class="absolute rounded-full inset-0 h-full w-full z-0"
-                img-class="h-full w-full object-cover rounded-full" loading="lazy">
-                <!-- Fallback slot -->
+        <button
+            type="button"
+            aria-label="Tài khoản"
+            @click="toggleDropdown"
+            class="relative h-10 w-10 cursor-pointer overflow-show rounded-full border border-primary-200 bg-[#ED3B50] text-white shadow-lg shadow-[#ED3B50]/30 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ED3B50] focus-visible:ring-offset-2"
+        >
+            <ImageWithLoader
+                v-if="shouldRenderImage"
+                :src="getImg(avatarUrl)"
+                alt="Avatar"
+                class="absolute inset-0 z-0 h-full w-full rounded-full"
+                img-class="h-full w-full rounded-full object-cover"
+                loading="lazy"
+            >
                 <div class="grid h-full w-full place-items-center bg-[#ED3B50]">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                         <path
                             d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"
-                            fill="currentColor" />
+                            fill="currentColor"
+                        />
                     </svg>
                 </div>
             </ImageWithLoader>
@@ -151,7 +168,7 @@ const loggedOutMenuItems: MenuItem[] = [
                 </svg>
             </div>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                class="absolute -bottom-1 -right-1 bg-[#ED3B50] rounded-full z-10" :class="{ 'rotate-180': isOpen }">
+                class="absolute -bottom-1 -right-1 rounded-full bg-[#ED3B50] z-10" :class="{ 'rotate-180': isOpen }">
                 <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" />
             </svg>
@@ -162,7 +179,7 @@ const loggedOutMenuItems: MenuItem[] = [
             leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
             leave-to-class="transform opacity-0 scale-95">
             <div v-if="isOpen"
-                class="absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-primary-200 ring-opacity-5 z-50">
+                class="absolute right-0 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-primary-200 ring-opacity-5 z-50">
                 <div v-if="isLoggedIn()" class="py-0">
                     <DropdownMenuItems :items="loggedInMenuItems" hover-class="hover:bg-red-100" />
                     <hr class="my-1 border-gray-200">
