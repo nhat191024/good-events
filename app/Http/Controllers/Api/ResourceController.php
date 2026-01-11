@@ -216,6 +216,16 @@ class ResourceController extends Controller
         ];
     }
 
+    /**
+     * GET /api/resources/{resource}
+     *
+     * Query: page, per_page
+     * Response: { items: [Resource], meta? }
+     *
+     * @param Request $request
+     * @param string $resource
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request, string $resource)
     {
         $config = $this->resolveResource($resource);
@@ -233,6 +243,16 @@ class ResourceController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/resources/{resource}/{id}
+     *
+     * Response: { item: Resource }
+     *
+     * @param Request $request
+     * @param string $resource
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show(Request $request, string $resource, int $id)
     {
         $config = $this->resolveResource($resource);
@@ -248,6 +268,16 @@ class ResourceController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/resources/{resource}
+     *
+     * Body: fillable attributes only
+     * Response: { item: Resource } (201)
+     *
+     * @param Request $request
+     * @param string $resource
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request, string $resource)
     {
         $config = $this->resolveResource($resource);
@@ -271,6 +301,17 @@ class ResourceController extends Controller
         ], 201);
     }
 
+    /**
+     * POST /api/resources/{resource}/{id}
+     *
+     * Body: fillable attributes only
+     * Response: { item: Resource }
+     *
+     * @param Request $request
+     * @param string $resource
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request, string $resource, int $id)
     {
         $config = $this->resolveResource($resource);
@@ -294,6 +335,16 @@ class ResourceController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/resources/{resource}/{id}/delete
+     *
+     * Response: { success: true }
+     *
+     * @param Request $request
+     * @param string $resource
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, string $resource, int $id)
     {
         $config = $this->resolveResource($resource);
