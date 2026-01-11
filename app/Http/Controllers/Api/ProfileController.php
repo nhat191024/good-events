@@ -20,6 +20,14 @@ use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
+    /**
+     * GET /api/profile/me
+     *
+     * Response: { user: UserResource|null, must_verify_email: bool }
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -31,6 +39,15 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/profile/{user}
+     *
+     * Path: user (id)
+     * Response: { profile_type: "client"|"partner", payload }
+     *
+     * @param User $user
+     * @return JsonResponse
+     */
     public function show(User $user): JsonResponse
     {
         $user->loadMissing('partnerProfile');
@@ -47,6 +64,15 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/profile/update (multipart/form-data)
+     *
+     * Body: name, email, country_code, phone, bio, avatar (file)
+     * Response: { success: true, user }
+     *
+     * @param ProfileUpdateRequest $request
+     * @return JsonResponse
+     */
     public function update(ProfileUpdateRequest $request): JsonResponse
     {
         $user = $request->user();
@@ -90,6 +116,15 @@ class ProfileController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/profile/password
+     *
+     * Body: current_password, password, password_confirmation
+     * Response: { success: true }
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function updatePassword(Request $request): JsonResponse
     {
         $validated = $request->validate([
