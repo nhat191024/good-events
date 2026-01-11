@@ -15,6 +15,15 @@ class ChatController extends Controller
     private const int THREADS_PER_PAGE = 10;
     private const int MESSAGES_PER_PAGE = 20;
 
+    /**
+     * GET /api/chat
+     *
+     * Query: search
+     * Response: { threads, has_more }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $userId = Auth::id();
@@ -27,6 +36,15 @@ class ChatController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/chat/threads
+     *
+     * Query: search, page
+     * Response: { data, hasMore }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function loadThreads(Request $request)
     {
         $userId = Auth::id();
@@ -38,6 +56,16 @@ class ChatController extends Controller
         return response()->json($threads);
     }
 
+    /**
+     * GET /api/chat/threads/{thread}/messages
+     *
+     * Query: page
+     * Response: { data, hasMore, thread }
+     *
+     * @param Request $request
+     * @param int $threadId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function loadMessages(Request $request, int $threadId)
     {
         $page = (int) $request->input('page', 1);
@@ -46,6 +74,16 @@ class ChatController extends Controller
         return response()->json($messages);
     }
 
+    /**
+     * POST /api/chat/threads/{thread}/messages
+     *
+     * Body: body
+     * Response: { success: true, message } or { success: false, message }
+     *
+     * @param Request $request
+     * @param int $threadId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function sendMessage(Request $request, int $threadId)
     {
         $request->validate([
