@@ -18,6 +18,14 @@ use Spatie\Permission\PermissionRegistrar;
 
 class ClientToPartnerController extends Controller
 {
+    /**
+     * GET /api/register/partner/from-client
+     *
+     * Response: { user: UserResource|null, is_partner: bool, provinces: LocationResource[] }
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function form(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -38,6 +46,15 @@ class ClientToPartnerController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/register/partner/from-client
+     *
+     * Body: identity_card_number, ward_id
+     * Response: { success: bool, message: string }
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $authUser = $request->user();
