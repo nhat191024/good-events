@@ -55,8 +55,8 @@ class ManageFileProductDesigns extends Page implements HasForms
                                 '1:1',
                             ])
                             ->maxFiles(20)
-                            ->maxSize(1024 * 200) // 200MB
-                            ->helperText('Có thể upload tối đa 20 ảnh, mỗi ảnh tối đa 200MB. Hỗ trợ mọi định dạng.')
+                            ->maxSize(1024 * 500) // 500MB
+                            ->helperText('Có thể upload tối đa 20 ảnh, mỗi ảnh tối đa 500MB. Hỗ trợ mọi định dạng.')
                             ->acceptedFileTypes([
                                 'image/*',
                                 'application/pdf',
