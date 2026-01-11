@@ -102,6 +102,7 @@ class FileProduct extends Model implements HasMedia
             ->sharpen(10)
             ->withResponsiveImages()
             ->format('webp')
+            ->performOnCollections('thumbnails')
             ->queued();
 
         $this->addMediaConversion('mobile_optimized')
@@ -109,6 +110,7 @@ class FileProduct extends Model implements HasMedia
             ->height(300)
             ->withResponsiveImages()
             ->format('webp')
+            ->performOnCollections('thumbnails')
             ->queued();
     }
 
