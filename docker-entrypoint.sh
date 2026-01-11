@@ -36,10 +36,11 @@ php artisan optimize:clear
 
 # Cache for production
 echo "Caching for production..."
-php artisan route:cache
-php artisan view:cache
-php artisan event:cache
-php artisan filament:optimize
+# php artisan route:cache
+# php artisan view:cache
+# php artisan event:cache
+php artisan optimize
+# php artisan filament:optimize
 
 # fix nginx tmp dir permission
 echo "Fixing nginx client_body_temp_path permissions..."
