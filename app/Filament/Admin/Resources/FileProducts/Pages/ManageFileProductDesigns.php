@@ -44,6 +44,7 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->label('Ảnh sản phẩm')
                             ->collection('designs')
                             ->disk('s3')
+                            ->visibility('private')
                             ->multiple()
                             ->reorderable()
                             ->downloadable()
