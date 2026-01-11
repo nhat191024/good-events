@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Auth;
 
 class CalendarController extends Controller
 {
+    /**
+     * GET /api/partner/calendar/events
+     *
+     * Response: array of calendar events with extendedProps
+     *
+     * @return JsonResponse
+     */
     public function events(): JsonResponse
     {
         $user = Auth::user();
@@ -65,6 +72,13 @@ class CalendarController extends Controller
         return response()->json($events);
     }
 
+    /**
+     * GET /api/partner/calendar/locale
+     *
+     * Response: { locale, translations }
+     *
+     * @return JsonResponse
+     */
     public function locale(): JsonResponse
     {
         $locale = app()->getLocale();
