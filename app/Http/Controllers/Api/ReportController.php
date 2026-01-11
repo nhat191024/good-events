@@ -11,6 +11,15 @@ use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
+    /**
+     * POST /api/report/user
+     *
+     * Body: reported_user_id, title, description
+     * Response: { success: true } or 422 with message if duplicate
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function reportUser(Request $request)
     {
         $validated = $request->validate([
@@ -40,6 +49,15 @@ class ReportController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * POST /api/report/bill
+     *
+     * Body: reported_bill_id, title, description
+     * Response: { success: true } or 422 with message if duplicate
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function reportBill(Request $request)
     {
         $validated = $request->validate([
