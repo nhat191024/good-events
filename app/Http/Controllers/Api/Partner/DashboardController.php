@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    /**
+     * GET /api/partner/dashboard
+     *
+     * Response: { user, is_has_new_noti, statistical_data, popular_services }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $user = $request->user();
