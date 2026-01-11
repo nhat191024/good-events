@@ -10,6 +10,15 @@ use Illuminate\Notifications\DatabaseNotification;
 
 class NotificationController extends Controller
 {
+    /**
+     * GET /api/notifications
+     *
+     * Query: per_page, unread
+     * Response: paginated NotificationResource with meta.unread_count
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $authUser = $request->user();
@@ -35,6 +44,15 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/notifications/{id}/read
+     *
+     * Response: { success: true, data: NotificationResource }
+     *
+     * @param Request $request
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function read(Request $request, string $id)
     {
         $authUser = $request->user();
@@ -56,6 +74,14 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/notifications/read-all
+     *
+     * Response: { success: true }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function readAll(Request $request)
     {
         $authUser = $request->user();
@@ -69,6 +95,15 @@ class NotificationController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * POST /api/notifications/{id}/delete
+     *
+     * Response: { success: true }
+     *
+     * @param Request $request
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Request $request, string $id)
     {
         $authUser = $request->user();
