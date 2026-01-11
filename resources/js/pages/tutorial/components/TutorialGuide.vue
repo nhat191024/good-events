@@ -4,6 +4,12 @@
     <ClientHeaderLayout>
         <TutorialHero :title="title" :description="description" />
 
+        <div v-if="$slots['after-hero']" class="bg-white">
+            <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+                <slot name="after-hero" />
+            </div>
+        </div>
+
         <div class="bg-slate-50 pb-16 pt-10 md:pb-20 md:pt-14">
             <div class="mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-[260px_1fr] md:px-8 lg:gap-12">
                 <aside class="md:sticky md:top-28 md:h-max">
@@ -69,6 +75,12 @@
                         </div>
                     </section>
                 </div>
+            </div>
+        </div>
+
+        <div v-if="$slots['after-content']" class="bg-white pb-10">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <slot name="after-content" />
             </div>
         </div>
     </ClientHeaderLayout>
