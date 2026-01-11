@@ -3,9 +3,10 @@
 namespace App\Filament\Admin\Resources\FileProducts\Pages;
 
 use App\Filament\Admin\Resources\FileProducts\FileProductResource;
+use App\Jobs\ProcessFileProductDesigns;
 use App\Models\FileProduct;
 use Filament\Actions\Action;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -29,7 +30,7 @@ class ManageFileProductDesigns extends Page implements HasForms
     public function mount(FileProduct $record): void
     {
         $this->form->fill([
-            'designs' => $record->media
+            'designs' => $record->getMedia('designs')->map(fn ($item) => $item->getPath())->toArray(),
         ]);
     }
 
@@ -40,11 +41,10 @@ class ManageFileProductDesigns extends Page implements HasForms
                 Section::make('Design Files')
                     ->description('Upload và quản lý các file design cho sản phẩm này')
                     ->schema([
-                        SpatieMediaLibraryFileUpload::make('designs')
+                        FileUpload::make('designs')
                             ->label('Ảnh sản phẩm')
-                            ->collection('designs')
                             ->disk('s3')
-                            // ->visibility('private')
+                            ->directory('tmp-designs')
                             ->multiple()
                             ->reorderable()
                             ->downloadable()
@@ -94,10 +94,15 @@ class ManageFileProductDesigns extends Page implements HasForms
     public function save(): void
     {
         $data = $this->form->getState();
+        $designPaths = \Illuminate\Support\Arr::wrap($data['designs'] ?? []);
+
+        // Dispatch job to handle processing in background
+        ProcessFileProductDesigns::dispatch($this->record, $designPaths);
 
         Notification::make()
             ->success()
-            ->title('Đã cập nhật ảnh thành công!')
+            ->title('Đã bắt đầu xử lý ảnh!')
+            ->body('Các thay đổi sẽ được áp dụng trong giây lát.')
             ->send();
     }
 
