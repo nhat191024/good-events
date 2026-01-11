@@ -31,6 +31,16 @@ class AssetController extends Controller
     private const DEFAULT_PER_PAGE = 20;
     private const MAX_PER_PAGE = 50;
 
+    /**
+     * GET /api/asset/home
+     *
+     * Query: page, per_page
+     * Response: { file_products, tags, categories, settings }
+     *
+     * @param Request $request
+     * @param AppSettings $settings
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function home(Request $request, AppSettings $settings)
     {
         $page = max(1, (int) $request->query('page', 1));
@@ -60,6 +70,15 @@ class AssetController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/asset/search
+     *
+     * Query: q, tags[], tag (fallback), category_slug, page, per_page
+     * Response: { file_products, categories, tags, category, child_categories, filters }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search(Request $request)
     {
         $search = trim((string) $request->query('q', ''));
@@ -153,6 +172,16 @@ class AssetController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/asset/detail/{categorySlug}/{fileProductSlug}
+     *
+     * Response: { file_product, related, download_zip_url, is_purchased }
+     *
+     * @param Request $request
+     * @param string $categorySlug
+     * @param string $fileProductSlug
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function detail(Request $request, string $categorySlug, string $fileProductSlug)
     {
         $fileProduct = FileProduct::query()
@@ -220,6 +249,15 @@ class AssetController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/asset/purchase/{slug}
+     *
+     * Response: { file_product, buyer, payment_methods, totals }
+     *
+     * @param Request $request
+     * @param string $slug
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function purchase(Request $request, string $slug)
     {
         $user = $request->user();
@@ -253,6 +291,16 @@ class AssetController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/asset/purchase
+     *
+     * Body: slug, name, email, phone, company, tax_code, note, payment_method
+     * Response: { checkout_url, bill_id } (500 with message on failure)
+     *
+     * @param Request $request
+     * @param PaymentService $paymentService
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function confirmPurchase(Request $request, PaymentService $paymentService)
     {
         $user = $request->user();
