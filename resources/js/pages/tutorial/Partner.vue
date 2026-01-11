@@ -3,10 +3,33 @@
         title="Hướng dẫn cho đối tác"
         description="Các video hướng dẫn dành cho đối tác để quản lý hồ sơ, dịch vụ và đơn hàng trên Sự Kiện Tốt."
         :sections="sections"
-    />
+    >
+        <template #after-hero>
+            <Link
+                :href="route('tutorial.client')"
+                class="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-500"
+            >
+                Xem hướng dẫn cho Khách hàng
+                <span aria-hidden="true">→</span>
+            </Link>
+        </template>
+
+        <template #after-content>
+            <div class="flex justify-end">
+                <Link
+                    :href="route('tutorial.client')"
+                    class="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-500"
+                >
+                    Xem hướng dẫn cho Khách hàng
+                    <span aria-hidden="true">→</span>
+                </Link>
+            </div>
+        </template>
+    </TutorialGuide>
 </template>
 
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
 import TutorialGuide from './components/TutorialGuide.vue';
 
 const sections = [
