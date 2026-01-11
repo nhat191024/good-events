@@ -18,6 +18,15 @@ use Illuminate\Validation\Rules;
 
 class RegisterController extends Controller
 {
+    /**
+     * POST /api/register
+     *
+     * Body: name, email, phone, password, password_confirmation
+     * Response: { token, token_type, role, user }
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -51,6 +60,15 @@ class RegisterController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/register/partner
+     *
+     * Body: name, email, phone, password, password_confirmation, identity_card_number, ward_id
+     * Response: { token, token_type, role, user } (partner profile eager-loaded)
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function registerPartner(Request $request): JsonResponse
     {
         $validated = $request->validate([
