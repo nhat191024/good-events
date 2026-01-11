@@ -23,6 +23,15 @@ class BlogController extends Controller
 
     private const BLOGS_PER_PAGE = 9;
 
+    /**
+     * GET /api/blog/category
+     *
+     * Query: blog_type
+     * Response: { categories }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function category(Request $request)
     {
         $blogType = $request->validate([
@@ -46,6 +55,16 @@ class BlogController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/blog/search
+     *
+     * Query: blog_type, q, category_slug, page
+     * Extra filters for good_location: province_id, district_id, max_people, location_detail
+     * Response: { blogs, categories, category, filters, locations? }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search(Request $request)
     {
         $validated = $request->validate([
@@ -124,6 +143,15 @@ class BlogController extends Controller
         return response()->json($payload);
     }
 
+    /**
+     * GET /api/blog/detail
+     *
+     * Query: blog_type, category_slug, blog_slug
+     * Response: { blog, related }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function detail(Request $request)
     {
         $validated = $request->validate([
