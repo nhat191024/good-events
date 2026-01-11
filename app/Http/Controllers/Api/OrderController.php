@@ -31,6 +31,15 @@ class OrderController extends Controller
     private const DEFAULT_PER_PAGE = 20;
     private const MAX_PER_PAGE = 50;
 
+    /**
+     * GET /api/orders
+     *
+     * Query: page, per_page
+     * Response: { orders: PartnerBillResource[] (paginated) }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function list(Request $request)
     {
         $page = max(1, (int) $request->query('page', 1));
@@ -59,6 +68,15 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/orders/history
+     *
+     * Query: page, per_page
+     * Response: { orders: PartnerBillHistoryResource[] (paginated) }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function history(Request $request)
     {
         $page = max(1, (int) $request->query('page', 1));
@@ -86,6 +104,16 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/orders/{order}
+     *
+     * Path: order (id)
+     * Response: { order: PartnerBillResource|null }
+     *
+     * @param Request $request
+     * @param int $orderId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function single(Request $request, int $orderId)
     {
         $order = PartnerBill::query()
@@ -106,6 +134,16 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/orders/{order}/details
+     *
+     * Path: order (id)
+     * Response: { bill_id, items: PartnerBillDetailResource[], version }
+     *
+     * @param Request $request
+     * @param int $billId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function details(Request $request, int $billId)
     {
         $details = PartnerBillDetail::query()
@@ -130,6 +168,15 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * GET /api/orders/partner-profile/{user}
+     *
+     * Path: user (id)
+     * Response: { user, partner_profile, services }
+     *
+     * @param User $user
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function partnerProfile(User $user)
     {
         $user->loadMissing('partnerProfile', 'partnerServices.category', 'partnerServices.media');
@@ -145,6 +192,15 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/orders/cancel
+     *
+     * Body: order_id
+     * Response: { success: true } or 422 with message
+     *
+     * @param CancelOrderRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function cancelOrder(CancelOrderRequest $request)
     {
         $billId = $request->input('order_id');
@@ -186,6 +242,15 @@ class OrderController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * POST /api/orders/choose-partner
+     *
+     * Body: order_id, partner_id, voucher_code (optional)
+     * Response: { success: true } or error message
+     *
+     * @param ConfirmPartnerRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function confirmChoosePartner(ConfirmPartnerRequest $request)
     {
         try {
@@ -225,6 +290,15 @@ class OrderController extends Controller
         }
     }
 
+    /**
+     * POST /api/orders/submit-review
+     *
+     * Body: partner_id, order_id, rating, comment (optional)
+     * Response: { success: true }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function submitReview(Request $request)
     {
         $data = $request->validate([
@@ -260,6 +334,15 @@ class OrderController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * POST /api/orders/validate-voucher
+     *
+     * Body: voucher_input, order_id
+     * Response: { status, message, details }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function validateVoucher(Request $request)
     {
         $data = $request->validate([
@@ -312,6 +395,15 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/orders/voucher-discount
+     *
+     * Body: voucher_input, order_id, partner_id
+     * Response: { status, message, discount }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getVoucherDiscountAmount(Request $request)
     {
         $data = $request->validate([
