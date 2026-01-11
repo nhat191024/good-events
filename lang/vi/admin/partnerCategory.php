@@ -19,6 +19,7 @@ return [
         'image' => 'Hình ảnh',
         'name' => 'Tên',
         'parent_id' => 'Danh mục cha',
+        'video_url' => 'URL video',
         'slug' => 'Slug',
         'order' => 'Thứ tự',
         'min_price' => 'Giá thấp nhất',
@@ -34,6 +35,7 @@ return [
     ],
 
     'placeholders' => [
+        'video_url' => 'Nhập URL video tại đây',
         'slug' => 'Tự động tạo từ tên',
     ],
 
