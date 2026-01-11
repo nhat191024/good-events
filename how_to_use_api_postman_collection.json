@@ -1,0 +1,2586 @@
+﻿{
+    "info":  {
+                 "name":  "GuDevent API",
+                 "_postman_id":  "a12ea92d-0950-4309-af1c-616d612f504f",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+                 "description":  "GuDevent API requests derived from how-to-use-api.md and API routes/controllers."
+             },
+    "variable":  [
+                     {
+                         "key":  "base_url",
+                         "type":  "string",
+                         "description":  "Base URL for the API (e.g. https://example.com)",
+                         "value":  "https://example.com"
+                     },
+                     {
+                         "key":  "token",
+                         "type":  "string",
+                         "description":  "Bearer token",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "email",
+                         "type":  "string",
+                         "description":  "Login email",
+                         "value":  "client@example.com"
+                     },
+                     {
+                         "key":  "password",
+                         "type":  "string",
+                         "description":  "Login password",
+                         "value":  "password"
+                     },
+                     {
+                         "key":  "google_access_token",
+                         "type":  "string",
+                         "description":  "Google OAuth access token",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "order_id",
+                         "type":  "string",
+                         "description":  "Order id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "bill_id",
+                         "type":  "string",
+                         "description":  "Bill id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "user_id",
+                         "type":  "string",
+                         "description":  "User id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "thread_id",
+                         "type":  "string",
+                         "description":  "Chat thread id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "resource",
+                         "type":  "string",
+                         "description":  "Resource key",
+                         "value":  "events"
+                     },
+                     {
+                         "key":  "resource_id",
+                         "type":  "string",
+                         "description":  "Resource id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "category_slug",
+                         "type":  "string",
+                         "description":  "Category slug",
+                         "value":  "wedding"
+                     },
+                     {
+                         "key":  "file_product_slug",
+                         "type":  "string",
+                         "description":  "Asset product slug",
+                         "value":  "product-1"
+                     },
+                     {
+                         "key":  "rent_product_slug",
+                         "type":  "string",
+                         "description":  "Rental product slug",
+                         "value":  "rent-1"
+                     },
+                     {
+                         "key":  "partner_category_slug",
+                         "type":  "string",
+                         "description":  "Partner category slug",
+                         "value":  "photography"
+                     },
+                     {
+                         "key":  "partner_child_slug",
+                         "type":  "string",
+                         "description":  "Partner child slug",
+                         "value":  "wedding"
+                     },
+                     {
+                         "key":  "blog_type",
+                         "type":  "string",
+                         "description":  "Blog type",
+                         "value":  "news"
+                     },
+                     {
+                         "key":  "blog_category_slug",
+                         "type":  "string",
+                         "description":  "Blog category slug",
+                         "value":  "category"
+                     },
+                     {
+                         "key":  "blog_slug",
+                         "type":  "string",
+                         "description":  "Blog slug",
+                         "value":  "blog-1"
+                     },
+                     {
+                         "key":  "voucher_code",
+                         "type":  "string",
+                         "description":  "Voucher code",
+                         "value":  "DISCOUNT10"
+                     },
+                     {
+                         "key":  "location_id",
+                         "type":  "string",
+                         "description":  "Location id",
+                         "value":  "1"
+                     },
+                     {
+                         "key":  "notification_id",
+                         "type":  "string",
+                         "description":  "Notification id",
+                         "value":  "1"
+                     }
+                 ],
+    "item":  [
+                 {
+                     "name":  "System",
+                     "item":  [
+                                  {
+                                      "name":  "Health",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/health",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "health"
+                                                                           ]
+                                                              },
+                                                      "description":  "Health check.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Ping",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/ping",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "ping"
+                                                                           ]
+                                                              },
+                                                      "description":  "Ping endpoint.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CSRF Token",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/csrf-token",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "csrf-token"
+                                                                           ]
+                                                              },
+                                                      "description":  "Get CSRF token if needed.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Auth",
+                     "item":  [
+                                  {
+                                      "name":  "Login",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/login",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "login"
+                                                                           ]
+                                                              },
+                                                      "description":  "Login with email/password.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"email\":\"{{email}}\",\"password\":\"{{password}}\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Login (Google)",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/login/google",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "login",
+                                                                               "google"
+                                                                           ]
+                                                              },
+                                                      "description":  "Login via Google.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"access_token\":\"{{google_access_token}}\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Forgot Password",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/forgot",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "forgot"
+                                                                           ]
+                                                              },
+                                                      "description":  "Request password reset.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"email\":\"{{email}}\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Register",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/register",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "register"
+                                                                           ]
+                                                              },
+                                                      "description":  "Register as client.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"Client User\",\"email\":\"{{email}}\",\"password\":\"{{password}}\",\"password_confirmation\":\"{{password}}\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Register Partner",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/register/partner",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "register",
+                                                                               "partner"
+                                                                           ]
+                                                              },
+                                                      "description":  "Register as partner.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"Partner User\",\"email\":\"partner@example.com\",\"password\":\"{{password}}\",\"password_confirmation\":\"{{password}}\",\"partner_name\":\"Partner Name\",\"phone\":\"123456789\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Logout",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/logout",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "logout"
+                                                                           ]
+                                                              },
+                                                      "description":  "Logout."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Partner From Client (Check)",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/register/partner/from-client",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "register",
+                                                                               "partner",
+                                                                               "from-client"
+                                                                           ]
+                                                              },
+                                                      "description":  "Check partner conversion state."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Partner From Client (Submit)",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/register/partner/from-client",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "register",
+                                                                               "partner",
+                                                                               "from-client"
+                                                                           ]
+                                                              },
+                                                      "description":  "Convert client to partner.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"partner_name\":\"Partner Name\",\"phone\":\"123456789\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Home",
+                     "item":  [
+                                  {
+                                      "name":  "Home",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/home",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "home"
+                                                                           ]
+                                                              },
+                                                      "description":  "Homepage data.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Categories",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/home/categories",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "home",
+                                                                               "categories"
+                                                                           ]
+                                                              },
+                                                      "description":  "List categories.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Categories Children",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/home/categories/{{category_slug}}/children",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "home",
+                                                                               "categories",
+                                                                               "{{category_slug}}",
+                                                                               "children"
+                                                                           ]
+                                                              },
+                                                      "description":  "List children for a category.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Search",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/home/search?keyword=wedding",
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "keyword",
+                                                                                    "value":  "wedding"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "home",
+                                                                               "search"
+                                                                           ]
+                                                              },
+                                                      "description":  "Search home.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Asset",
+                     "item":  [
+                                  {
+                                      "name":  "Home",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/asset",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "asset"
+                                                                           ]
+                                                              },
+                                                      "description":  "Asset homepage.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Search",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/asset/search?keyword=camera",
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "keyword",
+                                                                                    "value":  "camera"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "asset",
+                                                                               "search"
+                                                                           ]
+                                                              },
+                                                      "description":  "Search assets.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Detail",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/asset/{{file_product_slug}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "asset",
+                                                                               "{{file_product_slug}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Asset detail.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Purchase (Preview)",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/asset/{{file_product_slug}}/purchase",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "asset",
+                                                                               "{{file_product_slug}}",
+                                                                               "purchase"
+                                                                           ]
+                                                              },
+                                                      "description":  "Purchase preview."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Purchase",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/asset/{{file_product_slug}}/purchase",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "asset",
+                                                                               "{{file_product_slug}}",
+                                                                               "purchase"
+                                                                           ]
+                                                              },
+                                                      "description":  "Purchase asset.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"note\":\"Please confirm order\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Rental",
+                     "item":  [
+                                  {
+                                      "name":  "Home",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/rental",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "rental"
+                                                                           ]
+                                                              },
+                                                      "description":  "Rental homepage.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Search",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/rental/search?keyword=camera",
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "keyword",
+                                                                                    "value":  "camera"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "rental",
+                                                                               "search"
+                                                                           ]
+                                                              },
+                                                      "description":  "Search rentals.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Detail",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/rental/{{rent_product_slug}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "rental",
+                                                                               "{{rent_product_slug}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Rental detail.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Blog",
+                     "item":  [
+                                  {
+                                      "name":  "Categories",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/blog/{{blog_type}}/categories",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "blog",
+                                                                               "{{blog_type}}",
+                                                                               "categories"
+                                                                           ]
+                                                              },
+                                                      "description":  "Blog categories.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Search",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/blog/{{blog_type}}/search?keyword=event",
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "keyword",
+                                                                                    "value":  "event"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "blog",
+                                                                               "{{blog_type}}",
+                                                                               "search"
+                                                                           ]
+                                                              },
+                                                      "description":  "Search blog posts.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Detail",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/blog/{{blog_type}}/{{blog_slug}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "blog",
+                                                                               "{{blog_type}}",
+                                                                               "{{blog_slug}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Blog detail.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Profile",
+                     "item":  [
+                                  {
+                                      "name":  "Me",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/profile",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "profile"
+                                                                           ]
+                                                              },
+                                                      "description":  "Get profile."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/profile",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "profile"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update profile.",
+                                                      "body":  {
+                                                                   "mode":  "formdata",
+                                                                   "formdata":  [
+                                                                                    {
+                                                                                        "key":  "name",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Client User"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "phone",
+                                                                                        "type":  "text",
+                                                                                        "value":  "123456789"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "country_code",
+                                                                                        "type":  "text",
+                                                                                        "value":  "+84"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "bio",
+                                                                                        "type":  "text",
+                                                                                        "value":  "About me"
+                                                                                    }
+                                                                                ]
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Update Password",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/profile/password",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "profile",
+                                                                               "password"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update password.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"password_current\":\"{{password}}\",\"password\":\"newpassword\",\"password_confirmation\":\"newpassword\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "User Profile",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/profile/{{user_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "profile",
+                                                                               "{{user_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Show user profile.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Orders",
+                     "item":  [
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders"
+                                                                           ]
+                                                              },
+                                                      "description":  "List orders."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "History",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders/history",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders",
+                                                                               "history"
+                                                                           ]
+                                                              },
+                                                      "description":  "Orders history."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Show",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders/{{order_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders",
+                                                                               "{{order_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Order detail."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Details",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders/{{order_id}}/details",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders",
+                                                                               "{{order_id}}",
+                                                                               "details"
+                                                                           ]
+                                                              },
+                                                      "description":  "Order details."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Partner Profile",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders/{{order_id}}/partner-profile",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders",
+                                                                               "{{order_id}}",
+                                                                               "partner-profile"
+                                                                           ]
+                                                              },
+                                                      "description":  "Order partner profile."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Cancel",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders/{{order_id}}/cancel",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders",
+                                                                               "{{order_id}}",
+                                                                               "cancel"
+                                                                           ]
+                                                              },
+                                                      "description":  "Cancel order.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"reason\":\"change of plans\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Choose Partner",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders/{{order_id}}/choose-partner",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders",
+                                                                               "{{order_id}}",
+                                                                               "choose-partner"
+                                                                           ]
+                                                              },
+                                                      "description":  "Choose partner.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"bill_id\":\"{{bill_id}}\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Submit Review",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders/{{order_id}}/submit-review",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders",
+                                                                               "{{order_id}}",
+                                                                               "submit-review"
+                                                                           ]
+                                                              },
+                                                      "description":  "Submit review.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"rating\":5,\"review\":\"Great service\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Validate Voucher",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders/validate-voucher",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders",
+                                                                               "validate-voucher"
+                                                                           ]
+                                                              },
+                                                      "description":  "Validate voucher.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"code\":\"{{voucher_code}}\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Voucher Discount",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/orders/voucher-discount",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "orders",
+                                                                               "voucher-discount"
+                                                                           ]
+                                                              },
+                                                      "description":  "Calculate voucher discount.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"code\":\"{{voucher_code}}\",\"total\":100000}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Quick Booking",
+                     "item":  [
+                                  {
+                                      "name":  "Categories",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/quick-booking/categories",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "quick-booking",
+                                                                               "categories"
+                                                                           ]
+                                                              },
+                                                      "description":  "Quick booking categories.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Children",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/quick-booking/categories/{{category_slug}}/children",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "quick-booking",
+                                                                               "categories",
+                                                                               "{{category_slug}}",
+                                                                               "children"
+                                                                           ]
+                                                              },
+                                                      "description":  "Quick booking children.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Form",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/quick-booking/form",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "quick-booking",
+                                                                               "form"
+                                                                           ]
+                                                              },
+                                                      "description":  "Quick booking form.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Submit",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/quick-booking",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "quick-booking"
+                                                                           ]
+                                                              },
+                                                      "description":  "Submit quick booking.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"Client User\",\"phone\":\"123456789\",\"event_date\":\"2026-01-01\",\"event_location\":\"City\",\"note\":\"Looking for partner\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Finish",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/quick-booking/finish",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "quick-booking",
+                                                                               "finish"
+                                                                           ]
+                                                              },
+                                                      "description":  "Finish quick booking.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"order_id\":\"{{order_id}}\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Asset Orders",
+                     "item":  [
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/asset-orders",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "asset-orders"
+                                                                           ]
+                                                              },
+                                                      "description":  "List asset orders."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Show",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/asset-orders/{{order_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "asset-orders",
+                                                                               "{{order_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Asset order detail."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Repay",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/asset-orders/{{order_id}}/repay",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "asset-orders",
+                                                                               "{{order_id}}",
+                                                                               "repay"
+                                                                           ]
+                                                              },
+                                                      "description":  "Repay asset order.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"method\":\"bank_transfer\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Download",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/asset-orders/{{order_id}}/download",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "asset-orders",
+                                                                               "{{order_id}}",
+                                                                               "download"
+                                                                           ]
+                                                              },
+                                                      "description":  "Download asset order item."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Chat (Client)",
+                     "item":  [
+                                  {
+                                      "name":  "Threads",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/chat",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "chat"
+                                                                           ]
+                                                              },
+                                                      "description":  "List chat threads."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Search",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/chat/search?keyword=partner",
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "keyword",
+                                                                                    "value":  "partner"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "chat",
+                                                                               "search"
+                                                                           ]
+                                                              },
+                                                      "description":  "Search chat threads."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Messages",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/chat/{{thread_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "chat",
+                                                                               "{{thread_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Thread messages."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Send",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/chat/{{thread_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "chat",
+                                                                               "{{thread_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Send message.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"message\":\"Hello\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Notifications",
+                     "item":  [
+                                  {
+                                      "name":  "List",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/notifications",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "notifications"
+                                                                           ]
+                                                              },
+                                                      "description":  "Notifications list."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Read",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/notifications/{{notification_id}}/read",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "notifications",
+                                                                               "{{notification_id}}",
+                                                                               "read"
+                                                                           ]
+                                                              },
+                                                      "description":  "Mark notification read."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Read All",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/notifications/read-all",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "notifications",
+                                                                               "read-all"
+                                                                           ]
+                                                              },
+                                                      "description":  "Mark all notifications read."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Delete",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/notifications/{{notification_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "notifications",
+                                                                               "{{notification_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Delete notification."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Reports",
+                     "item":  [
+                                  {
+                                      "name":  "Report User",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/report/user",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "report",
+                                                                               "user"
+                                                                           ]
+                                                              },
+                                                      "description":  "Report a user.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"user_id\":\"{{user_id}}\",\"reason\":\"scam\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Report Bill",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/report/bill",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "report",
+                                                                               "bill"
+                                                                           ]
+                                                              },
+                                                      "description":  "Report a bill.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"bill_id\":\"{{bill_id}}\",\"reason\":\"issue\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Partner Categories",
+                     "item":  [
+                                  {
+                                      "name":  "Detail",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/categories/{{partner_category_slug}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "categories",
+                                                                               "{{partner_category_slug}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Partner category detail.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Partner APIs",
+                     "item":  [
+                                  {
+                                      "name":  "Dashboard",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner"
+                                                                           ]
+                                                              },
+                                                      "description":  "Partner dashboard."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Chat",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/chat",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "chat"
+                                                                           ]
+                                                              },
+                                                      "description":  "Partner chat threads."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Chat Search",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/chat/search?keyword=client",
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "keyword",
+                                                                                    "value":  "client"
+                                                                                }
+                                                                            ],
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "chat",
+                                                                               "search"
+                                                                           ]
+                                                              },
+                                                      "description":  "Search partner chats."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Chat Messages",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/chat/{{thread_id}}/messages",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "chat",
+                                                                               "{{thread_id}}",
+                                                                               "messages"
+                                                                           ]
+                                                              },
+                                                      "description":  "Partner chat messages."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Chat Send",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/chat/{{thread_id}}/messages",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "chat",
+                                                                               "{{thread_id}}",
+                                                                               "messages"
+                                                                           ]
+                                                              },
+                                                      "description":  "Send message to client.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"message\":\"Hello\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Bills Realtime",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/bills/realtime",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "bills",
+                                                                               "realtime"
+                                                                           ]
+                                                              },
+                                                      "description":  "Realtime bills."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Bills Accept",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/bills/{{bill_id}}/accept",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "bills",
+                                                                               "{{bill_id}}",
+                                                                               "accept"
+                                                                           ]
+                                                              },
+                                                      "description":  "Accept bill.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"note\":\"accepted\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Bills Pending",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/bills/pending",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "bills",
+                                                                               "pending"
+                                                                           ]
+                                                              },
+                                                      "description":  "Pending bills."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Bills Confirmed",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/bills/confirmed",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "bills",
+                                                                               "confirmed"
+                                                                           ]
+                                                              },
+                                                      "description":  "Confirmed bills."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Bills Show",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/bills/{{bill_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "bills",
+                                                                               "{{bill_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Bill detail."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Bills Mark In Job",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/bills/{{bill_id}}/mark-in-job",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "bills",
+                                                                               "{{bill_id}}",
+                                                                               "mark-in-job"
+                                                                           ]
+                                                              },
+                                                      "description":  "Mark in job.",
+                                                      "body":  {
+                                                                   "mode":  "formdata",
+                                                                   "formdata":  [
+                                                                                    {
+                                                                                        "key":  "note",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Working"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "photo",
+                                                                                        "type":  "file",
+                                                                                        "value":  ""
+                                                                                    }
+                                                                                ]
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Bills Complete",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/bills/{{bill_id}}/complete",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "bills",
+                                                                               "{{bill_id}}",
+                                                                               "complete"
+                                                                           ]
+                                                              },
+                                                      "description":  "Complete bill.",
+                                                      "body":  {
+                                                                   "mode":  "formdata",
+                                                                   "formdata":  [
+                                                                                    {
+                                                                                        "key":  "note",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Completed"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "photo",
+                                                                                        "type":  "file",
+                                                                                        "value":  ""
+                                                                                    }
+                                                                                ]
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Calendar Events",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/calendar/events",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "calendar",
+                                                                               "events"
+                                                                           ]
+                                                              },
+                                                      "description":  "Calendar events."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Calendar Locale",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/calendar/locale",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "calendar",
+                                                                               "locale"
+                                                                           ]
+                                                              },
+                                                      "description":  "Calendar locale."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Partner Profile",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/profile",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "profile"
+                                                                           ]
+                                                              },
+                                                      "description":  "Partner profile."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Partner Profile Update",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/partner/profile",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "partner",
+                                                                               "profile"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update partner profile.",
+                                                      "body":  {
+                                                                   "mode":  "formdata",
+                                                                   "formdata":  [
+                                                                                    {
+                                                                                        "key":  "partner_name",
+                                                                                        "type":  "text",
+                                                                                        "value":  "Partner Name"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "identity_card_number",
+                                                                                        "type":  "text",
+                                                                                        "value":  "123456789"
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "selfie_image",
+                                                                                        "type":  "file",
+                                                                                        "value":  ""
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "front_identity_card_image",
+                                                                                        "type":  "file",
+                                                                                        "value":  ""
+                                                                                    },
+                                                                                    {
+                                                                                        "key":  "back_identity_card_image",
+                                                                                        "type":  "file",
+                                                                                        "value":  ""
+                                                                                    }
+                                                                                ]
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Locations",
+                     "item":  [
+                                  {
+                                      "name":  "Wards",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/locations/wards",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "locations",
+                                                                               "wards"
+                                                                           ]
+                                                              },
+                                                      "description":  "List wards.",
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Index",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/locations",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "locations"
+                                                                           ]
+                                                              },
+                                                      "description":  "List locations."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Show",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/locations/{{location_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "locations",
+                                                                               "{{location_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Location detail."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Store",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/locations",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "locations"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create location.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"Location Name\",\"province_id\":1,\"district_id\":1,\"ward_id\":1}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/locations/{{location_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "locations",
+                                                                               "{{location_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update location.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"Location Name\",\"province_id\":1,\"district_id\":1,\"ward_id\":1}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Delete",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/locations/{{location_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "locations",
+                                                                               "{{location_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Delete location."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Resources",
+                     "item":  [
+                                  {
+                                      "name":  "Index",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/resources",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "resources"
+                                                                           ]
+                                                              },
+                                                      "description":  "List resources."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Show",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/resources/{{resource_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "resources",
+                                                                               "{{resource_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Resource detail."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Store",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/resources",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "resources"
+                                                                           ]
+                                                              },
+                                                      "description":  "Create resource.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"Resource Name\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Update",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/resources/{{resource_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "resources",
+                                                                               "{{resource_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Update resource.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"Resource Name\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "Delete",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{base_url}}/api/resources/{{resource_id}}",
+                                                                  "host":  [
+                                                                               "{{base_url}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "resources",
+                                                                               "{{resource_id}}"
+                                                                           ]
+                                                              },
+                                                      "description":  "Delete resource."
+                                                  }
+                                  }
+                              ]
+                 }
+             ],
+    "auth":  {
+                 "bearer":  [
+                                {
+                                    "key":  "token",
+                                    "type":  "string",
+                                    "value":  "{{token}}"
+                                }
+                            ],
+                 "type":  "bearer"
+             }
+}
