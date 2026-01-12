@@ -6,7 +6,7 @@
         <div class="bg-primary-50 w-full">
             <motion.section :initial="sectionMotion.initial" :while-in-view="sectionMotion.visible"
                 :viewport="sectionMotion.viewport" :transition="getSectionTransition(0)">
-                <ContactHero :hotline="settings.contact_hotline" />
+                <ContactHero :hotline="settings.contact_hotline" :socials="socialLinks" />
             </motion.section>
             <motion.section :initial="sectionMotion.initial" :while-in-view="sectionMotion.visible"
                 :viewport="sectionMotion.viewport" :transition="getSectionTransition(1)">
@@ -39,6 +39,8 @@ import ContactFAQ from './components/ContactFAQ.vue';
 import ContactForm from './components/ContactForm.vue';
 import ContactHero from './components/ContactHero.vue';
 import ContactOptions from './components/ContactOptions.vue';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 
 interface ContactChannel {
     title: string;
@@ -67,7 +69,23 @@ const getSectionTransition = (index: number) => ({
 const page = usePage();
 
 // Pull server settings passed by the controller
-const settings = computed(() => page.props.app_settings as { contact_hotline?: string | null; contact_email?: string | null });
+const settings = computed(() => page.props.app_settings as {
+    contact_hotline?: string | null;
+    contact_email?: string | null;
+    social_facebook?: string | null;
+    social_facebook_group?: string | null;
+    social_zalo?: string | null;
+    social_youtube?: string | null;
+    social_tiktok?: string | null;
+});
+
+const socialLinks = computed(() => ({
+    zalo: settings.value.social_zalo,
+    facebook: settings.value.social_facebook,
+    facebook_group: settings.value.social_facebook_group,
+    youtube: settings.value.social_youtube,
+    tiktok: settings.value.social_tiktok,
+}));
 
 const contactChannels = computed(() => [
     {
@@ -112,4 +130,10 @@ const faqs: ContactFAQ[] = [
         answer: 'Hoàn toàn có. Hãy chọn chủ đề "Đặt lịch demo" và ghi rõ thời gian mong muốn, đội ngũ sẽ xác nhận lại.',
     },
 ];
+
+const { addTutorialRoutes } = useTutorialHelper();
+addTutorialRoutes([
+    tutorialQuickLinks.clientReportsGuide,
+    tutorialQuickLinks.clientBecomePartner,
+]);
 </script>
