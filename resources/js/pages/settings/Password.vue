@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
 
 interface PasswordTranslations {
     breadcrumb: string;
@@ -53,6 +55,13 @@ const currentPasswordInput = ref<HTMLInputElement | null>(null);
 const showCurrentPassword = ref(false);
 const showNewPassword = ref(false);
 const showConfirmationPassword = ref(false);
+
+const { addTutorialRoutes } = useTutorialHelper();
+addTutorialRoutes([
+    tutorialQuickLinks.clientBecomePartner,
+    tutorialQuickLinks.partnerUpdateStaffInfo,
+    tutorialQuickLinks.partnerLoginEvent,
+]);
 </script>
 
 <template>
