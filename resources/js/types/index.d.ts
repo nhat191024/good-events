@@ -48,6 +48,11 @@ export interface AppSettings {
     app_favicon?: string | null;
     contact_hotline?: string | null;
     contact_email?: string | null;
+    social_facebook?: string | null;
+    social_facebook_group?: string | null;
+    social_zalo?: string | null;
+    social_youtube?: string | null;
+    social_tiktok?: string | null;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
