@@ -6,9 +6,11 @@
     import CardItem from '@/pages/booking/components/CardItem.vue'
     import { PartnerCategory as PartnerCategoryType } from '@/types/database';
     import CardGrid from '@/pages/booking/layout/CardGrid.vue';
-    import { computed, ref } from 'vue';
+    import { computed, ref, watch } from 'vue';
     import { createSearchFilter } from '@/lib/search-filter'
     import { getImg } from './helper';
+    import { useTutorialHelper } from '@/lib/tutorial-helper';
+    import { tutorialQuickLinks } from '@/lib/tutorial-links';
 
     const title: string = 'Bạn đang cần kiểu đối tác nào cho sự kiện?'
     const subtitle: string = 'Chọn loại sụ kiện phù hợp với nhu cầu của bạn'
@@ -22,6 +24,12 @@
         const filter = createSearchFilter(searchColumns, searchKeyword.value)
         return partnerCategories.value.filter(filter)
     })
+
+    const { addTutorialRoutes } = useTutorialHelper();
+
+    addTutorialRoutes([
+        tutorialQuickLinks.clientQuickOrder,
+    ]);
 </script>
 
 <!-- quick booking page STEP 1-->
