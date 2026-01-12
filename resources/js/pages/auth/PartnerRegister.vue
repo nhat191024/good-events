@@ -14,9 +14,12 @@ import { reactive, ref, watch, computed } from 'vue'
 import { route } from '@/utils/ziggy'
 import type { Province, Ward, WardTypeSelectBox } from '@/types/database'
 import axios from 'axios'
+import { useTutorialHelper } from '@/lib/tutorial-helper'
+import { tutorialQuickLinks } from '@/lib/tutorial-links'
 
 const pageProps = usePage().props
 const provinceListProp = pageProps.provinces as Province[] | undefined
+const { setTutorialRoutes } = useTutorialHelper();
 
 // fallback an toàn nếu thiếu props
 const provinceList = [
@@ -113,6 +116,8 @@ function submit() {
         },
     })
 }
+
+// setTutorialRoutes([tutorialQuickLinks.partnerRegister]);
 </script>
 
 <template>
