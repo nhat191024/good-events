@@ -91,17 +91,31 @@
 
                 <!-- Product Overview -->
                 <section class="space-y-8 rounded-3xl bg-white md:px-6 md:py-6 px-0 py-0 lg:p-10">
-                    <header class="space-y-2">
-                        <h2 class="text-xl font-semibold text-gray-900">Mô tả chi tiết</h2>
-                        <p class="text-sm text-gray-500">
-                            Thông tin chi tiết về dịch vụ và đối tác.
-                        </p>
-                    </header>
+                    <div class="grid gap-8 md:grid-cols-2 items-start">
+                        <header class="space-y-2">
+                            <h2 class="text-xl font-semibold text-gray-900">Mô tả chi tiết</h2>
+                            <p class="text-sm text-gray-500">
+                                Thông tin chi tiết về dịch vụ và đối tác.
+                            </p>
+                        </header>
+                        <div class="space-y-3">
+                            <h3 class="text-base font-semibold text-gray-900">Video</h3>
+                            <div v-if="videoEmbed"
+                                class="video-embed aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
+                                <div class="h-full w-full" v-html="videoEmbed"></div>
+                            </div>
+                            <div v-else class="text-gray-500 italic">
+                                Chưa có video.
+                            </div>
+                        </div>
+                    </div>
 
-                    <div v-if="descriptionToShow" class="prose prose-sm max-w-none text-gray-700"
-                        v-html="descriptionToShow"></div>
-                    <div v-else class="text-gray-500 italic">
-                        Chưa có mô tả chi tiết.
+                    <div class="space-y-4">
+                        <div v-if="hasDescription" class="prose prose-sm max-w-none text-gray-700"
+                            v-html="descriptionToShow"></div>
+                        <div v-else class="text-gray-500 italic">
+                            Chưa có mô tả chi tiết.
+                        </div>
                     </div>
 
                     <section class="space-y-3">
@@ -161,8 +175,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { computed, watch } from 'vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 // Note: The previous import structure was a bit loose, cleaning it up while adding new import
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation, Autoplay } from 'swiper/modules';
@@ -173,6 +187,8 @@ import { getImg } from '../booking/helper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import '@/pages/home/styles/swiper-nav.css';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
 
 interface Item {
     id: number;
@@ -181,6 +197,7 @@ interface Item {
     min_price: number | null;
     max_price: number | null;
     description: string | null;
+    video_url?: string | null;
     updated_human?: string | null;
     image: string | null;
 }
@@ -204,6 +221,7 @@ interface Props {
     related: RelatedItem[];
 }
 const props = defineProps<Props>();
+const { addTutorialRoutes } = useTutorialHelper();
 
 const money = (v: number | null | undefined) =>
     typeof v === 'number' ? v.toLocaleString('vi-VN') + ' đ' : 'Liên hệ';
@@ -222,6 +240,15 @@ const priceText = computed(() => {
 const pageTitle = computed(() => `${props.item.name} - ${props.category?.name ?? 'Sự kiện'}`);
 
 const descriptionToShow = computed(() => props.item.description || '');
+const hasDescription = computed(() => {
+    if (!descriptionToShow.value) return false;
+    const textOnly = descriptionToShow.value
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .trim();
+    return textOnly.length > 0;
+});
+const videoEmbed = computed(() => (props.item.video_url ?? '').trim());
 
 const swiperBreakpoints = {
     640: { slidesPerView: 2, spaceBetween: 12 },
@@ -262,4 +289,34 @@ const relatedItems = computed(() =>
         };
     })
 );
+
+const page = usePage();
+const user = computed(() => page.props.auth?.user ?? null);
+
+// Set tutorial routes based on user authentication status
+watch(
+    user,
+    (value) => {
+        setTutorialRoutesBasedOnAuth(value);
+    },
+    { immediate: true }
+);
+
+function setTutorialRoutesBasedOnAuth(value: any) {
+    if (!value) {
+        addTutorialRoutes([tutorialQuickLinks.clientRegister, tutorialQuickLinks.partnerRegister, tutorialQuickLinks.clientRegisterAndFastBooking]);
+    }
+    else {
+        addTutorialRoutes([tutorialQuickLinks.clientQuickOrder]);
+    }
+}
 </script>
+
+<style scoped>
+.video-embed :deep(iframe) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+}
+</style>
