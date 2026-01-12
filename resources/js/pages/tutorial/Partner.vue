@@ -30,12 +30,14 @@
 
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { tutorialSectionIds } from '@/lib/tutorial-links';
 import TutorialGuide from './components/TutorialGuide.vue';
 
 const sections = [
     {
         code: '1a',
         title: 'Đối tác Cách đăng ký tài khoản nhân sự',
+        id: tutorialSectionIds.partner.registerStaffAccount,
         youtubeId: 'YGorQgS5q5Y',
     },
     {
@@ -85,3 +87,4 @@ const sections = [
     },
 ];
 </script>
+
