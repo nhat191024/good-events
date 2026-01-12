@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { tutorialSectionIds } from '@/lib/tutorial-links';
 import TutorialGuide from './components/TutorialGuide.vue';
 
 const sections = [
@@ -41,6 +42,7 @@ const sections = [
     {
         code: '1a',
         title: 'Đăng ký tài khoản khách hàng trên sự kiện tốt',
+        id: tutorialSectionIds.client.registerAccount,
         youtubeId: 'Jzi149h-e7A',
     },
     {
@@ -85,3 +87,4 @@ const sections = [
     },
 ];
 </script>
+
