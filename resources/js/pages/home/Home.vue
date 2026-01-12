@@ -8,7 +8,8 @@
             <HeroContentBlock tag-label="Sự kiện" title="Tổ chức sự kiện thật dễ dàng!"
                 :description="settings.hero_title ?? 'Bạn đã đến đúng nơi rồi đấy. Kết nối với hàng trăm đối tác dịch vụ sự kiện uy tín, chuyên nghiệp cho mọi nhu cầu của bạn.'"
                 :primary-cta="{ label: 'Khám phá', href: '#search' }"
-                :secondary-cta="{ label: 'Chi tiết', href: route('about.index') }" :stats="[
+                :secondary-cta="{ label: 'Chi tiết', href: route('about.index') }"
+                :tertiary-cta="{ label: 'Hướng dẫn', href: route('tutorial.index') }" :stats="[
                     { value: '450+', label: 'Đối tác uy tín' },
                     { value: '98%', label: 'Khách hàng hài lòng' },
                     { value: '24/7', label: 'Hỗ trợ trực tuyến' }
@@ -66,7 +67,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import axios from 'axios';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import HeroBanner from './partials/HeroBanner.vue';
 import HeroContentBlock from './components/HeroContentBlock.vue';
@@ -76,6 +77,8 @@ import HomeCtaBanner from './components/HomeCtaBanner.vue';
 import { PartnerCategory } from '@/types/database';
 import { normText } from '@/lib/search-filter';
 import { useSearchSuggestion } from '@/lib/useSearchSuggestion';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import SearchBar from '../categories/partials/SearchBar.vue';
 
 type ParentCategory = PartnerCategory & { total_children_count?: number };
@@ -133,7 +136,30 @@ const normalizePartnerCategories = (input?: PartnerCategoryInputMap | null): Par
 };
 
 const props = defineProps<Props>();
+const page = usePage();
+const { addTutorialRoutes } = useTutorialHelper();
 const pagination = computed(() => props.pagination);
+
+const user = computed(() => page.props.auth?.user ?? null);
+
+// Set tutorial routes based on user authentication status
+watch(
+    user,
+    (value) => {
+        setTutorialRoutesBasedOnAuth(value);
+        // clearTutorialRoutes();
+    },
+    { immediate: true }
+);
+
+function setTutorialRoutesBasedOnAuth(value: any) {
+    if (!value) {
+        addTutorialRoutes([tutorialQuickLinks.clientRegisterAndFastBooking, tutorialQuickLinks.clientRegister, tutorialQuickLinks.partnerRegister]);
+    }
+    else {
+        addTutorialRoutes([tutorialQuickLinks.clientQuickOrder]);
+    }
+}
 
 const categories = [
     {
@@ -432,3 +458,4 @@ onBeforeUnmount(() => {
     unregisterResizeListener();
 });
 </script>
+
