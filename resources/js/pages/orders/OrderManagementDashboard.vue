@@ -29,6 +29,8 @@ import { formatPrice } from '@/lib/helper'
 
 import PartnerProfilePreview from './components/PartnerProfilePreview.vue'
 import axios from 'axios'
+import { useTutorialHelper } from '@/lib/tutorial-helper'
+import { tutorialQuickLinks } from '@/lib/tutorial-links'
 
 const activeTab = ref<'current' | 'history'>('current')
 
@@ -641,6 +643,17 @@ onBeforeUnmount(() => {
         clearInterval(pollInterval)
     }
 })
+
+const { addTutorialRoutes } = useTutorialHelper();
+addTutorialRoutes([
+    tutorialQuickLinks.clientQuickOrder,
+    tutorialQuickLinks.clientChatGuide,
+    tutorialQuickLinks.clientReportsGuide,
+    tutorialQuickLinks.clientReviewStaff,
+    tutorialQuickLinks.clientInspectPartner,
+    tutorialQuickLinks.clientTrackingFlow,
+    tutorialQuickLinks.clientVoucher,
+]);
 </script>
 
 <template>
