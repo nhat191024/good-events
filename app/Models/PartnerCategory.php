@@ -75,7 +75,7 @@ class PartnerCategory extends Model implements HasMedia
     protected $fillable = [
         'name',
         'slug',
-        'video_url',
+        'video_url', // warning: this field is not video url and actually an iframe embed code string
         'order',
         'parent_id',
         'min_price',

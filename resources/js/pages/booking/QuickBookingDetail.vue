@@ -19,6 +19,8 @@ import { reactive, ref, watch } from 'vue';
 import { showLoading, hideLoading } from '@/composables/useLoading'
 import { getImg } from './helper';
 import axios from 'axios';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 
 const pageProps = usePage().props
 
@@ -294,6 +296,12 @@ function clearStorage() {
     form.reset('order_date', 'start_time', 'end_time', 'province_id', 'ward_id', 'event_id', 'category_id', 'location_detail', 'note')
     isCustomEvent.value = false
 }
+
+const { addTutorialRoutes } = useTutorialHelper();
+
+addTutorialRoutes([
+    tutorialQuickLinks.clientQuickOrder,
+]);
 </script>
 
 <!-- quick booking page FINAL step -->

@@ -2,9 +2,12 @@
 import AppContent from '@/components/AppContent.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Loading from '@/components/Loading.vue';
+import TutorialHelpButton from '@/components/TutorialHelpButton.vue';
 import Footer from '@/pages/home/partials/Footer.vue';
 import Header from '@/pages/home/partials/Header.vue';
 import Toast from '@/components/Toast.vue';
+import { clearDefaultTutorialLinks, setDefaultTutorialLinks } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import type { BreadcrumbItemType } from '@/types';
 import { onMounted } from 'vue';
 
@@ -15,6 +18,10 @@ interface Props {
     backgroundClassNames?: string;
     breadcrumbs?: BreadcrumbItemType[];
 }
+
+setDefaultTutorialLinks([
+    tutorialQuickLinks.seeAllTutorials,
+]);
 
 withDefaults(defineProps<Props>(), {
     showBannerBackground: () => true,
@@ -45,5 +52,6 @@ onMounted(() => {
         <ConfirmModal />
         <Loading />
         <Toast />
+        <TutorialHelpButton />
     </main>
 </template>

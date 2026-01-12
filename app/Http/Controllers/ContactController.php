@@ -19,6 +19,11 @@ class ContactController extends Controller
             'app_settings' => [
                 'contact_hotline' => $appSettings->contact_hotline,
                 'contact_email' => $appSettings->contact_email,
+                'social_facebook' => $appSettings->social_facebook,
+                'social_facebook_group' => $appSettings->social_facebook_group,
+                'social_zalo' => $appSettings->social_zalo,
+                'social_youtube' => $appSettings->social_youtube,
+                'social_tiktok' => $appSettings->social_tiktok,
             ],
         ]);
     }

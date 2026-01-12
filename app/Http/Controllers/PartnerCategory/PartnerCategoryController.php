@@ -32,6 +32,7 @@ class PartnerCategoryController extends Controller
                 'min_price' => $item->min_price,
                 'max_price' => $item->max_price,
                 'description' => $item->description,
+                'video_url' => $item->video_url,
                 'updated_human' => $item->updated_at?->diffForHumans(),
                 // Ảnh từ media library nếu có
                 'image' => $this->getImageUrl($item),

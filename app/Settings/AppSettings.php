@@ -17,6 +17,10 @@ class AppSettings extends Settings
     public ?string $contact_hotline = null;
     public ?string $contact_email = null;
     public ?string $social_facebook = null;
+    public ?string $social_facebook_group = null;
+    public ?string $social_zalo = null;
+    public ?string $social_youtube = null;
+    public ?string $social_tiktok = null;
 
     public static function group(): string
     {

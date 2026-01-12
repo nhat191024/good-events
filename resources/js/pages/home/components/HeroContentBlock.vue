@@ -23,6 +23,10 @@
                 class="inline-flex items-center rounded-full border border-white/40 px-5 py-3 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10 hover:border-white/60">
                 {{ secondaryCta.label }}
             </Link>
+            <Link v-if="tertiaryCta" :href="tertiaryCta.href"
+                class="inline-flex items-center rounded-full border border-white/40 px-5 py-3 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10 hover:border-white/60">
+                {{ tertiaryCta.label }}
+            </Link>
         </motion.div>
         <div v-if="stats && stats.length" class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-white/80">
             <motion.div v-for="(item, index) in stats" :key="item.label"
@@ -56,12 +60,14 @@ withDefaults(defineProps<{
     description?: string;
     primaryCta?: CTA;
     secondaryCta?: CTA;
+    tertiaryCta?: CTA;
     stats?: Stat[];
 }>(), {
     tagLabel: '',
     description: '',
     primaryCta: undefined,
     secondaryCta: undefined,
+    tertiaryCta: undefined,
     stats: () => [],
 });
 

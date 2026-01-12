@@ -12,6 +12,8 @@ import SettingsLayout from '@/layouts/settings/Layout.vue';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 import { getImg } from '../booking/helper';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 
 interface Props {
     mustVerifyEmail: boolean;
@@ -199,6 +201,12 @@ const submit = () => {
 };
 
 const hasPendingAvatar = computed(() => Boolean(form.avatar));
+
+const { addTutorialRoutes } = useTutorialHelper();
+addTutorialRoutes([
+    tutorialQuickLinks.clientBecomePartner,
+    tutorialQuickLinks.partnerUpdateStaffInfo,
+]);
 </script>
 
 <template>

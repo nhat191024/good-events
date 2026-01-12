@@ -7,13 +7,17 @@ import { computed } from 'vue';
 const page = usePage();
 const settings = computed(() => page.props.app_settings as AppSettings);
 
-const socialLinks = [
-    { label: 'Nhóm Zalo Đối Tác', href: 'https://zalo.me/g/mudhks623', icon: 'zalo' },
-    { label: 'Facebook', href: 'https://www.facebook.com/share/16WPcoU7x7/?mibextid=wwXIfr', icon: 'facebook' },
-    { label: 'Nhóm Cộng Đồng', href: 'https://www.facebook.com/share/g/1D9PCXgbbq/?mibextid=wwXIfr', icon: 'facebook-group' },
-    { label: 'YouTube', href: 'https://youtube.com/@sukientot?si=00L9WnYoZyxfuPDb', icon: 'youtube' },
-    { label: 'TikTok', href: 'https://www.tiktok.com/@sukien.com?_r=1&_t=ZS-92A2PZ54gxJ', icon: 'tiktok' },
-];
+const socialLinks = computed(() => {
+    const s = settings.value || {};
+    const links = [
+        { label: 'Nhóm Zalo Đối Tác', href: s.social_zalo, icon: 'zalo' },
+        { label: 'Facebook', href: s.social_facebook, icon: 'facebook' },
+        { label: 'Nhóm Cộng Đồng', href: s.social_facebook_group, icon: 'facebook-group' },
+        { label: 'YouTube', href: s.social_youtube, icon: 'youtube' },
+        { label: 'TikTok', href: s.social_tiktok, icon: 'tiktok' },
+    ];
+    return links.filter((l) => !!l.href);
+});
 
 const primaryLinks = [
     { label: 'Câu hỏi thường gặp', routeName: 'static.faq' },
@@ -38,7 +42,7 @@ const downloadButtons = [
 ];
 
 const address = '36 Nguyễn Thiện Thuật, phường Bình Thạnh, quận Bình Thạnh, TP. Hồ Chí Minh';
-const taxCode = 'Mã số thuế: ?';
+const taxCode = 'Mã số thuế: 0319314603';
 </script>
 
 <template>

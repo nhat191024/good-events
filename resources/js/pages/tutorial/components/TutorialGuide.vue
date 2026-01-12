@@ -11,9 +11,9 @@
         </div>
 
         <div class="bg-slate-50 pb-16 pt-10 md:pb-20 md:pt-14">
-            <div class="mx-auto grid max-w-7xl gap-6 px-4 md:grid-cols-[260px_1fr] md:px-8 lg:gap-12">
+             <div class="mx-auto grid max-w-7xl gap-6 px-4 lg:grid-cols-[260px_1fr] md:px-8 lg:gap-12">
                 <aside class="md:sticky md:top-28 md:h-max">
-                    <div class="rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+                    <div class="hidden lg:block rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
                         <div class="border-b border-slate-100 px-5 py-4">
                             <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Mục lục</p>
                             <p class="mt-1 text-sm text-slate-600">Chọn mục để chuyển nhanh đến nội dung tương ứng.</p>
@@ -41,13 +41,22 @@
                 </aside>
 
                 <div class="space-y-6 md:space-y-8">
-                    <section
+                    <motion.section
                         v-for="section in sections"
                         :key="section.id"
                         :id="section.id"
                         :data-section-id="section.id"
                         :ref="registerSectionRef(section.id)"
-                        class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 md:p-8"
+                        :class="[
+                            'rounded-2xl p-6 shadow-sm ring-1 ring-slate-100 md:p-8 transition',
+                            highlightedSection === section.id
+                                ? 'bg-primary-100 ring-2 ring-blue-300 shadow-lg shadow-blue-200/60'
+                                : 'bg-white',
+                        ]"
+                        :style="{ scrollMarginTop: `${SCROLL_OFFSET + 20}px` }"
+                        :initial="'rest'"
+                        :animate="highlightedSection === section.id ? 'highlight' : 'rest'"
+                        :variants="spotlightVariants"
                     >
                         <div class="flex items-start gap-4">
                             <span class="mt-1 flex h-9 w-9 flex-none items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-700">
@@ -73,7 +82,7 @@
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </motion.section>
                 </div>
             </div>
         </div>
@@ -83,14 +92,78 @@
                 <slot name="after-content" />
             </div>
         </div>
+
+        <!-- Mobile quick TOC launcher -->
+        <div class="lg:hidden">
+            <motion.button
+                type="button"
+                class="fixed bottom-5 left-4 z-[90] inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 ring-1 ring-blue-500/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+                :while-hover="{ scale: 1.04, y: -2 }"
+                :while-tap="{ scale: 0.98 }"
+                :transition="{ type: 'spring', stiffness: 300, damping: 18 }"
+                @click="openMobileToc"
+            >
+                Mục lục
+            </motion.button>
+        </div>
     </ClientHeaderLayout>
+
+    <!-- Mobile TOC overlay -->
+    <Teleport to="body">
+        <div v-if="isMobileTocOpen" class="fixed inset-0 z-[95]">
+            <motion.div
+                class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]"
+                :initial="{ opacity: 0 }"
+                :animate="{ opacity: 1 }"
+                :exit="{ opacity: 0 }"
+                :transition="{ duration: 0.2 }"
+                @click="closeMobileToc"
+            />
+            <motion.div
+                class="absolute inset-x-0 bottom-0 max-h-[75vh] rounded-t-2xl bg-white shadow-2xl shadow-slate-900/20 ring-1 ring-slate-200"
+                :initial="{ y: '100%' }"
+                :animate="{ y: 0 }"
+                :exit="{ y: '100%' }"
+                :transition="{ type: 'spring', stiffness: 260, damping: 26 }"
+            >
+                <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                    <p class="text-sm font-semibold text-slate-800">Mục lục</p>
+                    <button
+                        type="button"
+                        class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 shadow-inner ring-1 ring-slate-200"
+                        @click="closeMobileToc"
+                    >
+                        Đóng
+                    </button>
+                </div>
+                <div class="max-h-[65vh] overflow-y-auto p-4 space-y-2">
+                    <button
+                        v-for="section in sections"
+                        :key="section.id"
+                        type="button"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-left transition hover:border-blue-200 hover:bg-blue-50/60 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+                        @click="handleMobileSelect(section.id)"
+                    >
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
+                                {{ section.code }}
+                            </span>
+                            <span class="text-sm leading-6 text-slate-800">{{ section.title }}</span>
+                        </div>
+                    </button>
+                </div>
+            </motion.div>
+        </div>
+    </Teleport>
 </template>
 
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
+import { slugifyTutorial } from '@/lib/tutorial-helper';
 
 import TutorialHero from './TutorialHero.vue';
 
@@ -107,24 +180,33 @@ const props = defineProps<{
     sections: TutorialSection[];
 }>();
 
-const slugify = (value: string) =>
-    value
-        .toLowerCase()
-        .replace(/đ/g, 'd')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
 const sections = props.sections.map((section) => ({
     ...section,
-    id: section.id ?? slugify(section.title),
+    id: section.id ?? slugifyTutorial(section.title),
 }));
 
 const activeSection = ref<string>(sections[0]?.id ?? '');
+const highlightedSection = ref<string | null>(null);
+const isMobileTocOpen = ref(false);
 const sectionRefs = new Map<string, HTMLElement>();
 const refHandlers = new Map<string, (el: HTMLElement | null) => void>();
 let observer: IntersectionObserver | null = null;
+let highlightTimeout: number | null = null;
+
+const SCROLL_OFFSET = 100;
+const HIGHLIGHT_DURATION = 5000;
+const spotlightVariants = {
+    rest: { scale: 1, transition: { duration: 0.2 } },
+    highlight: {
+        scale: 1.02,
+        transition: {
+            duration: 0.6,
+            repeat: 7,
+            repeatType: 'mirror',
+            ease: 'easeInOut',
+        },
+    },
+};
 
 const createObserver = () =>
     new IntersectionObserver(
@@ -174,21 +256,53 @@ const registerSectionRef = (id: string) => {
     return refHandlers.get(id);
 };
 
-const scrollToSection = (id: string, updateHash = true) => {
+const scrollToSection = (id: string, updateHash = true, behavior: ScrollBehavior = 'smooth') => {
     const target = sectionRefs.get(id);
     if (!target) {
         return;
     }
 
-    const offset = 96;
-    const top = window.scrollY + target.getBoundingClientRect().top - offset;
+    const top = window.scrollY + target.getBoundingClientRect().top - SCROLL_OFFSET;
 
-    window.scrollTo({ top, behavior: 'smooth' });
+    window.scrollTo({ top, behavior });
     activeSection.value = id;
+    triggerHighlight(id);
 
     if (updateHash) {
         history.replaceState(null, '', `#${id}`);
     }
+};
+
+const triggerHighlight = (id: string) => {
+    highlightedSection.value = id;
+    if (highlightTimeout) {
+        window.clearTimeout(highlightTimeout);
+    }
+    highlightTimeout = window.setTimeout(() => {
+        highlightedSection.value = null;
+    }, HIGHLIGHT_DURATION);
+};
+
+const handleHashChange = () => {
+    const hash = decodeURIComponent(window.location.hash.replace('#', ''));
+    if (hash && sectionRefs.has(hash)) {
+        // Use a small delay so the browser finishes any default jump first.
+        window.requestAnimationFrame(() => scrollToSection(hash, false, 'auto'));
+    }
+};
+
+const openMobileToc = () => {
+    isMobileTocOpen.value = true;
+};
+
+const closeMobileToc = () => {
+    isMobileTocOpen.value = false;
+};
+
+const handleMobileSelect = (id: string) => {
+    closeMobileToc();
+    // Delay slightly so the panel has time to dismiss before scrolling.
+    window.requestAnimationFrame(() => scrollToSection(id));
 };
 
 onMounted(async () => {
@@ -196,15 +310,17 @@ onMounted(async () => {
     sectionRefs.forEach((el) => observer?.observe(el));
 
     await nextTick();
-    const hash = window.location.hash.replace('#', '');
-    if (hash && sectionRefs.has(hash)) {
-        scrollToSection(hash, false);
-    }
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
 });
 
 onBeforeUnmount(() => {
     observer?.disconnect();
     observer = null;
     sectionRefs.clear();
+    if (highlightTimeout) {
+        window.clearTimeout(highlightTimeout);
+    }
+    window.removeEventListener('hashchange', handleHashChange);
 });
 </script>

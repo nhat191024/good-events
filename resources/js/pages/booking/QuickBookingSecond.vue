@@ -11,6 +11,8 @@
     import { createSearchFilter } from '@/lib/search-filter';
     import { computed, ref } from 'vue';
     import { getImg } from './helper';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 
     const pageProps = usePage().props
     const partnerChildrenList = computed(() => pageProps.partnerChildrenList as PartnerCategory[])
@@ -30,6 +32,12 @@
         const filter = createSearchFilter(searchColumns, searchKeyword.value)
         return partnerChildrenList.value.filter(filter)
     })
+
+    const { addTutorialRoutes } = useTutorialHelper();
+
+    addTutorialRoutes([
+        tutorialQuickLinks.clientQuickOrder,
+    ]);
 </script>
 
 <!-- quick booking page STEP 2 -->

@@ -15,6 +15,8 @@ import SettingsLayout from '@/layouts/settings/Layout.vue';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import { type Province, type Ward, type WardTypeSelectBox } from '@/types/database';
 import { route } from '@/utils/ziggy';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
 
 interface Props {
     provinces: Province[];
@@ -105,6 +107,12 @@ function submit() {
         },
     });
 }
+
+const { addTutorialRoutes } = useTutorialHelper();
+addTutorialRoutes([
+    tutorialQuickLinks.clientBecomePartner,
+    tutorialQuickLinks.partnerUpdateStaffInfo,
+]);
 </script>
 
 <template>

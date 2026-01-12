@@ -6,6 +6,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import { Form, Head, Link } from '@inertiajs/vue3';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -15,6 +17,8 @@ defineProps<{
     canResetPassword: boolean;
 }>();
 
+const { addTutorialRoutes } = useTutorialHelper();
+
 const showPassword = ref(false);
 const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
@@ -23,6 +27,8 @@ const togglePasswordVisibility = () => {
 const redirectToProvider = (provider: string) => {
     window.location.href = route('socialite.redirect', provider);
 };
+// setTutorialRoutes([tutorialQuickLinks.clientRegister, tutorialQuickLinks.partnerRegister]);
+// addTutorialRoutes([tutorialQuickLinks.clientRegister, tutorialQuickLinks.partnerRegister]);
 </script>
 
 <template>
