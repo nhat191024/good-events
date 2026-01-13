@@ -80,6 +80,9 @@ import { useSearchSuggestion } from '@/lib/useSearchSuggestion';
 import { useTutorialHelper } from '@/lib/tutorial-helper';
 import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import SearchBar from '../categories/partials/SearchBar.vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 type ParentCategory = PartnerCategory & { total_children_count?: number };
 
