@@ -41,6 +41,10 @@ import { formatPrice } from '@/lib/helper';
 
 import type { FileProduct } from '@/pages/home/types';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 interface Props {
     items: FileProduct[];
 }
