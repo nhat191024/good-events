@@ -3,6 +3,9 @@ import { getImg } from '@/pages/booking/helper';
 import { AppSettings } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const page = usePage();
 const settings = computed(() => page.props.app_settings as AppSettings);
