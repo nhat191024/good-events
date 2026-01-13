@@ -4,6 +4,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1">
+
+    <!-- Google tag (gtag.js) -->
+    @production
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-NSC22EQJDL"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+
+            gtag('config', 'G-NSC22EQJDL');
+        </script>
+
+        <meta name="google-site-verification" content="xzQBSYjswFBEVPucgfh7szJ9LdS2z7BMZ7kgRFBn7GQ" />
+    @endproduction
+
     {{-- Inline script to detect system dark mode preference and apply it immediately --}}
     <script>
         (function() {
@@ -41,8 +59,6 @@
     @routes
     @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
     @inertiaHead
-
-    <meta name="google-site-verification" content="xzQBSYjswFBEVPucgfh7szJ9LdS2z7BMZ7kgRFBn7GQ" />
 </head>
 
 <body class="font-sans antialiased" style="margin: 0 !important;">
