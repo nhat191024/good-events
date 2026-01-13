@@ -41,6 +41,10 @@ import { formatPrice } from '@/lib/helper';
 
 import type { RentProduct } from '@/pages/rent/types';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 interface Props {
     items: RentProduct[];
 }
