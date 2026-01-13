@@ -38,6 +38,9 @@ import { Link } from '@inertiajs/vue3';
 import PartnerCategoryCard from './PartnerCategoryCard.vue';
 import { PartnerCategory } from '@/types/database';
 import { motion } from 'motion-v';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface Props {
     categoryName: string;
