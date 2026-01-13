@@ -23,6 +23,9 @@
 import { Link } from '@inertiajs/vue3';
 import BlogCard from '../../discover/components/BlogCard.vue';
 import type { BlogSummary } from '../../types';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 withDefaults(defineProps<{ blogs: BlogSummary[]; discoverRouteName?: string; detailRouteName?: string }>(), {
     discoverRouteName: 'blog.discover',
