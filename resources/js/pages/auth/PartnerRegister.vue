@@ -17,6 +17,10 @@ import axios from 'axios'
 import { useTutorialHelper } from '@/lib/tutorial-helper'
 import { tutorialQuickLinks } from '@/lib/tutorial-links'
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 const pageProps = usePage().props
 const provinceListProp = pageProps.provinces as Province[] | undefined
 const { setTutorialRoutes } = useTutorialHelper();
@@ -116,8 +120,6 @@ function submit() {
         },
     })
 }
-
-// setTutorialRoutes([tutorialQuickLinks.partnerRegister]);
 </script>
 
 <template>
