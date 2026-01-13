@@ -17,7 +17,9 @@ const togglePasswordVisibility = () => {
 };
 
 const { setTutorialRoutes } = useTutorialHelper();
-// setTutorialRoutes([tutorialQuickLinks.clientRegister]);
+
+import { inject } from "vue";
+const route = inject('route') as any;
 </script>
 
 <template>
