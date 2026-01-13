@@ -5,6 +5,9 @@ import { User, ClipboardList, MessageSquare, Settings, HelpCircle, LogOut, FileC
 import DropdownMenuItems, { MenuItem } from '../components/DropdownMenuItems.vue';
 import { getImg } from '@/pages/booking/helper';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user ?? null);
