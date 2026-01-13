@@ -9,8 +9,12 @@
     import { LoaderCircle, CheckCircle2 } from 'lucide-vue-next';
     import { ref, watch } from 'vue';
 
+    import { inject } from "vue";
+
+    const route = inject('route') as any;
+
     const showSuccessMessage = ref(false);
-    
+
     const props = defineProps<{
         status?: string;
     }>();
