@@ -70,6 +70,10 @@ import { normText } from '@/lib/search-filter';
 import type { Category, RentProduct, Tag } from '@/pages/rent/types';
 import type { PartnerCategoryItems } from '@/pages/home/partials/PartnerCategoryIcons/type';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 type ResourceCollection<T> = { data?: T[] | null };
 
 export interface DiscoverPageProps {
