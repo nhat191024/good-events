@@ -7,6 +7,9 @@ import { statusBadge } from '../helper';
 import { cn } from '@/lib/utils';
 import { MessageCircle } from 'lucide-vue-next';
 import { router } from '@inertiajs/core';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 // note: card cho đơn hiện tại
 
