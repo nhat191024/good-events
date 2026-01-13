@@ -11,6 +11,9 @@ import { getImg } from '@/pages/booking/helper';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { X, Flag } from 'lucide-vue-next'
 import ReportModal from '@/components/ReportModal.vue'
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 type UserInfo = {
     id: number; name: string; avatar_url: string; location: string | null;
