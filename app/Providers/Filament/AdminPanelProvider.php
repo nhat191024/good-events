@@ -46,6 +46,8 @@ use App\Settings\AppSettings;
 
 use App\Filament\Admin\Pages\ListLogs;
 
+use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -63,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::Red,
+                'primary' => ShadcnColor::Red,
             ])
             ->brandName('Sự Kiện tốt - Admin')
             ->favicon($favicon)

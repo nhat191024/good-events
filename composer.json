@@ -34,6 +34,7 @@
         "maennchen/zipstream-php": "^3.2",
         "malzariey/filament-daterangepicker-filter": "^4.0",
         "opencage/geocode": "^3.3",
+        "openplain/filament-shadcn-theme": "^1.0",
         "payos/payos": "^1.0",
         "predis/predis": "^3.2",
         "pusher/pusher-php-server": "^7.2",
