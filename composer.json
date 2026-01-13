@@ -45,6 +45,7 @@
         "spatie/laravel-schedule-monitor": "^3.10",
         "spatie/laravel-searchable": "^1.13",
         "spatie/laravel-settings": "^3.4",
+        "spatie/laravel-sitemap": "^7.3",
         "spatie/laravel-sluggable": "^3.7",
         "spatie/laravel-tags": "^4.10",
         "spatie/laravel-uptime-monitor": "^4.5",
