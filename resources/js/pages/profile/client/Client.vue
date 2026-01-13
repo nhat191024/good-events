@@ -12,6 +12,9 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { AppPageProps } from '@/types'
 import { getImg } from '@/pages/booking/helper'
 import ImageWithLoader from '@/components/ImageWithLoader.vue'
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface UserInfo {
     id: number
