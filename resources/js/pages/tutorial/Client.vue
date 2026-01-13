@@ -32,6 +32,9 @@
 import { Link } from '@inertiajs/vue3';
 import { tutorialSectionIds } from '@/lib/tutorial-links';
 import TutorialGuide from './components/TutorialGuide.vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const sections = [
     {

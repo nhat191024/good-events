@@ -78,6 +78,10 @@ import type { BlogFilters, BlogSummary } from '../types';
 import type { Category } from '@/pages/home/types';
 import type { Province } from '@/types/database';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 type ResourceCollection<T> = { data?: T[] | null };
 
 export interface DiscoverPageProps {

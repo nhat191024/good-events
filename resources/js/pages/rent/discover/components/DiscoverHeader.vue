@@ -38,6 +38,9 @@
 import { toRefs } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import LargeSearchBar from '@/components/LargeSearchBar.vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface Props {
     isCategoryPage: boolean;

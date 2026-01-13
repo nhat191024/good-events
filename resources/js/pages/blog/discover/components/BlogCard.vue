@@ -62,6 +62,9 @@ import { motion } from 'motion-v';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import type { BlogSummary } from '../../types';
 import { getImg } from '@/pages/booking/helper';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 type Variant = 'featured' | 'secondary' | 'compact';
 

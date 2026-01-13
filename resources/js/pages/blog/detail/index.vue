@@ -97,4 +97,9 @@ function toArray<T>(input: RelatedPayload | { data?: T[] | null } | T[] | undefi
 const relatedBlogs = computed(() => toArray<BlogSummary>(props.related));
 
 export type { DetailPageProps };
+
+
+import { inject } from "vue";
+
+const route = inject('route') as any;
 </script>

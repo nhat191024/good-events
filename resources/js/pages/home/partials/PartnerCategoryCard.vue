@@ -35,6 +35,9 @@ import { PartnerCategory } from '@/types/database';
 import { motion } from 'motion-v';
 import { getImg } from '@/pages/booking/helper';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface Props {
     partnerCategory: PartnerCategory & { image?: string | null };

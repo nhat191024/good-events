@@ -31,6 +31,9 @@ import PartnerProfilePreview from './components/PartnerProfilePreview.vue'
 import axios from 'axios'
 import { useTutorialHelper } from '@/lib/tutorial-helper'
 import { tutorialQuickLinks } from '@/lib/tutorial-links'
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const activeTab = ref<'current' | 'history'>('current')
 

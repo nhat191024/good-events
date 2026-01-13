@@ -7,6 +7,7 @@
     import { Form, Head } from '@inertiajs/vue3';
     import { LoaderCircle } from 'lucide-vue-next';
     import { ref } from 'vue';
+    import { inject } from "vue";
 
     const props = defineProps<{
         token: string;
@@ -14,6 +15,8 @@
     }>();
 
     const inputEmail = ref(props.email);
+
+    const route = inject('route') as any;
 </script>
 
 <template>

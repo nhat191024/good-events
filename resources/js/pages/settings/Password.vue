@@ -14,6 +14,9 @@ import { type AppPageProps, type BreadcrumbItem } from '@/types';
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface PasswordTranslations {
     breadcrumb: string;

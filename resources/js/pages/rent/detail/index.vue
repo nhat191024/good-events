@@ -51,6 +51,10 @@ import RelatedProducts from './components/RelatedProducts.vue';
 
 import type { Category, RentProduct, Tag, PreviewMedia } from '@/pages/rent/types';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 interface IncludedFile {
     id?: number | string | null;
     name: string;

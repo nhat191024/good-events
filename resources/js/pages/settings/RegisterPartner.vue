@@ -17,6 +17,9 @@ import { type Province, type Ward, type WardTypeSelectBox } from '@/types/databa
 import { route } from '@/utils/ziggy';
 import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface Props {
     provinces: Province[];

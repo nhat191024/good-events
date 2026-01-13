@@ -14,6 +14,9 @@
     import { Link, usePage } from '@inertiajs/vue3';
     import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-vue-next';
     import { computed } from 'vue';
+    import { inject } from "vue";
+
+    const route = inject('route') as any;
 
     interface Props {
         breadcrumbs?: BreadcrumbItem[];

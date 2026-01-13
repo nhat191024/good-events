@@ -189,6 +189,9 @@ import 'swiper/css/navigation';
 import '@/pages/home/styles/swiper-nav.css';
 import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface Item {
     id: number;

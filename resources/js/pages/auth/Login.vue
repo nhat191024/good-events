@@ -12,6 +12,10 @@ import { Form, Head, Link } from '@inertiajs/vue3';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 defineProps<{
     status?: string;
     canResetPassword: boolean;
@@ -27,8 +31,6 @@ const togglePasswordVisibility = () => {
 const redirectToProvider = (provider: string) => {
     window.location.href = route('socialite.redirect', provider);
 };
-// setTutorialRoutes([tutorialQuickLinks.clientRegister, tutorialQuickLinks.partnerRegister]);
-// addTutorialRoutes([tutorialQuickLinks.clientRegister, tutorialQuickLinks.partnerRegister]);
 </script>
 
 <template>

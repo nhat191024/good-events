@@ -14,6 +14,9 @@ import { type AppPageProps, type BreadcrumbItem } from '@/types';
 import { getImg } from '../booking/helper';
 import { useTutorialHelper } from '@/lib/tutorial-helper';
 import { tutorialQuickLinks } from '@/lib/tutorial-links';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface Props {
     mustVerifyEmail: boolean;

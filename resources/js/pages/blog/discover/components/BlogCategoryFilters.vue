@@ -55,6 +55,9 @@ import { computed, toRefs } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 import type { Category } from '@/pages/home/types';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const props = withDefaults(defineProps<{ categories: Category[]; activeSlug?: string | null; allRouteName?: string; categoryRouteName?: string }>(), {
     categories: () => [],

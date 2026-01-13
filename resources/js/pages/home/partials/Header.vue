@@ -12,6 +12,10 @@ import { debounce } from '@/pages/orders/helper';
 import { AppSettings } from '@/types';
 import { motion } from 'motion-v';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 interface Props {
     // showBannerBackground?: boolean;
     // breadcrumbs?: BreadcrumbItemType[];

@@ -84,6 +84,9 @@
 <script setup lang="ts">
 import { motion } from 'motion-v';
 import { Link } from '@inertiajs/vue3';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface RoleCard {
     slug: string;

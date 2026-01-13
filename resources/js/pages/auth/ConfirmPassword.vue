@@ -6,6 +6,9 @@
     import AuthLayout from '@/layouts/AuthLayout.vue';
     import { Form, Head } from '@inertiajs/vue3';
     import { LoaderCircle } from 'lucide-vue-next';
+
+    import { inject } from "vue";
+    const route = inject('route') as any;
 </script>
 
 <template>

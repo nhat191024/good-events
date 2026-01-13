@@ -84,6 +84,9 @@
 import { motion } from 'motion-v';
 import { Link } from '@inertiajs/vue3';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface Highlight {
     kicker: string;

@@ -130,8 +130,9 @@
 </template>
 
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { inject } from "vue";
 import { computed, ref } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
 
 import { formatDate, formatPrice } from '@/lib/helper';
 
@@ -139,6 +140,8 @@ import { getImg } from '@/pages/booking/helper';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import type { FileProduct, Tag } from '@/pages/home/types';
 import type { AppSettings } from '@/types';
+
+const route = inject('route') as any;
 
 interface PreviewMedia {
     id?: number | string | null;

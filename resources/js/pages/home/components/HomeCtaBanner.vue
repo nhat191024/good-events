@@ -71,6 +71,9 @@
 <script setup lang="ts">
 import { motion } from 'motion-v';
 import { Link } from '@inertiajs/vue3';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const sectionMotion = {
     initial: { opacity: 0, y: 40 },

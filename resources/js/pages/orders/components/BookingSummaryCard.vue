@@ -13,6 +13,9 @@ import Button from '@/components/ui/button/Button.vue';
 import { useForm } from '@inertiajs/vue3';
 import axios from 'axios';
 import { SwitchRoot, SwitchThumb } from 'reka-ui';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
