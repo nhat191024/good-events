@@ -44,6 +44,8 @@
 import { computed } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 
+import { inject } from "vue";
+
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
 import DetailHero from './components/DetailHero.vue';
@@ -52,6 +54,8 @@ import PreviewGallery from './components/PreviewGallery.vue';
 import RelatedProducts from './components/RelatedProducts.vue';
 
 import type { Category, FileProduct, Tag } from '@/pages/home/types';
+
+const route = inject('route') as any;
 
 interface PreviewMedia {
     id?: number | string | null;
