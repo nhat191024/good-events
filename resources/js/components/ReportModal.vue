@@ -15,6 +15,9 @@ import { watch } from 'vue'
 import Input from '@/components/ui/input/Input.vue'
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-vue-next';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const props = defineProps<{
     open: boolean
