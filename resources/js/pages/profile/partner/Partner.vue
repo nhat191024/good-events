@@ -12,6 +12,9 @@ import ImageWithLoader from '@/components/ImageWithLoader.vue'
 import ReportModal from '@/components/ReportModal.vue'
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import type { AppPageProps } from '@/types'
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface UserInfo {
     id: number; name: string; avatar_url: string; location: string | null;
