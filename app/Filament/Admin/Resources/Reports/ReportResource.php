@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Reports;
 use App\Models\Report;
 
 use BackedEnum;
+use UnitEnum;
 
 use App\Filament\Admin\Resources\Reports\Pages\CreateReport;
 use App\Filament\Admin\Resources\Reports\Pages\EditReport;
@@ -21,11 +22,14 @@ use Filament\Tables\Table;
 
 use Illuminate\Database\Eloquent\Builder;
 
+use App\Enum\NavigationGroup;
+
 class ReportResource extends Resource
 {
     protected static ?string $model = Report::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationCircle;
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::SYSTEM;
 
     public static function getModelLabel(): string
     {
