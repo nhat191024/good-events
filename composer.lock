@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bae3995efd23ed3fd2d1f73a3e8d2ebc",
+    "content-hash": "01f67d6c47eb4746536b5746b80a062d",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -8404,6 +8404,137 @@
                 "source": "https://github.com/ralouphie/getallheaders/tree/develop"
             },
             "time": "2019-03-08T08:55:37+00:00"
+        },
+        {
+            "name": "ralphjsmit/laravel-filament-upload",
+            "version": "1.1.2",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:ralphjsmit/laravel-filament-upload.git",
+                "reference": "e39560939e4e4f42b0c955b19ce05ec270520599"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://satis.ralphjsmit.com/dist/ralphjsmit/laravel-filament-upload/ralphjsmit-laravel-filament-upload-e39560939e4e4f42b0c955b19ce05ec270520599-zip-9d35a5.zip",
+                "reference": "e39560939e4e4f42b0c955b19ce05ec270520599",
+                "shasum": "3c2cc816990d0bc47e092b6163957eeddd257390"
+            },
+            "require": {
+                "aws/aws-sdk-php": "^3.336",
+                "filament/filament": "^v4.4",
+                "illuminate/contracts": "^11.0|^12.0",
+                "php": "^8.1",
+                "ralphjsmit/packages": "^1.4",
+                "spatie/laravel-package-tools": "^1.16",
+                "symfony/mime": "^7.3"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.14",
+                "league/flysystem-path-prefixing": "^3.28",
+                "nunomaduro/collision": "^8.1",
+                "orchestra/testbench": "^9.0|^10.0",
+                "pestphp/pest": "^3.0",
+                "pestphp/pest-plugin-arch": "^3.0",
+                "pestphp/pest-plugin-laravel": "^3.0",
+                "pestphp/pest-plugin-livewire": "^3.0",
+                "spatie/laravel-medialibrary": "^11.13",
+                "spatie/laravel-ray": "^1.35"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "RalphJSmit\\Filament\\Upload\\FilamentUploadServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "RalphJSmit\\Filament\\Upload\\": "src/",
+                    "RalphJSmit\\Filament\\Upload\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "RalphJSmit\\Filament\\Upload\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/pest --order-by random --stop-on-failure --stop-on-error --fail-on-risky"
+                ],
+                "format": [
+                    "vendor/bin/pint"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ralph J. Smit",
+                    "email": "rjs@ralphjsmit.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Advanced upload component for Filament.",
+            "homepage": "https://github.com/ralphjsmit/laravel-filament-upload",
+            "keywords": [
+                "Ralph J. Smit",
+                "laravel",
+                "laravel-filament-upload"
+            ],
+            "support": {
+                "source": "https://github.com/ralphjsmit/laravel-filament-upload/tree/1.1.2",
+                "issues": "https://github.com/ralphjsmit/laravel-filament-upload/issues"
+            },
+            "time": "2026-01-02T21:33:06+00:00"
+        },
+        {
+            "name": "ralphjsmit/packages",
+            "version": "1.4.2",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:ralphjsmit/packages.git",
+                "reference": "69650da1603c282ee71bfac969293e3faca36e3f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://satis.ralphjsmit.com/dist/ralphjsmit/packages/ralphjsmit-packages-69650da1603c282ee71bfac969293e3faca36e3f-zip-06dcad.zip",
+                "reference": "69650da1603c282ee71bfac969293e3faca36e3f",
+                "shasum": "a1e35fea977f8e1bbfc6ac0d82ece7268aa11b10"
+            },
+            "require": {
+                "composer-plugin-api": "^2.0",
+                "php": "^8.0",
+                "spatie/url": "^2.4"
+            },
+            "require-dev": {
+                "composer/composer": "^2.0",
+                "mockery/mockery": "^1.6",
+                "pestphp/pest": "^2.30",
+                "spatie/ray": "^1.40"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "RalphJSmit\\Packages\\Plugin",
+                "plugin-modifies-downloads": true
+            },
+            "autoload": {
+                "psr-4": {
+                    "RalphJSmit\\Packages\\": "src/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/pest"
+                ]
+            },
+            "support": {
+                "source": "https://github.com/ralphjsmit/packages/tree/1.4.2",
+                "issues": "https://github.com/ralphjsmit/packages/issues"
+            },
+            "time": "2024-06-05T09:41:46+00:00"
         },
         {
             "name": "ramsey/collection",
