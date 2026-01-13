@@ -70,6 +70,10 @@ import { normText } from '@/lib/search-filter';
 import type { Category, FileProduct, Tag } from '@/pages/home/types';
 import type { PartnerCategoryItems } from '@/pages/home/partials/PartnerCategoryIcons/type';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 type ResourceCollection<T> = { data?: T[] | null };
 
 export interface DiscoverPageProps {
@@ -331,5 +335,4 @@ function changePage(page: number) {
     if (page < 1 || page > pagination.value.last_page || page === pagination.value.current_page) return;
     visitWithFilters({ page });
 }
-
 </script>
