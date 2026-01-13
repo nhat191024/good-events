@@ -7,6 +7,9 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { Lock, UserCircle, Briefcase } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const mainNavItems: NavItem[] = [
     {
