@@ -74,6 +74,9 @@ import { Link } from '@inertiajs/vue3';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import type { BlogDetail } from '../../types';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 // Extend Window interface for embed SDKs
 declare global {
