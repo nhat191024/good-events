@@ -2,11 +2,15 @@
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import Toast from '@/components/Toast.vue';
 import { Link } from '@inertiajs/vue3';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 defineProps<{
     title?: string;
     description?: string;
 }>();
+
 </script>
 
 <template>
