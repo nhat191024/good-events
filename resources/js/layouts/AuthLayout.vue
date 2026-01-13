@@ -5,6 +5,9 @@ import { clearDefaultTutorialLinks, setDefaultTutorialLinks } from '@/lib/tutori
 import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import { router } from '@inertiajs/core';
 import { ArrowLeft } from 'lucide-vue-next';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 defineProps<{
     title?: string;
