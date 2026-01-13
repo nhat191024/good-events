@@ -10,6 +10,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Schedule::command('app:generate-sitemap')->dailyAt('02:00');
+
 Schedule::command('activitylog:clean --force')->daily();
 
 Schedule::call(function () {
