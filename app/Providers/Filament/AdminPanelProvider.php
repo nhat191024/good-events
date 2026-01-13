@@ -48,6 +48,8 @@ use App\Filament\Admin\Pages\ListLogs;
 
 use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
 
+use Filafly\Themes\Brisk\BriskTheme;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -89,6 +91,7 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->plugins([
+                BriskTheme::make(),
                 FilamentShieldPlugin::make()
                     ->navigationGroup('settings')
                     ->globallySearchable(false)

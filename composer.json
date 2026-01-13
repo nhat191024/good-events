@@ -16,6 +16,7 @@
         "codebyray/laravel-review-rateable": "^2.1",
         "cohensive/oembed": "^0.20.1",
         "dotswan/filament-map-picker": "^2.0",
+        "filafly/brisk": "^1.0",
         "filament/filament": "~4.0",
         "filament/spatie-laravel-media-library-plugin": "^4.0",
         "filament/spatie-laravel-settings-plugin": "^4.0",

@@ -1,4 +1,4 @@
-@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '../../../../vendor/filafly/brisk/resources/css/theme.css';
 
 @source '../../../../app/Filament/Admin/**/*';
 @source '../../../../resources/views/filament/admin/**/*';
