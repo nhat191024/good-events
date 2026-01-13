@@ -1,5 +1,7 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\App;
 
 use App\Http\Controllers\PaymentController;
 
@@ -38,3 +40,17 @@ require __DIR__ . '/client/notification.php';
 require __DIR__ . '/client/report.php';
 
 require __DIR__ . '/test.php';
+
+Route::get('robots.txt', function () {
+    $robots = "User-agent: *\n";
+
+    if (App::environment('production')) {
+        $robots .= "Allow: /\n";
+        $robots .= "Sitemap: " . url('sitemap.xml') . "\n";
+    } else {
+        // Chặn tất cả nếu không phải bản Production
+        $robots .= "Disallow: /\n";
+    }
+
+    return response($robots, 200)->header('Content-Type', 'text/plain');
+});
