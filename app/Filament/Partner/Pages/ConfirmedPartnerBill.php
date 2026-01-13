@@ -216,7 +216,7 @@ class ConfirmedPartnerBill extends Page
         }
 
         if ($this->arrivalPhoto) {
-            $bill->addMediaFromDisk($this->arrivalPhoto->getRealPath(), 's3')
+            $bill->addMedia($this->arrivalPhoto->getRealPath())
                 ->usingName('Arrival Photo - ' . $bill->code)
                 ->usingFileName($this->arrivalPhoto->getClientOriginalName())
                 ->toMediaCollection('arrival_photo');
