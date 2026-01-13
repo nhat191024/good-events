@@ -87,6 +87,10 @@ import OrderDetailPanel from './components/OrderDetailPanel.vue';
 
 import type { AssetOrder, AssetOrdersPageProps, AssetOrdersPayload } from './types';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 const props = withDefaults(defineProps<AssetOrdersPageProps>(), {
     orders: undefined,
     activeOrder: null,
