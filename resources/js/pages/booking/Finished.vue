@@ -5,6 +5,9 @@
     import SelectPartnerHeader from  '@/pages/booking/layout/Header.vue'
     import FormGroupLayout from '@/pages/booking/layout/FormGroup.vue'
     import Button from '@/components/ui/button/Button.vue'
+    import { inject } from "vue";
+
+    const route = inject('route') as any;
 
     const props = defineProps<{
         categoryName?: string;
