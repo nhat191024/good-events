@@ -98,6 +98,7 @@ const relatedBlogs = computed(() => toArray<BlogSummary>(props.related));
 
 export type { DetailPageProps };
 
+
 import { inject } from "vue";
 
 const route = inject('route') as any;
