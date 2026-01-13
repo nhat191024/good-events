@@ -79,6 +79,10 @@ import { useSearchSuggestion } from '@/lib/useSearchSuggestion';
 import { Button } from '@/components/ui/button';
 import CardItem from './components/CardItem/index.vue';
 import SearchBar from '../categories/partials/SearchBar.vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 interface BannerImage {
     image_tag?: string | null;
 }
