@@ -11,6 +11,9 @@
     import { getImg } from './helper';
     import { useTutorialHelper } from '@/lib/tutorial-helper';
     import { tutorialQuickLinks } from '@/lib/tutorial-links';
+    import { inject } from "vue";
+
+    const route = inject('route') as any;
 
     const title: string = 'Bạn đang cần kiểu đối tác nào cho sự kiện?'
     const subtitle: string = 'Chọn loại sụ kiện phù hợp với nhu cầu của bạn'
