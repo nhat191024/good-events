@@ -31,6 +31,10 @@ import { Link } from '@inertiajs/vue3';
 
 import type { Category, FileProduct } from '@/pages/home/types';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 interface BreadcrumbProps {
     fileProduct: FileProduct & { category?: Category | null };
 }
