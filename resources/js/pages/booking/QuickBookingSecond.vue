@@ -11,8 +11,11 @@
     import { createSearchFilter } from '@/lib/search-filter';
     import { computed, ref } from 'vue';
     import { getImg } from './helper';
-import { useTutorialHelper } from '@/lib/tutorial-helper';
-import { tutorialQuickLinks } from '@/lib/tutorial-links';
+    import { useTutorialHelper } from '@/lib/tutorial-helper';
+    import { tutorialQuickLinks } from '@/lib/tutorial-links';
+    import { inject } from "vue";
+
+    const route = inject('route') as any;
 
     const pageProps = usePage().props
     const partnerChildrenList = computed(() => pageProps.partnerChildrenList as PartnerCategory[])
