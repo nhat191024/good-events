@@ -33,6 +33,7 @@ class VocationalKnowledgeTable
                 SpatieMediaLibraryImageColumn::make('images')
                     ->label(__('admin/blog.fields.thumbnail'))
                     ->collection('thumbnail')
+                    ->conversion('thumb')
                     ->circular()
                     ->imageSize(50),
                 TextColumn::make('title')
