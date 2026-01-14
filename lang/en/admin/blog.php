@@ -68,5 +68,6 @@ return [
         'latitude' => 'Do not enter manually unless you know what you are doing.',
         'longitude' => 'Do not enter manually unless you know what you are doing.',
         'search' => 'Use the search button to auto-fill coordinates based on the address. (note: results may not be 100% accurate) - The filled coordinates will help display the location on the map in the client interface',
+        'thumbnail' => 'Supported formats: jpg, png, webp. Maximum size: 10MB.',
     ],
 ];
