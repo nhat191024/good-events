@@ -84,11 +84,6 @@ class FileProduct extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        // 1. Collection cho File PRIVATE (Designs)
-        $this->addMediaCollection('designs')
-            ->useDisk('s3');
-
-        // 2. Collection cho File PUBLIC (Thumbnails)
         $this->addMediaCollection('thumbnails')
             ->useDisk('public')
             ->withResponsiveImages();
@@ -123,5 +118,10 @@ class FileProduct extends Model implements HasMedia
     public function bills()
     {
         return $this->hasMany(FileProductBill::class);
+    }
+
+    public function files()
+    {
+        return $this->morphMany(File::class, 'model');
     }
 }
