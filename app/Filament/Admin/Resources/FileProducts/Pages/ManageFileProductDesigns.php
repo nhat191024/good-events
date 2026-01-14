@@ -53,6 +53,8 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->label('File Thiết Kế')
                             ->uploadingMessage('Đang tải file thiết kế lên...')
 
+                            ->temporaryFileUploadDisk('s3')
+                            ->temporaryFileUploadDirectory('tmp')
                             ->disk('s3')
 
                             ->multiple()
