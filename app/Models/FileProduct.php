@@ -22,12 +22,17 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property string $slug
  * @property string $description
  * @property float $price
+ * @property string|null $cached_zip_path
+ * @property string|null $cached_zip_generated_at
+ * @property string|null $cached_zip_hash
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FileProductBill> $bills
  * @property-read int|null $bills_count
  * @property-read \App\Models\Category $category
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
+ * @property-read int|null $files_count
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read int|null $media_count
  * @property \Illuminate\Database\Eloquent\Collection<int, \Spatie\Tags\Tag> $tags
@@ -36,6 +41,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct whereCachedZipGeneratedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct whereCachedZipHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct whereCachedZipPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct whereCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProduct whereDeletedAt($value)
@@ -70,6 +78,9 @@ class FileProduct extends Model implements HasMedia
         'slug',
         'description',
         'price',
+        'cached_zip_path',
+        'cached_zip_generated_at',
+        'cached_zip_hash',
     ];
 
     /**
