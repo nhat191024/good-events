@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers\Blog;
 
+use Inertia\Inertia;
+use Inertia\Response;
+
 use App\Enum\CategoryType;
-use App\Http\Resources\Home\BlogDetailResource;
-use App\Http\Resources\Home\BlogResource;
-use App\Http\Resources\Home\CategoryResource;
+
 use App\Models\Category;
 use App\Models\GoodLocation;
 use App\Models\Location;
-use Illuminate\Database\Eloquent\Builder;
+
+use App\Http\Resources\Home\BlogDetailResource;
+use App\Http\Resources\Home\BlogResource;
+use App\Http\Resources\Home\CategoryResource;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Database\Eloquent\Builder;
 
 class GoodLocationBlogController extends BaseBlogPageController
 {
