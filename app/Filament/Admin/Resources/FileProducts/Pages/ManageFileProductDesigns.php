@@ -56,6 +56,7 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->temporaryFileUploadDisk('s3')
                             ->temporaryFileUploadDirectory('tmp')
                             ->disk('s3')
+                            ->directory('file-product-designs/' . $this->record->id)
 
                             ->multiple()
                             ->downloadable()
