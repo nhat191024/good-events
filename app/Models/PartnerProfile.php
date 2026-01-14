@@ -68,6 +68,8 @@ class PartnerProfile extends Model
         'selfie_image',
         'front_identity_card_image',
         'back_identity_card_image',
+        'is_legit',
+        'video_url',
     ];
 
     /**
