@@ -49,10 +49,10 @@ const iconsMotion = {
                                 class="w-12 h-12 rounded-full" img-class="w-12 h-12 object-cover rounded-full"
                                 loading="lazy" />
                         </div>
-                        <span
+                        <h2
                             class="text-sm md:text-base text-gray-700 font-medium text-center group-hover:text-red-600 transition-colors">
                             {{ category.name }}
-                        </span>
+                        </h2>
                     </Link>
                 </div>
             </div>
