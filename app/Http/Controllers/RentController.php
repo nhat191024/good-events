@@ -2,18 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\Home\CategoryResource;
-use App\Http\Resources\Home\RentProductResource;
-use App\Http\Resources\Home\TagResource;
+use Inertia\Inertia;
+use Inertia\Response;
+
+use App\Enum\CacheKey;
+
 use App\Models\Category;
 use App\Models\RentProduct;
 use App\Models\Taggable;
+
+use App\Http\Resources\Home\CategoryResource;
+use App\Http\Resources\Home\RentProductResource;
+use App\Http\Resources\Home\TagResource;
+
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Support\Facades\Cache;
+
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class RentController extends Controller
@@ -75,6 +83,37 @@ class RentController extends Controller
 
     private function renderDiscoverPage(Request $request, ?Category $category = null): Response|RedirectResponse
     {
+        [$search, $tagSlugs, $page] = $this->getRequestParams($request);
+
+        if ($redirect = $this->getRedirectResponse($request, $category, $search, $tagSlugs, $page)) {
+            return $redirect;
+        }
+
+        $childCategories = $category ? $this->fetchChildCategories($category) : new Collection();
+
+        $rentProducts = $this->fetchRentProducts($category, $childCategories, $search, $tagSlugs, $page);
+
+        $categories = $this->fetchSidebarCategories($category);
+        $tags = $this->fetchSidebarTags();
+
+        return Inertia::render('rent/Discover', [
+            'rentProducts' => RentProductResource::collection($rentProducts),
+            'categories' => CategoryResource::collection($categories),
+            'tags' => TagResource::collection($tags),
+            'category' => $category ? CategoryResource::make($category)->resolve($request) : null,
+            'childCategories' => CategoryResource::collection($childCategories),
+            'filters' => [
+                'q' => $search !== '' ? $search : null,
+                'tags' => $tagSlugs->values()->all(),
+            ],
+        ]);
+    }
+
+    /**
+     * @return array{0: string, 1: Collection, 2: int}
+     */
+    private function getRequestParams(Request $request): array
+    {
         $search = trim((string) $request->query('q', ''));
         $tagSlugs = collect(Arr::wrap($request->query('tags', [])))
             ->map(fn($slug) => trim((string) $slug))
@@ -89,6 +128,11 @@ class RentController extends Controller
 
         $page = max(1, (int) $request->query('page', 1));
 
+        return [$search, $tagSlugs, $page];
+    }
+
+    private function getRedirectResponse(Request $request, ?Category $category, string $search, Collection $tagSlugs, int $page): ?RedirectResponse
+    {
         $normalizedQuery = $this->normalizedQueryPayload($search, $tagSlugs, $page);
         if ($this->shouldRedirectToNormalizedQuery($request, $normalizedQuery)) {
             $routeName = $category ? 'rent.category' : 'rent.discover';
@@ -96,20 +140,27 @@ class RentController extends Controller
             return redirect()->route($routeName, array_merge($routeParams, $normalizedQuery));
         }
 
+        return null;
+    }
+
+    private function fetchChildCategories(Category $category): Collection
+    {
+        $category->loadMissing(['parent', 'media']);
+
+        return Category::with('media')
+            ->whereType('rental')
+            ->where('parent_id', $category->getKey())
+            ->orderBy('name')
+            ->get()
+            ->each(fn($c) => $c->setRelation('parent', $category));
+    }
+
+    private function fetchRentProducts(?Category $category, Collection $childCategories, string $search, Collection $tagSlugs, int $page)
+    {
         $query = RentProduct::query()
             ->with(['tags', 'media']);
 
-        $childCategories = new Collection();
-        $categoryIds = new Collection();
         if ($category) {
-            $category = $category->loadMissing(['parent', 'media']);
-            $childCategories = Category::with('media')
-                ->whereType('rental')
-                ->where('parent_id', $category->getKey())
-                ->orderBy('name')
-                ->get()
-                ->each(fn($c) => $c->setRelation('parent', $category));
-
             $categoryIds = $childCategories
                 ->pluck('id')
                 ->prepend($category->getKey());
@@ -156,11 +207,20 @@ class RentController extends Controller
             });
         }
 
-        $categories = Category::whereType('rental')
-            ->with('media')
-            ->orderBy('name')
-            ->limit(15)
-            ->get();
+        return $rentProducts;
+    }
+
+    private function fetchSidebarCategories(?Category $category): Collection
+    {
+        $categories = Cache::remember(
+            CacheKey::RENT_DISCOVER_CATEGORIES_SIDEBAR->value,
+            now()->addhours(4),
+            fn() => Category::whereType('rental')
+                ->with('media')
+                ->orderBy('name')
+                ->limit(15)
+                ->get()
+        );
 
         if ($category) {
             $categories->each(function (Category $cat) use ($category) {
@@ -172,19 +232,16 @@ class RentController extends Controller
 
         $categories->loadMissing('parent');
 
-        $tags = Taggable::getModelTags('RentProduct');
+        return $categories;
+    }
 
-        return Inertia::render('rent/Discover', [
-            'rentProducts' => RentProductResource::collection($rentProducts),
-            'categories' => CategoryResource::collection($categories),
-            'tags' => TagResource::collection($tags),
-            'category' => $category ? CategoryResource::make($category)->resolve($request) : null,
-            'childCategories' => CategoryResource::collection($childCategories),
-            'filters' => [
-                'q' => $search !== '' ? $search : null,
-                'tags' => $tagSlugs->values()->all(),
-            ],
-        ]);
+    private function fetchSidebarTags(): Collection
+    {
+        return Cache::remember(
+            CacheKey::RENT_DISCOVER_TAGS_SIDEBAR->value,
+            now()->addHours(4),
+            fn() => Taggable::getModelTags('RentProduct')
+        );
     }
 
     /**
