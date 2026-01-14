@@ -43,6 +43,7 @@
         "predis/predis": "^3.2",
         "pusher/pusher-php-server": "^7.2",
         "ralphjsmit/laravel-filament-upload": "^1.1",
+        "ralphjsmit/laravel-seo": "^1.7",
         "spatie/image-optimizer": "^1.8",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-data": "^4.17",
