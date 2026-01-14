@@ -12,6 +12,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
 
+use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
+
 class FileProductForm
 {
     public static function configure(Schema $schema): Schema
@@ -60,20 +62,29 @@ class FileProductForm
                 SpatieTagsInput::make('tags')
                     ->label(__('admin/fileProduct.fields.tags'))
                     ->placeholder(__('admin/fileProduct.placeholders.tags'))
-                    ->required()
+                    ->required()ư
                     ->columnSpanFull(),
                 RichEditor::make('description')
                     ->label(__('admin/fileProduct.fields.description'))
                     ->placeholder(__('admin/fileProduct.placeholders.description'))
                     ->required()
                     ->columnSpanFull(),
-                SpatieMediaLibraryFileUpload::make('images')
+                AdvancedFileUpload::make('images')
                     ->label(__('admin/fileProduct.fields.thumbnail'))
+                    ->helperText(__('admin/fileProduct.helpers.thumbnail'))
+                    ->spatieMediaLibrary()
                     ->collection('thumbnails')
                     ->required()
-                    ->image()
+
                     ->multiple()
                     ->reorderable()
+
+                    ->disk('local')
+                    ->temporaryFileUploadDisk('local')
+
+                    ->image()
+                    ->maxFiles(5)
+                    ->maxSize(1024 * 3)
                     ->columnSpanFull(),
             ]);
     }
