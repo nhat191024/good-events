@@ -8,6 +8,7 @@ use Inertia\Response as InertiaResponse;
 
 use App\Enum\FileProductBillStatus;
 use App\Enum\PaymentMethod;
+use App\Enum\CacheKey;
 
 use App\Models\Category;
 use App\Models\FileProduct;
@@ -27,6 +28,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -45,8 +47,8 @@ class FileProductController extends Controller
 
     public function assetCategory(Request $request, string $category_slug): Response|RedirectResponse
     {
-        $category = Category::query()
-            ->with('parent')
+        $category = Category::with('parent')
+            ->where('type', 'design')
             ->where('slug', $category_slug)
             ->firstOrFail();
 
@@ -310,11 +312,48 @@ class FileProductController extends Controller
 
     private function renderDiscoverPage(Request $request, ?Category $category = null): Response|RedirectResponse
     {
+        $params = $this->getDiscoverPageParams($request);
+
+        if ($redirect = $this->handleDiscoverRedirect($request, $params, $category)) {
+            return $redirect;
+        }
+
+        $childCategories = $this->getChildCategories($category);
+
+        $fileProducts = $this->getFileProducts(
+            $params['search'],
+            $params['tagSlugs'],
+            $params['page'],
+            $category,
+            $childCategories
+        );
+
+        [$categories, $tags] = $this->getSidebarData();
+
+        return Inertia::render('asset/Discover', [
+            'fileProducts' => FileProductResource::collection($fileProducts),
+            'categories' => CategoryResource::collection($categories),
+            'tags' => TagResource::collection($tags),
+            'category' => $category ? CategoryResource::make($category)->resolve($request) : null,
+            'childCategories' => CategoryResource::collection($childCategories),
+            'filters' => [
+                'q' => $params['search'] !== '' ? $params['search'] : null,
+                'tags' => $params['tagSlugs']->values()->all(),
+            ],
+        ]);
+    }
+
+    /**
+     * @return array{search: string, tagSlugs: Collection, page: int}
+     */
+    private function getDiscoverPageParams(Request $request): array
+    {
         $search = trim((string) $request->query('q', ''));
         $tagSlugs = collect(Arr::wrap($request->query('tags', [])))
             ->map(fn($slug) => trim((string) $slug))
             ->filter();
 
+        // Fallback for singular 'tag' parameter
         if ($tagSlugs->isEmpty() && $request->filled('tag')) {
             $fallback = trim((string) $request->query('tag', ''));
             if ($fallback !== '') {
@@ -322,83 +361,91 @@ class FileProductController extends Controller
             }
         }
 
-        $page = max(1, (int) $request->query('page', 1));
+        $page = max(1, $request->integer('page', 1));
 
-        $normalizedQuery = $this->normalizedQueryPayload($search, $tagSlugs, $page);
+        return compact('search', 'tagSlugs', 'page');
+    }
+
+    private function handleDiscoverRedirect(Request $request, array $params, ?Category $category): ?RedirectResponse
+    {
+        $normalizedQuery = $this->normalizedQueryPayload($params['search'], $params['tagSlugs'], $params['page']);
+
         if ($this->shouldRedirectToNormalizedQuery($request, $normalizedQuery)) {
             $routeName = $category ? 'asset.category' : 'asset.discover';
             $routeParams = $category ? ['category_slug' => $category->slug] : [];
             return redirect()->route($routeName, array_merge($routeParams, $normalizedQuery));
         }
 
-        $query = FileProduct::query()
-            ->with(['category.parent', 'tags', 'media']);
+        return null;
+    }
 
-        $childCategories = new Collection();
-        $categoryIds = new Collection();
-        if ($category) {
-            $category = $category->loadMissing('parent');
-            $childCategories = Category::query()
-                ->with('parent', 'media')
-                ->where('parent_id', $category->getKey())
-                ->orderBy('name')
-                ->get();
-            $categoryIds = $childCategories
-                ->pluck('id')
-                ->prepend($category->getKey());
-
-            $query->whereIn('category_id', $categoryIds->all());
+    private function getChildCategories(?Category $category): Collection
+    {
+        if (!$category) {
+            return new Collection();
         }
 
-        if ($search !== '') {
-            $query->where(function ($builder) use ($search) {
-                $builder->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('slug', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%');
-            });
-        }
+        $category->loadMissing('parent');
 
-        if ($tagSlugs->isNotEmpty()) {
-            $query->whereHas('tags', function ($tagQuery) use ($tagSlugs) {
-                $tagQuery->where(function ($inner) use ($tagSlugs) {
-                    foreach ($tagSlugs as $tagSlug) {
-                        $inner->orWhere('slug->vi', $tagSlug)
-                            ->orWhere('slug->en', $tagSlug)
-                            ->orWhere('slug', $tagSlug)
-                            ->orWhere('name->vi', $tagSlug)
-                            ->orWhere('name->en', $tagSlug)
-                            ->orWhere('name', $tagSlug);
-                    }
+        $children = Category::with('media')
+            ->where('parent_id', $category->getKey())
+            ->orderBy('name')
+            ->get();
+
+        $children->each(fn($child) => $child->setRelation('parent', $category));
+
+        return $children;
+    }
+
+    private function getFileProducts(string $search, Collection $tagSlugs, int $page, ?Category $category, Collection $childCategories)
+    {
+        return FileProduct::query()
+            ->with(['category.parent', 'tags', 'media'])
+            ->when($category, function ($q) use ($category, $childCategories) {
+                $ids = $childCategories->pluck('id')->push($category->getKey());
+                $q->whereIn('category_id', $ids);
+            })
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($builder) use ($search) {
+                    $builder->where('name', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
                 });
-            });
-        }
-
-        $fileProducts = $query
+            })
+            ->when($tagSlugs->isNotEmpty(), function ($q) use ($tagSlugs) {
+                $q->whereHas('tags', function ($tagQuery) use ($tagSlugs) {
+                    $tagQuery->where(function ($inner) use ($tagSlugs) {
+                        foreach ($tagSlugs as $tagSlug) {
+                            $inner->orWhere('slug->vi', $tagSlug)
+                                ->orWhere('slug->en', $tagSlug)
+                                ->orWhere('slug', $tagSlug)
+                                ->orWhere('name->vi', $tagSlug)
+                                ->orWhere('name->en', $tagSlug)
+                                ->orWhere('name', $tagSlug);
+                        }
+                    });
+                });
+            })
             ->orderByDesc('created_at')
             ->paginate(self::DISCOVER_PER_PAGE, ['*'], 'page', $page)
             ->withQueryString();
+    }
 
-        $categories = Category::query()
-            ->with('parent', 'media')
-            ->orderBy('name')
-            ->limit(15)
-            ->get();
+    private function getSidebarData(): array
+    {
+        $categories = Cache::remember(CacheKey::FILE_DISCOVER_CATEGORIES_SIDEBAR->value, now()->addMinutes(10), fn() =>
+            Category::with('parent', 'media')
+                ->whereType('design')
+                ->orderBy('name')
+                ->limit(15)
+                ->get()
+        );
 
-        $tags = Taggable::getModelTags('FileProduct');
+        $tags = Cache::remember(CacheKey::FILE_DISCOVER_TAGS_SIDEBAR->value, now()->addMinutes(10), fn() =>
+            Taggable::getModelTags('FileProduct')
+        );
 
-        $view = 'asset/Discover';
-
-        return Inertia::render($view, [
-            'fileProducts' => FileProductResource::collection($fileProducts),
-            'categories' => CategoryResource::collection($categories),
-            'tags' => TagResource::collection($tags),
-            'category' => $category ? CategoryResource::make($category)->resolve($request) : null,
-            'childCategories' => CategoryResource::collection($childCategories),
-            'filters' => [
-                'q' => $search !== '' ? $search : null,
-                'tags' => $tagSlugs->values()->all(),
-            ],
-        ]);
+        return [$categories, $tags];
     }
 
     /**
