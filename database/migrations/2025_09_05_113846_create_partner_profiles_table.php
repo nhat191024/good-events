@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('front_identity_card_image')->nullable();
             $table->string('back_identity_card_image')->nullable();
             $table->boolean('is_legit')->default(false);
-            $table->string('video_url')->nullable();
+            $table->text('video_url')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
