@@ -53,7 +53,10 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->label('File Thiết Kế')
                             ->uploadingMessage('Đang tải file thiết kế lên...')
 
+                            ->temporaryFileUploadDisk('s3')
+                            ->temporaryFileUploadDirectory('tmp')
                             ->disk('s3')
+                            ->directory('file-product-designs/' . $this->record->id)
 
                             ->multiple()
                             ->downloadable()
@@ -85,14 +88,11 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ])
 
                             ->saveUploadedFileUsing(function (AdvancedFileUpload $component, string $temporaryFileUploadPath, string $temporaryFileUploadFilename, ?string $originalFilename = null) {
-                                $temporaryFileUploadDisk = $component->getTemporaryFileUploadDisk();
                                 $disk = $component->getDisk();
                                 $directory = $component->getDirectory();
 
-                                // Use original filename to preserve extension
                                 $filename = $originalFilename ?? $temporaryFileUploadFilename;
 
-                                // Generate unique filename while preserving original extension
                                 $extension = pathinfo($filename, PATHINFO_EXTENSION);
                                 $basename = pathinfo($filename, PATHINFO_FILENAME);
                                 $uniqueFilename = $basename . '_' . time() . '_' . uniqid() . '.' . $extension;
@@ -100,12 +100,10 @@ class ManageFileProductDesigns extends Page implements HasForms
                                 $s3Path = $directory . '/' . $uniqueFilename;
                                 $s3Path = str_replace('\\', '/', $s3Path);
 
-                                $disk->put(
-                                    $s3Path,
-                                    $temporaryFileUploadDisk->readStream($temporaryFileUploadPath)
-                                );
+                                if ($disk->exists($temporaryFileUploadPath)) {
+                                    $disk->move($temporaryFileUploadPath, $s3Path);
+                                }
 
-                                // Return the full S3 path
                                 return $s3Path;
                             })
 

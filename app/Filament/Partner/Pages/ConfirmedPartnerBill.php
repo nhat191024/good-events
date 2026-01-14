@@ -216,6 +216,10 @@ class ConfirmedPartnerBill extends Page
         }
 
         if ($this->arrivalPhoto) {
+            //use if livewire temporary file upload on s3
+            // $disk = config('livewire.temporary_file_upload.disk', 'local');
+            // $bill->addMediaFromDisk($this->arrivalPhoto->getRealPath(), $disk)
+
             $bill->addMedia($this->arrivalPhoto->getRealPath())
                 ->usingName('Arrival Photo - ' . $bill->code)
                 ->usingFileName($this->arrivalPhoto->getClientOriginalName())
