@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Support\Facades\Cache;
-
+use RalphJSmit\Laravel\SEO\Support\HasSEO;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -67,7 +67,7 @@ use Spatie\Activitylog\LogOptions;
  */
 class PartnerCategory extends Model implements HasMedia
 {
-    use SoftDeletes, HasSlug, InteractsWithMedia, LogsActivity;
+    use SoftDeletes, HasSlug, InteractsWithMedia, LogsActivity, HasSEO;
 
     /**
      * The attributes that are mass assignable.

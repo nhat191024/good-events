@@ -48,8 +48,6 @@
         }
     </style>
 
-    <title inertia>{{ $settings['app_name'] }}</title>
-
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     @if (!empty($settings['app_favicon']))

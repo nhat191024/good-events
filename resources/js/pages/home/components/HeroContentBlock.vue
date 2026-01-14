@@ -9,10 +9,10 @@
             :initial="itemMotion.initial" :animate="itemMotion.animate" :transition="headlineTransition">
             {{ title }}
         </motion.h1>
-        <motion.p v-if="description" class="text-base md:text-lg text-white/80 max-w-3xl"
+        <motion.h1 v-if="description" class="text-base md:text-lg text-white/80 max-w-3xl"
             :initial="itemMotion.initial" :animate="itemMotion.animate" :transition="bodyTransition">
             {{ description }}
-        </motion.p>
+        </motion.h1>
         <motion.div class="flex flex-wrap items-center gap-3" :initial="itemMotion.initial"
             :animate="itemMotion.animate" :transition="ctaTransition">
             <a v-if="primaryCta" :href="primaryCta.href"

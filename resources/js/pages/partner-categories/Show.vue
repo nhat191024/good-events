@@ -99,7 +99,7 @@
                             </p>
                         </header>
                         <div class="space-y-3">
-                            <h3 class="text-base font-semibold text-gray-900">Video</h3>
+                            <h2 class="text-base font-semibold text-gray-900">Video</h2>
                             <div v-if="videoEmbed"
                                 class="video-embed aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
                                 <div class="h-full w-full" v-html="videoEmbed"></div>
@@ -119,7 +119,7 @@
                     </div>
 
                     <section class="space-y-3">
-                        <h3 class="text-base font-semibold text-gray-900">Thông tin chính</h3>
+                        <h2 class="text-base font-semibold text-gray-900">Thông tin chính</h2>
                         <dl class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                             <div class="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm">
                                 <dt class="font-semibold text-gray-700">Loại</dt>
@@ -142,7 +142,7 @@
                     class="space-y-5 rounded-3xl bg-white p-6 lg:p-10 md:px-6 md:py-6 px-0 py-0">
                     <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h3 class="text-xl font-semibold text-gray-900">Có thể bạn quan tâm</h3>
+                            <h2 class="text-xl font-semibold text-gray-900">Có thể bạn quan tâm</h2>
                             <p class="text-sm text-gray-500">Các đối tác khác trong cùng danh mục.</p>
                         </div>
                     </header>

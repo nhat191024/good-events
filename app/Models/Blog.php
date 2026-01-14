@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use RalphJSmit\Laravel\SEO\Support\HasSEO;
 use Spatie\Tags\HasTags;
 
 use Spatie\MediaLibrary\HasMedia;
@@ -77,7 +77,7 @@ use Spatie\Activitylog\LogOptions;
  */
 class Blog extends Model implements HasMedia
 {
-    use SoftDeletes, HasTags, HasSlug, InteractsWithMedia, LogsActivity;
+    use SoftDeletes, HasTags, HasSlug, InteractsWithMedia, LogsActivity, HasSEO;
 
     /**
      * The attributes that are mass assignable.

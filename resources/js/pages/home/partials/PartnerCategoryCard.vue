@@ -20,9 +20,9 @@
                 </div>
                 <!-- Content -->
                 <div class="p-4">
-                    <h3 class="font-semibold text-gray-900 text-md mb-1">
+                    <h4 class="font-semibold text-gray-900 text-md mb-1">
                         {{ partnerCategory.name }}
-                    </h3>
+                    </h4>
                 </div>
             </div>
         </Link>
