@@ -62,7 +62,7 @@ class FileProductForm
                 SpatieTagsInput::make('tags')
                     ->label(__('admin/fileProduct.fields.tags'))
                     ->placeholder(__('admin/fileProduct.placeholders.tags'))
-                    ->required()ư
+                    ->required()
                     ->columnSpanFull(),
                 RichEditor::make('description')
                     ->label(__('admin/fileProduct.fields.description'))
