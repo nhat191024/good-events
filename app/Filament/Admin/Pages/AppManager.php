@@ -47,10 +47,15 @@ class AppManager extends SettingsPage
     {
         return $schema
             ->components([
-                Section::make(__('admin/setting.app_settings'))
-                    ->columnSpanFull()
+                Section::make('Thông tin chung')
+                    ->description('Các thông tin cơ bản về ứng dụng')
                     ->columns(2)
                     ->schema([
+                        TextInput::make('app_name')
+                            ->label(__(__('admin/setting.fields.name')))
+                            ->columnSpanFull()
+                            ->required(),
+
                         TextInput::make('app_title')
                             ->label(__(__('admin/setting.fields.title')))
                             ->columnSpanFull()
@@ -58,39 +63,6 @@ class AppManager extends SettingsPage
 
                         Textarea::make('app_description')
                             ->label(__(__('admin/setting.fields.description')))
-                            ->columnSpanFull()
-                            ->required(),
-
-                        TextInput::make('app_name')
-                            ->label(__(__('admin/setting.fields.name')))
-                            ->columnSpanFull()
-                            ->required(),
-
-                        TextInput::make('app_partner_title')
-                            ->label(__(__('admin/setting.fields.titles.partner')))
-                            ->columnSpanFull()
-                            ->required(),
-
-                        TextInput::make('app_design_title')
-                            ->label(__(__('admin/setting.fields.titles.design')))
-                            ->columnSpanFull()
-                            ->required(),
-
-                        TextInput::make('app_rental_title')
-                            ->label(__(__('admin/setting.fields.titles.rental')))
-                            ->columnSpanFull()
-                            ->required(),
-
-                        TextInput::make('contact_hotline')
-                            ->label(__(__('admin/setting.fields.contact_hotline')))
-                            ->required(),
-
-                        TextInput::make('contact_email')
-                            ->label(__(__('admin/setting.fields.contact_email')))
-                            ->required(),
-
-                        TextInput::make('social_facebook')
-                            ->label(__(__('admin/setting.fields.socials.facebook')))
                             ->columnSpanFull()
                             ->required(),
 
@@ -129,6 +101,65 @@ class AppManager extends SettingsPage
                                 }
                                 return $record?->app_favicon ?? null;
                             }),
+                    ]),
+
+                Section::make('Tiêu đề các trang')
+                    ->description('Cấu hình tiêu đề cho các trang danh mục')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('app_partner_title')
+                            ->label(__(__('admin/setting.fields.titles.partner')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('app_design_title')
+                            ->label(__(__('admin/setting.fields.titles.design')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('app_rental_title')
+                            ->label(__(__('admin/setting.fields.titles.rental')))
+                            ->columnSpanFull()
+                            ->required(),
+                    ]),
+
+                Section::make('Thông tin liên hệ')
+                    ->description('Thông tin hiển thị ở footer hoặc trang liên hệ')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('contact_hotline')
+                            ->label(__(__('admin/setting.fields.contact_hotline')))
+                            ->required(),
+
+                        TextInput::make('contact_email')
+                            ->label(__(__('admin/setting.fields.contact_email')))
+                            ->required(),
+                    ]),
+
+                Section::make('Mạng xã hội')
+                    ->description('Liên kết đến các trang mạng xã hội')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('social_facebook')
+                            ->label(__(__('admin/setting.fields.socials.facebook')))
+                            ->required(),
+
+                        TextInput::make('social_facebook_group')
+                            ->label(__(__('admin/setting.fields.socials.facebook_group')))
+                            ->required(),
+
+                        TextInput::make('social_zalo')
+                            ->label(__(__('admin/setting.fields.socials.zalo')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        TextInput::make('social_youtube')
+                            ->label(__(__('admin/setting.fields.socials.youtube')))
+                            ->required(),
+
+                        TextInput::make('social_tiktok')
+                            ->label(__(__('admin/setting.fields.socials.tiktok')))
+                            ->required(),
                     ]),
             ]);
     }
