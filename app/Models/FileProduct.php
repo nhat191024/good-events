@@ -103,17 +103,6 @@ class FileProduct extends Model implements HasMedia
     public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumb')
-            ->width(400)
-            ->height(400)
-            ->sharpen(10)
-            ->withResponsiveImages()
-            ->format('webp')
-            ->performOnCollections('thumbnails')
-            ->queued();
-
-        $this->addMediaConversion('mobile_optimized')
-            ->width(300)
-            ->height(300)
             ->withResponsiveImages()
             ->format('webp')
             ->performOnCollections('thumbnails')
