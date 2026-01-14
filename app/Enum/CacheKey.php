@@ -12,4 +12,8 @@ enum CacheKey: string
     //FileProduct Discover Page
     case FILE_DISCOVER_CATEGORIES_SIDEBAR = 'discover_categories_sidebar';
     case FILE_DISCOVER_TAGS_SIDEBAR = 'discover_tags_sidebar';
+
+    //RentProduct Discover Page
+    case RENT_DISCOVER_CATEGORIES_SIDEBAR = 'rent_discover_categories_sidebar';
+    case RENT_DISCOVER_TAGS_SIDEBAR = 'rent_discover_tags_sidebar';
 }
