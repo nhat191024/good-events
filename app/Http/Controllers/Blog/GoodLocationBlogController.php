@@ -42,19 +42,21 @@ class GoodLocationBlogController extends BaseBlogPageController
 
     public function blogDetail(Request $request, string $categorySlug, string $blogSlug): Response
     {
-        $blog = $this->baseBlogQuery()
+        $blog = $this->baseBlogQuery(false)
             ->whereHas('category', fn($builder) => $builder
                 ->where('slug', $categorySlug)
                 ->where('type', self::BLOG_TYPE))
             ->where('slug', $blogSlug)
             ->firstOrFail();
 
-        $related = $this->baseBlogQuery()
+        $related = $this->baseBlogQuery(false)
             ->where('category_id', $blog->category_id)
             ->whereKeyNot($blog->getKey())
             ->latest('created_at')
             ->take(6)
             ->get();
+
+        (clone $related)->push($blog)->load($this->getBlogRelations());
 
         return Inertia::render('blog/Detail', [
             'blog' => BlogDetailResource::make($blog)->resolve($request),
@@ -110,9 +112,9 @@ class GoodLocationBlogController extends BaseBlogPageController
         return $query;
     }
 
-    private function baseBlogQuery(): Builder
+    private function baseBlogQuery(bool $withRelations = true): Builder
     {
-        return GoodLocation::query()
+        $query = GoodLocation::query()
             ->select([
                 'id',
                 'category_id',
@@ -131,16 +133,26 @@ class GoodLocationBlogController extends BaseBlogPageController
                 'created_at',
                 'updated_at',
             ])
-            ->with([
-                'category:id,name,slug,parent_id',
-                'category.parent:id,name,slug',
-                'author:id,name',
-                'media',
-                'tags',
-                'location:id,name,parent_id,type',
-                'location.province:id,name,parent_id',
-            ])
             ->where('type', self::BLOG_TYPE);
+
+        if ($withRelations) {
+            $query->with($this->getBlogRelations());
+        }
+
+        return $query;
+    }
+
+    private function getBlogRelations(): array
+    {
+        return [
+            'category:id,name,slug,parent_id',
+            'category.parent:id,name,slug',
+            'author:id,name',
+            'media',
+            'tags',
+            'location:id,name,parent_id,type',
+            'location.province:id,name,parent_id',
+        ];
     }
 
     private function applyCategoryFilter(Builder $query, Category $category): void
