@@ -18,13 +18,14 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
 
 use OpenCage\Geocoder\Geocoder;
 use Dotswan\MapPicker\Fields\Map;
 
 use Cohensive\OEmbed\Facades\OEmbed;
+
+use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
 class GoodLocationsForm
 {
@@ -150,13 +151,19 @@ class GoodLocationsForm
                     ->icon('heroicon-o-photo')
                     ->collapsible()
                     ->schema([
-                        SpatieMediaLibraryFileUpload::make('images')
+                        AdvancedFileUpload::make('images')
                             ->label(__('admin/blog.fields.thumbnail'))
+                            ->helperText(__('admin/blog.helpers.thumbnail'))
+                            ->spatieMediaLibrary()
                             ->collection('thumbnail')
                             ->required()
+
+                            ->disk('local')
+                            ->temporaryFileUploadDisk('local')
+
                             ->image()
-                            ->imageEditor()
-                            ->maxFiles(1),
+                            ->maxFiles(1)
+                            ->maxSize(1024 * 10),
                     ])
                     ->columnSpanFull(),
 
