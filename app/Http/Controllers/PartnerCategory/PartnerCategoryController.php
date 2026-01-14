@@ -25,6 +25,7 @@ class PartnerCategoryController extends Controller
             ->where('id', '!=', $item->id)
             ->latest('updated_at')
             ->take(8)
+            ->with('media')
             ->get(['id', 'name', 'slug', 'min_price', 'max_price']);
 
         $category = $item->parent;
