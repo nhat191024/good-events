@@ -216,7 +216,8 @@ class ConfirmedPartnerBill extends Page
         }
 
         if ($this->arrivalPhoto) {
-            $bill->addMedia($this->arrivalPhoto->getRealPath())
+            $disk = config('livewire.temporary_file_upload.disk', 'local');
+            $bill->addMediaFromDisk($this->arrivalPhoto->getRealPath(), $disk)
                 ->usingName('Arrival Photo - ' . $bill->code)
                 ->usingFileName($this->arrivalPhoto->getClientOriginalName())
                 ->toMediaCollection('arrival_photo');
