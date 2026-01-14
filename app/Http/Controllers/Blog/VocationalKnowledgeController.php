@@ -55,15 +55,6 @@ class VocationalKnowledgeController extends BaseBlogPageController
                 'created_at',
                 'updated_at',
             ])
-            ->with([
-                'category:id,name,slug,parent_id',
-                'category.parent:id,name,slug',
-                'author:id,name',
-                'media',
-                'tags',
-                'location:id,name,parent_id,type',
-                'location.province:id,name,parent_id',
-            ])
             ->where('type', self::BLOG_TYPE)
             ->whereHas('category', fn($builder) => $builder
                 ->where('slug', $categorySlug)
@@ -73,12 +64,6 @@ class VocationalKnowledgeController extends BaseBlogPageController
 
         $related = VocationalKnowledge::query()
             ->select(['id', 'category_id', 'user_id', 'title', 'slug', 'content', 'video_url', 'created_at'])
-            ->with([
-                'category:id,name,slug,parent_id',
-                'category.parent:id,name,slug',
-                'author:id,name',
-                'media',
-            ])
             ->where('type', self::BLOG_TYPE)
             ->where('category_id', $blog->category_id)
             ->whereKeyNot($blog->getKey())
@@ -86,11 +71,26 @@ class VocationalKnowledgeController extends BaseBlogPageController
             ->take(6)
             ->get();
 
+        (clone $related)->push($blog)->load($this->getBlogRelations());
+
         return Inertia::render('blog/Detail', [
             'blog' => BlogDetailResource::make($blog)->resolve($request),
             'related' => BlogResource::collection($related),
             'context' => $this->detailContext(),
         ]);
+    }
+
+    private function getBlogRelations(): array
+    {
+        return [
+            'category:id,name,slug,parent_id',
+            'category.parent:id,name,slug',
+            'author:id,name',
+            'media',
+            'tags',
+            'location:id,name,parent_id,type',
+            'location.province:id,name,parent_id',
+        ];
     }
 
     private function renderKnowledgePage(Request $request, ?Category $category = null): Response
