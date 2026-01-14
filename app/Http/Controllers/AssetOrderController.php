@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Enum\FileProductBillStatus;
 use App\Enum\PaymentMethod;
 use App\Http\Resources\AssetOrder\AssetOrderResource;
+use App\Jobs\GenerateFileProductZip;
 use App\Models\FileProductBill;
 use App\Services\PaymentService;
 use Filament\Support\Assets\Asset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -132,8 +134,12 @@ class AssetOrderController extends Controller
             : FileProductBillStatus::tryFrom((string) $bill->status);
 
         if ($statusEnum !== FileProductBillStatus::PAID) {
-            return view('error', [
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'error',
+                'title' => __('Không thể tải xuống'),
                 'message' => __('Đơn hàng chưa thanh toán hoặc không thể tải xuống.'),
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
             ]);
         }
 
@@ -143,8 +149,12 @@ class AssetOrderController extends Controller
             $seconds = RateLimiter::availableIn($key);
             $availableAt = now()->addSeconds($seconds)->format('H:i d/m/Y');
 
-            return view('error', [
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'warning',
+                'title' => __('Vượt quá giới hạn'),
                 'message' => __('Bạn đã vượt quá giới hạn tải xuống (5 lần/tuần). Vui lòng thử lại vào lúc :time.', ['time' => $availableAt]),
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
             ]);
         }
 
@@ -152,16 +162,24 @@ class AssetOrderController extends Controller
         $fileProduct = $bill->fileProduct;
 
         if (!$fileProduct) {
-            return response()->json([
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'error',
+                'title' => __('Lỗi'),
                 'message' => __('Không tìm thấy thông tin sản phẩm cho đơn hàng.'),
-            ], 500);
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
+            ]);
         }
 
         $files = $fileProduct->files;
         if ($files->isEmpty()) {
-            return response()->json([
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'error',
+                'title' => __('Không có file'),
                 'message' => __('Không có tệp để tải xuống.'),
-            ], 404);
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
+            ]);
         }
 
         // Calculate current files hash to check for changes
@@ -171,11 +189,26 @@ class AssetOrderController extends Controller
         if ($this->hasValidCachedZip($fileProduct, $currentHash)) {
             RateLimiter::hit($key, 60 * 60 * 24 * 7);
 
-            // Return cached zip from S3
+            // Redirect to S3 URL to trigger download
             return redirect()->away(Storage::disk('s3')->temporaryUrl(
                 $fileProduct->cached_zip_path,
                 now()->addMinutes(5)
             ));
+        }
+
+        // Check if zip is currently being generated
+        $generatingKey = 'generating-zip:' . $fileProduct->id . ':' . $currentHash;
+        $isGenerating = Cache::get($generatingKey, false);
+
+        if ($isGenerating) {
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'info',
+                'title' => __('Đang chuẩn bị file'),
+                'message' => __('File đang được chuẩn bị bởi yêu cầu trước đó. Bạn sẽ nhận được thông báo khi file sẵn sàng để tải xuống.'),
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
+                'processing' => true,
+            ]);
         }
 
         // Delete old cached zip if exists
@@ -185,8 +218,20 @@ class AssetOrderController extends Controller
 
         RateLimiter::hit($key, 60 * 60 * 24 * 7);
 
-        // Generate new zip and cache it
-        return $this->generateAndCacheZip($fileProduct, $files, $currentHash, $bill);
+        // Set cache flag to indicate generation is in progress
+        Cache::put($generatingKey, true, 3600); // 1 hour timeout
+
+        // Dispatch job to generate zip
+        GenerateFileProductZip::dispatch($fileProduct, $request->user(), $currentHash, $bill->getKey());
+
+        return Inertia::render('asset/orders/ProcessingMessage', [
+            'type' => 'info',
+            'title' => __('Đang chuẩn bị file'),
+            'message' => __('File đang được chuẩn bị. Bạn sẽ nhận được thông báo khi file sẵn sàng để tải xuống.'),
+            'backUrl' => route('client-orders.asset.dashboard'),
+            'backText' => __('Quay lại danh sách đơn hàng'),
+            'processing' => true,
+        ]);
     }
 
     private function calculateFilesHash($files): string
@@ -215,95 +260,6 @@ class AssetOrderController extends Controller
         }
 
         return true;
-    }
-
-    private function generateAndCacheZip($fileProduct, $files, string $hash, $bill)
-    {
-        if (!class_exists('\ZipStream\\ZipStream')) {
-            return response()->json([
-                'message' => 'ZipStream not installed. Please composer require maennchen/zipstream-php',
-            ], 500);
-        }
-
-        // Create temporary file to store zip
-        $tempZipPath = tempnam(sys_get_temp_dir(), 'zip_');
-        $zipFileName = sprintf('FPB-%s-designs.zip', $bill->getKey());
-        $s3ZipPath = 'cached-zips/' . $fileProduct->id . '/' . $zipFileName;
-
-        try {
-            // Create zip file
-            $zipStreamClass = '\\ZipStream\\ZipStream';
-            $outputStream = fopen($tempZipPath, 'w');
-
-            $zip = new $zipStreamClass(
-                outputStream: $outputStream,
-                sendHttpHeaders: false,
-                enableZip64: true
-            );
-
-            foreach ($files as $file) {
-                try {
-                    $disk = $file->disk;
-                    $path = str_replace('\\', '/', $file->path);
-
-                    $fileStream = Storage::disk($disk)->readStream($path);
-                    if (!$fileStream) {
-                        continue;
-                    }
-
-                    $fileName = $file->file_name;
-                    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-
-                    $storeExtensions = ['psd', 'psb', 'tif'];
-                    $isStore = in_array($ext, $storeExtensions, true) || ($file->size && $file->size > 50 * 1024 * 1024);
-
-                    $compressionMethod = $isStore ? \ZipStream\CompressionMethod::STORE : null;
-                    $deflateLevel = $isStore ? 0 : null;
-
-                    $zip->addFileFromStream($fileName, $fileStream, '', $compressionMethod, $deflateLevel);
-
-                    if (is_resource($fileStream)) {
-                        fclose($fileStream);
-                    }
-                } catch (Throwable $ex) {
-                    report($ex);
-                }
-            }
-
-            $zip->finish();
-            fclose($outputStream);
-
-            // Upload to S3
-            Storage::disk('s3')->put(
-                $s3ZipPath,
-                file_get_contents($tempZipPath)
-            );
-
-            // Update file product with cached zip info
-            $fileProduct->update([
-                'cached_zip_path' => $s3ZipPath,
-                'cached_zip_generated_at' => now(),
-                'cached_zip_hash' => $hash,
-            ]);
-
-            // Clean up temp file
-            @unlink($tempZipPath);
-
-            // Redirect to S3 URL
-            return redirect()->away(Storage::disk('s3')->temporaryUrl(
-                $s3ZipPath,
-                now()->addMinutes(5)
-            ));
-
-        } catch (Throwable $ex) {
-            // Clean up temp file on error
-            @unlink($tempZipPath);
-            report($ex);
-
-            return response()->json([
-                'message' => __('Không thể tạo file zip. Vui lòng thử lại sau.'),
-            ], 500);
-        }
     }
 
     private function getOrders(Request $request): AnonymousResourceCollection|array
