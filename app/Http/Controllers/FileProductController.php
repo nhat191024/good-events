@@ -57,25 +57,49 @@ class FileProductController extends Controller
 
     public function assetDetail(Request $request, string $category_slug, string $file_product_slug): Response
     {
-        $category = Cache::remember(
-            CacheKey::FILE_CATEGORY_DETAIL->value . ":{$category_slug}",
+        $category = $this->fetchCachedCategory($category_slug);
+        $fileProduct = $this->fetchFileProduct($category, $file_product_slug);
+
+        $related = $this->fetchRelatedProducts($fileProduct, $category);
+        $downloadCount = $this->getDownloadCount($fileProduct);
+
+        [$isPurchased, $downloadZipUrl] = $this->checkPurchaseStatus($request->user(), $fileProduct);
+
+        return Inertia::render('asset/Detail', [
+            'fileProduct' => $this->buildFileProductPayload($request, $fileProduct, $downloadCount),
+            'related' => FileProductResource::collection($related)->resolve($request),
+            'downloadZipUrl' => $downloadZipUrl,
+            'isPurchased' => $isPurchased,
+        ]);
+    }
+
+    private function fetchCachedCategory(string $slug): Category
+    {
+        return Cache::remember(
+            CacheKey::FILE_CATEGORY_DETAIL->value . ":{$slug}",
             now()->addHours(4),
             fn() => Category::query()
                 ->with(['parent', 'media'])
-                ->where('slug', $category_slug)
+                ->where('slug', $slug)
                 ->firstOrFail()
         );
+    }
 
+    private function fetchFileProduct(Category $category, string $slug): FileProduct
+    {
         $fileProduct = FileProduct::query()
             ->with(['tags', 'media'])
             ->where('category_id', $category->getKey())
-            ->where('slug', $file_product_slug)
+            ->where('slug', $slug)
             ->firstOrFail();
 
         $fileProduct->setRelation('category', $category);
 
-        $previewImages = $this->buildPreviewImages($fileProduct);
+        return $fileProduct;
+    }
 
+    private function fetchRelatedProducts(FileProduct $fileProduct, Category $category): Collection
+    {
         $related = FileProduct::query()
             ->with(['tags', 'media'])
             ->where('category_id', $fileProduct->category_id)
@@ -86,37 +110,44 @@ class FileProductController extends Controller
 
         $related->each(fn($product) => $product->setRelation('category', $category));
 
-        $downloadCount = FileProductBill::query()
+        return $related;
+    }
+
+    private function getDownloadCount(FileProduct $fileProduct): int
+    {
+        return FileProductBill::query()
             ->where('file_product_id', $fileProduct->getKey())
             ->where('status', FileProductBillStatus::PAID->value)
             ->count();
+    }
 
-        $user = $request->user();
-        $expireAt = now()->addDay();
-
-        $isPurchased = false;
-        $downloadZipUrl = null;
-
-        if ($user) {
-            $isPurchased = FileProductBill::query()
-                ->where('file_product_id', $fileProduct->getKey())
-                ->where('client_id', $user->getAuthIdentifier())
-                ->where('status', FileProductBillStatus::PAID->value)
-                ->exists();
-
-            if ($isPurchased) {
-                $bill = FileProductBill::query()
-                    ->where('file_product_id', $fileProduct->getKey())
-                    ->where('client_id', $user->getAuthIdentifier())
-                    ->where('status', FileProductBillStatus::PAID->value)
-                    ->first();
-                if ($bill) {
-                    $downloadZipUrl = route('client-orders.asset.downloadZip', ['bill' => $bill->getKey()]);
-                }
-            }
+    /**
+     * @return array{0: bool, 1: string|null}
+     */
+    private function checkPurchaseStatus(?\App\Models\User $user, FileProduct $fileProduct): array
+    {
+        if (!$user) {
+            return [false, null];
         }
 
-        $fileProductPayload = array_merge(
+        $bill = FileProductBill::query()
+            ->where('file_product_id', $fileProduct->getKey())
+            ->where('client_id', $user->getAuthIdentifier())
+            ->where('status', FileProductBillStatus::PAID->value)
+            ->first();
+
+        if ($bill) {
+            return [true, route('client-orders.asset.downloadZip', ['bill' => $bill->getKey()])];
+        }
+
+        return [false, null];
+    }
+
+    private function buildFileProductPayload(Request $request, FileProduct $fileProduct, int $downloadCount): array
+    {
+        $previewImages = $this->buildPreviewImages($fileProduct);
+
+        return array_merge(
             FileProductResource::make($fileProduct)->resolve($request),
             [
                 'long_description' => $fileProduct->description,
@@ -128,13 +159,6 @@ class FileProductController extends Controller
                 'updated_human' => optional($fileProduct->updated_at)->diffForHumans(),
             ]
         );
-
-        return Inertia::render('asset/Detail', [
-            'fileProduct' => $fileProductPayload,
-            'related' => FileProductResource::collection($related)->resolve($request),
-            'downloadZipUrl' => $downloadZipUrl,
-            'isPurchased' => $isPurchased,
-        ]);
     }
 
     public function assetPurchase(Request $request, string $slug): Response|RedirectResponse
