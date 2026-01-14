@@ -9,6 +9,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class AppSettings extends Settings
 {
     public string $app_name;
+    public ?string $app_title = null;
+    public ?string $app_description = null;
     public ?string $app_logo = null;
     public ?string $app_favicon = null;
     public ?string $app_partner_title = null;

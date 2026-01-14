@@ -18,6 +18,8 @@ class AppSettingSeeder extends Seeder
     {
         //spatie app settings seeder example
         $settings = app(AppSettings::class);
+        $settings->app_title = 'Nền tảng tổ chức sự kiện tốt nhất Việt Nam';
+        $settings->app_description = 'Nền tảng tổ chức sự kiện hàng đầu Việt Nam';
         $settings->app_name = 'Sự Kiện Tốt';
         $settings->app_logo = 'images/logo.svg';
         $settings->app_favicon = 'images/favicon.ico';

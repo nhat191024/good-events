@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Section;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
@@ -50,6 +51,16 @@ class AppManager extends SettingsPage
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
+                        TextInput::make('app_title')
+                            ->label(__(__('admin/setting.fields.title')))
+                            ->columnSpanFull()
+                            ->required(),
+
+                        RichEditor::make('app_description')
+                            ->label(__(__('admin/setting.fields.description')))
+                            ->columnSpanFull()
+                            ->required(),
+
                         TextInput::make('app_name')
                             ->label(__(__('admin/setting.fields.name')))
                             ->columnSpanFull()
@@ -71,7 +82,7 @@ class AppManager extends SettingsPage
                             ->required(),
 
                         TextInput::make('contact_hotline')
-                        ->label(__(__('admin/setting.fields.contact_hotline')))
+                            ->label(__(__('admin/setting.fields.contact_hotline')))
                             ->required(),
 
                         TextInput::make('contact_email')

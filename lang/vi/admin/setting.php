@@ -21,6 +21,8 @@ return [
     ],
 
     'fields' => [
+        'title' => 'Tiêu đề ứng dụng',
+        'description' => 'Mô tả ứng dụng',
         'name' => 'Tên ứng dụng',
         'logo' => 'Logo ứng dụng',
         'favicon' => 'Favicon',

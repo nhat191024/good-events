@@ -21,6 +21,8 @@ return [
     ],
 
     'fields' => [
+        'title' => 'Application Title',
+        'description' => 'Application Description',
         'name' => 'Application Name',
         'logo' => 'Application Logo',
         'favicon' => 'Favicon',
