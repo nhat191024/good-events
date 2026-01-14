@@ -21,9 +21,6 @@ return new class extends Migration
             $table->string('disk');
             $table->unsignedBigInteger('size');
             $table->string('path');
-            $table->string('cached_zip_path')->nullable()->after('price');
-            $table->timestamp('cached_zip_generated_at')->nullable()->after('cached_zip_path');
-            $table->string('cached_zip_hash')->nullable()->after('cached_zip_generated_at');
             $table->timestamps();
         });
     }
