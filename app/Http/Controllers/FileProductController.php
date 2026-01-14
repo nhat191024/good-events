@@ -206,10 +206,28 @@ class FileProductController extends Controller
             return redirect()->route('login');
         }
 
-        $paymentMethods = PaymentMethod::toOptions();
+        $validated = $this->validatePurchaseRequest($request);
+        $this->logPurchaseDebug('validated input', ['user_id' => $user->getAuthIdentifier(), 'input' => Arr::except($validated, ['email'])]);
+
+        $fileProduct = $this->fetchPurchaseProduct($validated['slug']);
+
+        $this->updateBuyerProfile($user, $validated);
+
+        $bill = $this->createPurchaseBill($user, $fileProduct, $validated);
+        $this->logPurchaseDebug('bill created/updated', ['bill_id' => $bill->getKey(), 'total' => $bill->final_total]);
+
+        $this->logPurchaseActivity($user, $bill, $validated);
+
+        $request->session()->flash('asset_purchase_form', Arr::except($validated, ['slug']));
+
+        return $this->processPurchasePayment($bill, $fileProduct, $validated);
+    }
+
+    private function validatePurchaseRequest(Request $request): array
+    {
         $allowedMethods = array_map(fn(PaymentMethod $m) => $m->value, PaymentMethod::cases());
 
-        $validated = $request->validate([
+        return $request->validate([
             'slug' => ['required', 'string', 'exists:file_products,slug'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
@@ -219,17 +237,18 @@ class FileProductController extends Controller
             'note' => ['nullable', 'string', 'max:1000'],
             'payment_method' => ['required', 'string', 'in:' . implode(',', $allowedMethods)],
         ]);
+    }
 
-        \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - validated input', [
-            'user_id' => $user->getAuthIdentifier(),
-            'input' => Arr::except($validated, ['email']), // avoid logging full email if you prefer; adjust as needed
-        ]);
-
-        $fileProduct = FileProduct::query()
+    private function fetchPurchaseProduct(string $slug): FileProduct
+    {
+        return FileProduct::query()
             ->with(['category'])
-            ->where('slug', $validated['slug'])
+            ->where('slug', $slug)
             ->firstOrFail();
+    }
 
+    private function updateBuyerProfile(\App\Models\User $user, array $validated): void
+    {
         $user->fill([
             'name' => $validated['name'],
             'phone' => $validated['phone'],
@@ -238,9 +257,12 @@ class FileProductController extends Controller
         if ($user->isDirty()) {
             $user->save();
         }
+    }
 
+    private function createPurchaseBill(\App\Models\User $user, FileProduct $fileProduct, array $validated): FileProductBill
+    {
         $tax = 0.1 * $fileProduct->price;
-        $bill = FileProductBill::updateOrCreate(
+        return FileProductBill::updateOrCreate(
             [
                 'file_product_id' => $fileProduct->getKey(),
                 'client_id' => $user->getAuthIdentifier(),
@@ -256,34 +278,61 @@ class FileProductController extends Controller
                 'payment_method' => $validated['payment_method'],
             ]
         );
+    }
 
-        \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - bill created/updated', [
-            'bill_id' => $bill->getKey(),
-            'file_product_id' => $fileProduct->getKey(),
-            'total' => $bill->total,
-            'final_total' => $bill->final_total + $tax,
-            'payment_method' => $bill->payment_method,
-        ]);
-
+    private function logPurchaseActivity(\App\Models\User $user, FileProductBill $bill, array $validated): void
+    {
         activity('file_product_checkout')
             ->performedOn($bill)
             ->causedBy($user)
             ->withProperties(Arr::only($validated, [
-                'name',
-                'email',
-                'phone',
-                'company',
-                'tax_code',
-                'note',
-                'payment_method',
+                'name', 'email', 'phone', 'company', 'tax_code', 'note', 'payment_method',
             ]))
             ->log('Asset purchase request submitted');
+    }
 
-        $request->session()->flash('asset_purchase_form', Arr::except($validated, ['slug']));
-
-        $billTotal = (int) round($bill->final_total ?? $fileProduct->price);
+    private function processPurchasePayment(FileProductBill $bill, FileProduct $fileProduct, array $validated): RedirectResponse|InertiaResponse
+    {
         $paymentService = app(PaymentService::class);
-        $paymentPayload = [
+        $payload = $this->buildPaymentPayload($bill, $fileProduct, $validated);
+
+        $this->logPurchaseDebug('payment payload prepared', [
+            'bill_id' => $bill->getKey(),
+            'payment_payload' => Arr::except($payload, ['buyerEmail', 'buyerPhone']),
+        ]);
+
+        $returnUrl = route('payment.result', ['bill_id' => $bill->getKey()]);
+
+        try {
+            $paymentResponse = $paymentService->processAppointmentPayment(
+                $payload,
+                PaymentMethod::from($validated['payment_method'])->gatewayChannel(),
+                false,
+                $returnUrl,
+                $returnUrl
+            );
+
+            $this->logPurchaseDebug('payment response', ['bill_id' => $bill->getKey(), 'response' => $paymentResponse]);
+
+            if (isset($paymentResponse['checkoutUrl'])) {
+                return Inertia::location($paymentResponse['checkoutUrl']);
+            }
+        } catch (Throwable $exception) {
+            report($exception);
+            $this->logPurchaseDebug('payment exception', ['bill_id' => $bill->getKey(), 'error' => $exception->getMessage()]);
+        }
+
+        return redirect()
+            ->route('asset.buy', ['slug' => $fileProduct->slug])
+            ->with('error', 'Không thể khởi tạo thanh toán. Vui lòng thử lại hoặc liên hệ hỗ trợ.');
+    }
+
+    private function buildPaymentPayload(FileProductBill $bill, FileProduct $fileProduct, array $validated): array
+    {
+        $tax = 0.1 * $fileProduct->price;
+        $billTotal = (int) round($bill->final_total ?? $fileProduct->price);
+
+        return [
             'billId' => $bill->getKey() . time(),
             'billCode' => 'FPB-' . $bill->getKey(),
             'amount' => $billTotal,
@@ -304,47 +353,11 @@ class FileProductController extends Controller
             ],
             'expiryTime' => intval(now()->addMinutes(10)->timestamp),
         ];
+    }
 
-        \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - payment payload prepared', [
-            'bill_id' => $bill->getKey(),
-            'payment_payload' => Arr::except($paymentPayload, ['buyerEmail', 'buyerPhone']),
-        ]);
-
-        $returnUrl = route('payment.result', ['bill_id' => $bill->getKey()]);
-
-        try {
-            $paymentResponse = $paymentService->processAppointmentPayment(
-                $paymentPayload,
-                PaymentMethod::from($validated['payment_method'])->gatewayChannel(),
-                false,
-                $returnUrl,
-                $returnUrl
-            );
-
-            \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - payment response', [
-                'bill_id' => $bill->getKey(),
-                'response' => is_array($paymentResponse) ? $paymentResponse : (string) $paymentResponse,
-            ]);
-
-            if (isset($paymentResponse['checkoutUrl'])) {
-                \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - redirecting to checkout', [
-                    'checkoutUrl' => $paymentResponse['checkoutUrl'],
-                    'bill_id' => $bill->getKey(),
-                ]);
-
-                return Inertia::location($paymentResponse['checkoutUrl']);
-            }
-        } catch (Throwable $exception) {
-            report($exception);
-            \Illuminate\Support\Facades\Log::debug('assetConfirmPurchase - payment exception', [
-                'bill_id' => $bill->getKey(),
-                'error' => $exception->getMessage(),
-            ]);
-        }
-
-        return redirect()
-            ->route('asset.buy', ['slug' => $fileProduct->slug])
-            ->with('error', 'Không thể khởi tạo thanh toán. Vui lòng thử lại hoặc liên hệ hỗ trợ.');
+    private function logPurchaseDebug(string $message, array $context = []): void
+    {
+        \Illuminate\Support\Facades\Log::debug("assetConfirmPurchase - {$message}", $context);
     }
 
     private function renderDiscoverPage(Request $request, ?Category $category = null): Response|RedirectResponse
