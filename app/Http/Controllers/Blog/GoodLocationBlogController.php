@@ -32,7 +32,7 @@ class GoodLocationBlogController extends BaseBlogPageController
     {
         $category = Category::query()
             ->select(['id', 'name', 'slug', 'parent_id', 'description'])
-            ->with(['parent:id,name,slug'])
+            ->with(['parent:id,name,slug', 'media'])
             ->where('slug', $categorySlug)
             ->where('type', self::BLOG_TYPE)
             ->firstOrFail();
@@ -240,7 +240,7 @@ class GoodLocationBlogController extends BaseBlogPageController
     {
         return Category::query()
             ->select(['id', 'name', 'slug', 'parent_id', 'description'])
-            ->with(['parent:id,name,slug'])
+            ->with(['parent:id,name,slug', 'media'])
             ->where('type', self::BLOG_TYPE)
             ->orderBy('order', 'asc')
             ->get();
