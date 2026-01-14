@@ -84,7 +84,7 @@ class FileProductForm
 
                     ->image()
                     ->maxFiles(5)
-                    ->maxSize(1024 * 3)
+                    ->maxSize(1024 * 10)
                     ->columnSpanFull(),
             ]);
     }
