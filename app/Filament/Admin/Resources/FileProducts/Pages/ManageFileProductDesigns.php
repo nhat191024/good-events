@@ -74,6 +74,7 @@ class ManageFileProductDesigns extends Page implements HasForms
                                 'application/vnd.rar',
                                 // Adobe Specific
                                 'image/vnd.adobe.photoshop',
+                                'application/vnd.adobe.illustrator',
                                 'application/x-photoshop',
                                 'application/photoshop',
                                 'application/psd',
@@ -83,12 +84,20 @@ class ManageFileProductDesigns extends Page implements HasForms
                                 'application/x-indesign',     // .indd
                             ])
 
-                            ->saveUploadedFileUsing(function (AdvancedFileUpload $component, string $temporaryFileUploadPath, string $temporaryFileUploadFilename) {
+                            ->saveUploadedFileUsing(function (AdvancedFileUpload $component, string $temporaryFileUploadPath, string $temporaryFileUploadFilename, ?string $originalFilename = null) {
                                 $temporaryFileUploadDisk = $component->getTemporaryFileUploadDisk();
                                 $disk = $component->getDisk();
                                 $directory = $component->getDirectory();
 
-                                $s3Path = $directory . '/' . $temporaryFileUploadFilename;
+                                // Use original filename to preserve extension
+                                $filename = $originalFilename ?? $temporaryFileUploadFilename;
+
+                                // Generate unique filename while preserving original extension
+                                $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                                $basename = pathinfo($filename, PATHINFO_FILENAME);
+                                $uniqueFilename = $basename . '_' . time() . '_' . uniqid() . '.' . $extension;
+
+                                $s3Path = $directory . '/' . $uniqueFilename;
                                 $s3Path = str_replace('\\', '/', $s3Path);
 
                                 $disk->put(
