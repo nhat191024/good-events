@@ -41,6 +41,7 @@ class AssetHomeController extends Controller
             ->orderBy('order', 'asc')
             ->whereParentId(null)
             ->whereIsShow(1)
+            ->with('media')
             ->get();
 
         return Inertia::render('home/AssetHome', [
