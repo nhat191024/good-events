@@ -8,6 +8,7 @@ use App\Models\Banner;
 use App\Models\PartnerCategory;
 use App\Settings\AppSettings;
 use App\Support\SeoPayload;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -159,19 +160,30 @@ class HomeController extends Controller
             });
         })->take(self::INITIAL_EVENT_CATEGORY_LIMIT)->values();
 
-        $eventCategories->load('media');
-        $eventCategories->each(function ($category) use ($term) {
-            $category->setRelation('children',
-                $category->children
-                    ->filter(function ($child) use ($term) {
-                        return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
-                    })
-                    ->take(self::CHILD_CATEGORY_LIMIT)
-                    ->values()
-            );
-            $category->children->load('media');
-            $category->setAttribute('total_children_count', $category->children->count());
+        $categoriesToLoad = new EloquentCollection();
+
+        $eventCategories->each(function ($category) use ($term, $categoriesToLoad) {
+            $categoriesToLoad->push($category);
+
+            $children = $category->children
+                ->filter(function ($child) use ($term) {
+                    return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
+                })
+                ->take(self::CHILD_CATEGORY_LIMIT)
+                ->values();
+
+            $category->setRelation('children', $children);
+
+            foreach ($children as $child) {
+                $categoriesToLoad->push($child);
+            }
+
+            $category->setAttribute('total_children_count', $children->count());
         });
+
+        if ($categoriesToLoad->isNotEmpty()) {
+            $categoriesToLoad->load('media');
+        }
 
         return response()->json($this->transformEventCategoryResponse($eventCategories));
     }
@@ -200,7 +212,7 @@ class HomeController extends Controller
 
         $seoData = new SEOData(
             title: 'Danh mục ' . $category->name . ' | ' . $settings->app_title,
-            description: 'Tìm thấy ' . $children->count() . ' hạng mục liên quan - '. $settings->app_description,
+            description: 'Tìm thấy ' . $children->count() . ' hạng mục liên quan - ' . $settings->app_description,
             url: route('home.category', ['category_slug' => $category->slug]),
             canonical_url: route('home.category', ['category_slug' => $category->slug]),
             image: $this->getImageUrl($category) ?? null,
@@ -233,14 +245,25 @@ class HomeController extends Controller
         $allCategories = PartnerCategory::getTree();
         $eventCategories = $allCategories->slice($offset, $limit)->values();
 
-        $eventCategories->load('media');
-        $eventCategories->each(function ($category) {
-            $category->setRelation('children',
-                $category->children->take(self::CHILD_CATEGORY_LIMIT)->values()
-            );
-            $category->children->load('media');
-            $category->setAttribute('total_children_count', $category->children->count());
+        $categoriesToLoad = new EloquentCollection();
+
+        $eventCategories->each(function ($category) use ($categoriesToLoad) {
+            $categoriesToLoad->push($category);
+
+            $children = $category->children->take(self::CHILD_CATEGORY_LIMIT)->values();
+
+            $category->setRelation('children', $children);
+
+            foreach ($children as $child) {
+                $categoriesToLoad->push($child);
+            }
+
+            $category->setAttribute('total_children_count', $children->count());
         });
+
+        if ($categoriesToLoad->isNotEmpty()) {
+            $categoriesToLoad->load('media');
+        }
 
         return $this->transformEventCategoryResponse($eventCategories);
     }
@@ -252,17 +275,17 @@ class HomeController extends Controller
             $partnerCategories[$category->id] = $category->children
                 ->values()
                 ->map(function ($pc) {
-                return [
-                    'id' => $pc->id,
-                    'name' => $pc->name,
-                    'slug' => $pc->slug,
-                    'description' => $pc->description,
-                    'min_price' => $pc->min_price,
-                    'max_price' => $pc->max_price,
-                    'image' => $this->getImageUrl($pc),
-                ];
-            })
-            ->values();
+                    return [
+                        'id' => $pc->id,
+                        'name' => $pc->name,
+                        'slug' => $pc->slug,
+                        'description' => $pc->description,
+                        'min_price' => $pc->min_price,
+                        'max_price' => $pc->max_price,
+                        'image' => $this->getImageUrl($pc),
+                    ];
+                })
+                ->values();
         }
 
         return [
