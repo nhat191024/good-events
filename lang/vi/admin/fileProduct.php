@@ -22,4 +22,8 @@ return [
         'description' => 'Nhập mô tả thiết kế',
         'price' => 'Nhập giá thiết kế',
     ],
+
+    'helpers' => [
+        'thumbnail' => 'Tải lên hình ảnh xem trước cho thiết kế. Kích thước tối đa 3MB, định dạng: jpg, png, jpeg, webp.',
+    ],
 ];

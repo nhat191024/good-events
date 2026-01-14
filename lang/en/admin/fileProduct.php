@@ -22,4 +22,8 @@ return [
         'description' => 'Enter file product description',
         'price' => 'Enter file product price',
     ],
+
+    'helpers' => [
+        'thumbnail' => 'Upload a thumbnail image for the file product. Maximum size 3MB, formats: jpg, png, jpeg, webp.',
+    ],
 ];
