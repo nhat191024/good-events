@@ -26,6 +26,7 @@ use Spatie\Activitylog\LogOptions;
  * @property string $name
  * @property string $slug
  * @property string $type
+ * @property string|null $video_url
  * @property int $order
  * @property int|null $parent_id
  * @property float|null $min_price
@@ -59,6 +60,7 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereVideoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withoutTrashed()
  * @mixin \Eloquent
