@@ -49,6 +49,10 @@ return [
 
         'socials' => [
             'facebook' => 'Facebook Link',
+            'facebook_group' => 'Facebook Group Link',
+            'zalo' => 'Zalo Link',
+            'youtube' => 'Youtube Link',
+            'tiktok' => 'Tiktok Link',
         ],
 
         'minimum_balance' => 'Minimum Balance',

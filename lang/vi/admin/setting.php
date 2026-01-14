@@ -48,6 +48,10 @@ return [
 
         'socials' => [
             'facebook' => 'Link Facebook',
+            'facebook_group' => 'Link Group Facebook',
+            'zalo' => 'Link Zalo',
+            'youtube' => 'Link Youtube',
+            'tiktok' => 'Link Tiktok',
         ],
 
         'minimum_balance' => 'Số dư tối thiểu',
