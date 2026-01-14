@@ -1,12 +1,9 @@
 <template>
-
-    <Head class="font-lexend" title="Trang chủ" />
-
     <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
 
         <HeroBanner :banner-images="isMobile ? heroBannerMobileImages : heroBannerImages">
             <HeroContentBlock tag-label="Sự kiện" title="Tổ chức sự kiện thật dễ dàng!"
-                :description="settings.hero_title ?? 'Bạn đã đến đúng nơi rồi đấy. Kết nối với hàng trăm đối tác dịch vụ sự kiện uy tín, chuyên nghiệp cho mọi nhu cầu của bạn.'"
+                :description="settings.hero_title ?? 'Kết nối với hàng trăm đối tác dịch vụ sự kiện uy tín, chuyên nghiệp cho mọi nhu cầu của bạn.'"
                 :primary-cta="{ label: 'Khám phá', href: '#search' }"
                 :secondary-cta="{ label: 'Chi tiết', href: route('about.index') }"
                 :tertiary-cta="{ label: 'Hướng dẫn', href: route('tutorial.index') }" :stats="[
@@ -67,7 +64,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import axios from 'axios';
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import HeroBanner from './partials/HeroBanner.vue';
 import HeroContentBlock from './components/HeroContentBlock.vue';
@@ -167,7 +164,7 @@ function setTutorialRoutesBasedOnAuth(value: any) {
 const categories = [
     {
         id: 1,
-        name: 'Nhân sự',
+        name: 'Thuê nhân sự',
         slug: 'su-kien',
         icon: 'mdi:flower',
         image: '/images/home/logo-su-kien.webp',
@@ -175,7 +172,7 @@ const categories = [
     },
     {
         id: 2,
-        name: 'Thiết kế',
+        name: 'Tài liệu thiết kế',
         slug: 'tai-lieu',
         icon: 'mdi:book-open',
         image: '/images/home/logo-tai-lieu.webp',
@@ -183,7 +180,7 @@ const categories = [
     },
     {
         id: 3,
-        name: 'Thiết bị SK',
+        name: 'Thiết bị sự kiện',
         slug: 'tim-khach-san',
         icon: 'mdi:bed',
         image: '/images/home/logo-loa-dai.webp',
@@ -191,7 +188,7 @@ const categories = [
     },
     {
         id: 4,
-        name: 'Địa điểm',
+        name: 'Địa điểm tốt',
         slug: 'khach-san',
         icon: 'mdi:bag-personal',
         image: '/images/home/logo-dia-diem.webp',
@@ -199,7 +196,7 @@ const categories = [
     },
     {
         id: 5,
-        name: 'Hướng dẫn',
+        name: 'Hướng dẫn tổ chức',
         slug: 'huong-dan',
         icon: 'mdi:bag-personal',
         image: '/images/home/logo-huong-dan.webp',
@@ -207,7 +204,7 @@ const categories = [
     },
     {
         id: 6,
-        name: 'Kiến thức',
+        name: 'Kiến thức nghề',
         slug: 'kien-thuc',
         icon: 'mdi:bag-personal',
         image: '/images/home/logo-kien-thuc.webp',
@@ -461,4 +458,3 @@ onBeforeUnmount(() => {
     unregisterResizeListener();
 });
 </script>
-

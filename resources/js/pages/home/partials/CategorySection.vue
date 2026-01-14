@@ -16,7 +16,7 @@
             :transition="headingMotion.transition"
         >
             <Link :href="seeMoreHref" class="text-xl font-bold text-gray-900 border-b border-transparent hover:border-primary-500 border-b-3">
-                {{ categoryName }}
+                <h3>{{ categoryName }}</h3>
             </Link>
             <Link :href="seeMoreHref"
                 class="text-sm font-medium text-primary-600 hover:text-primary-700">

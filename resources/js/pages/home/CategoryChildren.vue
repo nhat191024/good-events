@@ -4,20 +4,20 @@
     <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
         <section class="container mx-auto px-4 py-10 space-y-6">
             <div class="space-y-2">
-                <p class="text-sm font-semibold uppercase tracking-wide text-primary-600">Danh mục sự kiện</p>
-                <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
+                <h1 class="text-sm font-semibold uppercase tracking-wide text-primary-600">Danh mục sự kiện</h1>
+                <h2 class="text-3xl font-bold text-gray-900">{{ category.name }}</h2>
                 <div v-if="category.description" class="text-gray-600" v-html="category.description">
                 </div>
-                <p class="text-sm text-gray-500">Tổng {{ category.total_children }} danh mục con</p>
+                <p class="text-sm text-gray-500">Tìm thấy {{ category.total_children }} hạng mục liên quan</p>
             </div>
 
             <div class="max-w-xl">
-                <label class="sr-only" for="child-search">Tìm kiếm danh mục con</label>
+                <label class="sr-only" for="child-search"><h3>Tìm kiếm hạng mục</h3></label>
                 <input
                     id="child-search"
                     v-model="search"
                     type="search"
-                    placeholder="Tìm kiếm danh mục con..."
+                    placeholder="Tìm kiếm hạng mục..."
                     class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 />
             </div>
@@ -26,7 +26,7 @@
                 <PartnerCategoryCard v-for="partnerCategory in filteredCategories" :key="partnerCategory.id"
                     :partner-category="partnerCategory" />
             </div>
-            <p v-else class="text-center text-gray-500">Không tìm thấy danh mục con phù hợp.</p>
+            <p v-else class="text-center text-gray-500">Không tìm thấy hạng mục phù hợp.</p>
         </section>
     </ClientAppHeaderLayout>
 </template>

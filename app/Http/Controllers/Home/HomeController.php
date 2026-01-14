@@ -7,29 +7,51 @@ use App\Http\Resources\Home\AppBannerResource;
 use App\Models\Banner;
 use App\Models\PartnerCategory;
 use App\Settings\AppSettings;
+use App\Support\SeoPayload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
+use RalphJSmit\Laravel\SEO\Support\SEOData;
+use RalphJSmit\Laravel\SEO\TagManager;
 
 class HomeController extends Controller
 {
     public const int INITIAL_EVENT_CATEGORY_LIMIT = 8;
     public const int EVENT_CATEGORY_BATCH_SIZE = 4;
-    public const int  CHILD_CATEGORY_LIMIT = 99;
+    public const int CHILD_CATEGORY_LIMIT = 99;
 
     private ?int $parentCategoryCount = null;
 
     /**
      * Show the home page.
      */
-    public function index(AppSettings $settings): Response
+    public function index(AppSettings $settings, TagManager $tagManager): Response
     {
-
         $app_partner_banner = Banner::where('type', 'partner')->first()?->getMedia('banners') ?? collect();
         $app_partner_banner_mobile = Banner::where('type', 'mobile_partner')->first()?->getMedia('banners') ?? collect();
 
         $initialData = $this->fetchEventCategories(self::INITIAL_EVENT_CATEGORY_LIMIT, 0);
+
+        $keywords = collect($initialData['eventCategories'])
+            ->pluck('name')
+            ->merge(collect($initialData['partnerCategories'])->flatten()->pluck('name'))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $seoData = new SEOData(
+            title: $settings->app_title,
+            description: $settings->app_description,
+            url: url('/'),
+            canonical_url: url('/'),
+            image: $app_partner_banner->first()?->getUrl() ?? null,
+            tags: $keywords,
+            site_name: $settings->app_name,
+        );
+
+        $seo = SeoPayload::toArray($seoData, $tagManager);
 
         return Inertia::render('home/Home', [
             'eventCategories' => $initialData['eventCategories'],
@@ -46,6 +68,7 @@ class HomeController extends Controller
                 'mobile_banner_images' => AppBannerResource::collection($app_partner_banner_mobile),
                 'hero_title' => $settings->app_partner_title,
             ],
+            'seo' => $seo,
         ]);
     }
 
@@ -153,7 +176,7 @@ class HomeController extends Controller
         return response()->json($this->transformEventCategoryResponse($eventCategories));
     }
 
-    public function showCategory(string $categorySlug, AppSettings $settings): Response
+    public function showCategory(string $categorySlug, AppSettings $settings, TagManager $tagManager): Response
     {
         $categories = PartnerCategory::getTree();
         $category = $categories->where('slug', $categorySlug)->firstOrFail();
@@ -175,6 +198,18 @@ class HomeController extends Controller
                 ];
             });
 
+        $seoData = new SEOData(
+            title: 'Danh mục ' . $category->name . ' | ' . $settings->app_title,
+            description: 'Tìm thấy ' . $children->count() . ' hạng mục liên quan - '. $settings->app_description,
+            url: route('home.category', ['category_slug' => $category->slug]),
+            canonical_url: route('home.category', ['category_slug' => $category->slug]),
+            image: $this->getImageUrl($category) ?? null,
+            tags: $children->pluck('name')->filter()->unique()->values()->all(),
+            site_name: $settings->app_name,
+        );
+
+        $seo = SeoPayload::toArray($seoData, $tagManager);
+
         return Inertia::render('home/CategoryChildren', [
             'category' => [
                 'id' => $category->id,
@@ -189,19 +224,17 @@ class HomeController extends Controller
                 'app_name' => $settings->app_name,
                 'hero_title' => $settings->app_partner_title,
             ],
+            'seo' => $seo,
         ]);
     }
 
     private function fetchEventCategories(int $limit, int $offset): array
     {
-        // Use cached tree and slice in memory
         $allCategories = PartnerCategory::getTree();
         $eventCategories = $allCategories->slice($offset, $limit)->values();
 
-        // Load media for the sliced categories
         $eventCategories->load('media');
         $eventCategories->each(function ($category) {
-            // Limit children and load their media
             $category->setRelation('children',
                 $category->children->take(self::CHILD_CATEGORY_LIMIT)->values()
             );
