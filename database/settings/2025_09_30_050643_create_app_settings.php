@@ -17,5 +17,9 @@ return new class extends SettingsMigration
         $this->migrator->add('app.contact_hotline', '1800 1234');
         $this->migrator->add('app.contact_email', 'contact@sukientot.com');
         $this->migrator->add('app.social_facebook', 'https://www.facebook.com/sukientott');
+        $this->migrator->add('app.social_facebook_group', 'https://www.facebook.com/');
+        $this->migrator->add('app.social_zalo', 'https://zalo.me/sukientott');
+        $this->migrator->add('app.social_youtube', 'https://www.youtube.com/sukientott');
+        $this->migrator->add('app.social_tiktok', 'https://www.tiktok.com/@sukientott');
     }
 };

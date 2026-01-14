@@ -29,6 +29,10 @@ class AppSettingSeeder extends Seeder
         $settings->contact_hotline = '1800 1234';
         $settings->contact_email = 'contact@sukientot.com';
         $settings->social_facebook = 'https://www.facebook.com/sukientott';
+        $settings->social_facebook_group = 'https://www.facebook.com/';
+        $settings->social_zalo = 'https://zalo.me/sukientott';
+        $settings->social_youtube = 'https://www.youtube.com/sukientott';
+        $settings->social_tiktok = 'https://www.tiktok.com/@sukientott';
         $settings->save();
     }
 }
