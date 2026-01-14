@@ -321,6 +321,7 @@ class ProfileSettings extends Page implements HasForms
                 'selfie_image' => $data['selfie_image'] ?? null,
                 'front_identity_card_image' => $data['front_identity_card_image'] ?? null,
                 'back_identity_card_image' => $data['back_identity_card_image'] ?? null,
+                'video_url' => $data['video_url'] ?? null,
             ];
 
             $user->update($userData);
