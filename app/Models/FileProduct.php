@@ -96,8 +96,7 @@ class FileProduct extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('thumbnails')
-            ->useDisk('public')
-            ->withResponsiveImages();
+            ->useDisk('public');
     }
 
     public function registerMediaConversions(?Media $media = null): void
@@ -106,6 +105,8 @@ class FileProduct extends Model implements HasMedia
             ->withResponsiveImages()
             ->format('webp')
             ->performOnCollections('thumbnails')
+            ->withResponsiveImages()
+            ->optimize()
             ->queued();
     }
 
