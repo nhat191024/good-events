@@ -44,11 +44,22 @@ class RentController extends Controller
 
     public function rentDetail(Request $request, string $categorySlug, string $rentProductSlug): Response
     {
+        $category = Cache::remember(
+            CacheKey::RENT_CATEGORY_DETAIL->value . ":{$categorySlug}",
+            now()->addHours(4),
+            fn() => Category::query()
+                ->with(['parent', 'media'])
+                ->where('slug', $categorySlug)
+                ->firstOrFail()
+        );
+
         $rentProduct = RentProduct::query()
-            ->with(['category.parent', 'tags', 'media'])
-            ->whereHas('category', fn($builder) => $builder->where('slug', $categorySlug))
-            ->where('slug', $rentProductSlug)
+            ->with(['tags', 'media'])
+            ->whereSlug($rentProductSlug)
+            ->where('category_id', $category->getKey()) //!what da point of this where if slug is we are already filtering by slug??
             ->firstOrFail();
+
+        $rentProduct->setRelation('category', $category);
 
         $previewImages = $this->buildPreviewImages($rentProduct);
 
@@ -60,8 +71,7 @@ class RentController extends Controller
             ->take(6)
             ->get();
 
-        // Reuse the already-loaded category to avoid duplicate queries
-        $related->each(fn($product) => $product->setRelation('category', $rentProduct->category));
+        $related->each(fn($product) => $product->setRelation('category', $category));
 
         $rentProductPayload = array_merge(
             RentProductResource::make($rentProduct)->resolve($request),

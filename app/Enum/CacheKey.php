@@ -16,4 +16,7 @@ enum CacheKey: string
     //RentProduct Discover Page
     case RENT_DISCOVER_CATEGORIES_SIDEBAR = 'rent_discover_categories_sidebar';
     case RENT_DISCOVER_TAGS_SIDEBAR = 'rent_discover_tags_sidebar';
+
+    //RentProduct Detail Page
+    case RENT_CATEGORY_DETAIL = 'rent_category_detail';
 }
