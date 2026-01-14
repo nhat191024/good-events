@@ -17,7 +17,7 @@ use Filament\Schemas\Components\Section;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
@@ -56,7 +56,7 @@ class AppManager extends SettingsPage
                             ->columnSpanFull()
                             ->required(),
 
-                        RichEditor::make('app_description')
+                        Textarea::make('app_description')
                             ->label(__(__('admin/setting.fields.description')))
                             ->columnSpanFull()
                             ->required(),
