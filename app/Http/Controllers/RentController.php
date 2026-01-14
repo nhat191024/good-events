@@ -27,8 +27,7 @@ class RentController extends Controller
 
     public function rentCategory(Request $request, string $categorySlug): Response|RedirectResponse
     {
-        $category = Category::query()
-            ->with('parent')
+        $category = Category::with('parent')
             ->where('slug', $categorySlug)
             ->firstOrFail();
 
@@ -39,7 +38,7 @@ class RentController extends Controller
     {
         $rentProduct = RentProduct::query()
             ->with(['category.parent', 'tags', 'media'])
-            ->whereHas('category', fn ($builder) => $builder->where('slug', $categorySlug))
+            ->whereHas('category', fn($builder) => $builder->where('slug', $categorySlug))
             ->where('slug', $rentProductSlug)
             ->firstOrFail();
 
@@ -54,7 +53,7 @@ class RentController extends Controller
             ->get();
 
         // Reuse the already-loaded category to avoid duplicate queries
-        $related->each(fn ($product) => $product->setRelation('category', $rentProduct->category));
+        $related->each(fn($product) => $product->setRelation('category', $rentProduct->category));
 
         $rentProductPayload = array_merge(
             RentProductResource::make($rentProduct)->resolve($request),
@@ -78,7 +77,7 @@ class RentController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
         $tagSlugs = collect(Arr::wrap($request->query('tags', [])))
-            ->map(fn ($slug) => trim((string) $slug))
+            ->map(fn($slug) => trim((string) $slug))
             ->filter();
 
         if ($tagSlugs->isEmpty() && $request->filled('tag')) {
@@ -98,22 +97,26 @@ class RentController extends Controller
         }
 
         $query = RentProduct::query()
-            ->with(['category.parent', 'tags', 'media']);
+            ->with(['tags', 'media']);
 
         $childCategories = new Collection();
         $categoryIds = new Collection();
         if ($category) {
-            $category = $category->loadMissing('parent');
-            $childCategories = Category::query()
-                ->with('parent', 'media')
+            $category = $category->loadMissing(['parent', 'media']);
+            $childCategories = Category::with('media')
+                ->whereType('rental')
                 ->where('parent_id', $category->getKey())
                 ->orderBy('name')
-                ->get();
+                ->get()
+                ->each(fn($c) => $c->setRelation('parent', $category));
+
             $categoryIds = $childCategories
                 ->pluck('id')
                 ->prepend($category->getKey());
 
             $query->whereIn('category_id', $categoryIds->all());
+        } else {
+            $query->with(['category.parent']);
         }
 
         if ($search !== '') {
@@ -144,11 +147,30 @@ class RentController extends Controller
             ->paginate(self::DISCOVER_PER_PAGE, ['*'], 'page', $page)
             ->withQueryString();
 
-        $categories = Category::query()
-            ->with('parent', 'media')
+        if ($category) {
+            $relatedCategories = $childCategories->concat([$category])->keyBy('id');
+            $rentProducts->getCollection()->each(function (RentProduct $product) use ($relatedCategories) {
+                if ($cat = $relatedCategories->get($product->category_id)) {
+                    $product->setRelation('category', $cat);
+                }
+            });
+        }
+
+        $categories = Category::whereType('rental')
+            ->with('media')
             ->orderBy('name')
             ->limit(15)
             ->get();
+
+        if ($category) {
+            $categories->each(function (Category $cat) use ($category) {
+                if ($cat->parent_id === $category->id) {
+                    $cat->setRelation('parent', $category);
+                }
+            });
+        }
+
+        $categories->loadMissing('parent');
 
         $tags = Taggable::getModelTags('RentProduct');
 
@@ -202,7 +224,7 @@ class RentController extends Controller
         $currentTags = [];
         if (isset($currentQuery['tags']) && is_array($currentQuery['tags'])) {
             $currentTags = collect($currentQuery['tags'])
-                ->map(fn ($tag) => trim((string) $tag))
+                ->map(fn($tag) => trim((string) $tag))
                 ->filter()
                 ->values()
                 ->all();
@@ -264,5 +286,4 @@ class RentController extends Controller
             ->values()
             ->all();
     }
-
 }
