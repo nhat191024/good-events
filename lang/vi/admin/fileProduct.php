@@ -24,6 +24,6 @@ return [
     ],
 
     'helpers' => [
-        'thumbnail' => 'Tải lên hình ảnh xem trước cho thiết kế. Kích thước tối đa 3MB, định dạng: jpg, png, jpeg, webp.',
+        'thumbnail' => 'Tải lên hình ảnh xem trước cho thiết kế. Kích thước tối đa 10MB, định dạng: jpg, png, jpeg, webp.',
     ],
 ];

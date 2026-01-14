@@ -24,6 +24,6 @@ return [
     ],
 
     'helpers' => [
-        'thumbnail' => 'Upload a thumbnail image for the file product. Maximum size 3MB, formats: jpg, png, jpeg, webp.',
+        'thumbnail' => 'Upload a thumbnail image for the file product. Maximum size 10MB, formats: jpg, png, jpeg, webp.',
     ],
 ];
