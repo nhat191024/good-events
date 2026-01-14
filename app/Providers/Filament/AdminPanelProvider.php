@@ -50,6 +50,8 @@ use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
 
 use Filafly\Themes\Brisk\BriskTheme;
 
+use RalphJSmit\Filament\Upload\FilamentUpload;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -120,6 +122,7 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationLabel(__('global.log_viewer')),
                 FilamentMailLogPlugin::make(),
                 FilamentErrorMailerPlugin::make(),
+                FilamentUpload::make(),
             ])
 
             ->middleware([
