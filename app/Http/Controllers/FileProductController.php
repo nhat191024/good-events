@@ -57,21 +57,34 @@ class FileProductController extends Controller
 
     public function assetDetail(Request $request, string $category_slug, string $file_product_slug): Response
     {
+        $category = Cache::remember(
+            CacheKey::FILE_CATEGORY_DETAIL->value . ":{$category_slug}",
+            now()->addHours(4),
+            fn() => Category::query()
+                ->with(['parent', 'media'])
+                ->where('slug', $category_slug)
+                ->firstOrFail()
+        );
+
         $fileProduct = FileProduct::query()
-            ->with(['category.parent', 'tags', 'media'])
-            ->whereHas('category', fn($builder) => $builder->where('slug', $category_slug))
+            ->with(['tags', 'media'])
+            ->where('category_id', $category->getKey())
             ->where('slug', $file_product_slug)
             ->firstOrFail();
+
+        $fileProduct->setRelation('category', $category);
 
         $previewImages = $this->buildPreviewImages($fileProduct);
 
         $related = FileProduct::query()
-            ->with(['category.parent', 'tags', 'media'])
+            ->with(['tags', 'media'])
             ->where('category_id', $fileProduct->category_id)
             ->whereKeyNot($fileProduct->getKey())
             ->latest('created_at')
             ->take(6)
             ->get();
+
+        $related->each(fn($product) => $product->setRelation('category', $category));
 
         $downloadCount = FileProductBill::query()
             ->where('file_product_id', $fileProduct->getKey())
