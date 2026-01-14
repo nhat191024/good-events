@@ -148,7 +148,7 @@ class AssetOrderController extends Controller
             ]);
         }
 
-        $bill->loadMissing('fileProduct');
+        $bill->loadMissing('fileProduct.files');
         $fileProduct = $bill->fileProduct;
 
         if (!$fileProduct) {
@@ -157,52 +157,105 @@ class AssetOrderController extends Controller
             ], 500);
         }
 
-        $medias = $fileProduct->getMedia('designs');
-        if ($medias->isEmpty()) {
+        $files = $fileProduct->files;
+        if ($files->isEmpty()) {
             return response()->json([
                 'message' => __('Không có tệp để tải xuống.'),
             ], 404);
         }
 
+        // Calculate current files hash to check for changes
+        $currentHash = $this->calculateFilesHash($files);
+
+        // Check if we have a valid cached zip
+        if ($this->hasValidCachedZip($fileProduct, $currentHash)) {
+            RateLimiter::hit($key, 60 * 60 * 24 * 7);
+
+            // Return cached zip from S3
+            return redirect()->away(Storage::disk('s3')->temporaryUrl(
+                $fileProduct->cached_zip_path,
+                now()->addMinutes(5)
+            ));
+        }
+
+        // Delete old cached zip if exists
+        if ($fileProduct->cached_zip_path) {
+            Storage::disk('s3')->delete($fileProduct->cached_zip_path);
+        }
+
         RateLimiter::hit($key, 60 * 60 * 24 * 7);
 
-        $zipFileName = sprintf('FPB-%s-designs.zip', $bill->getKey());
+        // Generate new zip and cache it
+        return $this->generateAndCacheZip($fileProduct, $files, $currentHash, $bill);
+    }
 
+    private function calculateFilesHash($files): string
+    {
+        $hashData = $files->map(function ($file) {
+            return $file->id . '|' . $file->updated_at->timestamp . '|' . $file->size;
+        })->implode('::');
+
+        return md5($hashData);
+    }
+
+    private function hasValidCachedZip($fileProduct, string $currentHash): bool
+    {
+        if (!$fileProduct->cached_zip_path || !$fileProduct->cached_zip_hash) {
+            return false;
+        }
+
+        // Check if hash matches (no files changed)
+        if ($fileProduct->cached_zip_hash !== $currentHash) {
+            return false;
+        }
+
+        // Check if cached zip file exists on S3
+        if (!Storage::disk('s3')->exists($fileProduct->cached_zip_path)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function generateAndCacheZip($fileProduct, $files, string $hash, $bill)
+    {
         if (!class_exists('\ZipStream\\ZipStream')) {
             return response()->json([
                 'message' => 'ZipStream not installed. Please composer require maennchen/zipstream-php',
             ], 500);
         }
 
-        $response = new StreamedResponse(function () use ($medias, $zipFileName) {
+        // Create temporary file to store zip
+        $tempZipPath = tempnam(sys_get_temp_dir(), 'zip_');
+        $zipFileName = sprintf('FPB-%s-designs.zip', $bill->getKey());
+        $s3ZipPath = 'cached-zips/' . $fileProduct->id . '/' . $zipFileName;
+
+        try {
+            // Create zip file
             $zipStreamClass = '\\ZipStream\\ZipStream';
+            $outputStream = fopen($tempZipPath, 'w');
 
-            $zip = new $zipStreamClass(outputName: $zipFileName, sendHttpHeaders: false, enableZip64: true);
+            $zip = new $zipStreamClass(
+                outputStream: $outputStream,
+                sendHttpHeaders: false,
+                enableZip64: true
+            );
 
-            foreach ($medias as $media) {
+            foreach ($files as $file) {
                 try {
-                    $disk = $media->disk;
-                    $path = $media->getPath();
-                    try {
-                        $diskRoot = Storage::disk($disk)->path('');
-                        if (!empty($diskRoot) && Str::startsWith($path, $diskRoot)) {
-                            $path = ltrim(Str::after($path, $diskRoot), '/\\');
-                        }
-                    } catch (Throwable $ex) {
-                        // ignore
-                    }
+                    $disk = $file->disk;
+                    $path = str_replace('\\', '/', $file->path);
 
                     $fileStream = Storage::disk($disk)->readStream($path);
                     if (!$fileStream) {
-                        // skip this file
                         continue;
                     }
 
-                    $fileName = $media->file_name;
+                    $fileName = $file->file_name;
                     $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
                     $storeExtensions = ['psd', 'psb', 'tif'];
-                    $isStore = in_array($ext, $storeExtensions, true) || ($media->size && $media->size > 50 * 1024 * 1024);
+                    $isStore = in_array($ext, $storeExtensions, true) || ($file->size && $file->size > 50 * 1024 * 1024);
 
                     $compressionMethod = $isStore ? \ZipStream\CompressionMethod::STORE : null;
                     $deflateLevel = $isStore ? 0 : null;
@@ -214,17 +267,43 @@ class AssetOrderController extends Controller
                     }
                 } catch (Throwable $ex) {
                     report($ex);
-                    // continue with next file
                 }
             }
 
             $zip->finish();
-        });
+            fclose($outputStream);
 
-        $response->headers->set('Content-Type', 'application/octet-stream');
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $zipFileName . '"');
+            // Upload to S3
+            Storage::disk('s3')->put(
+                $s3ZipPath,
+                file_get_contents($tempZipPath)
+            );
 
-        return $response;
+            // Update file product with cached zip info
+            $fileProduct->update([
+                'cached_zip_path' => $s3ZipPath,
+                'cached_zip_generated_at' => now(),
+                'cached_zip_hash' => $hash,
+            ]);
+
+            // Clean up temp file
+            @unlink($tempZipPath);
+
+            // Redirect to S3 URL
+            return redirect()->away(Storage::disk('s3')->temporaryUrl(
+                $s3ZipPath,
+                now()->addMinutes(5)
+            ));
+
+        } catch (Throwable $ex) {
+            // Clean up temp file on error
+            @unlink($tempZipPath);
+            report($ex);
+
+            return response()->json([
+                'message' => __('Không thể tạo file zip. Vui lòng thử lại sau.'),
+            ], 500);
+        }
     }
 
     private function getOrders(Request $request): AnonymousResourceCollection|array
