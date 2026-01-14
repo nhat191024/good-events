@@ -32,7 +32,7 @@ class AssetHomeController extends Controller
         $fileProducts = FileProduct::with('category.parent', 'category', 'tags', 'media')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
-        $appDesignBanner = optional(Banner::where('type', 'design')->first())
+        $appDesignBanner = optional(Banner::whereType('design')->first())
             ?->getMedia('banners') ?? collect();
 
         $tags = Taggable::getModelTags('FileProduct');
