@@ -42,9 +42,15 @@ COPY docker-php-custom.ini /usr/local/etc/php/conf.d/custom.ini
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
+# Copy auth.json for private repositories
+COPY auth.json /var/www/html/
+
 # Copy and install PHP dependencies
 COPY composer.json composer.lock ./
 RUN composer install --optimize-autoloader --no-scripts --no-dev
+
+# Remove auth.json after installing dependencies
+RUN rm /var/www/html/auth.json
 
 # Copy and install Node dependencies
 COPY package.json package-lock.json* ./
