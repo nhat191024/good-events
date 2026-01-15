@@ -167,6 +167,7 @@ const fileProductList = computed<AssetCardItemProps[]>(() =>
             name: item.name,
             slug: item.slug,
             image: item.image ?? null,
+            image_tag: item.image_tag ?? null,
             description: item.description ?? '',
             category: item.category
         }

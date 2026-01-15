@@ -11,6 +11,7 @@
                     class="group overflow-hidden rounded-2xl border border-transparent shadow-sm transition hover:-translate-y-0.5 hover:border-primary-200"
                     @click="setPrimary(media.url)">
                     <ImageWithLoader :src="getImg(media.thumbnail ?? media.url)" :alt="`Xem trước ${fileProduct.name}`"
+                        :img-tag="primaryImageTag"
                         class="h-20 w-28"
                         img-class="h-full w-full object-cover brightness-95 transition group-hover:brightness-100"
                         loading="lazy" />
@@ -183,6 +184,7 @@ const placeholderImage = computed(
 );
 
 const coverImage = computed(() => selectedImage.value ?? props.previewImages[0]?.url ?? props.fileProduct.image ?? placeholderImage.value);
+const primaryImageTag = computed(() => (!selectedImage.value ? props.fileProduct.image_tag ?? null : null));
 
 const secondaryPreviews = computed(() => props.previewImages);
 
