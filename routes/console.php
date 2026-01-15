@@ -1,10 +1,13 @@
 <?php
 
+use Tapp\FilamentMailLog\Models\MailLog;
+use Spatie\Activitylog\Models\Activity;
+
 use Illuminate\Foundation\Inspiring;
+
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-use Tapp\FilamentMailLog\Models\MailLog;
-use Illuminate\Support\Facades\File;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -14,7 +17,11 @@ Schedule::command('activitylog:clean --force')->daily();
 
 Schedule::call(function () {
     if (class_exists(MailLog::class)) {
-        MailLog::where('created_at', '<', now()->subMonths(3))->delete();
+        MailLog::where('created_at', '<', now()->subDays(7))->delete();
+    }
+
+    if (class_exists(Activity::class)) {
+        Activity::where('created_at', '<', now()->subDays(7))->delete();
     }
 })->daily();
 
@@ -23,7 +30,7 @@ Schedule::call(function () {
     $files = File::files($storagePath);
 
     foreach ($files as $file) {
-        if ($file->getMTime() < now()->subMonths(1)->timestamp) {
+        if ($file->getMTime() < now()->subDays(30)->timestamp) {
             File::delete($file->getRealPath());
         }
     }
