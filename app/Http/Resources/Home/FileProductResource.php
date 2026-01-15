@@ -12,13 +12,21 @@ class FileProductResource extends JsonResource
 {
     public function toArray(Request $request)
     {
+        $image = $this->getFirstMedia('thumbnails');
+        $url = $image->getUrl() ?? null;
+        $imageTag = $image->img('thumb')->attributes([
+            'class' => 'w-full h-full object-cover lazy-image',
+            'loading' => 'lazy',
+            'alt' => $this->name,
+        ])->toHtml();
         return [
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
             'price' => $this->price,
-            'image' => $this->getFirstMediaUrl('thumbnails', 'thumb'),
+            'image' => $url,
+            'image_tag' => $imageTag,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
