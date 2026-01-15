@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch, useAttrs } from 'vue';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { motion } from 'motion-v';
@@ -14,7 +14,10 @@ const props = defineProps<{
     src?: string;
     alt?: string;
     aspectRatio?: string; // e.g., "16/9", "4/3", "1/1"
+    imgTag?: string;
 }>();
+
+const attrs = useAttrs();
 
 const isLoading = ref(true);
 const hasError = ref(false);
@@ -28,11 +31,55 @@ const onError = () => {
     hasError.value = true;
 };
 
-// Reset loading state if src changes
-watch(() => props.src, () => {
-    isLoading.value = true;
-    hasError.value = false;
+const parsedImg = computed(() => {
+    if (!props.imgTag) return null;
+    try {
+        const doc = new DOMParser().parseFromString(props.imgTag, 'text/html');
+        const img = doc.querySelector('img');
+        if (!img) return null;
+
+        const attributes: Record<string, string> = {};
+        Array.from(img.attributes).forEach((attr) => {
+            attributes[attr.name] = attr.value;
+        });
+
+        return {
+            src: attributes.src,
+            alt: attributes.alt,
+            className: attributes.class,
+            attributes,
+        };
+    } catch (error) {
+        console.warn('Failed to parse imgTag', error);
+        return null;
+    }
 });
+
+const parsedAttrs = computed(() => {
+    const base = parsedImg.value?.attributes ?? {};
+    // Remove props we already handle explicitly
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { src, alt, class: className, ...rest } = base as Record<string, string>;
+    return rest;
+});
+
+const mergedAttrs = computed(() => ({
+    ...parsedAttrs.value,
+    ...attrs,
+}));
+
+const effectiveSrc = computed(() => parsedImg.value?.src ?? props.src);
+const effectiveAlt = computed(() => props.alt ?? parsedImg.value?.alt ?? undefined);
+const mergedImgClass = computed(() => cn(parsedImg.value?.className, props.imgClass));
+
+// Reset loading state if src or imgTag changes
+watch(
+    () => [props.src, props.imgTag],
+    () => {
+        isLoading.value = true;
+        hasError.value = false;
+    }
+);
 </script>
 
 <template>
@@ -47,7 +94,7 @@ watch(() => props.src, () => {
         <div v-if="hasError" class="absolute inset-0 flex items-center justify-center bg-primary-200/50 z-10">
             <ImageOff class="text-gray-400" :size="48" />
         </div>
-        <motion.img v-if="!hasError" v-bind="$attrs" :src="props.src" :alt="props.alt" :class="cn(props.imgClass)"
+        <motion.img v-if="!hasError" v-bind="mergedAttrs" :src="effectiveSrc" :alt="effectiveAlt" :class="mergedImgClass"
             :initial="{ opacity: 0 }" :animate="{ opacity: isLoading ? 0 : 1 }" :transition="{ duration: 0.5 }"
             @load="onLoad" @error="onError" />
     </div>
