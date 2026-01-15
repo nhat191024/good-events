@@ -19,6 +19,7 @@ export interface AssetOrderProduct {
     price: number;
     description?: string | null;
     thumbnail?: string | null;
+    image_tag?: string | undefined;
     download_zip_url?: string | null;
     category?: AssetOrderProductCategory | null;
 }
