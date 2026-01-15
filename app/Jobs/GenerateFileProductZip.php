@@ -13,6 +13,7 @@ use Illuminate\Foundation\Queue\Queueable;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -53,12 +54,17 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
      */
     public function handle(): void
     {
+        Log::info("GenerateFileProductZip: Starting job for Product: {$this->fileProduct->id}, Hash: {$this->hash}");
+
         $this->fileProduct->loadMissing('files');
         $files = $this->fileProduct->files;
 
         if ($files->isEmpty()) {
+            Log::warning("GenerateFileProductZip: No files found for product {$this->fileProduct->id}");
             return;
         }
+
+        Log::info("GenerateFileProductZip: Found {$files->count()} files.");
 
         $zipFileName = sprintf('FPB-%s-designs.zip', $this->billId);
         $s3ZipPath = 'cached-zips/' . $this->fileProduct->id . '/' . $zipFileName;
@@ -67,6 +73,8 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
         $tempId = Str::random(20);
         $sourceDir = storage_path('app' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR . 'zip-source-' . $tempId);
         $sourceZipPath = storage_path('app' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR . 'zip-out-' . $tempId . '.zip');
+
+        Log::info("GenerateFileProductZip: Source Dir: $sourceDir, Zip Path: $sourceZipPath");
 
         $zipStream = null;
 
@@ -79,8 +87,11 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
                     $disk = $file->disk;
                     $path = str_replace('\\', '/', $file->path);
 
+                    Log::info("GenerateFileProductZip: Processing file {$file->file_name} from disk {$disk} path {$path}");
+
                     $readStream = Storage::disk($disk)->readStream($path);
                     if (!$readStream) {
+                        Log::warning("GenerateFileProductZip: Could not read stream for file {$path}");
                         continue;
                     }
 
@@ -99,10 +110,14 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
                         fclose($writeStream);
                     }
                 } catch (Throwable $ex) {
+                    Log::error("GenerateFileProductZip: Error processing file {$file->file_name}: " . $ex->getMessage());
                     report($ex);
                 }
             }
 
+            Log::info("GenerateFileProductZip: Files prepared. Starting zip process.");
+
+            // Removed -n and psd:psb:tif as we are using -0 (store only) which implies no compression
             $result = Process::path($sourceDir)->run([
                 'zip',
                 '-r',
@@ -114,16 +129,25 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
                 '.'
             ]);
 
+            Log::info("GenerateFileProductZip: Zip command executed.");
+
             if ($result->failed()) {
+                Log::error("GenerateFileProductZip: System zip command failed: " . $result->errorOutput());
                 throw new \Exception('System zip command failed: ' . $result->errorOutput());
             }
 
             if (!file_exists($sourceZipPath)) {
+                Log::error("GenerateFileProductZip: Zip file was not generated at $sourceZipPath");
                 throw new \Exception('Zip file was not generated.');
             }
 
+            Log::info("GenerateFileProductZip: Zip generated successfully. Size: " . filesize($sourceZipPath));
+
             // Upload using stream
             $zipStream = fopen($sourceZipPath, 'r');
+
+            Log::info("GenerateFileProductZip: Uploading zip to S3: $s3ZipPath");
+
             Storage::disk('s3')->put(
                 $s3ZipPath,
                 $zipStream
@@ -131,6 +155,7 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
             if (is_resource($zipStream)) {
                 fclose($zipStream);
             }
+            Log::info("GenerateFileProductZip: Upload completed.");
 
             $this->fileProduct->update([
                 'cached_zip_path' => $s3ZipPath,
@@ -147,12 +172,16 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
                 ->success()
                 ->sendToDatabase([$this->user]);
         } catch (Throwable $ex) {
+            Log::error("GenerateFileProductZip: Job failed with exception: " . $ex->getMessage());
+            Log::error($ex->getTraceAsString());
+
             $generatingKey = 'generating-zip:' . $this->fileProduct->id . ':' . $this->hash;
             Cache::forget($generatingKey);
 
             report($ex);
             throw $ex;
         } finally {
+            Log::info("GenerateFileProductZip: Cleaning up temp files.");
             if (isset($zipStream) && is_resource($zipStream)) {
                 @fclose($zipStream);
             }
