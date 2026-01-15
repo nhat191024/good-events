@@ -21,6 +21,7 @@ export interface FileProduct {
     description: string
     price: number
     image?: string
+    image_tag?: string | null
     created_at: string
     updated_at: string
     category: Category
@@ -37,6 +38,7 @@ export interface AssetCardItemProps {
     name: string;
     slug: string;
     image?: string | null;
+    image_tag?: string | null;
     description?: string | null;
     category: Category // additional field
 }
