@@ -10,8 +10,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('app:generate-sitemap')->dailyAt('02:00');
-
 Schedule::command('activitylog:clean --force')->daily();
 
 Schedule::call(function () {
@@ -25,7 +23,7 @@ Schedule::call(function () {
     $files = File::files($storagePath);
 
     foreach ($files as $file) {
-        if ($file->getMTime() < now()->subMonths(3)->timestamp) {
+        if ($file->getMTime() < now()->subMonths(1)->timestamp) {
             File::delete($file->getRealPath());
         }
     }
