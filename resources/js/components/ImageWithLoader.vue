@@ -33,6 +33,8 @@ const onError = () => {
 
 const parsedImg = computed(() => {
     if (!props.imgTag) return null;
+    // DOMParser is only available in the browser, not during SSR
+    if (typeof window === 'undefined') return null;
     try {
         const doc = new DOMParser().parseFromString(props.imgTag, 'text/html');
         const img = doc.querySelector('img');
@@ -94,8 +96,8 @@ watch(
         <div v-if="hasError" class="absolute inset-0 flex items-center justify-center bg-primary-200/50 z-10">
             <ImageOff class="text-gray-400" :size="48" />
         </div>
-        <motion.img v-if="!hasError" v-bind="mergedAttrs" :src="effectiveSrc" :alt="effectiveAlt" :class="mergedImgClass"
-            :initial="{ opacity: 0 }" :animate="{ opacity: isLoading ? 0 : 1 }" :transition="{ duration: 0.5 }"
-            @load="onLoad" @error="onError" />
+        <motion.img v-if="!hasError" v-bind="mergedAttrs" :src="effectiveSrc" :alt="effectiveAlt"
+            :class="mergedImgClass" :initial="{ opacity: 0 }" :animate="{ opacity: isLoading ? 0 : 1 }"
+            :transition="{ duration: 0.5 }" @load="onLoad" @error="onError" />
     </div>
 </template>
