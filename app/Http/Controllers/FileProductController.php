@@ -291,7 +291,7 @@ class FileProductController extends Controller
             ->log('Asset purchase request submitted');
     }
 
-    private function processPurchasePayment(FileProductBill $bill, FileProduct $fileProduct, array $validated): RedirectResponse|InertiaResponse
+    private function processPurchasePayment(FileProductBill $bill, FileProduct $fileProduct, array $validated): RedirectResponse|InertiaResponse|HttpResponse
     {
         $paymentService = app(PaymentService::class);
         $payload = $this->buildPaymentPayload($bill, $fileProduct, $validated);
