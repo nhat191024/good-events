@@ -13,6 +13,7 @@ import ReportModal from '@/components/ReportModal.vue'
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import type { AppPageProps } from '@/types'
 import { inject } from "vue";
+import PartnerVideoCard from './components/PartnerVideoCard.vue'
 
 const route = inject('route') as any;
 
@@ -33,6 +34,7 @@ interface Props {
     services: Service[];
     reviews: Review[];
     intro: string | null;
+    video_url: string | null;
 }
 const props = defineProps<Props>();
 const page = usePage<AppPageProps>()
@@ -244,6 +246,7 @@ console.log('partner page loaded');
                     <!-- Right Main Content -->
                     <div class="md:col-span-9 space-y-4">
                         <PartnerIntroCard :intro="intro" :stats="stats" />
+                        <PartnerVideoCard :iframe="video_url" />
                         <PartnerServiceCard :services="services" />
                         <PartnerReviewsCard :items="reviews" />
                     </div>

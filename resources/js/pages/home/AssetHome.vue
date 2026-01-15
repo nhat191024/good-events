@@ -29,8 +29,9 @@
                 :viewport="tagItemMotion.viewport" :transition="getTagTransition(index)"
                 :while-hover="tagInteractions.hover" :while-tap="tagInteractions.tap">
                 <Link :href="route('asset.discover', { q: item.slug })">
-                    <Button v-text="item.name" :size="'sm'" :variant="'outline'"
+                    <Button :size="'sm'" :variant="'outline'"
                         :class="'ring ring-primary-100 text-primary-800 bg-primary-10 hover:bg-primary-50'">
+                        <h3 v-text="item.name"></h3>
                     </Button>
                 </Link>
             </motion.div>
@@ -166,6 +167,7 @@ const fileProductList = computed<AssetCardItemProps[]>(() =>
             name: item.name,
             slug: item.slug,
             image: item.image ?? null,
+            image_tag: item.image_tag ?? null,
             description: item.description ?? '',
             category: item.category
         }

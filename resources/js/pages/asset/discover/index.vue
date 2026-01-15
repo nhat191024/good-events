@@ -190,6 +190,7 @@ const displayProducts = computed(() =>
             name: item.name,
             slug: item.slug,
             image: item.image,
+            image_tag: item.image_tag,
             description: item.description,
         };
 

@@ -147,6 +147,7 @@ class PartnerProfilePayload
                 });
             })(),
             'intro' => $user->bio ?? null,
+            'video_url' => optional($user->partnerProfile)->video_url,
         ];
     }
 }
