@@ -3,8 +3,14 @@
         <motion.div :initial="cardMotion.initial" :animate="cardMotion.animate"
             class="card bg-base-100 shadow-sm group relative overflow-hidden cursor-pointer rounded-md">
             <figure class="relative aspect-[4/3]">
-                <ImageWithLoader :src="getImg(currentImage)" :alt="cardItem.name" loading="lazy" class="w-full h-full"
-                    img-class="w-full h-full object-cover lazy-image" />
+                <ImageWithLoader
+                    :img-tag="cardItem.image_tag || undefined"
+                    :src="cardImageSrc ?? undefined"
+                    :alt="cardItem.name"
+                    loading="lazy"
+                    class="w-full h-full"
+                    img-class="w-full h-full object-cover lazy-image"
+                />
                 <div v-if="showInfo"
                     class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 </div>
@@ -34,7 +40,6 @@ const props = withDefaults(defineProps<Props>(), {
     showInfo: true
 });
 
-const placeholderImage = getImg(null);
 const currentImage = ref(getImg(props.cardItem.image));
 
 watch(
@@ -43,6 +48,11 @@ watch(
         currentImage.value = getImg(newImage);
     }
 );
+
+const cardImageSrc = computed(() => {
+    if (props.cardItem.image_tag) return null;
+    return currentImage.value;
+});
 
 const truncate = (value: string | null | undefined, limit: number) => {
     if (!value) return '';
