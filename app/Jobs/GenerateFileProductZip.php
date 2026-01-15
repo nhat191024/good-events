@@ -30,6 +30,11 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
     public int $uniqueFor = 3600;
 
     /**
+     * The number of seconds the job can run before timing out.
+     */
+    public int $timeout = 3600;
+
+    /**
      * Get the unique ID for the job.
      */
     public function uniqueId(): string
