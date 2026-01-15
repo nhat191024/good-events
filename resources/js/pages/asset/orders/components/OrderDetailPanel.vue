@@ -90,7 +90,7 @@ function triggerRepay() {
             <div class="grid gap-4 md:grid-cols-[minmax(0,200px)_minmax(0,1fr)]">
                 <div class="relative overflow-hidden rounded-2xl bg-gray-50">
                     <template v-if="product?.thumbnail">
-                        <ImageWithLoader :src="getImg(product.thumbnail)" :alt="product.name" class="h-full w-full"
+                        <ImageWithLoader :src="getImg(product.thumbnail)" :img-tag="product.image_tag" :alt="product.name" class="h-full w-full"
                             img-class="h-full w-full object-cover" loading="lazy" />
                     </template>
                     <div v-else
