@@ -12,7 +12,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 use Throwable;
 
@@ -59,59 +62,75 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
 
         $zipFileName = sprintf('FPB-%s-designs.zip', $this->billId);
         $s3ZipPath = 'cached-zips/' . $this->fileProduct->id . '/' . $zipFileName;
-        $tempZipPath = tempnam(sys_get_temp_dir(), 'zip_');
+
+        // Define temporary paths
+        $tempId = Str::random(20);
+        $sourceDir = storage_path('app' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR . 'zip-source-' . $tempId);
+        $sourceZipPath = storage_path('app' . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR . 'zip-out-' . $tempId . '.zip');
+
+        $zipStream = null;
 
         try {
-            if (!class_exists('\ZipStream\\ZipStream')) {
-                throw new \Exception('ZipStream not installed');
-            }
-
-            // Create zip file
-            $zipStreamClass = '\\ZipStream\\ZipStream';
-            $outputStream = fopen($tempZipPath, 'w');
-
-            $zip = new $zipStreamClass(
-                outputStream: $outputStream,
-                sendHttpHeaders: false,
-                enableZip64: true
-            );
+            // Prepare source directory
+            File::makeDirectory($sourceDir, 0755, true);
 
             foreach ($files as $file) {
                 try {
                     $disk = $file->disk;
                     $path = str_replace('\\', '/', $file->path);
 
-                    $fileStream = Storage::disk($disk)->readStream($path);
-                    if (!$fileStream) {
+                    $readStream = Storage::disk($disk)->readStream($path);
+                    if (!$readStream) {
                         continue;
                     }
 
                     $fileName = $file->file_name;
-                    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                    $destinationPath = $sourceDir . DIRECTORY_SEPARATOR . $fileName;
 
-                    $storeExtensions = ['psd', 'psb', 'tif'];
-                    $isStore = in_array($ext, $storeExtensions, true) || ($file->size && $file->size > 50 * 1024 * 1024);
+                    File::ensureDirectoryExists(dirname($destinationPath));
 
-                    $compressionMethod = $isStore ? \ZipStream\CompressionMethod::STORE : null;
-                    $deflateLevel = $isStore ? 0 : null;
+                    $writeStream = fopen($destinationPath, 'w');
+                    stream_copy_to_stream($readStream, $writeStream);
 
-                    $zip->addFileFromStream($fileName, $fileStream, '', $compressionMethod, $deflateLevel);
-
-                    if (is_resource($fileStream)) {
-                        fclose($fileStream);
+                    if (is_resource($readStream)) {
+                        fclose($readStream);
+                    }
+                    if (is_resource($writeStream)) {
+                        fclose($writeStream);
                     }
                 } catch (Throwable $ex) {
                     report($ex);
                 }
             }
 
-            $zip->finish();
-            fclose($outputStream);
+            $result = Process::path($sourceDir)->run([
+                'zip',
+                '-r',
+                '-0',
+                '-q',
+                '-n',
+                'psd:psb:tif',
+                $sourceZipPath,
+                '.'
+            ]);
 
+            if ($result->failed()) {
+                throw new \Exception('System zip command failed: ' . $result->errorOutput());
+            }
+
+            if (!file_exists($sourceZipPath)) {
+                throw new \Exception('Zip file was not generated.');
+            }
+
+            // Upload using stream
+            $zipStream = fopen($sourceZipPath, 'r');
             Storage::disk('s3')->put(
                 $s3ZipPath,
-                file_get_contents($tempZipPath)
+                $zipStream
             );
+            if (is_resource($zipStream)) {
+                fclose($zipStream);
+            }
 
             $this->fileProduct->update([
                 'cached_zip_path' => $s3ZipPath,
@@ -119,7 +138,6 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
                 'cached_zip_hash' => $this->hash,
             ]);
 
-            @unlink($tempZipPath);
             $generatingKey = 'generating-zip:' . $this->fileProduct->id . ':' . $this->hash;
             Cache::forget($generatingKey);
 
@@ -129,13 +147,22 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
                 ->success()
                 ->sendToDatabase([$this->user]);
         } catch (Throwable $ex) {
-            @unlink($tempZipPath);
-
             $generatingKey = 'generating-zip:' . $this->fileProduct->id . ':' . $this->hash;
             Cache::forget($generatingKey);
 
             report($ex);
             throw $ex;
+        } finally {
+            if (isset($zipStream) && is_resource($zipStream)) {
+                @fclose($zipStream);
+            }
+
+            if (File::isDirectory($sourceDir)) {
+                File::deleteDirectory($sourceDir);
+            }
+            if (file_exists($sourceZipPath)) {
+                @unlink($sourceZipPath);
+            }
         }
     }
 }
