@@ -10,10 +10,10 @@
                 </div>
             </figure>
             <div v-if="showInfo"
-                class="card-body absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white flex flex-col justify-center p-4 overflow-scroll scrollbar-hide">
+                class="card-body absolute inset-0 shadow-2xl rounded-2xl opacity-100 duration-300 text-white flex flex-col justify-center p-4 overflow-scroll scrollbar-hide">
                 <div class="overflow-y-scroll">
                     <p class="text-[0.75rem] sm:text-[0.80rem] md:text-[1rem]">
-                        <span class="font-semibold block">{{ truncatedName }}</span>
+                        <h4 class="font-semibold block">{{ truncatedName }}</h4>
                     </p>
                 </div>
                 <div class="card-actions justify-end mt-auto pt-2"></div>
