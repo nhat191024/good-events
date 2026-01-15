@@ -151,7 +151,6 @@ class VocationalKnowledgeForm
                             ->temporaryFileUploadDisk('local')
 
                             ->image()
-                            ->maxFiles(1)
                             ->maxSize(1024 * 10),
                     ])
                     ->columnSpanFull(),
