@@ -222,7 +222,7 @@ class AssetOrderController extends Controller
         Cache::put($generatingKey, true, 3600); // 1 hour timeout
 
         // Dispatch job to generate zip
-        GenerateFileProductZip::dispatch($fileProduct, $request->user(), $currentHash, $bill->getKey());
+        GenerateFileProductZip::dispatch($fileProduct, $request->user(), $currentHash, $bill->getKey())->onQueue('zip');
 
         return Inertia::render('asset/orders/ProcessingMessage', [
             'type' => 'info',

@@ -21,11 +21,6 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
     use Queueable;
 
     /**
-     * The name of the queue the job should be sent to.
-     */
-    public string $queue = 'zip';
-
-    /**
      * The number of seconds after which the job's unique lock will be released.
      */
     public int $uniqueFor = 3600;
