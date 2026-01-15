@@ -60,6 +60,7 @@ type PartnerPayload = {
     services: Array<{ id: number; name: string | null; field: string | null; price: number | null; media: Array<{ id: number; url: string }> }>
     reviews: Array<{ id: number; author: string; rating: number; review: string | null; created_human: string | null }>
     intro: string | null
+    video_url: string | null
 }
 
 const props = defineProps<{
