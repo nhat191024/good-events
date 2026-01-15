@@ -28,9 +28,16 @@ class ClearMailLog extends Command
     public function handle()
     {
         $days = $this->option('days');
-        // Delete mail logs older than the specified number of days
-        $deletedRows = MailLog::where('created_at', '<', now()->subDays($days))->delete();
 
-        $this->info("Deleted {$deletedRows} old mail logs.");
+        if ($days <= 0) {
+            $this->error('The number of days must be a positive integer.');
+            return;
+        }
+
+        $cutoffDate = now()->subDays($days);
+
+        $deletedRows = MailLog::where('created_at', '<', $cutoffDate)->delete();
+
+        $this->info("Deleted {$deletedRows} old mail logs. Days retained: {$days}.");
     }
 }
