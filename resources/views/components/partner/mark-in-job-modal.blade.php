@@ -19,7 +19,7 @@
         $refs.photoInput.value = '';
         @this.set('arrivalPhoto', null);
     }
-}" x-show="showMarkInJobModal" style="display: none;" @click.self="closeModals()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+}" x-show="showMarkInJobModal" x-on:close-modal.window="closeModals(); clearPhoto()" style="display: none;" @click.self="closeModals()" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
     x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
     <div class="relative max-w-md mx-4 max-h-[90vh] flex flex-col rounded-xl border border-gray-200 bg-white shadow-2xl dark:bg-gray-800" @click.stop x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">
@@ -122,7 +122,7 @@
                 {{ __('partner/bill.cancel') }}
             </button>
             <button class="bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 flex-1 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:hover:bg-gray-400" type="button"
-                @click="$wire.markAsInJob(selectedBillId).then(() => { closeModals(); clearPhoto(); })" wire:loading.attr="disabled" wire:target="markAsInJob" x-bind:disabled="!hasPhoto">
+                @click="$wire.markAsInJob(selectedBillId)" wire:loading.attr="disabled" wire:target="markAsInJob" x-bind:disabled="!hasPhoto">
                 <span wire:loading.remove wire:target="markAsInJob">
                     {{ __('global.confirm') }}
                 </span>
