@@ -21,7 +21,7 @@ class PartnerBillDetailResource extends JsonResource {
                 return [
                     'id' => $part->id,
                     'name' => $part->name,
-                    'avatar' => asset($part->avatar),
+                    'avatar' => $part->avatar,
                     'statistics' => $this->when(
                         $part->relationLoaded('statistics') && $part->statistics,
                         fn() => $this->formatStatistics($part)
