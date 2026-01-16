@@ -43,6 +43,10 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 use App\Settings\AppSettings;
 
+use RalphJSmit\Filament\Upload\FilamentUpload;
+use Filafly\Themes\Brisk\BriskTheme;
+use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
+
 class PartnerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -65,7 +69,7 @@ class PartnerPanelProvider extends PanelProvider
             ->brandName('Sự Kiện tốt - Đối tác')
             ->favicon($favicon)
             ->colors([
-                'primary' => Color::Rose
+                'primary' => ShadcnColor::Red,
             ])
             ->maxContentWidth(Width::Full)
 
@@ -107,6 +111,11 @@ class PartnerPanelProvider extends PanelProvider
                 PartnerStatisticsWidget::class,
                 PartnerRevenueChart::class,
                 PartnerTopServicesWidget::class,
+            ])
+
+            ->plugins([
+                BriskTheme::make(),
+                FilamentUpload::make(),
             ])
 
             ->middleware([
