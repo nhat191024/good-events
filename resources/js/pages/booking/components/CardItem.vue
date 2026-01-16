@@ -8,6 +8,7 @@ interface Props {
     title: string;
     description: string;
     cardImgSrc?: string;
+    cardImgTag?: string;
     iconName?: string;
 }
 
@@ -33,7 +34,7 @@ const iconComponent = computed(() => {
                 <div
                     class="border-1 rounded-lg bg-primary-50 border-primary-400 justify-center will-change-transform transform-none items-center flex grow shrink-0 basis-0 flex-col flex-nowrap w-full min-h-[200px] md:py-[70px] py-6 md:px-[10px] px-1 gap-[5px] md:gap-[10px]">
                     <!-- big icon -->
-                    <RoundMedia :src="getImg(props.cardImgSrc)" :fit="'cover'" :size="{ base: 60, sm: 90, md: 110 }"
+                    <RoundMedia :src="getImg(props.cardImgSrc)" :image_tag="props.cardImgTag" :fit="'cover'" :size="{ base: 60, sm: 90, md: 110 }"
                         :inner-scale="1" shape="circle" innerBgClass="bg-primary-50" outerBgClass="bg-transparent"
                         :bordered="false">
                         <!-- fallback to icon -->
