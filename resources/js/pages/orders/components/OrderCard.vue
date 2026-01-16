@@ -50,7 +50,7 @@ function goToChat(thread_id: number) {
                 <div class="flex flex-col overflow-visible place-items-center h-full">
                     <div
                         class="h-12 w-12 grid rounded-full overflow-visible bg-muted place-items-center ring-2 ring-primary/10">
-                        <ImageWithLoader :src="getImg(props.category?.image)" alt="org" class="h-12 w-12 rounded-full"
+                        <ImageWithLoader :src="getImg(props.category?.image)" :img-tag="props.category?.image_tag" alt="org" class="h-12 w-12 rounded-full"
                             img-class="h-full w-full object-cover rounded-full" loading="lazy" />
                     </div>
                     <div v-if="props.status == OrderStatus.CONFIRMED || props.status == OrderStatus.IN_JOB"
