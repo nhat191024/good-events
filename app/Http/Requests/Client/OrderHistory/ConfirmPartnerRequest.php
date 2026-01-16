@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 
 class ConfirmPartnerRequest extends FormRequest
 {
-    // todo: enable this after hot fix
     public function authorize(): bool
     {
         Log::debug('[request file] authorising confirm choose partner requrest', $this->all());
