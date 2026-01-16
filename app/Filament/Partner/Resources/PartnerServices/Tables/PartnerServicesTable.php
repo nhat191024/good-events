@@ -5,6 +5,7 @@ namespace App\Filament\Partner\Resources\PartnerServices\Tables;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -114,9 +115,9 @@ class PartnerServicesTable
 
                         return $data;
                     }),
-                DeleteAction::make()
-                    ->label(__('global.hidden')),
-                RestoreAction::make()
+                ForceDeleteAction::make()
+                    ->label(__('global.delete')),
+                ForceDeleteAction::make()
                     ->label(__('global.show')),
             ])
             ->toolbarActions([
