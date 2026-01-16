@@ -49,7 +49,7 @@
             <CardGrid>
                 <Link v-for="item in filteredPartnerCategories"
                     :href="route('quick-booking.choose-partner-category', { partner_category_slug: item.slug })">
-                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getImg(item.media)" />
+                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getImg(item.media)" :card-img-tag="item.image_tag" />
                 </Link>
             </CardGrid>
         </SelectPartnerHeader>
