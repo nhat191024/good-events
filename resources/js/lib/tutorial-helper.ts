@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, ref } from 'vue';
 
 export type TutorialLink = {
@@ -11,6 +12,7 @@ export type TutorialLinkInput = TutorialLink | string;
 const tutorialLinks = ref<TutorialLink[]>([]);
 const currentOwner = ref<symbol | null>(null);
 const defaultTutorialLinks = ref<TutorialLink[]>([]);
+const hiddenRoutes = ref<string[]>([]);
 
 const DEFAULT_LABEL = 'Hướng dẫn';
 
@@ -50,6 +52,16 @@ const mergeUniqueByHref = (base: TutorialLink[], extras: TutorialLink[]) => {
     return Array.from(map.values());
 };
 
+const normalizeHiddenRoutes = (input: string | string[]) => {
+    const raw = Array.isArray(input) ? input : [input];
+
+    return raw
+        .map((item) => (typeof item === 'string' ? item.trim() : item))
+        .filter((item): item is string => Boolean(item));
+};
+
+const mergeUniqueStrings = (base: string[], extras: string[]) => Array.from(new Set([...base, ...extras]));
+
 export const setDefaultTutorialLinks = (input: TutorialLinkInput | TutorialLinkInput[]) => {
     const normalized = normalizeLinks(input);
     defaultTutorialLinks.value = normalized;
@@ -68,6 +80,22 @@ export const clearDefaultTutorialLinks = () => {
 
 const resetTutorialLinks = () => {
     tutorialLinks.value = [];
+};
+
+const resetHiddenRoutes = () => {
+    hiddenRoutes.value = [];
+};
+
+export const setTutorialHiddenRoutes = (input: string | string[]) => {
+    hiddenRoutes.value = normalizeHiddenRoutes(input);
+};
+
+export const addTutorialHiddenRoutes = (input: string | string[]) => {
+    hiddenRoutes.value = mergeUniqueStrings(hiddenRoutes.value, normalizeHiddenRoutes(input));
+};
+
+export const clearTutorialHiddenRoutes = () => {
+    resetHiddenRoutes();
 };
 
 export const useTutorialHelper = () => {
@@ -100,6 +128,20 @@ export const useTutorialHelper = () => {
         }
     };
 
+    const addTutorialHiddenRoutesForOwner = (input: string | string[]) => {
+        ensureOwner();
+        addTutorialHiddenRoutes(input);
+    };
+
+    const setTutorialHiddenRoutesForOwner = (input: string | string[]) => {
+        ensureOwner();
+        setTutorialHiddenRoutes(input);
+    };
+
+    const clearTutorialHiddenRoutesForOwner = () => {
+        resetHiddenRoutes();
+    };
+
     onBeforeUnmount(() => {
         if (currentOwner.value === owner) {
             resetTutorialLinks();
@@ -111,10 +153,15 @@ export const useTutorialHelper = () => {
         addTutorialRoutes,
         clearTutorialRoutes,
         setTutorialRoutes,
+        addTutorialHiddenRoutes: addTutorialHiddenRoutesForOwner,
+        clearTutorialHiddenRoutes: clearTutorialHiddenRoutesForOwner,
+        setTutorialHiddenRoutes: setTutorialHiddenRoutesForOwner,
     };
 };
 
 export const useTutorialLinks = () => {
+    const page = usePage();
+
     const links = computed(() => {
         if (tutorialLinks.value.length) {
             return tutorialLinks.value;
@@ -125,7 +172,49 @@ export const useTutorialLinks = () => {
         return [{ label: DEFAULT_LABEL, href: getDefaultHref() }];
     });
 
-    return { links };
+    const isHidden = computed(() => {
+        if (!hiddenRoutes.value.length) {
+            return false;
+        }
+
+        const currentUrl =
+            (page && 'url' in page ? (page as any).url : '') ||
+            (typeof window !== 'undefined' ? window.location.pathname : '');
+        const componentName = page && 'component' in page ? (page as any).component : '';
+
+        return hiddenRoutes.value.some((routeName) => {
+            if (!routeName) {
+                return false;
+            }
+
+            if (componentName && routeName === componentName) {
+                return true;
+            }
+
+            if (
+                currentUrl === routeName ||
+                currentUrl.startsWith(`${routeName}?`) ||
+                currentUrl.startsWith(`${routeName}/`)
+            ) {
+                return true;
+            }
+
+            try {
+                if (typeof route === 'function') {
+                    const ziggyRoute = route();
+                    if (ziggyRoute && typeof ziggyRoute.current === 'function' && ziggyRoute.current(routeName)) {
+                        return true;
+                    }
+                }
+            } catch (error) {
+                return false;
+            }
+
+            return false;
+        });
+    });
+
+    return { links, isHidden };
 };
 
 export const slugifyTutorial = (value: string) =>
