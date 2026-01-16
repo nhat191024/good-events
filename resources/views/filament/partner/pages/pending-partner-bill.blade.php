@@ -2,7 +2,7 @@
     <div class="space-y-6">
         {{-- Header Section --}}
         <div class="rounded-lg bg-white shadow-sm dark:bg-gray-800">
-            <div class="border-b border-gray-200 bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-700/50">
+            <div class="rounded-xl bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-800/50">
                 <div class="flex items-center justify-between">
                     <h3 class="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
                         {{ __('partner/bill.bill_pending') }} ({{ $this->bills->total() }})
@@ -13,7 +13,7 @@
                 <div class="mt-4 space-y-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0 lg:grid-cols-4">
                     {{-- Search --}}
                     <div class="relative sm:col-span-2 lg:col-span-1">
-                        <input class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" type="text" placeholder="{{ __('partner/bill.search_placeholder') }}"
+                        <input class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400" type="text" placeholder="{{ __('partner/bill.search_placeholder') }}"
                             wire:model.live.debounce.300ms="searchQuery" />
                         <div class="absolute right-2 top-2" wire:loading wire:target="searchQuery">
                             <svg class="h-4 w-4 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
@@ -25,7 +25,7 @@
 
                     {{-- Date Filter --}}
                     <div class="relative">
-                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" wire:model.live="dateFilter">
+                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white" wire:model.live="dateFilter">
                             <option value="all">{{ __('partner/bill.filter_date') }}</option>
                             <option value="today">{{ __('partner/bill.today') }}</option>
                             <option value="tomorrow">{{ __('partner/bill.tomorrow') }}</option>
@@ -43,7 +43,7 @@
 
                     {{-- Sort By --}}
                     <div class="relative">
-                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" wire:model.live="sortBy">
+                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white" wire:model.live="sortBy">
                             <option value="newest">{{ __('partner/bill.newest_first') }}</option>
                             <option value="oldest">{{ __('partner/bill.oldest_first') }}</option>
                             <option value="date_asc">{{ __('partner/bill.event_date_asc') }}</option>
