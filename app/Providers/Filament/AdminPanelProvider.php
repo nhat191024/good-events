@@ -33,7 +33,9 @@ use BinaryBuilds\FilamentFailedJobs\FilamentFailedJobsPlugin;
 use Boquizo\FilamentLogViewer\FilamentLogViewerPlugin;
 use Tapp\FilamentMailLog\FilamentMailLogPlugin;
 use Hugomyb\FilamentErrorMailer\FilamentErrorMailerPlugin;
-
+use RalphJSmit\Filament\Upload\FilamentUpload;
+use Filafly\Themes\Brisk\BriskTheme;
+use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
 use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
 
 use App\Filament\Admin\Widgets\AdminStatisticsWidget;
@@ -45,12 +47,6 @@ use App\Enum\FilamentNavigationGroup;
 use App\Settings\AppSettings;
 
 use App\Filament\Admin\Pages\ListLogs;
-
-use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
-
-use Filafly\Themes\Brisk\BriskTheme;
-
-use RalphJSmit\Filament\Upload\FilamentUpload;
 
 class AdminPanelProvider extends PanelProvider
 {
