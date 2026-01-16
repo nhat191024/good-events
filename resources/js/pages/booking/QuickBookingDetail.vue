@@ -108,6 +108,7 @@ watch(() => location.provinceId, async (provinceId, old) => {
 })
 
 const headerImageSrc = getImg(partnerChildrenCategory.media)
+const headerImageTag = partnerChildrenCategory.image_tag
 const title = 'Điền thông tin thuê chi tiết'
 const subtitle = `Bạn đang tìm '${partnerCategory.name}' - '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin và mô tả rõ sự kiện của bạn dưới đây nhé`
 
@@ -313,7 +314,7 @@ addTutorialRoutes([
     <Head title="Đặt show nhanh - Chọn đối tác" />
     <!-- layout -->
     <ClientAppHeaderLayout>
-        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="headerImageSrc">
+        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="headerImageSrc" :header-img-tag="headerImageTag">
             <!-- form here -->
             <form @submit.prevent="submit" :action="route('quick-booking.save-info')"
                 class="bg-gray-50 will-change-transform rounded md:rounded-lg flex flex-col items-center max-w-[800px] gap-[20px] w-full md:w-[86%] h-min p-3 md:p-7 relative">
