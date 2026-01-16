@@ -158,7 +158,7 @@ class OrderController extends Controller
             ])
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
-
+                // dd(PartnerBillResource::collection($bills)->resolve());
         return PartnerBillResource::collection($bills);
     }
 
@@ -255,7 +255,7 @@ class OrderController extends Controller
         ]);
 
         $partner = User::findOrFail($data['partner_id']);
-        $bill = PartnerBill::findOrFail($data['order_id']);
+        // $bill = PartnerBill::findOrFail($data['order_id']);
 
         $partner->addReview([
             'review' => $data['comment'],
