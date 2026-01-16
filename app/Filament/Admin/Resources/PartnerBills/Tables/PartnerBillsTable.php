@@ -7,6 +7,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 
 use Filament\Actions\BulkActionGroup;
@@ -135,19 +136,34 @@ class PartnerBillsTable
                             ->success()
                             ->send();
                     }),
-                Action::make('viewArrivalPhoto')
-                    ->label(__('admin/partnerBill.fields.arrival_photo'))
-                    ->icon('heroicon-o-photo')
-                    ->color('info')
-                    ->modalHeading(__('admin/partnerBill.fields.arrival_photo'))
-                    ->modalContent(fn(PartnerBill $record) => view('filament.admin.modals.arrival-photo', [
-                        'media' => $record->getFirstMedia('arrival_photo'),
-                    ]))
-                    ->modalWidth('3xl')
-                    ->slideOver()
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close')
-                    ->visible(fn(PartnerBill $record): bool => $record->getFirstMedia('arrival_photo') !== null),
+                ActionGroup::make([
+                    Action::make('viewArrivalPhoto')
+                        ->label(__('admin/partnerBill.fields.arrival_photo'))
+                        ->icon('heroicon-o-photo')
+                        ->color('info')
+                        ->modalHeading(__('admin/partnerBill.fields.arrival_photo'))
+                        ->modalContent(fn(PartnerBill $record) => view('filament.admin.modals.arrival-photo', [
+                            'media' => $record->getFirstMedia('arrival_photo'),
+                        ]))
+                        ->modalWidth('3xl')
+                        ->slideOver()
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Close')
+                        ->visible(fn(PartnerBill $record): bool => $record->getFirstMedia('arrival_photo') !== null),
+                    Action::make('viewCompletionPhoto')
+                        ->label(__('admin/partnerBill.fields.completion_photo'))
+                        ->icon('heroicon-o-photo')
+                        ->color('info')
+                        ->modalHeading(__('admin/partnerBill.fields.completion_photo'))
+                        ->modalContent(fn(PartnerBill $record) => view('filament.admin.modals.completion-photo', [
+                            'media' => $record->getFirstMedia('completion_photo'),
+                        ]))
+                        ->modalWidth('3xl')
+                        ->slideOver()
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Close')
+                        ->visible(fn(PartnerBill $record): bool => $record->getFirstMedia('completion_photo') !== null),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
