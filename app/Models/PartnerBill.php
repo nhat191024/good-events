@@ -147,6 +147,10 @@ class PartnerBill extends Model implements HasMedia
         $this->addMediaCollection('arrival_photo')
             ->singleFile() // Only allow 1 file
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
+
+        $this->addMediaCollection('completion_photo')
+            ->singleFile() // Only allow 1 file
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
     }
 
     //model boot method
