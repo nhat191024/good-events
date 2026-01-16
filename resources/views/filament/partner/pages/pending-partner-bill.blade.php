@@ -113,9 +113,6 @@
                                     <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
                                         {{ $bill->client?->name ?? __('partner/bill.unknown_client') }}
                                     </p>
-                                    <p class="truncate text-xs text-gray-500 dark:text-gray-400">
-                                        {{ $bill->phone }}
-                                    </p>
                                 </div>
                             </div>
 
