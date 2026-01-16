@@ -15,14 +15,16 @@ const flash = page.props.flash as {
 interface Props {
     title: string;
     subtitle: string;
-    headerImgSrc?: string;
+    headerImgSrc: string;
+    headerImgTag?: string;
     iconName?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     title: 'Title here',
     subtitle: 'Subtitle here',
-    iconName: 'partyPopper'
+    iconName: 'partyPopper',
+    headerImgSrc: 'images/logo.svg',
 });
 
 const iconComponent = computed(() => {
@@ -41,7 +43,7 @@ const iconComponent = computed(() => {
             class="flex-col items-center bg-white shadow-md flex h-min max-w-[1200px] relative md:pt-6 pt-3 pb-[40px] md:px-[20px] px-2 w-full md:w-[87%] md:rounded-lg gap-[16px]">
 
             <!-- big icon -->
-            <RoundMedia :src="getImg(headerImgSrc)" :fit="'cover'" :size="{ base: 100, sm: 120, md: 140 }"
+            <RoundMedia :src="getImg(headerImgSrc)" :image_tag="headerImgTag" :fit="'cover'" :size="{ base: 100, sm: 120, md: 140 }"
                 shape="circle" innerBgClass="bg-white" outerBgClass="bg-white" :bordered="false">
                 <!-- fallback to icon -->
                 <div
