@@ -201,8 +201,8 @@ watch(() => form.voucher_input, (newVal) => {
         <div class="px-3 md:px-6 pt-3 md:pt-6 pb-12">
             <div class="text-center mb-3 md:mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-3">
-                    <ImageWithLoader :src="getImg(props.order?.category.image)" alt="Traditional Vietnamese scholar"
-                        class="w-[95%] h-full rounded-full" img-class="w-[95%] h-full object-cover rounded-full border"
+                    <ImageWithLoader :src="getImg(props.order?.category.image)" :img-tag="props.order?.category.image_tag" alt="Traditional Vietnamese scholar"
+                        class="w-[95%] h-full rounded-full" img-class="w-[100%] h-full object-cover rounded-full border"
                         loading="lazy" />
                 </div>
                 <h3 class="text-xl font-bold text-foreground mb-1" v-text="getCurrentTitle"></h3>
