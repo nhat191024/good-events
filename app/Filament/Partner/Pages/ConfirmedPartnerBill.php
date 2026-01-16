@@ -51,6 +51,8 @@ class ConfirmedPartnerBill extends Page
 
     public $arrivalPhoto;
 
+    public $completionPhoto;
+
     protected $listeners = [
         'refreshBills' => '$refresh',
     ];
@@ -69,6 +71,10 @@ class ConfirmedPartnerBill extends Page
             'arrivalPhoto.image' => __('partner/bill.arrival_photo_must_be_image'),
             'arrivalPhoto.max' => __('partner/bill.arrival_photo_max_size'),
             'arrivalPhoto.mimes' => __('partner/bill.arrival_photo_invalid_format'),
+            'completionPhoto.required' => __('partner/bill.completion_photo_required'),
+            'completionPhoto.image' => __('partner/bill.completion_photo_must_be_image'),
+            'completionPhoto.max' => __('partner/bill.completion_photo_max_size'),
+            'completionPhoto.mimes' => __('partner/bill.completion_photo_invalid_format'),
         ];
     }
 
@@ -195,7 +201,9 @@ class ConfirmedPartnerBill extends Page
 
     public function markAsInJob($billId): void
     {
-        $this->validate();
+        $this->validate([
+            'arrivalPhoto' => 'required|image|max:5120|mimes:jpeg,png,jpg,webp',
+        ]);
 
         $bill = PartnerBill::findOrFail($billId);
 
@@ -239,6 +247,10 @@ class ConfirmedPartnerBill extends Page
 
     public function completeBill($billId): void
     {
+        $this->validate([
+            'completionPhoto' => 'required|image|max:5120|mimes:jpeg,png,jpg,webp',
+        ]);
+
         $bill = PartnerBill::findOrFail($billId);
 
         // Verify the bill belongs to this partner
@@ -274,9 +286,18 @@ class ConfirmedPartnerBill extends Page
             return;
         }
 
+        if ($this->completionPhoto) {
+            $bill->addMedia($this->completionPhoto->getRealPath())
+                ->usingName('Completion Photo - ' . $bill->code)
+                ->usingFileName($this->completionPhoto->getClientOriginalName())
+                ->toMediaCollection('completion_photo');
+        }
+
         // Update status
         $bill->status = PartnerBillStatus::COMPLETED;
         $bill->save();
+
+        $this->completionPhoto = null;
 
         Notification::make()
             ->title(__('partner/bill.order_completed_success'))
