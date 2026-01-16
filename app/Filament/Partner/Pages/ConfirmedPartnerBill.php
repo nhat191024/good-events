@@ -243,6 +243,8 @@ class ConfirmedPartnerBill extends Page
             ->title(__('partner/bill.marked_as_in_job'))
             ->success()
             ->send();
+
+        $this->dispatch('close-modal');
     }
 
     public function completeBill($billId): void
@@ -303,5 +305,7 @@ class ConfirmedPartnerBill extends Page
             ->title(__('partner/bill.order_completed_success'))
             ->success()
             ->send();
+
+        $this->dispatch('close-modal');
     }
 }
