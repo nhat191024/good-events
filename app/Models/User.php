@@ -232,6 +232,10 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
      */
     public function getAvatarUrlAttribute(): ?string
     {
+        if ($this->hasMedia('avatar')) {
+            return $this->getFirstMediaUrl('avatar');
+        }
+
         if (empty($this->avatar)) {
             return null;
         }
