@@ -31,6 +31,7 @@ export interface PartnerCategory {
     created_at: string
     updated_at: string
     media?: string
+    image_tag?: string
 }
 
 export interface PartnerBill {
