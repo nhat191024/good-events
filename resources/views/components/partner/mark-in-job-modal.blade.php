@@ -67,7 +67,7 @@
                 </label>
                 <div class="space-y-3">
                     {{-- Upload Button --}}
-                    <div x-show="!hasPhoto">
+                    <div x-show="!hasPhoto" class="space-y-3">
                         <label class="flex cursor-pointer flex-col items-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-6 transition-colors hover:border-blue-400 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-blue-500 dark:hover:bg-gray-600" for="arrival-photo">
                             <svg class="mb-2 h-10 w-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -80,6 +80,16 @@
                             </span>
                         </label>
                         <input id="arrival-photo" class="hidden" type="file" x-ref="photoInput" accept="image/jpeg,image/png,image/jpg,image/webp" @change="handlePhotoUpload($event)" wire:model="arrivalPhoto" />
+
+                        {{-- Camera Button --}}
+                        <label class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600" for="camera-photo">
+                            <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            {{ __('partner/bill.take_photo') }}
+                        </label>
+                        <input id="camera-photo" class="hidden" type="file" accept="image/*" capture="environment" @change="handlePhotoUpload($event)" wire:model="arrivalPhoto" />
                     </div>
 
                     {{-- Photo Preview --}}
