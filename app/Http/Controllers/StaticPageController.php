@@ -60,7 +60,7 @@ class StaticPageController extends Controller
             'page' => [
                 'slug' => 'terms-and-condition',
                 'title' => 'Điều khoản & điều kiện sử dụng',
-                'intro' => 'Các điều khoản cơ bản khi sử dụng nền tảng Sự Kiện Tốt và đặt dịch vụ.',
+                'intro' => 'Trách nhiệm của công ty và trách nhiệm của khách hàng.',
                 'hero' => [
                     'kicker' => 'Điều khoản sử dụng',
                     'note' => 'Quy định quyền lợi, trách nhiệm và phạm vi áp dụng cho khách hàng & đối tác',
