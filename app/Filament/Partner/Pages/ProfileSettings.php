@@ -28,6 +28,9 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
 use Cohensive\OEmbed\Facades\OEmbed;
 
@@ -65,7 +68,6 @@ class ProfileSettings extends Page implements HasForms
         }
 
         $this->data = [
-            'avatar' => $user->avatar,
             'name' => $user->name,
             'email' => $user->email,
             'country_code' => $user->country_code,
@@ -90,14 +92,14 @@ class ProfileSettings extends Page implements HasForms
                 Section::make(__('profile.user_info'))
                     ->description(__('profile.user_info_description'))
                     ->schema([
-                        FileUpload::make('avatar')
+                        AdvancedFileUpload::make('avatar')
                             ->label(__('profile.label.avatar'))
-                            ->avatar()
-                            ->imageEditor()
+
+                            ->temporaryFileUploadDisk('local')
+                            ->disk('public')
+
                             ->directory('uploads/avatars')
                             ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
-                            ->disk('public')
-                            ->visibility('public')
                             ->nullable(),
                         Grid::make(2)
                             ->schema([
@@ -307,7 +309,6 @@ class ProfileSettings extends Page implements HasForms
 
         try {
             $userData = [
-                'avatar' => $data['avatar'] ?? $user->avatar,
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'country_code' => $data['country_code'] ?? null,
@@ -326,6 +327,28 @@ class ProfileSettings extends Page implements HasForms
 
             $user->update($userData);
 
+            $avatarState = $data['avatar'] ?? null;
+            if ($avatarState) {
+                $currentMedia = $user->getFirstMedia('avatar');
+                $currentPath = $currentMedia ? ($currentMedia->id . '/' . $currentMedia->file_name) : null;
+
+                if ($avatarState !== $currentPath && !str_starts_with($avatarState, 'http')) {
+                    $validPath = null;
+                    if (Storage::disk('public')->exists($avatarState)) {
+                        $validPath = $avatarState;
+                    } elseif (Storage::disk('public')->exists('uploads/avatars/' . $avatarState)) {
+                        $validPath = 'uploads/avatars/' . $avatarState;
+                    }
+
+                    if ($validPath) {
+                        $user->clearMediaCollection('avatar');
+                        $user->addMediaFromDisk($validPath, 'public')->toMediaCollection('avatar');
+                    }
+                }
+            } else {
+                $user->clearMediaCollection('avatar');
+            }
+
             $partnerProfile = $user->partnerProfile;
             if ($partnerProfile) {
                 $partnerProfile->update($partnerData);
@@ -341,6 +364,7 @@ class ProfileSettings extends Page implements HasForms
                 ->success()
                 ->send();
         } catch (\Exception $e) {
+            ds($e->getMessage());
             Notification::make()
                 ->title(__('profile.notifications.update_error_title'))
                 ->body(__('profile.notifications.update_error_body'))
