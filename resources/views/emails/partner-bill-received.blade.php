@@ -245,7 +245,7 @@
             <p>{{ __('emails.common.contact_support') }}</p>
 
             <div class="cta-section">
-                <a class="cta-button" href="#">
+                <a class="cta-button" href="{{ route('filament.partner.pages.realtime-partner-bill') }}">
                     {{ __('emails.partner_bill_received.' . ($recipientType === 'client' ? 'cta_view_order' : 'cta_accept_order')) }}
                 </a>
             </div>
