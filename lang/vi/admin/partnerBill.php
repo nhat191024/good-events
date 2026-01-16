@@ -16,6 +16,7 @@ return [
         'category' => 'Danh mục',
         'status' => 'Trạng thái',
         'arrival_photo' => 'Ảnh khi đến',
+        'completion_photo' => 'Ảnh hoàn thành',
         'created_at' => 'Tạo lúc',
         'updated_at' => 'Cập nhật lúc',
     ],
