@@ -7,7 +7,7 @@ import Footer from '@/pages/home/partials/Footer.vue';
 import Header from '@/pages/home/partials/Header.vue';
 import Toast from '@/components/Toast.vue';
 import SeoHead from '@/components/SeoHead.vue';
-import { clearDefaultTutorialLinks, setDefaultTutorialLinks } from '@/lib/tutorial-helper';
+import { setDefaultTutorialLinks, setTutorialHiddenRoutes } from '@/lib/tutorial-helper';
 import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import type { BreadcrumbItemType } from '@/types';
 import { onMounted } from 'vue';
@@ -23,6 +23,8 @@ interface Props {
 setDefaultTutorialLinks([
     tutorialQuickLinks.seeAllTutorials,
 ]);
+
+setTutorialHiddenRoutes(['chat.index']);
 
 withDefaults(defineProps<Props>(), {
     showBannerBackground: () => true,

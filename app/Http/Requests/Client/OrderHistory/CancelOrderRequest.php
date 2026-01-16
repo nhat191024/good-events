@@ -8,18 +8,17 @@ use App\Models\PartnerBill;
 
 class CancelOrderRequest extends FormRequest
 {
-    // todo: enable this after hot fix
-    // public function authorize(): bool
-    // {
-    //     $orderId = $this->input('order_id');
-    //     $bill = PartnerBill::find($orderId);
+    public function authorize(): bool
+    {
+        $orderId = $this->input('order_id');
+        $bill = PartnerBill::find($orderId);
 
-    //     if (!$bill) {
-    //         return false;
-    //     }
+        if (!$bill) {
+            return false;
+        }
 
-    //     return $bill->user_id === $this->user()?->id;
-    // }
+        return $bill->client_id === $this->user()?->id;
+    }
 
     public function rules(): array
     {

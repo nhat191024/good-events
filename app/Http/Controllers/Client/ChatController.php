@@ -28,7 +28,7 @@ class ChatController extends Controller
     public function index(Request $request): Response
     {
         $userId = Auth::id();
-        $searchTerm = $request->input('search', '');
+        $searchTerm = $request->input('search', '') ?? '';
         $chatId = $request->input('chat', null);
 
         $threads = $this->getThreads($userId, $searchTerm, 1);
@@ -43,8 +43,8 @@ class ChatController extends Controller
     public function loadThreads(Request $request)
     {
         $userId = Auth::id();
-        $searchTerm = $request->input('search', '');
-        $page = $request->input('page', 1);
+        $searchTerm = $request->input('search', '') ?? '';
+        $page = (int) $request->input('page', 1);
 
         $threads = $this->getThreads($userId, $searchTerm, $page);
 
@@ -53,7 +53,7 @@ class ChatController extends Controller
 
     public function loadMessages(Request $request, int $threadId)
     {
-        $page = $request->input('page', 1);
+        $page = (int) $request->input('page', 1);
         $messages = $this->getMessages($threadId, $page);
 
         return response()->json($messages);
@@ -112,7 +112,7 @@ class ChatController extends Controller
         }
     }
 
-    private function getThreads(?int $userId, string $searchTerm, int $page): array
+    private function getThreads(?int $userId, ?string $searchTerm, int $page): array
     {
         if ($userId === null) {
             return [
@@ -120,6 +120,7 @@ class ChatController extends Controller
                 'hasMore' => false,
             ];
         }
+        $searchTerm = $searchTerm ?? '';
 
         $query = Thread::forUserOrderByNotReadMessages($userId)
             ->with([

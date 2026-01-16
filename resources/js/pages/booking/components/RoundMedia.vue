@@ -7,6 +7,7 @@ type RespSize = number | { base: number; sm?: number; md?: number; lg?: number }
 
 const props = withDefaults(defineProps<{
     src?: string
+    image_tag?: string
     alt?: string
     size?: RespSize
     innerScale?: number
@@ -19,6 +20,7 @@ const props = withDefaults(defineProps<{
     fit?: 'cover' | 'contain'
 }>(), {
     src: '',
+    image_tag: '',
     alt: '',
     size: 100,
     innerScale: 0.83,
@@ -64,7 +66,7 @@ const fitClass = computed(() => (props.fit === 'cover' ? 'object-cover' : 'objec
         :class="[shapeClass, outerBgClass, bordered ? borderClass : '', props.class]" :style="outerStyle">
         <div class="overflow-hidden flex items-center justify-center" :class="[shapeClass, innerBgClass]"
             :style="innerStyle">
-            <ImageWithLoader v-if="src" :src="getImg(src)" :alt="alt || 'media'" class="w-full h-full"
+            <ImageWithLoader v-if="src" :src="getImg(src)" :img-tag="image_tag" :alt="alt || 'media'" class="w-full h-full"
                 :img-class="`w-full h-full select-none pointer-events-none ${fitClass} ${shapeClass}`" loading="lazy" />
             <div v-else class="flex items-center justify-center w-full h-full">
                 <slot />

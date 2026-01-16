@@ -89,6 +89,7 @@ export interface Category {
     min_price: number
     parent: ParentCategory
     image?: string
+    image_tag?: string
 }
 
 export interface ParentCategory {

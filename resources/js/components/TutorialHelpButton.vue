@@ -1,5 +1,5 @@
 <template>
-    <div ref="rootRef" class="fixed bottom-6 right-6 z-[70] flex flex-col items-end gap-3">
+    <div v-if="!isHidden" ref="rootRef" class="fixed bottom-6 right-6 z-[70] flex flex-col items-end gap-3">
         <AnimatePresence>
             <motion.div
                 v-if="isMenuOpen"
@@ -79,7 +79,7 @@ import { AnimatePresence, motion } from 'motion-v';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useTutorialLinks } from '@/lib/tutorial-helper';
 
-const { links } = useTutorialLinks();
+const { links, isHidden } = useTutorialLinks();
 
 const rootRef = ref<HTMLElement | null>(null);
 const isHovered = ref(false);

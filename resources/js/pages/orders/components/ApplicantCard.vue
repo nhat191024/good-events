@@ -62,7 +62,7 @@ const actionInteractions = {
                         <div class="flex-shrink-0">
                             <div
                                 class="h-15 md:h-20 w-15 md:w-20 rounded-full overflow-hidden ring-2 ring-primary/20 grid place-items-center bg-muted">
-                                <ImageWithLoader :src="getImg(props.partner?.avatar)" :alt="props.partner?.name"
+                                <ImageWithLoader :src="'storage/'+getImg(props.partner?.avatar)" :alt="props.partner?.name"
                                     class="h-15 md:h-20 w-15 md:w-20 rounded-full"
                                     img-class="h-full w-full object-cover" loading="lazy" />
                             </div>

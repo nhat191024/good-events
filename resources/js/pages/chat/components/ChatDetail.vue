@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ArrowLeft, Send, Flag } from 'lucide-vue-next';
+import { ArrowLeft, Send, Flag, MessageCircleQuestionIcon } from 'lucide-vue-next';
+import { Link } from '@inertiajs/vue3';
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
 import ReportModal from '@/components/ReportModal.vue';
 import type { BroadcastMessagePayload, Message, Thread, ThreadDetail } from '../types';
@@ -305,8 +306,13 @@ onUnmounted(() => {
                             Địa điểm: {{ thread.bill.address || 'N/A' }}
                         </div>
                     </div>
-                    <button title="Báo cáo"
+                    <Link title="Trợ giúp"
                         class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        :href="route('tutorial.index')">
+                        <MessageCircleQuestionIcon class="w-5 h-5" />
+                    </Link>
+                    <button title="Báo cáo"
+                        class="cursor-pointer p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         @click="isReportModalOpen = true">
                         <Flag class="w-5 h-5" />
                     </button>
