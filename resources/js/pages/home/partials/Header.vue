@@ -42,13 +42,13 @@ withDefaults(defineProps<Props>(), {
 });
 
 const menuItems = [
+    { name: 'Về chúng tôi', shortName: 'Về chúng tôi', slug: 'about', routeName: 'about.index', route: route('about.index') },
     { name: 'Nhân sự', shortName: 'Nhân sự', slug: 'home', routeName: 'home', route: route('home') },
     { name: 'Thiết bị sự kiện', shortName: 'Thiết bị', slug: 'supply', routeName: 'rent.home', route: route('rent.home') },
     { name: 'Thiết kế ', shortName: 'Tài liệu', slug: 'document', routeName: 'asset.home', route: route('asset.home') },
     { name: 'Địa điểm tổ chức', shortName: 'Địa điểm', slug: 'blog', routeName: 'blog.discover', route: route('blog.discover') },
     { name: 'Hướng dẫn tổ chức', shortName: 'Hướng dẫn', slug: 'guides', routeName: 'blog.guides.discover', route: route('blog.guides.discover') },
     { name: 'Kiến thức nghề', shortName: 'Kiến thức', slug: 'knowledge', routeName: 'blog.knowledge.discover', route: route('blog.knowledge.discover') },
-    { name: 'Về chúng tôi', shortName: 'Giới thiệu', slug: 'about', routeName: 'about.index', route: route('about.index') },
 ];
 
 const navLinkMotion = {
