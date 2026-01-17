@@ -138,7 +138,7 @@ class PartnersTable
                         ->label('Quản lý dịch vụ')
                         ->icon('heroicon-o-rectangle-stack')
                         ->url(fn(Partner $record): string => PartnerResource::getUrl('services', ['record' => $record])),
-                    EditAction::make(),
+                    // EditAction::make(),
                     DeleteAction::make()
                         ->label(__('global.ban'))
                         ->modalHeading(__('admin/user.ban_title'))

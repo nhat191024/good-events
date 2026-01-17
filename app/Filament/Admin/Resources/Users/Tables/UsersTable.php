@@ -71,7 +71,7 @@ class UsersTable
                     ->default('trashed'),
             ])
             ->recordActions([
-                EditAction::make(),
+                // EditAction::make(),
                 DeleteAction::make()
                     ->label(__('global.ban'))
                     ->modalHeading(__('admin/user.ban_title'))
