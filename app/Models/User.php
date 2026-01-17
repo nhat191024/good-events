@@ -170,6 +170,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
     protected $appends = [
         'avatar_url',
         'partner_profile_name',
+        'avatar_image_tag',
     ];
 
     /**
@@ -225,6 +226,34 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->getFirstMediaUrl('avatar', 'avatar_webp') ?: $this->avatar_url;
+    }
+
+    /**
+     * Render the avatar as an HTML img tag with lazy loading and cover styling.
+     */
+    public function getAvatarImageTag(): ?string
+    {
+        $image = $this->getFirstMedia('avatar');
+        if (! $image) {
+            return null;
+        }
+
+        return $image
+            ->img('avatar_webp')
+            ->attributes([
+                'class' => 'w-full h-full object-cover lazy-image',
+                'loading' => 'lazy',
+                'alt' => $this->name,
+            ])
+            ->toHtml();
+    }
+
+    /**
+     * Accessor for serialized avatar image tag.
+     */
+    public function getAvatarImageTagAttribute(): ?string
+    {
+        return $this->getAvatarImageTag();
     }
 
     /**
