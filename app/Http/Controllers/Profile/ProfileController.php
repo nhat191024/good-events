@@ -4,24 +4,24 @@ namespace App\Http\Controllers\Profile;
 
 use App\Enum\Role;
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Partner;
 use App\Models\User;
 use App\Services\PartnerProfilePayload;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
     public function show(User $user)
     {
-        $user->loadMissing('partnerProfile');
+        $user->loadMissing(['partnerProfile', 'media']);
 
         $isPartner = $user->partnerProfile && Partner::find($user->id)->hasRole(Role::PARTNER->value);
 
         $payload = $isPartner
             ? PartnerProfilePayload::for($user)
             : $this->clientPayload($user);
-
+        // dd($payload);
         return Inertia::render('profile/Profile', [
             'profile_type' => $isPartner ? 'partner' : 'client',
             'payload' => $payload,
@@ -30,7 +30,7 @@ class ProfileController extends Controller
 
     public function showJson(User $user)
     {
-        $user->loadMissing('partnerProfile');
+        $user->loadMissing(['partnerProfile', 'media']);
 
         if (! $user->hasRole(Role::PARTNER)) {
             abort(404);
@@ -39,8 +39,9 @@ class ProfileController extends Controller
         return response()->json(PartnerProfilePayload::for($user));
     }
 
-    private function clientPayload(User $user): array
+    private function clientPayload(User $inputUser): array
     {
+        $user = Customer::with('media')->find($inputUser->id);
         $stats = $user->statistics()->get()->keyBy('metrics_name');
 
         $ordersPlaced = (int)(optional($stats->get('orders_placed'))->metrics_value ?? $user->partnerBillsAsClient()->count());
@@ -82,6 +83,7 @@ class ProfileController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'avatar_url' => $user->avatar_url,
+                'avatar_img_tag' => $user?->getAvatarImageTag(),
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'created_year' => optional($user->created_at)->format('Y'),
