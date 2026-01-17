@@ -12,11 +12,12 @@ import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { X, Flag } from 'lucide-vue-next'
 import ReportModal from '@/components/ReportModal.vue'
 import { inject } from "vue";
+import PartnerVideoCard from '@/pages/profile/partner/components/PartnerVideoCard.vue'
 
 const route = inject('route') as any;
 
 type UserInfo = {
-    id: number; name: string; avatar_url: string; location: string | null;
+    id: number; name: string; avatar_url: string; location: string | null; avatar_img_tag?: string;
     joined_year: string | null; is_pro: boolean; rating: number; total_reviews: number; total_customers: number | null;
     is_verified?: boolean; is_legit?: boolean;
 }
@@ -31,6 +32,7 @@ type Payload = {
     services: Service[];
     reviews: Review[];
     intro: string | null;
+    video_url: string | null;
 }
 
 const props = defineProps<{
@@ -86,7 +88,7 @@ const user = computed(() => data.value?.user)
                     <!-- header: sticky để luôn hiện khi cuộn -->
                     <div class="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white z-10">
                         <div class="flex items-center gap-3">
-                            <ImageWithLoader v-if="user?.avatar_url" :src="getImg(user!.avatar_url)" :alt="user!.name"
+                            <ImageWithLoader v-if="user?.avatar_url" :src="getImg(user!.avatar_url)" :alt="user!.name" :img-tag="user!.avatar_img_tag"
                                 class="w-10 h-10 rounded-full" img-class="w-10 h-10 rounded-full object-cover"
                                 loading="lazy" />
                             <div>
@@ -143,6 +145,7 @@ const user = computed(() => data.value?.user)
                                 <!-- main -->
                                 <div class="md:col-span-8 space-y-4">
                                     <PartnerIntroCard :intro="data.intro" :stats="data.stats" />
+                                    <PartnerVideoCard :iframe="data.video_url" />
                                     <PartnerServiceCard :services="data.services" />
                                     <PartnerReviewsCard :items="data.reviews" />
                                 </div>
