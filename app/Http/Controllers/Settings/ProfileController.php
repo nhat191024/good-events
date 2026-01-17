@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\Customer;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,8 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $user = $request->user();
+        /** @var Customer $user */
+        $user = Customer::findOrFail($request->user()->id);
         $validated = $request->safe()->except('avatar');
 
         $user->fill($validated);
@@ -45,14 +47,18 @@ class ProfileController extends Controller
 
         if ($request->hasFile('avatar')) {
             $avatar = $request->file('avatar');
-            $filename = Str::ulid() . '.' . $avatar->getClientOriginalExtension();
-            $path = $avatar->storeAs('uploads/avatars', $filename, 'public');
 
-            if ($user->getOriginal('avatar') && !Str::startsWith($user->getOriginal('avatar'), ['http://', 'https://'])) {
-                Storage::disk('public')->delete($user->getOriginal('avatar'));
+            $currentAvatar = $user->getOriginal('avatar');
+            if ($currentAvatar && !Str::startsWith($currentAvatar, ['http://', 'https://'])) {
+                Storage::disk('public')->delete($currentAvatar);
             }
 
-            $user->avatar = $path;
+            $user->clearMediaCollection('avatar');
+
+            $user
+                ->addMediaFromRequest('avatar')
+                ->usingFileName(Str::ulid() . '.' . $avatar->getClientOriginalExtension())
+                ->toMediaCollection('avatar');
         }
 
         if ($user->isDirty('email')) {
