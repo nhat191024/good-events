@@ -2,7 +2,7 @@
 import { getImg } from '@/pages/booking/helper';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
 
-type Media = { id: number; url: string }
+type Media = { id: number; url: string; image_tag?: string }
 type Service = { id: number; name: string | null; field: string | null; media: Media[] }
 
 const props = defineProps<{
@@ -20,7 +20,7 @@ const props = defineProps<{
           <span v-if="service.field" class="text-xs text-gray-500">{{ service.field }}</span>
         </div>
         <div v-if="service.media.length" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <ImageWithLoader v-for="media in service.media.slice(0, 10)" :key="media.id" :src="getImg(media.url)"
+          <ImageWithLoader v-for="media in service.media.slice(0, 10)" :key="media.id" :src="getImg(media.url)" :img-tag="media.image_tag"
             :alt="service.name ?? 'Service image'" class="w-full aspect-square rounded-lg"
             img-class="w-full aspect-square object-cover rounded-lg border border-gray-200" loading="lazy" />
         </div>

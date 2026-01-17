@@ -360,7 +360,7 @@ watch(() => form.voucher_input, (newVal) => {
                 </div>
 
                 <!-- actions -->
-                <div class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
+                <div class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center z-10">
                     <button v-if="(props.mode === 'current')"
                         @click="goToChat(props.order?.thread_id ?? null, !(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB))"
                         :class="(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB) ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"

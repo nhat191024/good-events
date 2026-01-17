@@ -31,6 +31,7 @@ export interface User {
     email: string;
     avatar?: string;
     avatar_url?: string | null;
+    avatar_image_tag?: string | null;
     partner_profile_name?: string | null;
     country_code?: string | null;
     phone?: string | null;

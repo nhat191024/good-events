@@ -92,7 +92,7 @@ class OrderController extends Controller
         $billUpdatedTs = optional(
             PartnerBill::select(['id', 'updated_at'])->find($billId)
         )->updated_at?->timestamp;
-
+        
         return [
             'billId' => $billId,
             'items' => PartnerBillDetailResource::collection($details),

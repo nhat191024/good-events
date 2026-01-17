@@ -20,6 +20,7 @@ interface UserInfo {
     id: number
     name: string
     avatar_url: string
+    avatar_img_tag?: string
     email: string
     phone: string
     created_year: string | null
@@ -142,7 +143,7 @@ console.log('client page loaded');
                             <div
                                 class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
                                 <ImageWithLoader v-if="user.avatar_url" :key="user.avatar_url"
-                                    :src="getImg(user.avatar_url)" :alt="user.name" class="w-full h-full"
+                                    :src="getImg(user.avatar_url)" :img-tag="user.avatar_img_tag" :alt="user.name" class="w-full h-full"
                                     img-class="w-full h-full object-cover" loading="lazy" />
                                 <div v-else class="w-full h-full flex items-center justify-center bg-gray-200">
                                     <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400" fill="currentColor"

@@ -2,16 +2,21 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\PartnerService;
 use App\Enum\PartnerBillStatus;
+use App\Models\Partner;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class PartnerProfilePayload
 {
-    public static function for(User $user): array
+    public static function for(User $inputUser): array
     {
+        $user = Partner::where('id', $inputUser->id)
+            ->with(['partnerProfile', 'media'])
+            ->firstOrFail();
+
         $stats = $user->statistics()->get()->keyBy('metrics_name');
 
         $ordersPlacedStat = optional($stats->get('orders_placed'))->metrics_value;
@@ -50,6 +55,7 @@ class PartnerProfilePayload
                 'id' => $user->id,
                 'name' => $user->name,
                 'avatar_url' => $user->avatar_url,
+                'avatar_img_tag' => $user->getAvatarImageTag(),
                 'location' => $user->location,
                 'joined_year' => optional($user->created_at)->format('Y'),
                 'is_pro' => true,
@@ -92,6 +98,11 @@ class PartnerProfilePayload
                         ->map(function ($m) use ($s) {
 
                             $url = $m->getFullUrl();
+                            $imageTag = $m->img('thumb')->attributes([
+                                'class' => 'w-full h-full object-cover lazy-image',
+                                'loading' => 'lazy',
+                                'alt' => $s->category?->name,
+                            ])->toHtml();
 
                             if (method_exists($m, 'getTemporaryUrl')) {
                                 try {
@@ -109,6 +120,7 @@ class PartnerProfilePayload
                             return [
                                 'id' => $m->id,
                                 'url' => $url,
+                                'image_tag' => $imageTag,
                             ];
                         })
                         ->values()
@@ -131,7 +143,7 @@ class PartnerProfilePayload
                     ->get();
 
                 $authorIds = $reviews->pluck('user_id')->filter()->unique();
-                $authors = User::whereIn('id', $authorIds)->pluck('name', 'id');
+                $authors = Partner::whereIn('id', $authorIds)->pluck('name', 'id');
 
                 return $reviews->map(function ($r) use ($authors) {
                     $rating = optional($r->ratings->firstWhere('key', 'rating'))->value

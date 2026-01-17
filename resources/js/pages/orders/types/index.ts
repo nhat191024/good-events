@@ -107,6 +107,7 @@ export interface Partner {
     id: number
     name: string
     avatar: string
+    avatar_img_tag: string
     partner_profile?: PartnerProfile
     statistics: Pick<Metrics,
         | 'total_ratings'

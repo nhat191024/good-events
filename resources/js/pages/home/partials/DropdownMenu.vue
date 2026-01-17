@@ -15,6 +15,8 @@ const user = computed(() => page.props.auth?.user ?? null);
 const isOpen: Ref<boolean> = ref(false);
 const dropdown: Ref<HTMLDivElement | null> = ref(null);
 const avatarUrl = computed<string | null>(() => user.value?.avatar_url ?? null);
+const imageTag = computed<string | null>(() => user.value?.avatar_image_tag ?? null);
+
 const shouldRenderImage = computed(() => !!avatarUrl.value);
 
 const toggleDropdown = (): void => {
@@ -149,6 +151,7 @@ const loggedOutMenuItems: MenuItem[] = [
             <ImageWithLoader
                 v-if="shouldRenderImage"
                 :src="getImg(avatarUrl)"
+                :img-tag="imageTag"
                 alt="Avatar"
                 class="absolute inset-0 z-0 h-full w-full rounded-full"
                 img-class="h-full w-full rounded-full object-cover"
