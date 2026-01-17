@@ -11,22 +11,33 @@ import { Loader2, ImageOff } from 'lucide-vue-next';
 const props = defineProps<{
     class?: string;
     imgClass?: string;
-    src?: string;
+    src?: string; // if this fails, that means both src and imgTag failed
     alt?: string;
     aspectRatio?: string; // e.g., "16/9", "4/3", "1/1"
-    imgTag?: string;
+    imgTag?: string; // if loading fails for img tag, fallback to src
 }>();
 
 const attrs = useAttrs();
 
 const isLoading = ref(true);
 const hasError = ref(false);
+const activeSrc = ref<string | undefined>(undefined);
+const usingImgTag = ref(false);
 
 const onLoad = () => {
     isLoading.value = false;
+    hasError.value = false;
 };
 
 const onError = () => {
+    if (usingImgTag.value && props.src && activeSrc.value !== props.src) {
+        usingImgTag.value = false;
+        activeSrc.value = props.src;
+        isLoading.value = true;
+        hasError.value = false;
+        return;
+    }
+
     isLoading.value = false;
     hasError.value = true;
 };
@@ -70,31 +81,41 @@ const mergedAttrs = computed(() => ({
     ...attrs,
 }));
 
-const effectiveSrc = computed(() => parsedImg.value?.src ?? props.src);
+const effectiveSrc = computed(() => activeSrc.value);
 const effectiveAlt = computed(() => props.alt ?? parsedImg.value?.alt ?? undefined);
 const mergedImgClass = computed(() => cn(parsedImg.value?.className, props.imgClass));
 
 // Reset loading state if src or imgTag changes
 watch(
-    () => [props.src, props.imgTag],
+    () => [props.src, props.imgTag, parsedImg.value?.src],
     () => {
+        const imgTagSrc = parsedImg.value?.src;
+        if (imgTagSrc) {
+            activeSrc.value = imgTagSrc;
+            usingImgTag.value = true;
+        } else {
+            activeSrc.value = props.src;
+            usingImgTag.value = false;
+        }
+
         isLoading.value = true;
         hasError.value = false;
-    }
+    },
+    { immediate: true }
 );
 </script>
 
 <template>
     <div :class="cn('relative overflow-hidden', props.class)" :style="[
         props.aspectRatio ? { aspectRatio: props.aspectRatio } : undefined,
-        (hasError || isLoading) && !props.aspectRatio && (!props.class?.match(/\bh-(?!full\b)/)) ? { minHeight: '64px' } : undefined
+        (hasError || isLoading) && !props.aspectRatio && (!props.class?.match(/\bh-(?!full\b)/)) ? { minHeight: '38px' } : undefined
     ]">
         <Skeleton v-if="isLoading" class="absolute inset-0 h-full w-full" />
         <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center z-10">
-            <Loader2 class="animate-spin text-gray-400" :size="48" />
+            <Loader2 class="animate-spin text-gray-400" :size="30" />
         </div>
-        <div v-if="hasError" class="absolute inset-0 flex items-center justify-center bg-primary-200/50 z-10">
-            <ImageOff class="text-gray-400" :size="48" />
+        <div v-if="hasError" class="absolute inset-0 flex items-center justify-center bg-primary-200/50 z-[2]">
+            <ImageOff class="text-gray-400" :size="20" />
         </div>
         <motion.img v-if="!hasError" v-bind="mergedAttrs" :src="effectiveSrc" :alt="effectiveAlt"
             :class="mergedImgClass" :initial="{ opacity: 0 }" :animate="{ opacity: isLoading ? 0 : 1 }"
