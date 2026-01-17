@@ -22,7 +22,7 @@ interface UserInfo {
     joined_year: string | null; is_pro: boolean; rating: number; total_reviews: number; total_customers: number | null;
     bio?: string | null; is_verified?: boolean; email_verified_at?: string | null; is_legit?: boolean;
 }
-type Media = { id: number; url: string }
+type Media = { id: number; url: string; image_tag?: string }
 type Service = { id: number; name: string | null; field: string | null; price: number | null; media: Media[] }
 interface Review { id: number; author: string; rating: number; review: string | null; created_human: string | null }
 
@@ -101,7 +101,7 @@ console.log('partner page loaded');
                             <div
                                 class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white overflow-hidden bg-white"
                                 :class="user.is_legit ? 'ring-4 ring-amber-300/80 shadow-[0_0_20px_rgba(251,191,36,0.7)]' : 'shadow-lg'">
-                                <ImageWithLoader v-if="user.avatar_url" :src="getImg(user.avatar_url)" :alt="user.name"
+                                <ImageWithLoader v-if="user.avatar_url" :src="getImg(user.avatar_url)" :alt="user.name" :img-tag="user.avatar_img_tag"
                                     class="w-full h-full" img-class="w-full h-full object-cover" loading="lazy" />
                                 <div v-else class="w-full h-full flex items-center justify-center bg-gray-200">
                                     <svg class="w-12 h-12 md:w-16 md:h-16 text-gray-400" fill="currentColor"
@@ -113,7 +113,7 @@ console.log('partner page loaded');
                                 </div>
                             </div>
                             <div
-                                class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full border-2 border-white">
+                                class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full border-2 border-white z-10">
                                 PARTNER
                             </div>
                         </div>
