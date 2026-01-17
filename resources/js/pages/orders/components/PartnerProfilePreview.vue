@@ -9,7 +9,7 @@ import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesC
 import axios from 'axios'
 import { getImg } from '@/pages/booking/helper';
 import ImageWithLoader from '@/components/ImageWithLoader.vue';
-import { X, Flag } from 'lucide-vue-next'
+import { X, Flag, ExternalLink } from 'lucide-vue-next'
 import ReportModal from '@/components/ReportModal.vue'
 import { inject } from "vue";
 import PartnerVideoCard from '@/pages/profile/partner/components/PartnerVideoCard.vue'
@@ -131,8 +131,17 @@ const user = computed(() => data.value?.user)
                         <template v-else-if="status === 'success' && data">
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                                 <div class="md:col-span-12 space-y-4">
+                                    <a
+                                        v-if="user?.id"
+                                        target="_blank"
+                                        :href="route('profile.client.show', { user: user.id })"
+                                        class="w-full cursor-pointer flex items-center justify-center gap-2 rounded-xl bg-slate-50 p-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 ring ring-gray-200"
+                                    >
+                                        <ExternalLink class="h-4 w-4" />
+                                        Mở trong trang  mới
+                                    </a>
                                     <button @click="isReportModalOpen = true"
-                                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-100">
+                                        class="w-full cursor-pointer flex items-center justify-center gap-2 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-100">
                                         <Flag class="h-4 w-4" />
                                         Báo cáo người dùng này
                                     </button>
@@ -163,3 +172,5 @@ const user = computed(() => data.value?.user)
 
     <ReportModal v-model:open="isReportModalOpen" :user-id="user?.id" />
 </template>
+
+
