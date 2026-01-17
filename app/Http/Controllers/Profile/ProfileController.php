@@ -21,7 +21,7 @@ class ProfileController extends Controller
         $payload = $isPartner
             ? PartnerProfilePayload::for($user)
             : $this->clientPayload($user);
-        // dd($payload);
+        
         return Inertia::render('profile/Profile', [
             'profile_type' => $isPartner ? 'partner' : 'client',
             'payload' => $payload,
