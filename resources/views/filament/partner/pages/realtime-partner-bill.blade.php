@@ -451,7 +451,7 @@
                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" @click.away="$wire.closeClientModal()">
                     <!-- Header -->
-                    <div class="border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-700/50">
+                    <div class="border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-900/50">
                         <div class="flex items-center justify-between">
                             <h3 id="client-modal-title" class="text-lg font-semibold text-gray-900 dark:text-white">
                                 <x-heroicon-m-user class="mr-2 inline-block h-5 w-5 text-blue-500" />
@@ -469,7 +469,7 @@
                             <!-- Avatar and Name -->
                             <div class="flex items-center gap-4">
                                 @if (!empty($selectedClient['avatar']))
-                                    <img class="h-20 w-20 rounded-full object-cover ring-4 ring-gray-200 dark:ring-gray-700" src="{{ $selectedClient['avatar'] }}" alt="{{ $selectedClient['name'] }}">
+                                    <img class="h-20 w-20 rounded-full object-cover ring-4 ring-gray-200 dark:ring-gray-700" src="{{ $selectedClient['avatar_url'] }}" alt="{{ $selectedClient['name'] }}">
                                 @else
                                     <div class="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 ring-4 ring-gray-200 dark:bg-blue-900/20 dark:ring-gray-700">
                                         <x-heroicon-m-user class="h-10 w-10 text-blue-600 dark:text-blue-400" />
