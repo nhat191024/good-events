@@ -14,9 +14,14 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('activitylog:clean --force')->dailyAt('03:00');
-Schedule::command('app:clear-zip-temp')->dailyAt('03:00');
+//4h00 am daily
+Schedule::command('app:clear-zip-temp')->dailyAt('04:00');
 
+//4h00 am weekly on Monday
+Schedule::command('app:clear-logs')->weeklyOn(1, '04:00');
+
+//3h00 am daily
+Schedule::command('activitylog:clean --force')->dailyAt('03:00');
 Schedule::call(function () {
     Log::info('Starting cleanup of old MailLog and Activity records.');
     if (class_exists(MailLog::class)) {
