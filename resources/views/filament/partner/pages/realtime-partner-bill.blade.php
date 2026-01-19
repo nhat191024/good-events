@@ -401,7 +401,8 @@
                                     </label>
                                     <div class="relative mt-2">
                                         <input id="price"
-                                            class="@error('priceInput') border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-red-500 dark:border-red-600 dark:bg-red-900/20 dark:text-red-400 dark:placeholder:text-red-400/60 @else border-gray-300 bg-white focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-green-500 dark:focus:ring-green-500 @enderror block w-full rounded-lg border py-3 pl-10 pr-16 text-base transition-colors duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2"
+                                            class="@error('priceInput') border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-red-500 dark:border-red-600 dark:bg-red-900/20 dark:text-red-400 dark:placeholder:text-red-400/60
+                                            @else border-gray-300 bg-white focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-green-500 dark:focus:ring-green-500 @enderror block w-full rounded-lg border py-3 pl-10 pr-16 text-base transition-colors duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2"
                                             type="number" wire:model.live="priceInput" placeholder="Nhập số tiền..." min="0" step="1000">
                                     </div>
                                     @error('priceInput')
@@ -428,7 +429,7 @@
                         <button class="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto" type="button" wire:click="acceptOrder">
                             {{ __('partner/bill.confirm_accept') }}
                         </button>
-                        <button class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600" type="button"
+                        <button class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-900 dark:text-white dark:ring-gray-800 dark:hover:bg-gray-600" type="button"
                             wire:click="closeAcceptModal">
                             {{ __('partner/bill.cancel') }}
                         </button>
@@ -600,7 +601,7 @@
                                 <x-heroicon-m-exclamation-triangle class="h-6 w-6 text-red-600 dark:text-red-400" />
                             </div>
                             <div class="mt-3 w-full text-center sm:ml-4 sm:mt-0 sm:text-left">
-                                <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white" id="modal-title">
+                                <h3 id="modal-title" class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
                                     {{ __('partner/bill.ban_partner_title') }}
                                 </h3>
                                 <div class="mt-2">
@@ -612,7 +613,7 @@
                         </div>
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 dark:bg-gray-900/20">
-                        <button type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto" wire:click="closeBannedModal">
+                        <button class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto" type="button" wire:click="closeBannedModal">
                             {{ __('global.close') }}
                         </button>
                     </div>
