@@ -60,7 +60,7 @@
                     {{-- Clear Filters --}}
                     <div class="flex items-end">
                         <button
-                            class="dark:border-gray-900 flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-black/10"
+                            class="flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-900 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-black/10"
                             wire:click="clearFilters" wire:loading.attr="disabled">
                             <span wire:loading.remove wire:target="clearFilters">{{ __('partner/bill.clear_filters') }}</span>
                             <span wire:loading wire:target="clearFilters">
@@ -106,9 +106,7 @@
 
                             {{-- Client Info --}}
                             <div class="mb-4 flex items-center gap-3">
-                                <div class="from-primary-400 to-primary-600 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br font-semibold text-white">
-                                    {{ substr($bill->client?->name ?? 'U', 0, 1) }}
-                                </div>
+                                <img class="h-10 w-10 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700" src="{{ $bill->client?->avatar_url }}" alt="{{ $bill->client?->name }}">
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
                                         {{ $bill->client?->name ?? __('partner/bill.unknown_client') }}
