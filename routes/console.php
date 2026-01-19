@@ -15,6 +15,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('activitylog:clean --force')->dailyAt('03:00');
+Schedule::command('app:clear-zip-temp')->dailyAt('03:00');
 
 Schedule::call(function () {
     Log::info('Starting cleanup of old MailLog and Activity records.');
