@@ -71,7 +71,7 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
 
         Log::info("GenerateFileProductZip: Found {$files->count()} files.");
 
-        $zipFileName = sprintf('FPB-%s-designs.zip', $this->billId);
+        $zipFileName = sprintf('FPB-%s-designs.zip', $this->fileProduct->id);
         $s3ZipPath = 'cached-zips/' . $this->fileProduct->id . '/' . $zipFileName;
 
         // Define temporary paths
