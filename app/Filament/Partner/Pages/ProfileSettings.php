@@ -34,6 +34,8 @@ use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
 use Cohensive\OEmbed\Facades\OEmbed;
 
+use Illuminate\Support\Facades\Log;
+
 class ProfileSettings extends Page implements HasForms
 {
     use InteractsWithForms;
@@ -364,7 +366,7 @@ class ProfileSettings extends Page implements HasForms
                 ->success()
                 ->send();
         } catch (\Exception $e) {
-
+            Log::error('Profile update error for user ID ' . $user->id . ': ' . $e->getMessage());
 
             Notification::make()
                 ->title(__('profile.notifications.update_error_title'))
