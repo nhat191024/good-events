@@ -289,14 +289,12 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
     {
         parent::boot();
         static::creating(function ($user) {
-            if (empty($user->avatar)) {
-                $name = urlencode($user->name);
-                $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
-            }
+            $name = urlencode($user->name);
+            $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
         });
 
         static::updating(function ($user) {
-            if ($user->isDirty('name') && Str::startsWith($user->avatar, 'https://ui-avatars.com/')) {
+            if ($user->isDirty('name')) {
                 $name = urlencode($user->name);
                 $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
             }
