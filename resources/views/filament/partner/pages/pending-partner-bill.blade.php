@@ -79,7 +79,7 @@
         @if ($this->bills->count() > 0)
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
                 @foreach ($this->bills as $bill)
-                    <div class="hover:border-primary-500 dark:hover:border-primary-500 group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800" wire:click="viewBill({{ $bill->id }})">
+                    <div class="hover:border-primary-500 dark:hover:border-primary-500 group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-900 dark:bg-gray-800" wire:click="viewBill({{ $bill->id }})">
                         {{-- Status Badge --}}
                         <div class="flex-1 p-6 pb-4">
                             <div class="mb-4 flex items-start justify-between">
