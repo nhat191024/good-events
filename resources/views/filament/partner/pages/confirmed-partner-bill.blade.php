@@ -127,15 +127,9 @@
 
                             {{-- Client Info --}}
                             <div class="mb-4 flex items-center gap-3">
-                                <div class="from-primary-400 to-primary-600 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br font-semibold text-white">
-                                    {{ substr($bill->client?->name ?? 'U', 0, 1) }}
-                                </div>
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
                                         {{ $bill->client?->name ?? __('partner/bill.unknown_client') }}
-                                    </p>
-                                    <p class="truncate text-xs text-gray-500 dark:text-gray-400">
-                                        {{ $bill->phone }}
                                     </p>
                                 </div>
                             </div>
