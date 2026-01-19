@@ -106,7 +106,7 @@
 
                             {{-- Client Info --}}
                             <div class="mb-4 flex items-center gap-3">
-                                <img class="h-10 w-10 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700" src="{{ $bill->client?->avatar_url }}" alt="{{ $bill->client?->name }}">
+                                {{-- <img class="h-10 w-10 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700" src="{{ $bill->client?->avatar_url }}" alt="{{ $bill->client?->name }}"> --}}
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
                                         {{ $bill->client?->name ?? __('partner/bill.unknown_client') }}
