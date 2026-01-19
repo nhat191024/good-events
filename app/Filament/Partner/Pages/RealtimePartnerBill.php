@@ -3,6 +3,7 @@
 namespace App\Filament\Partner\Pages;
 
 use App\Models\User;
+use App\Models\Customer;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 
@@ -316,7 +317,7 @@ class RealtimePartnerBill extends Page
 
     public function openClientModal($clientId): void
     {
-        $client = User::with(['statistics', 'partnerProfile'])
+        $client = Customer::with(['statistics', 'partnerProfile', 'media'])
             ->find($clientId);
 
         if ($client) {
