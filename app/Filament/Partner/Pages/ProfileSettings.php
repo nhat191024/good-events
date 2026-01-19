@@ -364,7 +364,6 @@ class ProfileSettings extends Page implements HasForms
                 ->success()
                 ->send();
         } catch (\Exception $e) {
-            ds($e->getMessage());
             Notification::make()
                 ->title(__('profile.notifications.update_error_title'))
                 ->body(__('profile.notifications.update_error_body'))
