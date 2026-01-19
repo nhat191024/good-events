@@ -141,7 +141,6 @@ class RealtimePartnerBill extends Page
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
             ->with([
                 'client:id,name,email,avatar,created_at',
-                'client.partnerProfile:id,user_id,partner_name',
                 'event:id,name'
             ])
             ->where('status', PartnerBillStatus::PENDING)
