@@ -240,18 +240,14 @@ class Chat extends Page
                 'subject' => $thread->subject,
                 'updated_at' => $thread->updated_at,
                 'is_unread' => $isUnread,
-                'other_participants' => $thread->participants->where('user_id', '!=', $userId)->map(function ($participant) {
-                    return (object) [
-                        'id' => $participant->user->id,
-                        'name' => $participant->user->name,
-                    ];
-                }),
-                'participants' => $thread->participants->map(function ($participant) {
-                    return (object) [
-                        'id' => $participant->user->id,
-                        'name' => $participant->user->name,
-                    ];
-                }),
+                'other_participants' => $thread->participants->where('user_id', '!=', $userId)->filter(fn($p) => $p->user)->map(fn($participant) => (object) [
+                    'id' => $participant->user->id,
+                    'name' => $participant->user->name,
+                ]),
+                'participants' => $thread->participants->filter(fn($p) => $p->user)->map(fn($participant) => (object) [
+                    'id' => $participant->user->id,
+                    'name' => $participant->user->name,
+                ]),
                 'latest_message' => $thread->latestMessage ? (object) [
                     'body' => $thread->latestMessage->body,
                     'created_at' => $thread->latestMessage->created_at->toIso8601String(),
