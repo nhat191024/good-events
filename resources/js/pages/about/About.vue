@@ -92,7 +92,7 @@ const heroGallery = [
     {
         label: 'Đối tác',
         caption: 'Nhận show phù hợp năng lực, thanh toán an toàn',
-        image: 'https://images.unsplash.com/photo-1509099836639-18ba02e2e38d?auto=format&fit=crop&w=1200&q=80',
+        image: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=1200&q=80',
     },
     {
         label: 'Kho tiết mục',
