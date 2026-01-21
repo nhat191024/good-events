@@ -17,8 +17,8 @@
             </figure>
             <div v-if="showInfo"
                 class="card-body absolute inset-0 shadow-2xl rounded-2xl opacity-100 duration-300 text-white flex flex-col justify-center p-4 overflow-scroll scrollbar-hide">
-                <div class="overflow-y-scroll">
-                    <p class="text-[0.75rem] sm:text-[0.80rem] md:text-[1rem]">
+                <div class="overflow-y-scroll scrollbar-hide">
+                    <p class="text-[0.75rem] sm:text-[0.80rem] md:text-[1rem] scrollbar-hide">
                         <h4 class="font-semibold block">{{ truncatedName }}</h4>
                     </p>
                 </div>
