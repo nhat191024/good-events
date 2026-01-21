@@ -45,7 +45,7 @@
     <Head title="Đặt show nhanh - Điền thông tin" />
     <!-- layout -->
     <ClientAppHeaderLayout>
-        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="getImg(partnerCategory.media)">
+        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="getImg(partnerCategory.media)" :header-img-tag="partnerCategory.image_tag">
             <!-- search bar -->
             <div class="w-full relative">
                 <LargeSearchBar v-model="searchKeyword" :placeholder="'Tìm cụ thể đối tác...'" />
