@@ -163,6 +163,16 @@ class PartnerBill extends Model implements HasMedia
             ->queued();
     }
 
+    public function registerMediaConversions(?\Spatie\MediaLibrary\MediaCollections\Models\Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(400)
+            ->height(400)
+            ->sharpen(10)
+            ->format('webp')
+            ->queued();
+    }
+
     //model boot method
     protected static function boot()
     {
