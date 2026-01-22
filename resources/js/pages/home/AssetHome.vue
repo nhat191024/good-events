@@ -38,12 +38,12 @@
         </motion.div>
         <div id="search" class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full max-w-7xl bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl scroll-mt-24">
             <div class="max-w-5xl mx-auto">
-                <SearchBar :show-search-btn="false" v-model="search" />
+                <SearchBar v-model="search" :show-search-btn="true" @search="submitSearch" />
                 <div v-if="keywordSuggestions.length" class="container mx-auto px-4 mt-4">
                     <div class="flex flex-wrap gap-2">
                         <button v-for="suggestion in keywordSuggestions" :key="suggestion" type="button"
                             class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
-                            @click="search = suggestion">
+                            @click="submitSearch(suggestion)">
                             {{ suggestion }}
                         </button>
                     </div>
@@ -73,8 +73,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { computed, inject } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import axios from 'axios';
 import { motion } from 'motion-v';
 
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
@@ -87,13 +88,11 @@ import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 import { PartnerCategoryItems } from './partials/PartnerCategoryIcons/type';
 import { AssetCardItemProps, Category, FileProduct, Tag } from './types';
 
-import { normText } from '@/lib/search-filter';
 import { useSearchSuggestion } from '@/lib/useSearchSuggestion';
 
 import CardItem from './components/CardItem/index.vue';
 import { Button } from '@/components/ui/button';
 import SearchBar from '../categories/partials/SearchBar.vue';
-import { inject } from "vue";
 
 const route = inject('route') as any;
 
@@ -116,21 +115,25 @@ interface Props {
     };
 }
 
+interface SearchSuggestionResponse {
+    suggestions: string[];
+}
+
 const props = defineProps<Props>();
 
-const {
-    query: search,
-    filteredLocal,
-    setItems,
-} = useSearchSuggestion<FileProduct>({
-    keys: ['name', 'slug'],
-    initialItems: props.fileProducts.data ?? [],
-});
+const fetchAssetSuggestions = async (q: string): Promise<SearchSuggestionResponse> => {
+    const { data } = await axios.get(route('asset.search'), {
+        params: { q },
+    });
+    return data as SearchSuggestionResponse;
+};
 
-watch(
-    () => props.fileProducts.data,
-    (val) => setItems(val ?? [])
-);
+const { query: search, suggestions } = useSearchSuggestion<string, SearchSuggestionResponse>({
+    fetcher: fetchAssetSuggestions,
+    minLength: 2,
+    debounceMs: 300,
+    suggestionSelector: (response) => response.suggestions ?? [],
+});
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
 const heroHeaderText = computed(() => 'Trải nghiệm kho thiết kế thiết kế');
@@ -142,8 +145,6 @@ const heroDescription = computed(
 // console.log('file products ',props.fileProducts.data);
 // console.log('tags ',props.tags.data);
 // console.log('categories ',props.categories.data);
-
-const filteredFileProducts = computed(() => filteredLocal.value ?? []);
 
 const categories = computed<PartnerCategoryItems[]>(() =>
     (props.categories.data ?? []).map((item) => {
@@ -161,7 +162,7 @@ const categories = computed<PartnerCategoryItems[]>(() =>
 const tagItems = computed(() => props.tags.data ?? []);
 
 const fileProductList = computed<AssetCardItemProps[]>(() =>
-    (filteredFileProducts.value ?? []).map((item) => {
+    (props.fileProducts.data ?? []).map((item) => {
         return {
             id: item.id,
             name: item.name,
@@ -179,19 +180,17 @@ const handleAssetReachEnd = () => {
 };
 
 const keywordSuggestions = computed(() => {
-    const term = search.value.trim();
-    if (term.length < 2) return [];
-
-    const names = new Set<string>();
-    filteredFileProducts.value.forEach((item) => {
-        if (item?.name) names.add(item.name);
-    });
-
-    const normalizedTerm = normText(term);
-    return Array.from(names)
-        .filter((name) => normText(name).includes(normalizedTerm))
-        .slice(0, 8);
+    const unique = Array.from(new Set(suggestions.value ?? []));
+    return unique.filter(Boolean).slice(0, 8);
 });
+
+const submitSearch = (term?: string) => {
+    const next = typeof term === 'string' ? term : search.value;
+    const query = next.trim();
+    if (!query) return;
+    search.value = query;
+    router.get(route('asset.discover'), { q: query });
+};
 
 const tagSectionMotion = {
     initial: { opacity: 0.5, y: 24 },

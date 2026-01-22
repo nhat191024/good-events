@@ -24,6 +24,14 @@ Route::get('/api/home/search', [HomeController::class, 'search'])
     ->middleware('throttle:search')
     ->name('home.search');
 
+Route::get('/api/rent/search', [RentController::class, 'searchSuggestions'])
+    ->middleware('throttle:search')
+    ->name('rent.search');
+
+Route::get('/api/asset/search', [FileProductController::class, 'searchSuggestions'])
+    ->middleware('throttle:search')
+    ->name('asset.search');
+
 Route::get('/su-kien/danh-muc/{category_slug}', [HomeController::class, 'showCategory'])
     ->where('category_slug', '[A-Za-z0-9-]+')
     ->name('home.category');

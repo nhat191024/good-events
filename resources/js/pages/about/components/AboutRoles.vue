@@ -60,9 +60,9 @@
                             </ul>
                         </div>
                         <div class="mt-6 flex items-center justify-between">
-                            <Link :href="route('partner.register')"
+                            <Link :href="route('register')"
                                 class="inline-flex items-center gap-2 rounded-2xl bg-white/90 px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-white">
-                                Chọn vai trò này
+                                Đăng ký ngay
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

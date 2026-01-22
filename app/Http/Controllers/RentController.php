@@ -15,6 +15,7 @@ use App\Http\Resources\Home\CategoryResource;
 use App\Http\Resources\Home\RentProductResource;
 use App\Http\Resources\Home\TagResource;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -27,10 +28,39 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class RentController extends Controller
 {
     private const DISCOVER_PER_PAGE = 12;
+    private const SUGGESTION_LIMIT = 10;
 
     public function rentDiscover(Request $request): Response|RedirectResponse
     {
         return $this->renderDiscoverPage($request, null);
+    }
+
+    public function searchSuggestions(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $term = trim((string) ($validated['q'] ?? ''));
+        if ($term === '') {
+            return response()->json(['suggestions' => []]);
+        }
+
+        $suggestions = RentProduct::query()
+            ->where(function ($builder) use ($term) {
+                $builder->where('name', 'like', '%' . $term . '%')
+                    ->orWhere('slug', 'like', '%' . $term . '%')
+                    ->orWhere('description', 'like', '%' . $term . '%');
+            })
+            ->orderByDesc('created_at')
+            ->limit(self::SUGGESTION_LIMIT * 3)
+            ->pluck('name')
+            ->filter()
+            ->unique()
+            ->take(self::SUGGESTION_LIMIT)
+            ->values();
+
+        return response()->json(['suggestions' => $suggestions]);
     }
 
     public function rentCategory(Request $request, string $categorySlug): Response|RedirectResponse
