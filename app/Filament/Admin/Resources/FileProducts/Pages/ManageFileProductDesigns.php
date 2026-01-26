@@ -58,17 +58,15 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->disk('s3')
                             ->directory('file-product-designs/' . $this->record->id)
 
-                            ->multiple()
                             ->downloadable()
 
                             ->fetchFileInformation(false)
 
-                            ->maxFiles(20)
                             ->maxSize(1024 * 1024 * 1000) // 1000MB
-                            ->helperText('Có thể upload tối đa 20 file, mỗi file tối đa 1Gb. Hỗ trợ các định dạng ảnh (jpg, png, jpeg, webp), file nén (zip, rar), và các định dạng Adobe (psd, ai, eps, indd).')
+                            ->helperText('Có thể upload tối đa 1 file nén. Dung lượng tối đa 1Gb. Hỗ trợ các định dạng file zip.')
                             ->acceptedFileTypes([
-                                'image/*',
-                                'application/pdf',
+                                // 'image/*',
+                                // 'application/pdf',
                                 // Compression
                                 'application/zip',
                                 'application/x-zip-compressed',
@@ -76,15 +74,15 @@ class ManageFileProductDesigns extends Page implements HasForms
                                 'application/x-rar-compressed',
                                 'application/vnd.rar',
                                 // Adobe Specific
-                                'image/vnd.adobe.photoshop',
-                                'application/vnd.adobe.illustrator',
-                                'application/x-photoshop',
-                                'application/photoshop',
-                                'application/psd',
-                                'image/psd',
+                                // 'image/vnd.adobe.photoshop',
+                                // 'application/vnd.adobe.illustrator',
+                                // 'application/x-photoshop',
+                                // 'application/photoshop',
+                                // 'application/psd',
+                                // 'image/psd',
                                 // Vector
-                                'application/postscript',     // .ai, .eps
-                                'application/x-indesign',     // .indd
+                                // 'application/postscript',     // .ai, .eps
+                                // 'application/x-indesign',     // .indd
                             ])
 
                             ->saveUploadedFileUsing(function (AdvancedFileUpload $component, string $temporaryFileUploadPath, string $temporaryFileUploadFilename, ?string $originalFilename = null) {
@@ -179,11 +177,11 @@ class ManageFileProductDesigns extends Page implements HasForms
 
     public function getTitle(): string
     {
-        return 'Quản lý ảnh - ' . $this->record->name;
+        return 'Quản lý File - ' . $this->record->name;
     }
 
     public function getBreadcrumb(): string
     {
-        return 'Quản lý ảnh';
+        return 'Quản lý File';
     }
 }
