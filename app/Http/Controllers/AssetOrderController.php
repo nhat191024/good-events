@@ -182,25 +182,26 @@ class AssetOrderController extends Controller
             ]);
         }
 
-        // Check if cached zip file exists
-        if ($fileProduct->cached_zip_path && Storage::disk('s3')->exists($fileProduct->cached_zip_path)) {
-            RateLimiter::hit($key, 60 * 60 * 24 * 7);
+        // Get the latest file
+        $file = $files->sortByDesc('created_at')->first();
 
-            // Redirect to S3 URL to trigger download
-            return redirect()->away(Storage::disk('s3')->temporaryUrl(
-                $fileProduct->cached_zip_path,
-                now()->addMinutes(120) // Link valid for 2 hours
-            ));
+        if (!Storage::disk('s3')->exists($file->path)) {
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'error',
+                'title' => __('File không tồn tại'),
+                'message' => __('File không tồn tại trên hệ thống. Vui lòng liên hệ hỗ trợ.'),
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
+            ]);
         }
 
-        return Inertia::render('asset/orders/ProcessingMessage', [
-            'type' => 'info',
-            'title' => __('Đang chuẩn bị file'),
-            'message' => __('File đang được chuẩn bị. Bạn sẽ nhận được thông báo khi file sẵn sàng để tải xuống.'),
-            'backUrl' => route('client-orders.asset.dashboard'),
-            'backText' => __('Quay lại danh sách đơn hàng'),
-            'processing' => true,
-        ]);
+        RateLimiter::hit($key, 60 * 60 * 24 * 7);
+
+        // Redirect to S3 signed URL to trigger download
+        return redirect()->away(Storage::disk('s3')->temporaryUrl(
+            $file->path,
+            now()->addMinutes(120) // Link valid for 2 hours
+        ));
     }
 
     private function getOrders(Request $request): AnonymousResourceCollection|array
