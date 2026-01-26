@@ -3,16 +3,22 @@
 namespace App\Filament\Admin\Resources\FileProducts\Pages;
 
 use App\Filament\Admin\Resources\FileProducts\FileProductResource;
+
 use App\Models\FileProduct;
-use Filament\Actions\Action;
+
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
+
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
+
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
@@ -32,13 +38,11 @@ class ManageFileProductDesigns extends Page implements HasForms
     {
         $this->record = $record;
 
-        $paths = $record->files()
-            ->pluck('path')
-            ->map(fn($path) => str_replace('\\', '/', $path))
-            ->toArray();
+        $file = $record->files()->orderByDesc('created_at')->first();
+        $path = $file ? str_replace('\\', '/', $file->path) : null;
 
         $this->form->fill([
-            'designs' => $paths
+            'designs' => $path
         ]);
     }
 
@@ -56,18 +60,15 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->temporaryFileUploadDisk('s3')
                             ->temporaryFileUploadDirectory('tmp')
                             ->disk('s3')
-                            ->directory('file-product-designs/' . $this->record->id)
+                            ->directory($this->record->id)
 
-                            // ->downloadable()
+                            ->preserveFilenames()
 
                             ->fetchFileInformation(false)
 
                             ->maxSize(1024 * 1024 * 1000) // 1000MB
                             ->helperText('Có thể upload tối đa 1 file nén. Dung lượng tối đa 1Gb. Hỗ trợ các định dạng file zip.')
                             ->acceptedFileTypes([
-                                // 'image/*',
-                                // 'application/pdf',
-                                // Compression
                                 'application/zip',
                                 'application/x-zip-compressed',
                                 'multipart/x-zip',
@@ -94,79 +95,59 @@ class ManageFileProductDesigns extends Page implements HasForms
 
     public function save(): void
     {
-        $state = $this->form->getState();
-        $paths = $state['designs'] ?? [];
+        try {
+            $state = $this->form->getState();
+            $path = $state['designs'] ?? null;
+            $disk = Storage::disk('s3');
+            $existingFiles = $this->record->files()->get();
 
-        if (is_string($paths)) {
-            $paths = [$paths];
-        }
-
-        $paths = array_map(fn($path) => str_replace('\\', '/', $path), $paths);
-
-        // Handle moving temporary files
-        $disk = Storage::disk('s3');
-        $finalPaths = [];
-
-        foreach ($paths as $path) {
-            if (str_starts_with($path, 'tmp/')) {
-                if ($disk->exists($path)) {
-                    $filename = basename($path);
-                    $extension = pathinfo($filename, PATHINFO_EXTENSION);
-                    $basename = pathinfo($filename, PATHINFO_FILENAME);
-                    $uniqueFilename = $basename . '_' . time() . '_' . uniqid() . '.' . $extension;
-
-                    $newPath = 'file-product-designs/' . $this->record->id . '/' . $uniqueFilename;
-
-                    $disk->move($path, $newPath);
-                    $finalPaths[] = $newPath;
+            if ($existingFiles->isNotEmpty()) {
+                foreach ($existingFiles as $existingFile) {
+                    if ($disk->exists($existingFile->path)) {
+                        $disk->delete($existingFile->path);
+                    }
+                    $existingFile->delete();
                 }
-            } else {
-                $finalPaths[] = $path;
             }
-        }
 
-        $this->syncFiles($finalPaths);
+            if ($path) {
+                $path = $this->record->id . '/' . basename($path);
+            }
 
-        Notification::make()
-            ->success()
-            ->title('Đã cập nhật file thành công!')
-            ->send();
-    }
-
-    protected function syncFiles(array $newPaths): void
-    {
-        $disk = Storage::disk('s3');
-
-        $newPaths = array_map(fn($path) => str_replace('\\', '/', $path), $newPaths);
-
-        $existingFiles = $this->record->files()->get();
-        $existingPaths = $existingFiles->pluck('path')->toArray();
-
-        $pathsToDelete = array_diff($existingPaths, $newPaths);
-
-        foreach ($pathsToDelete as $path) {
-            $fileRecord = $existingFiles->firstWhere('path', $path);
-            if ($fileRecord) {
+            if ($path) {
                 if ($disk->exists($path)) {
-                    $disk->delete($path);
+                    $metadata = $disk->getMetadata($path);
+
+                    $this->record->files()->create([
+                        'disk' => 's3',
+                        'path' => $path,
+                        'name' => basename($path),
+                        'file_name' => basename($path),
+                        'mime_type' => $metadata['mimetype'] ?? null,
+                        'size' => $metadata['size'] ?? null,
+                    ]);
+                } else {
+                    Notification::make()
+                        ->danger()
+                        ->title('Lỗi: File không tồn tại trên S3!')
+                        ->send();
+
+                    return;
                 }
-                $fileRecord->delete();
             }
-        }
 
-        $pathsToAdd = array_diff($newPaths, $existingPaths);
+            Notification::make()
+                ->success()
+                ->title('Đã cập nhật file thành công!')
+                ->send();
+        } catch (\Exception $e) {
+            Notification::make()
+                ->danger()
+                ->title('Lỗi khi lưu file thiết kế! Nhà phát đã được thông báo. Xin lỗi vì bất tiện này.')
+                ->send();
 
-        foreach ($pathsToAdd as $path) {
-            if ($disk->exists($path)) {
-                $this->record->files()->create([
-                    'disk' => 's3',
-                    'path' => $path,
-                    'name' => basename($path),
-                    'file_name' => basename($path),
-                    'mime_type' => $disk->mimeType($path),
-                    'size' => $disk->size($path),
-                ]);
-            }
+            Log::error('Lỗi khi lưu file thiết kế cho sản phẩm ID ' . $this->record->id . ': ' . $e->getMessage());
+            return;
         }
     }
 
