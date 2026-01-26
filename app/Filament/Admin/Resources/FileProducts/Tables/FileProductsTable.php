@@ -64,7 +64,7 @@ class FileProductsTable
             ])
             ->recordActions([
                 Action::make('manage_designs')
-                    ->label('Quản lý ảnh')
+                    ->label('Quản lý File')
                     ->icon('heroicon-o-photo')
                     ->iconSize(IconSize::Small)
                     ->color('info')
