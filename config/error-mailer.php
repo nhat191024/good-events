@@ -2,7 +2,7 @@
 
 return [
     'email' => [
-        'recipient' => '',
+        'recipient' => ['taiyosystemtest@gmail.com'],
         'bcc' => [],
         'cc' => [],
         'subject' => 'An error has occured - ' . env('APP_NAME'),
