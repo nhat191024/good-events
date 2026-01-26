@@ -58,7 +58,7 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->disk('s3')
                             ->directory('file-product-designs/' . $this->record->id)
 
-                            ->downloadable()
+                            // ->downloadable()
 
                             ->fetchFileInformation(false)
 
@@ -73,38 +73,7 @@ class ManageFileProductDesigns extends Page implements HasForms
                                 'multipart/x-zip',
                                 'application/x-rar-compressed',
                                 'application/vnd.rar',
-                                // Adobe Specific
-                                // 'image/vnd.adobe.photoshop',
-                                // 'application/vnd.adobe.illustrator',
-                                // 'application/x-photoshop',
-                                // 'application/photoshop',
-                                // 'application/psd',
-                                // 'image/psd',
-                                // Vector
-                                // 'application/postscript',     // .ai, .eps
-                                // 'application/x-indesign',     // .indd
                             ])
-
-                            ->saveUploadedFileUsing(function (AdvancedFileUpload $component, string $temporaryFileUploadPath, string $temporaryFileUploadFilename, ?string $originalFilename = null) {
-                                $disk = $component->getDisk();
-                                $directory = $component->getDirectory();
-
-                                $filename = $originalFilename ?? $temporaryFileUploadFilename;
-
-                                $extension = pathinfo($filename, PATHINFO_EXTENSION);
-                                $basename = pathinfo($filename, PATHINFO_FILENAME);
-                                $uniqueFilename = $basename . '_' . time() . '_' . uniqid() . '.' . $extension;
-
-                                $s3Path = $directory . '/' . $uniqueFilename;
-                                $s3Path = str_replace('\\', '/', $s3Path);
-
-                                if ($disk->exists($temporaryFileUploadPath)) {
-                                    $disk->move($temporaryFileUploadPath, $s3Path);
-                                }
-
-                                return $s3Path;
-                            })
-
                             ->columnSpanFull(),
                     ]),
             ])
@@ -128,9 +97,35 @@ class ManageFileProductDesigns extends Page implements HasForms
         $state = $this->form->getState();
         $paths = $state['designs'] ?? [];
 
+        if (is_string($paths)) {
+            $paths = [$paths];
+        }
+
         $paths = array_map(fn($path) => str_replace('\\', '/', $path), $paths);
 
-        $this->syncFiles($paths);
+        // Handle moving temporary files
+        $disk = Storage::disk('s3');
+        $finalPaths = [];
+
+        foreach ($paths as $path) {
+            if (str_starts_with($path, 'tmp/')) {
+                if ($disk->exists($path)) {
+                    $filename = basename($path);
+                    $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                    $basename = pathinfo($filename, PATHINFO_FILENAME);
+                    $uniqueFilename = $basename . '_' . time() . '_' . uniqid() . '.' . $extension;
+
+                    $newPath = 'file-product-designs/' . $this->record->id . '/' . $uniqueFilename;
+
+                    $disk->move($path, $newPath);
+                    $finalPaths[] = $newPath;
+                }
+            } else {
+                $finalPaths[] = $path;
+            }
+        }
+
+        $this->syncFiles($finalPaths);
 
         Notification::make()
             ->success()
