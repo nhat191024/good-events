@@ -182,47 +182,16 @@ class AssetOrderController extends Controller
             ]);
         }
 
-        // Calculate current files hash to check for changes
-        $currentHash = $this->calculateFilesHash($files);
-
-        // Check if we have a valid cached zip
-        if ($this->hasValidCachedZip($fileProduct, $currentHash)) {
+        // Check if cached zip file exists
+        if ($fileProduct->cached_zip_path && Storage::disk('s3')->exists($fileProduct->cached_zip_path)) {
             RateLimiter::hit($key, 60 * 60 * 24 * 7);
 
             // Redirect to S3 URL to trigger download
             return redirect()->away(Storage::disk('s3')->temporaryUrl(
                 $fileProduct->cached_zip_path,
-                now()->addMinutes(5)
+                now()->addMinutes(120) // Link valid for 2 hours
             ));
         }
-
-        // Check if zip is currently being generated
-        $generatingKey = 'generating-zip:' . $fileProduct->id . ':' . $currentHash;
-        $isGenerating = Cache::get($generatingKey, false);
-
-        if ($isGenerating) {
-            return Inertia::render('asset/orders/ProcessingMessage', [
-                'type' => 'info',
-                'title' => __('Đang chuẩn bị file'),
-                'message' => __('File đang được chuẩn bị bởi yêu cầu trước đó. Bạn sẽ nhận được thông báo khi file sẵn sàng để tải xuống.'),
-                'backUrl' => route('client-orders.asset.dashboard'),
-                'backText' => __('Quay lại danh sách đơn hàng'),
-                'processing' => true,
-            ]);
-        }
-
-        // Delete old cached zip if exists
-        if ($fileProduct->cached_zip_path) {
-            Storage::disk('s3')->delete($fileProduct->cached_zip_path);
-        }
-
-        RateLimiter::hit($key, 60 * 60 * 24 * 7);
-
-        // Set cache flag to indicate generation is in progress
-        Cache::put($generatingKey, true, 3600); // 1 hour timeout
-
-        // Dispatch job to generate zip
-        GenerateFileProductZip::dispatch($fileProduct, $request->user(), $currentHash, $bill->getKey())->onQueue('zip');
 
         return Inertia::render('asset/orders/ProcessingMessage', [
             'type' => 'info',
@@ -232,34 +201,6 @@ class AssetOrderController extends Controller
             'backText' => __('Quay lại danh sách đơn hàng'),
             'processing' => true,
         ]);
-    }
-
-    private function calculateFilesHash($files): string
-    {
-        $hashData = $files->map(function ($file) {
-            return $file->id . '|' . $file->updated_at->timestamp . '|' . $file->size;
-        })->implode('::');
-
-        return md5($hashData);
-    }
-
-    private function hasValidCachedZip($fileProduct, string $currentHash): bool
-    {
-        if (!$fileProduct->cached_zip_path || !$fileProduct->cached_zip_hash) {
-            return false;
-        }
-
-        // Check if hash matches (no files changed)
-        if ($fileProduct->cached_zip_hash !== $currentHash) {
-            return false;
-        }
-
-        // Check if cached zip file exists on S3
-        if (!Storage::disk('s3')->exists($fileProduct->cached_zip_path)) {
-            return false;
-        }
-
-        return true;
     }
 
     private function getOrders(Request $request): AnonymousResourceCollection|array
