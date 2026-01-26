@@ -116,15 +116,13 @@ class ManageFileProductDesigns extends Page implements HasForms
 
             if ($path) {
                 if ($disk->exists($path)) {
-                    $metadata = $disk->getMetadata($path);
-
                     $this->record->files()->create([
                         'disk' => 's3',
                         'path' => $path,
                         'name' => basename($path),
                         'file_name' => basename($path),
-                        'mime_type' => $metadata['mimetype'] ?? null,
-                        'size' => $metadata['size'] ?? null,
+                        'mime_type' => $disk->mimeType($path),
+                        'size' => $disk->size($path),
                     ]);
                 } else {
                     Notification::make()
