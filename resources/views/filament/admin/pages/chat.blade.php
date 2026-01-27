@@ -17,10 +17,10 @@
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('chat.thread_list') }}</h3>
 
                     <!-- Tabs -->
-                    <div class="flex gap-1 rounded-lg bg-gray-200 p-1 dark:bg-gray-700">
+                    <div class="flex gap-1 rounded-lg bg-gray-200 p-1 dark:bg-gray-900">
                         <button type="button" wire:click="switchTab('active')" @class([
                             'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition',
-                            'bg-white text-gray-900 shadow dark:bg-gray-600 dark:text-white' =>
+                            'bg-white text-gray-900 shadow dark:bg-gray-800 dark:text-white' =>
                                 $activeTab === 'active',
                             'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white' =>
                                 $activeTab !== 'active',
@@ -29,7 +29,7 @@
                         </button>
                         <button type="button" wire:click="switchTab('inactive')" @class([
                             'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition',
-                            'bg-white text-gray-900 shadow dark:bg-gray-600 dark:text-white' =>
+                            'bg-white text-gray-900 shadow dark:bg-gray-800 dark:text-white' =>
                                 $activeTab === 'inactive',
                             'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white' =>
                                 $activeTab !== 'inactive',
