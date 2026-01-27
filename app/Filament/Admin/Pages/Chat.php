@@ -414,8 +414,6 @@ class Chat extends Page
         // Check if there are more messages to load
         $this->hasMoreMessages = $offset > 0;
 
-        ds($messages->toArray());
-
         $mappedMessages = $messages->map(fn($msg) => [
             'id' => $msg->id,
             'thread_id' => $msg->thread_id,
@@ -424,8 +422,8 @@ class Chat extends Page
             'created_at' => $msg->created_at,
             'updated_at' => $msg->updated_at,
             'user' => [
-                'id' => $msg->user->id,
-                'name' => $msg->user->name,
+                'id' => $msg->user ? $msg->user->id : 0,
+                'name' => $msg->user ? $msg->user->name : 'Người dùng đã xóa',
             ],
         ])->toArray();
 
