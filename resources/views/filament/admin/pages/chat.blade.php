@@ -251,7 +251,7 @@
                                         {{ $message['user']['name'] ?? 'Người dùng đã xóa' }}
                                     </p>
                                 @endif
-                                <div class="{{ $message['user_id'] === auth()->id() ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
+                                <div class="{{ $message['user_id'] === auth()->id() ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
                                     <p class="break-words text-sm">{{ $message['body'] }}</p>
                                 </div>
                                 <p class="{{ $message['user_id'] === auth()->id() ? 'text-right' : '' }} mt-1 text-xs text-gray-500 dark:text-gray-500">
