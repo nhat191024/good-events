@@ -21,7 +21,6 @@ class UserResource extends BaseResource
             'email_verified_at' => optional($this->email_verified_at)->toIso8601String(),
             'created_at' => optional($this->created_at)->toIso8601String(),
             'updated_at' => optional($this->updated_at)->toIso8601String(),
-            'roles' => $this->whenLoaded('roles', fn () => $this->roles->pluck('name')->values()),
             'partner_profile' => $partnerProfile ? new PartnerProfileResource($partnerProfile) : null,
         ];
     }
