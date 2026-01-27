@@ -123,17 +123,16 @@
             @if ($selectedThreadId)
                 <!-- Chat Header -->
                 <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex justify-between lg:hidden mb-2">
+                    <div class="mb-2 flex justify-between lg:hidden">
                         <button class="focus:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-200/70 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:text-gray-300 dark:hover:bg-gray-700" type="button"
                             wire:click="showThreadList">
                             <x-filament::icon class="h-4 w-4" icon="heroicon-m-arrow-left" />
                             Trở lại
                         </button>
 
-                        @if($activeTab === 'active')
+                        @if ($activeTab === 'active')
                             <button class="focus:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:text-red-400 dark:hover:bg-red-900/20" type="button"
-                                wire:click="deleteChat"
-                                wire:confirm="Bạn có chắc chắn muốn xóa đoạn chat này không?">
+                                wire:click="deleteChat" wire:confirm="Bạn có chắc chắn muốn xóa đoạn chat này không?">
                                 <x-filament::icon class="h-4 w-4" icon="heroicon-m-trash" />
                                 Xóa Chat
                             </button>
@@ -166,7 +165,7 @@
                         </div>
 
                         <div class="hidden lg:block">
-                             @if($activeTab === 'active')
+                            @if ($activeTab === 'active')
                                 <x-filament::button color="danger" size="sm" wire:click="deleteChat" wire:confirm="Bạn có chắc chắn muốn xóa đoạn chat này không?">
                                     Xóa đoạn chat
                                 </x-filament::button>
