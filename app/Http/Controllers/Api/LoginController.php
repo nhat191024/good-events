@@ -33,7 +33,6 @@ class LoginController extends Controller
 
         return response()->json([
             'token' => $token,
-            'token_type' => 'Bearer',
             'role' => $this->resolvePrimaryRole($user),
             'user' => new UserResource($user),
         ]);
