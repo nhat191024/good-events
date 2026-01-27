@@ -67,40 +67,33 @@ const icon = computed(() => {
 <template>
     <Head :title="title" />
 
-    <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-        <div class="max-w-md w-full">
-            <div :class="[bgClass, 'rounded-lg shadow-lg p-8 text-center']">
+    <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-900">
+        <div class="w-full max-w-md">
+            <div :class="[bgClass, 'rounded-lg p-8 text-center shadow-lg']">
                 <!-- Icon -->
-                <div :class="iconClass" class="flex justify-center mb-4">
+                <div :class="iconClass" class="mb-4 flex justify-center">
                     <div v-html="icon"></div>
                 </div>
 
                 <!-- Title -->
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                <h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {{ title }}
                 </h1>
 
                 <!-- Message -->
-                <p class="text-gray-700 dark:text-gray-300 mb-6">
+                <p class="mb-6 text-gray-700 dark:text-gray-300">
                     {{ message }}
                 </p>
 
                 <!-- Processing Spinner -->
-                <div v-if="processing" class="flex justify-center mb-6">
+                <div v-if="processing" class="mb-6 flex justify-center">
                     <svg
-                        class="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400"
+                        class="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                     >
-                        <circle
-                            class="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            stroke-width="4"
-                        ></circle>
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path
                             class="opacity-75"
                             fill="currentColor"
@@ -112,7 +105,7 @@ const icon = computed(() => {
                 <!-- Back Button -->
                 <Link
                     :href="backUrl"
-                    class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors duration-200"
+                    class="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white transition-colors duration-200 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
                 >
                     {{ backText }}
                 </Link>

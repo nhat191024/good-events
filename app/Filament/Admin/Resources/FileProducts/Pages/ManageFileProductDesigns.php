@@ -3,16 +3,22 @@
 namespace App\Filament\Admin\Resources\FileProducts\Pages;
 
 use App\Filament\Admin\Resources\FileProducts\FileProductResource;
+
 use App\Models\FileProduct;
-use Filament\Actions\Action;
+
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
+
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
+
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
@@ -32,13 +38,11 @@ class ManageFileProductDesigns extends Page implements HasForms
     {
         $this->record = $record;
 
-        $paths = $record->files()
-            ->pluck('path')
-            ->map(fn($path) => str_replace('\\', '/', $path))
-            ->toArray();
+        $file = $record->files()->orderByDesc('created_at')->first();
+        $path = $file ? str_replace('\\', '/', $file->path) : null;
 
         $this->form->fill([
-            'designs' => $paths
+            'designs' => $path
         ]);
     }
 
@@ -56,57 +60,21 @@ class ManageFileProductDesigns extends Page implements HasForms
                             ->temporaryFileUploadDisk('s3')
                             ->temporaryFileUploadDirectory('tmp')
                             ->disk('s3')
-                            ->directory('file-product-designs/' . $this->record->id)
+                            ->directory($this->record->id)
 
-                            ->multiple()
-                            ->downloadable()
+                            ->preserveFilenames()
 
                             ->fetchFileInformation(false)
 
-                            ->maxFiles(20)
                             ->maxSize(1024 * 1024 * 1000) // 1000MB
-                            ->helperText('Có thể upload tối đa 20 file, mỗi file tối đa 1Gb. Hỗ trợ các định dạng ảnh (jpg, png, jpeg, webp), file nén (zip, rar), và các định dạng Adobe (psd, ai, eps, indd).')
+                            ->helperText('Có thể upload tối đa 1 file nén. Dung lượng tối đa 1Gb. Hỗ trợ các định dạng file zip.')
                             ->acceptedFileTypes([
-                                'image/*',
-                                'application/pdf',
-                                // Compression
                                 'application/zip',
                                 'application/x-zip-compressed',
                                 'multipart/x-zip',
                                 'application/x-rar-compressed',
                                 'application/vnd.rar',
-                                // Adobe Specific
-                                'image/vnd.adobe.photoshop',
-                                'application/vnd.adobe.illustrator',
-                                'application/x-photoshop',
-                                'application/photoshop',
-                                'application/psd',
-                                'image/psd',
-                                // Vector
-                                'application/postscript',     // .ai, .eps
-                                'application/x-indesign',     // .indd
                             ])
-
-                            ->saveUploadedFileUsing(function (AdvancedFileUpload $component, string $temporaryFileUploadPath, string $temporaryFileUploadFilename, ?string $originalFilename = null) {
-                                $disk = $component->getDisk();
-                                $directory = $component->getDirectory();
-
-                                $filename = $originalFilename ?? $temporaryFileUploadFilename;
-
-                                $extension = pathinfo($filename, PATHINFO_EXTENSION);
-                                $basename = pathinfo($filename, PATHINFO_FILENAME);
-                                $uniqueFilename = $basename . '_' . time() . '_' . uniqid() . '.' . $extension;
-
-                                $s3Path = $directory . '/' . $uniqueFilename;
-                                $s3Path = str_replace('\\', '/', $s3Path);
-
-                                if ($disk->exists($temporaryFileUploadPath)) {
-                                    $disk->move($temporaryFileUploadPath, $s3Path);
-                                }
-
-                                return $s3Path;
-                            })
-
                             ->columnSpanFull(),
                     ]),
             ])
@@ -127,63 +95,67 @@ class ManageFileProductDesigns extends Page implements HasForms
 
     public function save(): void
     {
-        $state = $this->form->getState();
-        $paths = $state['designs'] ?? [];
+        try {
+            $state = $this->form->getState();
+            $path = $state['designs'] ?? null;
+            $disk = Storage::disk('s3');
+            $existingFiles = $this->record->files()->get();
 
-        $paths = array_map(fn($path) => str_replace('\\', '/', $path), $paths);
-
-        $this->syncFiles($paths);
-
-        Notification::make()
-            ->success()
-            ->title('Đã cập nhật file thành công!')
-            ->send();
-    }
-
-    protected function syncFiles(array $newPaths): void
-    {
-        $disk = Storage::disk('s3');
-
-        $newPaths = array_map(fn($path) => str_replace('\\', '/', $path), $newPaths);
-
-        $existingFiles = $this->record->files()->get();
-        $existingPaths = $existingFiles->pluck('path')->toArray();
-
-        $pathsToDelete = array_diff($existingPaths, $newPaths);
-
-        foreach ($pathsToDelete as $path) {
-            $fileRecord = $existingFiles->firstWhere('path', $path);
-            if ($fileRecord) {
-                if ($disk->exists($path)) {
-                    $disk->delete($path);
+            if ($existingFiles->isNotEmpty()) {
+                foreach ($existingFiles as $existingFile) {
+                    if ($disk->exists($existingFile->path)) {
+                        $disk->delete($existingFile->path);
+                    }
+                    $existingFile->delete();
                 }
-                $fileRecord->delete();
             }
-        }
 
-        $pathsToAdd = array_diff($newPaths, $existingPaths);
-
-        foreach ($pathsToAdd as $path) {
-            if ($disk->exists($path)) {
-                $this->record->files()->create([
-                    'disk' => 's3',
-                    'path' => $path,
-                    'name' => basename($path),
-                    'file_name' => basename($path),
-                    'mime_type' => $disk->mimeType($path),
-                    'size' => $disk->size($path),
-                ]);
+            if ($path) {
+                $path = $this->record->id . '/' . basename($path);
             }
+
+            if ($path) {
+                if ($disk->exists($path)) {
+                    $this->record->files()->create([
+                        'disk' => 's3',
+                        'path' => $path,
+                        'name' => basename($path),
+                        'file_name' => basename($path),
+                        'mime_type' => $disk->mimeType($path),
+                        'size' => $disk->size($path),
+                    ]);
+                } else {
+                    Notification::make()
+                        ->danger()
+                        ->title('Lỗi: File không tồn tại trên S3!')
+                        ->send();
+
+                    return;
+                }
+            }
+
+            Notification::make()
+                ->success()
+                ->title('Đã cập nhật file thành công!')
+                ->send();
+        } catch (\Exception $e) {
+            Notification::make()
+                ->danger()
+                ->title('Lỗi khi lưu file thiết kế! Nhà phát đã được thông báo. Xin lỗi vì bất tiện này.')
+                ->send();
+
+            Log::error('Lỗi khi lưu file thiết kế cho sản phẩm ID ' . $this->record->id . ': ' . $e->getMessage());
+            return;
         }
     }
 
     public function getTitle(): string
     {
-        return 'Quản lý ảnh - ' . $this->record->name;
+        return 'Quản lý File - ' . $this->record->name;
     }
 
     public function getBreadcrumb(): string
     {
-        return 'Quản lý ảnh';
+        return 'Quản lý File';
     }
 }

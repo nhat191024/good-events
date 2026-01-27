@@ -5,6 +5,9 @@ namespace App\Jobs;
 use App\Models\FileProduct;
 use App\Models\User;
 
+use Aws\Exception\MultipartUploadException;
+use Aws\S3\MultipartUploader;
+
 use Filament\Notifications\Notification;
 
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -148,19 +151,25 @@ class GenerateFileProductZip implements ShouldQueue, ShouldBeUnique
 
             Log::info("GenerateFileProductZip: Zip generated successfully. Size: " . filesize($sourceZipPath));
 
-            // Upload using stream
-            $zipStream = fopen($sourceZipPath, 'r');
+            // Upload using MultipartUploader
+            Log::info("GenerateFileProductZip: Uploading zip to S3 (Multipart): $s3ZipPath");
 
-            Log::info("GenerateFileProductZip: Uploading zip to S3: $s3ZipPath");
+            $disk = Storage::disk('s3');
+            $client = $disk->getClient();
+            $bucket = config('filesystems.disks.s3.bucket');
 
-            Storage::disk('s3')->put(
-                $s3ZipPath,
-                $zipStream
-            );
-            if (is_resource($zipStream)) {
-                fclose($zipStream);
+            $uploader = new MultipartUploader($client, $sourceZipPath, [
+                'bucket' => $bucket,
+                'key'    => $s3ZipPath,
+            ]);
+
+            try {
+                $result = $uploader->upload();
+                Log::info("GenerateFileProductZip: Upload completed. ObjectURL: " . $result['ObjectURL']);
+            } catch (MultipartUploadException $e) {
+                Log::error("GenerateFileProductZip: Multipart upload failed: " . $e->getMessage());
+                throw $e;
             }
-            Log::info("GenerateFileProductZip: Upload completed.");
 
             $this->fileProduct->update([
                 'cached_zip_path' => $s3ZipPath,

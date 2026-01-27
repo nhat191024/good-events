@@ -41,16 +41,30 @@ class Chat extends Page
             return null;
         }
 
-        $unreadCount = Thread::withTrashed()
-            ->forUser($userId)
-            ->whereHas('participants', function ($query) use ($userId) {
+        $user = Auth::user();
+        $isAdmin = $user && ($user->hasRole('super_admin') || $user->hasRole('admin'));
+
+        $query = Thread::withTrashed();
+
+        if (!$isAdmin) {
+            $query->forUser($userId)
+                ->whereHas('participants', function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                        ->where(function ($q) {
+                            $q->whereNull('last_read')
+                                ->orWhereRaw('threads.updated_at > participants.last_read');
+                        });
+                });
+        } else {
+            // Admin sees all unread threads
+            $query->whereDoesntHave('participants', function ($query) use ($userId) {
                 $query->where('user_id', $userId)
-                    ->where(function ($q) {
-                        $q->whereNull('last_read')
-                            ->orWhereRaw('threads.updated_at > participants.last_read');
-                    });
-            })
-            ->count();
+                    ->whereNotNull('last_read')
+                    ->whereRaw('threads.updated_at <= participants.last_read');
+            });
+        }
+
+        $unreadCount = $query->count();
 
         return $unreadCount > 0 ? (string) $unreadCount : null;
     }
@@ -93,6 +107,19 @@ class Chat extends Page
     public string $searchTerm = '';
 
     public string $activeTab = 'active';
+
+    /**
+     * Check if current user is admin
+     */
+    private function isAdmin(): bool
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return false;
+        }
+
+        return $user->hasRole('super_admin') || $user->hasRole('admin');
+    }
 
     public function mount(): void
     {
@@ -184,19 +211,25 @@ class Chat extends Page
             return;
         }
 
-        $query = Thread::withTrashed()
-            ->forUserOrderByNotReadMessages($userId)
-            ->with(
-                [
-                    'latestMessage',
-                    'participants',
-                    'participants.user' => function ($query) {
-                        $query->select('id', 'name');
-                    },
-                    'bill.event',
-                ]
-            )
-            ->latest('updated_at');
+        $isAdmin = $this->isAdmin();
+
+        $query = Thread::withTrashed();
+
+        if (!$isAdmin) {
+            $query->forUserOrderByNotReadMessages($userId);
+        }
+
+        $query->with(
+            [
+                'latestMessage',
+                'participants',
+                'participants.user' => function ($query) {
+                    $query->select('id', 'name');
+                },
+                'bill.event',
+            ]
+        )
+        ->latest('updated_at');
 
         // Filter by active tab
         if ($this->activeTab === 'active') {
@@ -233,6 +266,9 @@ class Chat extends Page
 
             if ($participant) {
                 $isUnread = $participant->last_read === null || $thread->updated_at->gt($participant->last_read);
+            } elseif ($this->isAdmin()) {
+                // Admin sees thread as unread if they haven't read it
+                $isUnread = true;
             }
 
             return (object) [
@@ -292,6 +328,21 @@ class Chat extends Page
      */
     public function openThread(int $threadId)
     {
+        $userId = Auth::id();
+        $isAdmin = $this->isAdmin();
+
+        // Verify thread exists and user has access
+        $threadExists = Thread::withTrashed()
+            ->when(!$isAdmin, function ($query) use ($userId) {
+                $query->forUser($userId);
+            })
+            ->where('threads.id', $threadId)
+            ->exists();
+
+        if (!$threadExists) {
+            return null;
+        }
+
         $oldThreadId = $this->selectedThreadId;
         $this->selectedThreadId = $threadId;
 
@@ -371,8 +422,8 @@ class Chat extends Page
             'created_at' => $msg->created_at,
             'updated_at' => $msg->updated_at,
             'user' => [
-                'id' => $msg->user->id,
-                'name' => $msg->user->name,
+                'id' => $msg->user ? $msg->user->id : 0,
+                'name' => $msg->user ? $msg->user->name : 'Người dùng đã xóa',
             ],
         ])->toArray();
 

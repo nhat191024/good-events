@@ -17,10 +17,10 @@
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('chat.thread_list') }}</h3>
 
                     <!-- Tabs -->
-                    <div class="flex gap-1 rounded-lg bg-gray-200 p-1 dark:bg-gray-700">
+                    <div class="flex gap-1 rounded-lg bg-gray-200 p-1 dark:bg-gray-900">
                         <button type="button" wire:click="switchTab('active')" @class([
                             'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition',
-                            'bg-white text-gray-900 shadow dark:bg-gray-600 dark:text-white' =>
+                            'bg-white text-gray-900 shadow dark:bg-gray-800 dark:text-white' =>
                                 $activeTab === 'active',
                             'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white' =>
                                 $activeTab !== 'active',
@@ -29,7 +29,7 @@
                         </button>
                         <button type="button" wire:click="switchTab('inactive')" @class([
                             'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition',
-                            'bg-white text-gray-900 shadow dark:bg-gray-600 dark:text-white' =>
+                            'bg-white text-gray-900 shadow dark:bg-gray-800 dark:text-white' =>
                                 $activeTab === 'inactive',
                             'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white' =>
                                 $activeTab !== 'inactive',
@@ -123,17 +123,16 @@
             @if ($selectedThreadId)
                 <!-- Chat Header -->
                 <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-                    <div class="flex justify-between lg:hidden mb-2">
+                    <div class="mb-2 flex justify-between lg:hidden">
                         <button class="focus:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-200/70 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:text-gray-300 dark:hover:bg-gray-700" type="button"
                             wire:click="showThreadList">
                             <x-filament::icon class="h-4 w-4" icon="heroicon-m-arrow-left" />
                             Trở lại
                         </button>
 
-                        @if($activeTab === 'active')
+                        @if ($activeTab === 'active')
                             <button class="focus:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-transparent px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:text-red-400 dark:hover:bg-red-900/20" type="button"
-                                wire:click="deleteChat"
-                                wire:confirm="Bạn có chắc chắn muốn xóa đoạn chat này không?">
+                                wire:click="deleteChat" wire:confirm="Bạn có chắc chắn muốn xóa đoạn chat này không?">
                                 <x-filament::icon class="h-4 w-4" icon="heroicon-m-trash" />
                                 Xóa Chat
                             </button>
@@ -166,7 +165,7 @@
                         </div>
 
                         <div class="hidden lg:block">
-                             @if($activeTab === 'active')
+                            @if ($activeTab === 'active')
                                 <x-filament::button color="danger" size="sm" wire:click="deleteChat" wire:confirm="Bạn có chắc chắn muốn xóa đoạn chat này không?">
                                     Xóa đoạn chat
                                 </x-filament::button>
@@ -252,7 +251,7 @@
                                         {{ $message['user']['name'] ?? 'Người dùng đã xóa' }}
                                     </p>
                                 @endif
-                                <div class="{{ $message['user_id'] === auth()->id() ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
+                                <div class="{{ $message['user_id'] === auth()->id() ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
                                     <p class="break-words text-sm">{{ $message['body'] }}</p>
                                 </div>
                                 <p class="{{ $message['user_id'] === auth()->id() ? 'text-right' : '' }} mt-1 text-xs text-gray-500 dark:text-gray-500">

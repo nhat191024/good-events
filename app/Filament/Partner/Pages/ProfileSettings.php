@@ -74,6 +74,7 @@ class ProfileSettings extends Page implements HasForms
             'email' => $user->email,
             'country_code' => $user->country_code,
             'phone' => $user->phone,
+            'bio' => $user->bio,
             'partner_name' => $partnerProfile?->partner_name,
             'location_id' => $partnerProfile?->location_id,
             'city_id' => $cityId,
@@ -315,6 +316,7 @@ class ProfileSettings extends Page implements HasForms
                 'email' => $data['email'],
                 'country_code' => $data['country_code'] ?? null,
                 'phone' => $data['phone'] ?? null,
+                'bio' => $data['bio']
             ];
 
             $partnerData = [

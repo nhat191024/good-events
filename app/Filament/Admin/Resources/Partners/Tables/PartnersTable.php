@@ -187,11 +187,11 @@ class PartnersTable
                         ->slideOver()
                         ->modalSubmitAction(false)
                         ->modalCancelAction(false)
-                        ->extraModalFooterActions(fn (Partner $record): array => [
+                        ->extraModalFooterActions(fn(Partner $record): array => [
                             Action::make('approve')
                                 ->label(__('global.approve'))
                                 ->color('success')
-                                ->visible(fn () => ! $record->partnerProfile->is_legit)
+                                ->visible(fn() => ! $record->partnerProfile->is_legit)
                                 ->requiresConfirmation()
                                 ->action(function () use ($record) {
                                     $record->partnerProfile->update(['is_legit' => true]);
@@ -200,7 +200,7 @@ class PartnersTable
                             Action::make('unapprove')
                                 ->label('Hủy phê duyệt')
                                 ->color('danger')
-                                ->visible(fn () => $record->partnerProfile->is_legit)
+                                ->visible(fn() => $record->partnerProfile->is_legit)
                                 ->requiresConfirmation()
                                 ->action(function () use ($record) {
                                     $record->partnerProfile->update(['is_legit' => false]);
