@@ -14,7 +14,7 @@ Route::post('/register/partner', [RegisterController::class, 'registerPartner'])
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
-    Route::post('/check-token', [LoginController::class, 'checkToken']);
+    Route::get('/check-token', [LoginController::class, 'checkToken']);
     Route::get('/register/partner/from-client', [ClientToPartnerController::class, 'form']);
     Route::post('/register/partner/from-client', [ClientToPartnerController::class, 'store']);
 });
