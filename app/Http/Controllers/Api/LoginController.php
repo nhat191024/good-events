@@ -126,6 +126,20 @@ class LoginController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/check-token
+     *
+     * Response: { valid: bool }
+     *
+     * @return JsonResponse
+     */
+    public function checkToken(): JsonResponse
+    {
+        return response()->json([
+            'valid' => true,
+        ]);
+    }
+
     private function resolvePrimaryRole(User $user): ?string
     {
         if ($user->hasRole(Role::PARTNER)) {
