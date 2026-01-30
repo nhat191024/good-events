@@ -127,7 +127,7 @@ class LoginController extends Controller
     }
 
     /**
-     * POST /api/check-token
+     * GET /api/check-token
      *
      * Response: { valid: bool }
      *
