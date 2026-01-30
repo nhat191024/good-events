@@ -107,7 +107,7 @@ class LoginController extends Controller
     }
 
     /**
-     * POST /api/logout
+     * GET /api/logout
      *
      * Response: { success: true }
      *

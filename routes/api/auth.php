@@ -13,7 +13,7 @@ Route::post('/register', [RegisterController::class, 'register'])->middleware('t
 Route::post('/register/partner', [RegisterController::class, 'registerPartner'])->middleware('throttle:api');
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
-    Route::post('/logout', [LoginController::class, 'logout']);
+    Route::get('/logout', [LoginController::class, 'logout']);
     Route::get('/check-token', [LoginController::class, 'checkToken']);
     Route::get('/register/partner/from-client', [ClientToPartnerController::class, 'form']);
     Route::post('/register/partner/from-client', [ClientToPartnerController::class, 'store']);
