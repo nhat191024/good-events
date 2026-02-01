@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppContent from '@/components/AppContent.vue';
+import AppInstallBanner from '@/components/AppInstallBanner.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Loading from '@/components/Loading.vue';
 import TutorialHelpButton from '@/components/TutorialHelpButton.vue';
@@ -42,6 +43,7 @@ onMounted(() => {
     <SeoHead />
     <Header v-if="showNav" :background-class-names="backgroundClassNames" />
     <main :class="showNav ? 'pt-16' : 'pt-0'">
+        <AppInstallBanner :show-nav="showNav" />
         <div :class="['flex flex-col bg-white', showNav ? 'min-h-[calc(100vh-4rem)]' : 'min-h-screen']">
             <AppContent class="flex-1">
                 <!-- the red bg banner on top of the page -->
@@ -59,3 +61,4 @@ onMounted(() => {
         <TutorialHelpButton />
     </main>
 </template>
+
