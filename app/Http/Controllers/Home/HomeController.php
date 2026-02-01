@@ -191,7 +191,10 @@ class HomeController extends Controller
     public function showCategory(string $categorySlug, AppSettings $settings, TagManager $tagManager): Response
     {
         $categories = PartnerCategory::getTree();
-        $category = $categories->where('slug', $categorySlug)->firstOrFail();
+        $category = $categories->where('slug', $categorySlug)->first();
+        if (!$category) {
+            abort(404);
+        }
         $category->load('media');
 
         $children = $category->children()
