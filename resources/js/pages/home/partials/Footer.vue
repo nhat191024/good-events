@@ -2,8 +2,7 @@
 import { getImg } from '@/pages/booking/helper';
 import { AppSettings } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
-import { inject } from "vue";
+import { computed, inject } from 'vue';
 
 const route = inject('route') as any;
 
@@ -40,6 +39,7 @@ const policyLinks = [
 ];
 
 const downloadButtons = [
+    { label: 'PWA (Cài App 1 chạm)', routeName: 'static.download-app' },
     { label: 'Google Play', href: '#' },
     { label: 'App Store', href: '#' },
 ];
@@ -126,10 +126,11 @@ const taxCode = 'Mã số thuế: 0319314603';
                 <div class="space-y-4">
                     <p class="text-lg font-semibold">Tải ứng dụng:</p>
                     <div class="flex flex-wrap gap-3">
-                        <a v-for="button in downloadButtons" :key="button.label" :href="button.href"
+                        <component :is="button.routeName ? Link : 'a'" v-for="button in downloadButtons"
+                            :key="button.label" :href="button.routeName ? route(button.routeName) : button.href"
                             class="rounded-xl bg-white/15 px-4 py-3 text-sm font-semibold backdrop-blur transition hover:bg-white/25">
                             {{ button.label }}
-                        </a>
+                        </component>
                     </div>
                 </div>
 
