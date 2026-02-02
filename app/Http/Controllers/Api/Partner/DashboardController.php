@@ -16,7 +16,7 @@ class DashboardController extends Controller
     /**
      * GET /api/partner/dashboard
      *
-     * Response: { user, is_has_new_noti, statistical_data, popular_services }
+     * Response: { has_notification, statistical_data, popular_services }
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -55,13 +55,13 @@ class DashboardController extends Controller
             ->get()
             ->keyBy('category_id');
 
-        $categoryIds = $popularCategories->keys()->map(fn ($id) => (int) $id)->all();
+        $categoryIds = $popularCategories->keys()->map(fn($id) => (int) $id)->all();
         $categories = $categoryIds
             ? PartnerCategory::query()
-                ->whereIn('id', $categoryIds)
-                ->with('media')
-                ->get()
-                ->keyBy('id')
+            ->whereIn('id', $categoryIds)
+            ->with('media')
+            ->get()
+            ->keyBy('id')
             : collect();
 
         $popularServices = collect($popularCategories)->map(function ($statsRow, $categoryId) use ($categories) {
@@ -79,8 +79,7 @@ class DashboardController extends Controller
         })->values();
 
         return response()->json([
-            'user' => new UserResource($user),
-            'is_has_new_noti' => $user->unreadNotifications()->count() > 0,
+            'has_notification' => $user->unreadNotifications()->count() > 0,
             'statistical_data' => $statisticalData,
             'popular_services' => $popularServices,
         ]);
