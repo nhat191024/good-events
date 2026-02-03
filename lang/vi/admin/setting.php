@@ -21,6 +21,8 @@ return [
     ],
 
     'fields' => [
+        'title' => 'Tiêu đề ứng dụng',
+        'description' => 'Mô tả ứng dụng',
         'name' => 'Tên ứng dụng',
         'logo' => 'Logo ứng dụng',
         'favicon' => 'Favicon',
@@ -44,7 +46,20 @@ return [
         'contact_hotline' => 'Số điện thoại',
         'contact_email' => 'Email liên hệ',
 
+        'socials' => [
+            'facebook' => 'Link Facebook',
+            'facebook_group' => 'Link Group Facebook',
+            'zalo' => 'Link Zalo',
+            'youtube' => 'Link Youtube',
+            'tiktok' => 'Link Tiktok',
+        ],
+
         'minimum_balance' => 'Số dư tối thiểu',
         'fee_percentage' => 'Phần trăm phí',
-    ]
+        'default_balance' => 'Số dư mặc định',
+    ],
+
+    'placeholders' => [
+        'default_balance' => 'Số dư mặc định cho đối tác mới',
+    ],
 ];

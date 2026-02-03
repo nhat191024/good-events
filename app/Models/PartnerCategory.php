@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+use App\Enum\CacheKey;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Illuminate\Support\Facades\Cache;
+use RalphJSmit\Laravel\SEO\Support\HasSEO;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -22,6 +26,7 @@ use Spatie\Activitylog\LogOptions;
  * @property string $name
  * @property string $slug
  * @property string $type
+ * @property string|null $video_url
  * @property int $order
  * @property int|null $parent_id
  * @property float|null $min_price
@@ -55,13 +60,14 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereVideoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withoutTrashed()
  * @mixin \Eloquent
  */
 class PartnerCategory extends Model implements HasMedia
 {
-    use SoftDeletes, HasSlug, InteractsWithMedia, LogsActivity;
+    use SoftDeletes, HasSlug, InteractsWithMedia, LogsActivity, HasSEO;
 
     /**
      * The attributes that are mass assignable.
@@ -71,6 +77,7 @@ class PartnerCategory extends Model implements HasMedia
     protected $fillable = [
         'name',
         'slug',
+        'video_url', // warning: this field is not video url and actually an iframe embed code string
         'order',
         'parent_id',
         'min_price',
@@ -130,6 +137,38 @@ class PartnerCategory extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->logOnlyDirty();
+    }
+
+    //Model Boot
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($model) {
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
+        });
+
+        static::deleted(function ($model) {
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
+        });
+
+        static::restored(function ($model) {
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
+        });
+    }
+
+    public static function getTree()
+    {
+        return Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->rememberForever(CacheKey::PARTNER_CATEGORIES_TREE->value, function () {
+            return static::with('children')->whereNull('parent_id')->orderBy('order')->get();
+        });
+    }
+
+    public static function getAllCached()
+    {
+        return Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->rememberForever(CacheKey::PARTNER_CATEGORIES_ALL->value, function () {
+            return static::all();
+        });
     }
 
     //model relationships

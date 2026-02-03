@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->text('content')->nullable();
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->string('slug');
-            $table->text('video_url')->nullable();
+            $table->longText('video_url')->nullable();
             $table->string('address')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();

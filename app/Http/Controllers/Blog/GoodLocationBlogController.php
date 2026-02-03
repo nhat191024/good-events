@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers\Blog;
 
+use Inertia\Inertia;
+use Inertia\Response;
+
 use App\Enum\CategoryType;
-use App\Http\Resources\Home\BlogDetailResource;
-use App\Http\Resources\Home\BlogResource;
-use App\Http\Resources\Home\CategoryResource;
+
 use App\Models\Category;
 use App\Models\GoodLocation;
 use App\Models\Location;
-use Illuminate\Database\Eloquent\Builder;
+
+use App\Http\Resources\Home\BlogDetailResource;
+use App\Http\Resources\Home\BlogResource;
+use App\Http\Resources\Home\CategoryResource;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Database\Eloquent\Builder;
 
 class GoodLocationBlogController extends BaseBlogPageController
 {
@@ -28,7 +32,7 @@ class GoodLocationBlogController extends BaseBlogPageController
     {
         $category = Category::query()
             ->select(['id', 'name', 'slug', 'parent_id', 'description'])
-            ->with(['parent:id,name,slug'])
+            ->with(['parent:id,name,slug', 'media'])
             ->where('slug', $categorySlug)
             ->where('type', self::BLOG_TYPE)
             ->firstOrFail();
@@ -38,19 +42,21 @@ class GoodLocationBlogController extends BaseBlogPageController
 
     public function blogDetail(Request $request, string $categorySlug, string $blogSlug): Response
     {
-        $blog = $this->baseBlogQuery()
+        $blog = $this->baseBlogQuery(false)
             ->whereHas('category', fn($builder) => $builder
                 ->where('slug', $categorySlug)
                 ->where('type', self::BLOG_TYPE))
             ->where('slug', $blogSlug)
             ->firstOrFail();
 
-        $related = $this->baseBlogQuery()
+        $related = $this->baseBlogQuery(false)
             ->where('category_id', $blog->category_id)
             ->whereKeyNot($blog->getKey())
             ->latest('created_at')
             ->take(6)
             ->get();
+
+        (clone $related)->push($blog)->load($this->getBlogRelations());
 
         return Inertia::render('blog/Detail', [
             'blog' => BlogDetailResource::make($blog)->resolve($request),
@@ -106,9 +112,9 @@ class GoodLocationBlogController extends BaseBlogPageController
         return $query;
     }
 
-    private function baseBlogQuery(): Builder
+    private function baseBlogQuery(bool $withRelations = true): Builder
     {
-        return GoodLocation::query()
+        $query = GoodLocation::query()
             ->select([
                 'id',
                 'category_id',
@@ -127,16 +133,26 @@ class GoodLocationBlogController extends BaseBlogPageController
                 'created_at',
                 'updated_at',
             ])
-            ->with([
-                'category:id,name,slug,parent_id',
-                'category.parent:id,name,slug',
-                'author:id,name',
-                'media',
-                'tags',
-                'location:id,name,parent_id,type',
-                'location.province:id,name,parent_id',
-            ])
             ->where('type', self::BLOG_TYPE);
+
+        if ($withRelations) {
+            $query->with($this->getBlogRelations());
+        }
+
+        return $query;
+    }
+
+    private function getBlogRelations(): array
+    {
+        return [
+            'category:id,name,slug,parent_id',
+            'category.parent:id,name,slug',
+            'author:id,name',
+            'media',
+            'tags',
+            'location:id,name,parent_id,type',
+            'location.province:id,name,parent_id',
+        ];
     }
 
     private function applyCategoryFilter(Builder $query, Category $category): void
@@ -178,18 +194,8 @@ class GoodLocationBlogController extends BaseBlogPageController
     {
         [$min, $max] = $this->maxPeopleRange($maxPeople);
 
-        if ($min !== null && $max !== null) {
-            $query->whereBetween('max_people', [$min, $max]);
-            return;
-        }
-
         if ($min !== null) {
             $query->where('max_people', '>=', $min);
-            return;
-        }
-
-        if ($max !== null) {
-            $query->where('max_people', '<=', $max);
         }
     }
 
@@ -246,7 +252,7 @@ class GoodLocationBlogController extends BaseBlogPageController
     {
         return Category::query()
             ->select(['id', 'name', 'slug', 'parent_id', 'description'])
-            ->with(['parent:id,name,slug'])
+            ->with(['parent:id,name,slug', 'media'])
             ->where('type', self::BLOG_TYPE)
             ->orderBy('order', 'asc')
             ->get();

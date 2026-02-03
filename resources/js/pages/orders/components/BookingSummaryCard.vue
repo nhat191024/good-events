@@ -6,12 +6,16 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { formatDate, formatPrice, formatTimeRange } from '@/lib/helper';
 import { Input } from '@/components/ui/input';
 import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { router } from '@inertiajs/core';
 import { statusBadge } from '../helper';
 import Button from '@/components/ui/button/Button.vue';
 import { useForm } from '@inertiajs/vue3';
 import axios from 'axios';
 import { SwitchRoot, SwitchThumb } from 'reka-ui';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
@@ -197,8 +201,9 @@ watch(() => form.voucher_input, (newVal) => {
         <div class="px-3 md:px-6 pt-3 md:pt-6 pb-12">
             <div class="text-center mb-3 md:mb-6">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-3">
-                    <img :src="getImg(props.order?.category.image)" alt="Traditional Vietnamese scholar"
-                        class="w-[95%] h-full object-cover rounded-full border" />
+                    <ImageWithLoader :src="getImg(props.order?.category.image)" :img-tag="props.order?.category.image_tag" alt="Traditional Vietnamese scholar"
+                        class="w-[95%] h-full rounded-full" img-class="w-[100%] h-full object-cover rounded-full border"
+                        loading="lazy" />
                 </div>
                 <h3 class="text-xl font-bold text-foreground mb-1" v-text="getCurrentTitle"></h3>
                 <div v-if="props.order?.status"
@@ -355,13 +360,14 @@ watch(() => form.voucher_input, (newVal) => {
                 </div>
 
                 <!-- actions -->
-                <div class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center">
+                <div class="flex gap-3 bg-white fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center z-10">
                     <button v-if="(props.mode === 'current')"
                         @click="goToChat(props.order?.thread_id ?? null, !(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB))"
                         :class="(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB) ? 'bg-primary-500 cursor-pointer' : 'bg-gray-500 cursor-not-allowed'"
                         class="h-10 rounded-md text-white flex-1">Chat ngay</button>
 
-                    <button v-if="props.mode === 'current' && !(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB)"
+                    <button
+                        v-if="props.mode === 'current' && !(props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB)"
                         @click="emit('cancel-order')"
                         class="h-10 cursor-pointer rounded-md border border-destructive text-destructive bg-transparent flex-1 hover:bg-destructive/5">
                         Hủy đơn

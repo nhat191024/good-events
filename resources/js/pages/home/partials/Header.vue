@@ -8,8 +8,13 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Handshake } from 'lucide-vue-next';
 import axios from 'axios';
 import { getImg } from '@/pages/booking/helper';
+import { debounce } from '@/pages/orders/helper';
 import { AppSettings } from '@/types';
 import { motion } from 'motion-v';
+
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface Props {
     // showBannerBackground?: boolean;
@@ -37,13 +42,13 @@ withDefaults(defineProps<Props>(), {
 });
 
 const menuItems = [
+    { name: 'Về chúng tôi', shortName: 'Về chúng tôi', slug: 'about', routeName: 'about.index', route: route('about.index') },
     { name: 'Nhân sự', shortName: 'Nhân sự', slug: 'home', routeName: 'home', route: route('home') },
     { name: 'Thiết bị sự kiện', shortName: 'Thiết bị', slug: 'supply', routeName: 'rent.home', route: route('rent.home') },
     { name: 'Thiết kế ', shortName: 'Tài liệu', slug: 'document', routeName: 'asset.home', route: route('asset.home') },
     { name: 'Địa điểm tổ chức', shortName: 'Địa điểm', slug: 'blog', routeName: 'blog.discover', route: route('blog.discover') },
     { name: 'Hướng dẫn tổ chức', shortName: 'Hướng dẫn', slug: 'guides', routeName: 'blog.guides.discover', route: route('blog.guides.discover') },
     { name: 'Kiến thức nghề', shortName: 'Kiến thức', slug: 'knowledge', routeName: 'blog.knowledge.discover', route: route('blog.knowledge.discover') },
-    { name: 'Về chúng tôi', shortName: 'Giới thiệu', slug: 'about', routeName: 'about.index', route: route('about.index') },
 ];
 
 const navLinkMotion = {
@@ -104,12 +109,12 @@ async function loadNotifications(initial = false) {
 
 function startPolling() {
     if (pollTimer) window.clearInterval(pollTimer)
-    pollTimer = window.setInterval(() => loadNotifications(false), 60_000) as unknown as number
+    pollTimer = window.setInterval(() => loadNotifications(false), 90_000) as unknown as number
 }
 
-function reloadNotifications() {
+const reloadNotifications = debounce(() => {
     loadNotifications(false)
-}
+}, 500, { leading: true, trailing: false })
 
 async function markAsRead(item: NotiItem) {
     const id = item.id
@@ -128,7 +133,7 @@ async function markAsRead(item: NotiItem) {
     }
 }
 
-async function markAllAsRead() {
+const markAllAsRead = debounce(async () => {
     try {
         await axios.post(route('notifications.readAll'), undefined, {
             headers: { Accept: 'application/json' },
@@ -136,7 +141,7 @@ async function markAllAsRead() {
         notificationItems.value = notificationItems.value.map(n => ({ ...n, unread: false }))
         unreadCount.value = 0
     } catch (e) { }
-}
+}, 500, { leading: true, trailing: false })
 
 async function handleNotificationSelect(item: NotiItem) {
     if (item.href) {
@@ -167,7 +172,7 @@ onUnmounted(() => {
     <header :class="[
         backgroundClassNames || '',
         'fixed top-0 left-0 w-full z-50 transition-all duration-300',
-        isFloating ? 'shadow-md bg-white/30 backdrop-blur-md' : backgroundClassNames + ' backdrop-blur-md'
+        isFloating ? 'shadow-md bg-white/70 backdrop-blur-md' : backgroundClassNames + ' backdrop-blur-md'
     ]">
         <div class="md:px-1 lg:px-2 mx-auto">
             <div class="flex items-center justify-between h-16 px-0 px-1 gap-1">
@@ -175,8 +180,8 @@ onUnmounted(() => {
                     <HamburgerMenu class="block lg:hidden" :menu-items="menuItems" />
                     <!-- Logo + text -->
                     <Link :href="route('home')" class="flex items-center md:gap-2 gap-1">
-                        <img :src="getImg(`/${settings.app_logo}`)" alt="Sukientot"
-                            class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" />
+                        <img :src="settings.app_logo ?? 'images/logo.svg'" alt="Sukientot"
+                            class="h-9 w-9 rounded-full object-contain ring-2 ring-white/40" loading="lazy" />
                         <span
                             class="font-bold tracking-tight text-primary-700 uppercase text-xs md:text-md lg:text-lg">SUKIENTOT.COM</span>
                     </Link>

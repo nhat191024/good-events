@@ -70,7 +70,7 @@ class EventOrganizationGuideResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['category', 'author', 'media'])
+            ->with(['category', 'author'])
             ->whereType('event_organization_guide');
     }
 

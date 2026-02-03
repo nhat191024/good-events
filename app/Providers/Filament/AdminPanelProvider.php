@@ -33,7 +33,9 @@ use BinaryBuilds\FilamentFailedJobs\FilamentFailedJobsPlugin;
 use Boquizo\FilamentLogViewer\FilamentLogViewerPlugin;
 use Tapp\FilamentMailLog\FilamentMailLogPlugin;
 use Hugomyb\FilamentErrorMailer\FilamentErrorMailerPlugin;
-
+use RalphJSmit\Filament\Upload\FilamentUpload;
+use Filafly\Themes\Brisk\BriskTheme;
+use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
 use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
 
 use App\Filament\Admin\Widgets\AdminStatisticsWidget;
@@ -52,9 +54,9 @@ class AdminPanelProvider extends PanelProvider
     {
         try {
             $settings = app(AppSettings::class);
-            $favicon = asset($settings->app_favicon);
+            $favicon = secure_asset($settings->app_favicon);
         } catch (\Exception $e) {
-            $favicon = asset('images/favicon.ico');
+            $favicon = secure_asset('images/favicon.ico');
         }
 
         return $panel
@@ -63,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::Red,
+                'primary' => ShadcnColor::Red,
             ])
             ->brandName('Sự Kiện tốt - Admin')
             ->favicon($favicon)
@@ -87,6 +89,7 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->plugins([
+                BriskTheme::make(),
                 FilamentShieldPlugin::make()
                     ->navigationGroup('settings')
                     ->globallySearchable(false)
@@ -115,6 +118,7 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationLabel(__('global.log_viewer')),
                 FilamentMailLogPlugin::make(),
                 FilamentErrorMailerPlugin::make(),
+                FilamentUpload::make(),
             ])
 
             ->middleware([

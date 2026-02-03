@@ -19,6 +19,11 @@ import { reactive, ref, watch } from 'vue';
 import { showLoading, hideLoading } from '@/composables/useLoading'
 import { getImg } from './helper';
 import axios from 'axios';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const pageProps = usePage().props
 
@@ -103,6 +108,7 @@ watch(() => location.provinceId, async (provinceId, old) => {
 })
 
 const headerImageSrc = getImg(partnerChildrenCategory.media)
+const headerImageTag = partnerChildrenCategory.image_tag
 const title = 'Điền thông tin thuê chi tiết'
 const subtitle = `Bạn đang tìm '${partnerCategory.name}' - '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin và mô tả rõ sự kiện của bạn dưới đây nhé`
 
@@ -294,6 +300,12 @@ function clearStorage() {
     form.reset('order_date', 'start_time', 'end_time', 'province_id', 'ward_id', 'event_id', 'category_id', 'location_detail', 'note')
     isCustomEvent.value = false
 }
+
+const { addTutorialRoutes } = useTutorialHelper();
+
+addTutorialRoutes([
+    tutorialQuickLinks.clientQuickOrder,
+]);
 </script>
 
 <!-- quick booking page FINAL step -->
@@ -302,7 +314,7 @@ function clearStorage() {
     <Head title="Đặt show nhanh - Chọn đối tác" />
     <!-- layout -->
     <ClientAppHeaderLayout>
-        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="headerImageSrc">
+        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="headerImageSrc" :header-img-tag="headerImageTag">
             <!-- form here -->
             <form @submit.prevent="submit" :action="route('quick-booking.save-info')"
                 class="bg-gray-50 will-change-transform rounded md:rounded-lg flex flex-col items-center max-w-[800px] gap-[20px] w-full md:w-[86%] h-min p-3 md:p-7 relative">

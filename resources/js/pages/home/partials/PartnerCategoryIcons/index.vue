@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { computed } from 'vue';
 import { PartnerCategoryItems as Category } from './type';
 import { Link } from '@inertiajs/vue3';
@@ -44,13 +45,14 @@ const iconsMotion = {
                         class="flex flex-col items-center group cursor-pointer transition-transform hover:scale-105">
                         <div
                             class="w-16 h-16 md:w-15 md:h-15 bg-white ring-1 ring-gray-200 rounded-full flex items-center justify-center overflow-hidden mb-3">
-                            <img :src="getImageForCategory(category.image ?? '')" :alt="category.name"
-                                class="w-12 h-12 object-cover rounded-full" />
+                            <ImageWithLoader :src="getImageForCategory(category.image ?? '')" :alt="category.name"
+                                class="w-12 h-12 rounded-full" img-class="w-12 h-12 object-cover rounded-full"
+                                loading="lazy" />
                         </div>
-                        <span
+                        <h2
                             class="text-sm md:text-base text-gray-700 font-medium text-center group-hover:text-red-600 transition-colors">
                             {{ category.name }}
-                        </span>
+                        </h2>
                     </Link>
                 </div>
             </div>

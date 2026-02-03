@@ -4,6 +4,9 @@
     import type { User } from '@/types';
     import { Link, router } from '@inertiajs/vue3';
     import { LogOut, Settings } from 'lucide-vue-next';
+    import { inject } from "vue";
+
+    const route = inject('route') as any;
 
     interface Props {
         user: User;

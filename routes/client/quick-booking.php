@@ -3,7 +3,7 @@
 use App\Http\Controllers\Client\QuickBookingController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth', 'verified')->group(function () {
+Route::middleware('auth', 'verified', 'throttle:api')->group(function () {
     Route::prefix("dat-show")->name('quick-booking.')->group(
         function () {
             Route::get(
@@ -26,7 +26,7 @@ Route::middleware('auth', 'verified')->group(function () {
             Route::post(
                 '/hoan-thanh',
                 [QuickBookingController::class, 'saveBookingInfo']
-            )->name('save-info');
+            )->middleware('throttle:auth')->name('save-info');
 
             Route::get(
                 '/hoan-thanh/{bill_code}',

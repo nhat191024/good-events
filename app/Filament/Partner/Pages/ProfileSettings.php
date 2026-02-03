@@ -6,7 +6,7 @@ use App\Models\PartnerProfile;
 use App\Models\Location;
 
 use BackedEnum;
-use Faker\Core\File;
+
 use Filament\Pages\Page;
 
 use Filament\Forms\Contracts\HasForms;
@@ -21,17 +21,26 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 
 use Filament\Actions\Action;
 
 use Filament\Notifications\Notification;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
+
+use Cohensive\OEmbed\Facades\OEmbed;
+
+use Illuminate\Support\Facades\Log;
 
 class ProfileSettings extends Page implements HasForms
 {
     use InteractsWithForms;
+
+    protected ?Location $cachedLocation = null;
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-user-circle';
     protected string $view = 'filament.partner.pages.profile-settings';
@@ -54,15 +63,26 @@ class ProfileSettings extends Page implements HasForms
         $user = Auth::user();
         $partnerProfile = $user->partnerProfile;
 
+        $cityId = null;
+        if ($partnerProfile?->location_id) {
+            $this->cachedLocation = Location::find($partnerProfile->location_id);
+            $cityId = $this->cachedLocation?->parent_id;
+        }
+
         $this->data = [
-            'avatar' => $user->avatar,
             'name' => $user->name,
             'email' => $user->email,
             'country_code' => $user->country_code,
             'phone' => $user->phone,
+            'bio' => $user->bio,
             'partner_name' => $partnerProfile?->partner_name,
-            'identity_card_number' => $partnerProfile?->identity_card_number,
             'location_id' => $partnerProfile?->location_id,
+            'city_id' => $cityId,
+            'identity_card_number' => $partnerProfile?->identity_card_number,
+            'selfie_image' => $partnerProfile?->selfie_image,
+            'front_identity_card_image' => $partnerProfile?->front_identity_card_image,
+            'back_identity_card_image' => $partnerProfile?->back_identity_card_image,
+            'video_url' => $partnerProfile?->video_url,
         ];
 
         $this->form->fill($this->data);
@@ -75,14 +95,14 @@ class ProfileSettings extends Page implements HasForms
                 Section::make(__('profile.user_info'))
                     ->description(__('profile.user_info_description'))
                     ->schema([
-                        FileUpload::make('avatar')
+                        AdvancedFileUpload::make('avatar')
                             ->label(__('profile.label.avatar'))
-                            ->avatar()
-                            ->imageEditor()
+
+                            ->temporaryFileUploadDisk('local')
+                            ->disk('public')
+
                             ->directory('uploads/avatars')
                             ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
-                            ->disk('public')
-                            ->visibility('public')
                             ->nullable(),
                         Grid::make(2)
                             ->schema([
@@ -107,10 +127,9 @@ class ProfileSettings extends Page implements HasForms
                                     ->tel()
                                     ->maxLength(20),
 
-                                Textarea::make('bio')
+                                RichEditor::make('bio')
                                     ->label(__('profile.label.bio'))
                                     ->columnSpanFull()
-                                    ->maxLength(500)
                                     ->nullable(),
                             ])
                     ]),
@@ -154,14 +173,6 @@ class ProfileSettings extends Page implements HasForms
                                         Location::find($value)?->name
                                     )
                                     ->afterStateUpdated(fn(callable $set) => $set('location_id', null))
-                                    ->afterStateHydrated(function ($state, $record, Set $set): void {
-                                        if ($record && $record->location_id) {
-                                            $ward = Location::find($record->location_id);
-                                            if ($ward && $ward->parent_id) {
-                                                $set('city_id', $ward->parent_id);
-                                            }
-                                        }
-                                    })
                                     ->dehydrated(false)
                                     ->required(),
 
@@ -190,11 +201,94 @@ class ProfileSettings extends Page implements HasForms
                                             ->toArray()
                                     )
                                     ->getOptionLabelUsing(
-                                        fn($value): ?string =>
-                                        Location::find($value)?->name
+                                        fn($value): ?string => ($this->cachedLocation?->id == $value)
+                                            ? $this->cachedLocation->name
+                                            : Location::find($value)?->name
                                     )
                                     ->disabled(fn(Get $get): bool => !$get('city_id'))
                                     ->required(),
+
+                                TextInput::make('video_url')
+                                    ->label(__('profile.partner_label.video_url'))
+                                    ->placeholder(__('profile.partner_placeholder.video_url'))
+                                    ->helperText(__('profile.partner_helpers.video_url'))
+                                    ->columnSpanFull()
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function (Set $set, ?string $state): void {
+                                        if ($state) {
+                                            try {
+                                                if (str_contains($state, '/shorts/')) {
+                                                    $state = strtok($state, '?');
+                                                    $state = str_replace('/shorts/', '/watch?v=', $state);
+                                                }
+
+                                                if (!str_contains($state, 'www.') && str_contains($state, 'youtube.com')) {
+                                                    $state = str_replace('youtube.com', 'www.youtube.com', $state);
+                                                }
+
+                                                $embed = OEmbed::get($state);
+                                                if ($embed) {
+                                                    $set('video_url', $embed->html([
+                                                        'width' => 640,
+                                                        'height' => 360,
+                                                    ]));
+                                                } else {
+                                                    $set('video_url', null);
+                                                }
+                                            } catch (\Exception $e) {
+                                                $set('video_url', null);
+                                            }
+                                        } else {
+                                            $set('video_url', null);
+                                        }
+                                    })
+                                    ->dehydrateStateUsing(function (?string $state): ?string {
+                                        if ($state && !str_starts_with($state, '<iframe') || str_starts_with($state, '<blockquote')) {
+                                            try {
+                                                $embed = OEmbed::get($state);
+                                                if ($embed) {
+                                                    return $embed->html([
+                                                        'width' => 640,
+                                                        'height' => 360,
+                                                    ]);
+                                                }
+                                            } catch (\Exception $e) {
+                                                return null;
+                                            }
+                                        }
+                                        return $state;
+                                    }),
+
+                                FileUpload::make('selfie_image')
+                                    ->label(__('profile.partner_label.selfie_image'))
+                                    ->image()
+                                    ->imageEditor()
+                                    ->directory('uploads/partner_profiles/' . Auth::id() . '/selfies')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->columnSpanFull()
+                                    ->nullable(),
+
+                                FileUpload::make('front_identity_card_image')
+                                    ->label(__('profile.partner_label.front_identity_card_image'))
+                                    ->image()
+                                    ->imageEditor()
+                                    ->directory('uploads/partner_profiles/' . Auth::id() . '/id_cards')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->nullable(),
+
+                                FileUpload::make('back_identity_card_image')
+                                    ->label(__('profile.partner_label.back_identity_card_image'))
+                                    ->image()
+                                    ->imageEditor()
+                                    ->directory('uploads/partner_profiles/' . Auth::id() . '/id_cards')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->nullable(),
                             ])
                     ])
             ])
@@ -214,29 +308,51 @@ class ProfileSettings extends Page implements HasForms
     {
         $user = Auth::user();
 
-        // Get form data and validate
         $data = $this->form->getState();
 
         try {
-            // Simple validation (Filament form validation is already applied)
             $userData = [
-                'avatar' => $data['avatar'] ?? $user->avatar,
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'country_code' => $data['country_code'] ?? null,
                 'phone' => $data['phone'] ?? null,
+                'bio' => $data['bio']
             ];
 
             $partnerData = [
                 'partner_name' => $data['partner_name'],
-                'identity_card_number' => $data['identity_card_number'],
                 'location_id' => $data['location_id'],
+                'identity_card_number' => $data['identity_card_number'],
+                'selfie_image' => $data['selfie_image'] ?? null,
+                'front_identity_card_image' => $data['front_identity_card_image'] ?? null,
+                'back_identity_card_image' => $data['back_identity_card_image'] ?? null,
+                'video_url' => $data['video_url'] ?? null,
             ];
 
-            // Update user information
             $user->update($userData);
 
-            // Update or create partner profile
+            $avatarState = $data['avatar'] ?? null;
+            if ($avatarState) {
+                $currentMedia = $user->getFirstMedia('avatar');
+                $currentPath = $currentMedia ? ($currentMedia->id . '/' . $currentMedia->file_name) : null;
+
+                if ($avatarState !== $currentPath && !str_starts_with($avatarState, 'http')) {
+                    $validPath = null;
+                    if (Storage::disk('public')->exists($avatarState)) {
+                        $validPath = $avatarState;
+                    } elseif (Storage::disk('public')->exists('uploads/avatars/' . $avatarState)) {
+                        $validPath = 'uploads/avatars/' . $avatarState;
+                    }
+
+                    if ($validPath) {
+                        $user->clearMediaCollection('avatar');
+                        $user->addMediaFromDisk($validPath, 'public')->toMediaCollection('avatar');
+                    }
+                }
+            } else {
+                $user->clearMediaCollection('avatar');
+            }
+
             $partnerProfile = $user->partnerProfile;
             if ($partnerProfile) {
                 $partnerProfile->update($partnerData);
@@ -252,6 +368,8 @@ class ProfileSettings extends Page implements HasForms
                 ->success()
                 ->send();
         } catch (\Exception $e) {
+            Log::error('Profile update error for user ID ' . $user->id . ': ' . $e->getMessage());
+
             Notification::make()
                 ->title(__('profile.notifications.update_error_title'))
                 ->body(__('profile.notifications.update_error_body'))

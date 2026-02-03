@@ -12,6 +12,7 @@ return [
     'confirm' => 'Confirm',
     'ban' => 'Ban',
     'close' => 'Close',
+    'approve' => 'Approve',
 
     'no' => 'No',
     'yes' => 'Yes',
@@ -32,6 +33,8 @@ return [
 
     'system_message' => [
         'order_confirmed' => 'The order :code has been confirmed. This is the chat between customer and partner. Admin can monitor to support when necessary.',
+
+        'saved_success' => 'Saved successfully!',
     ],
 
     'paginate' => [
@@ -55,5 +58,6 @@ return [
         'human_resource_manager' => 'Human Resource Manager',
         'design_manager' => 'Design Manager',
         'rental_manager' => 'Rental Manager',
+        'blog_manager' => 'Blog Manager',
     ],
 ];

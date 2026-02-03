@@ -19,6 +19,9 @@ return [
         'identity_card_number' => 'Identity Card Number',
         'city_id' => 'City',
         'location_id' => 'Ward',
+        'selfie_image' => 'Selfie Image',
+        'front_identity_card_image' => 'Front Identity Card Image',
+        'back_identity_card_image' => 'Back Identity Card Image',
     ],
 
     'buttons' => [

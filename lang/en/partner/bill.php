@@ -125,6 +125,7 @@ return [
     'arrival_photo_max_size' => 'Maximum image size is 5MB',
     'arrival_photo_invalid_format' => 'Invalid image format. Only accepts: JPEG, PNG, JPG, WEBP',
     'click_to_upload_photo' => 'Click to upload photo',
+    'take_photo' => 'Take photo',
     'max_5mb' => 'Max 5MB',
     'arrival_photo_description' => 'This photo will be used as proof that you have arrived at the event location.',
     'no_arrival_photo' => 'No arrival photo',

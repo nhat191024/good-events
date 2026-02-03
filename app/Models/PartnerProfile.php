@@ -14,7 +14,12 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @property int $id
  * @property int $user_id
  * @property string $partner_name
- * @property string $identity_card_number
+ * @property string|null $identity_card_number
+ * @property string|null $selfie_image
+ * @property string|null $front_identity_card_image
+ * @property string|null $back_identity_card_image
+ * @property bool $is_legit
+ * @property string|null $video_url
  * @property int $location_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -29,14 +34,19 @@ use BeyondCode\Vouchers\Traits\HasVouchers;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereBackIdentityCardImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereFrontIdentityCardImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereIdentityCardNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereIsLegit($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereLocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile wherePartnerName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereSelfieImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile whereVideoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerProfile withoutTrashed()
  * @mixin \Eloquent
@@ -55,7 +65,24 @@ class PartnerProfile extends Model
         'partner_name',
         'identity_card_number',
         'location_id',
+        'selfie_image',
+        'front_identity_card_image',
+        'back_identity_card_image',
+        'is_legit',
+        'video_url',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_legit' => 'boolean',
+        ];
+    }
 
     /**
      * Summary of getActivitylogOptions

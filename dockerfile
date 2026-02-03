@@ -15,12 +15,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg62-turbo-dev \
     libwebp-dev \
     libicu-dev \
+    libmagickwand-dev \
     supervisor \
     procps \
     curl \
+    zip\
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install zip pdo_mysql gd bcmath intl pcntl exif \
+    && docker-php-ext-install zip pdo_mysql gd bcmath intl pcntl exif opcache \
+    # Install Imagick via PECL
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -38,9 +43,15 @@ COPY docker-php-custom.ini /usr/local/etc/php/conf.d/custom.ini
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
+# Copy auth.json for private repositories
+COPY auth.json /var/www/html/
+
 # Copy and install PHP dependencies
 COPY composer.json composer.lock ./
 RUN composer install --optimize-autoloader --no-scripts --no-dev
+
+# Remove auth.json after installing dependencies
+RUN rm /var/www/html/auth.json
 
 # Copy and install Node dependencies
 COPY package.json package-lock.json* ./

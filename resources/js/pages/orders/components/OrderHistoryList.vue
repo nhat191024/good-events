@@ -40,7 +40,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="space-y-4">
+    <div class="space-y-4 mt-8">
         <!-- khi có orders -->
         <template v-if="props.orders.length > 0">
             <div v-for="o in props.orders" :key="o.id" @click="emit('select', o)">

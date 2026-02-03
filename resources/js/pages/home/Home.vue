@@ -1,14 +1,12 @@
 <template>
-
-    <Head class="font-lexend" title="Trang chủ" />
-
     <ClientAppHeaderLayout :background-class-names="'bg-primary-100'">
 
         <HeroBanner :banner-images="isMobile ? heroBannerMobileImages : heroBannerImages">
             <HeroContentBlock tag-label="Sự kiện" title="Tổ chức sự kiện thật dễ dàng!"
-                :description="settings.hero_title ?? 'Bạn đã đến đúng nơi rồi đấy. Kết nối với hàng trăm đối tác dịch vụ sự kiện uy tín, chuyên nghiệp cho mọi nhu cầu của bạn.'"
+                :description="settings.hero_title ?? 'Kết nối với hàng trăm đối tác dịch vụ sự kiện uy tín, chuyên nghiệp cho mọi nhu cầu của bạn.'"
                 :primary-cta="{ label: 'Khám phá', href: '#search' }"
-                :secondary-cta="{ label: 'Chi tiết', href: route('about.index') }" :stats="[
+                :secondary-cta="{ label: 'Chi tiết', href: route('about.index') }"
+                :tertiary-cta="{ label: 'Hướng dẫn', href: route('tutorial.index') }" :stats="[
                     { value: '450+', label: 'Đối tác uy tín' },
                     { value: '98%', label: 'Khách hàng hài lòng' },
                     { value: '24/7', label: 'Hỗ trợ trực tuyến' }
@@ -66,7 +64,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import axios from 'axios';
-import { Head, Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import HeroBanner from './partials/HeroBanner.vue';
 import HeroContentBlock from './components/HeroContentBlock.vue';
@@ -76,7 +74,12 @@ import HomeCtaBanner from './components/HomeCtaBanner.vue';
 import { PartnerCategory } from '@/types/database';
 import { normText } from '@/lib/search-filter';
 import { useSearchSuggestion } from '@/lib/useSearchSuggestion';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import SearchBar from '../categories/partials/SearchBar.vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 type ParentCategory = PartnerCategory & { total_children_count?: number };
 
@@ -109,56 +112,102 @@ interface Props {
 
 interface HomeSearchResponse {
     eventCategories: ParentCategory[];
-    partnerCategories: { [key: number]: PartnerCategory[] };
+    partnerCategories: Record<number, PartnerCategory[]>;
 }
 
+type PartnerCategoryMap = Record<number, PartnerCategory[]>;
+type PartnerCategoryInputMap = Record<number, PartnerCategory[] | Record<string, PartnerCategory>>;
+
+const normalizePartnerCategories = (input?: PartnerCategoryInputMap | null): PartnerCategoryMap => {
+    if (!input) return {};
+    const normalized: PartnerCategoryMap = {};
+    Object.entries(input).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            normalized[Number(key)] = value;
+            return;
+        }
+        if (value && typeof value === 'object') {
+            normalized[Number(key)] = Object.values(value);
+            return;
+        }
+        normalized[Number(key)] = [];
+    });
+    return normalized;
+};
+
 const props = defineProps<Props>();
+const page = usePage();
+const { addTutorialRoutes } = useTutorialHelper();
 const pagination = computed(() => props.pagination);
+
+const user = computed(() => page.props.auth?.user ?? null);
+
+// Set tutorial routes based on user authentication status
+watch(
+    user,
+    (value) => {
+        setTutorialRoutesBasedOnAuth(value);
+        // clearTutorialRoutes();
+    },
+    { immediate: true }
+);
+
+function setTutorialRoutesBasedOnAuth(value: any) {
+    if (!value) {
+        addTutorialRoutes([tutorialQuickLinks.clientRegisterAndFastBooking, tutorialQuickLinks.clientRegister, tutorialQuickLinks.partnerRegister]);
+    }
+    else {
+        addTutorialRoutes([tutorialQuickLinks.clientQuickOrder]);
+    }
+}
 
 const categories = [
     {
         id: 1,
-        name: 'Nhân sự',
+        name: 'Thuê nhân sự',
         slug: 'su-kien',
         icon: 'mdi:flower',
-        image: '/images/logo-su-kien.webp',
+        image: '/images/home/logo-su-kien.webp',
         href: route('home')
     },
     {
         id: 2,
-        name: 'Thiết kế',
+        name: 'Tài liệu thiết kế',
         slug: 'tai-lieu',
         icon: 'mdi:book-open',
-        image: '/images/logo-tai-lieu.webp',
+        image: '/images/home/logo-tai-lieu.webp',
         href: route('asset.home')
     },
     {
         id: 3,
-        name: 'Thiết bị SK',
+        name: 'Thiết bị sự kiện',
         slug: 'tim-khach-san',
         icon: 'mdi:bed',
-        image: '/images/logo-loa-dai.webp',
+        image: '/images/home/logo-loa-dai.webp',
         href: route('rent.home')
     },
     {
         id: 4,
-        name: 'Địa điểm',
+        name: 'Địa điểm tốt',
         slug: 'khach-san',
         icon: 'mdi:bag-personal',
+        image: '/images/home/logo-dia-diem.webp',
         href: route('blog.discover')
     },
     {
         id: 5,
-        name: 'Hướng dẫn',
+        name: 'Hướng dẫn tổ chức',
         slug: 'huong-dan',
         icon: 'mdi:bag-personal',
+        image: '/images/home/logo-huong-dan.webp',
         href: route('blog.guides.discover')
     },
     {
         id: 6,
-        name: 'Kiến thức',
+        name: 'Kiến thức nghề',
         slug: 'kien-thuc',
         icon: 'mdi:bag-personal',
+        image: '/images/home/logo-kien-thuc.webp',
         href: route('blog.knowledge.discover')
     },
 ];
@@ -167,7 +216,11 @@ const fetchHomeSearch = async (q: string): Promise<HomeSearchResponse> => {
     const { data } = await axios.get(route('home.search'), {
         params: { q },
     });
-    return data as HomeSearchResponse;
+    const response = data as HomeSearchResponse & { partnerCategories?: PartnerCategoryInputMap };
+    return {
+        ...response,
+        partnerCategories: normalizePartnerCategories(response.partnerCategories),
+    };
 };
 
 const {
@@ -202,7 +255,9 @@ const updateIsMobile = () => {
 };
 
 const eventCategoryList = ref<ParentCategory[]>([...props.eventCategories]);
-const partnerCategoriesStore = ref<Record<number, PartnerCategory[]>>({ ...props.partnerCategories });
+const partnerCategoriesStore = ref<PartnerCategoryMap>(
+    normalizePartnerCategories(props.partnerCategories)
+);
 
 const isSearchMode = computed(() => hasSearchQuery.value);
 
@@ -231,9 +286,16 @@ const keywordSuggestions = computed(() => {
     if (term.length < 2) return [];
 
     const names = new Set<string>();
-    const addNames = (items?: { name?: string | null }[]) => {
+    const addNames = (
+        items?:
+            | { name?: string | null; parent_id?: number | null }[]
+            | Record<string, { name?: string | null; parent_id?: number | null }>
+            | null
+    ) => {
         if (!items) return;
-        items.forEach((item) => {
+        const list = Array.isArray(items) ? items : Object.values(items);
+        list.forEach((item) => {
+            if (item?.parent_id === null) return;
             if (item?.name) names.add(item.name);
         });
     };
@@ -304,10 +366,14 @@ const loadMoreCategories = async () => {
                 limit: props.pagination.batchSize,
             },
         });
-        eventCategoryList.value = [...eventCategoryList.value, ...data.eventCategories];
+        const response = data as {
+            eventCategories: ParentCategory[];
+            partnerCategories?: PartnerCategoryInputMap;
+        };
+        eventCategoryList.value = [...eventCategoryList.value, ...response.eventCategories];
         partnerCategoriesStore.value = {
             ...partnerCategoriesStore.value,
-            ...data.partnerCategories,
+            ...normalizePartnerCategories(response.partnerCategories),
         };
     } catch (error) {
         console.error('Failed to load more categories', error);
@@ -383,7 +449,7 @@ watch(
 watch(
     () => props.partnerCategories,
     (newPartnerCategories) => {
-        partnerCategoriesStore.value = { ...newPartnerCategories };
+        partnerCategoriesStore.value = normalizePartnerCategories(newPartnerCategories);
     }
 );
 

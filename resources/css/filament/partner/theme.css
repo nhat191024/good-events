@@ -1,6 +1,7 @@
-@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '../../../../vendor/filafly/brisk/resources/css/theme.css';
 
 @source '../../../../app/Filament/Partner/**/*';
 @source '../../../../resources/views/filament/partner/**/*';
 @source '../../../../resources/views/livewire/**/*';
 @source '../../../../app/Livewire/**/*';
+@source '../../../../vendor/ralphjsmit/laravel-filament-upload/resources/**/*.blade.php';

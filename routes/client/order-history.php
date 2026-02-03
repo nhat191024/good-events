@@ -4,7 +4,7 @@ use App\Http\Controllers\Client\OrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
-    Route::prefix('don-hang-cua-toi')->name('client-orders.')->group(function () {
+    Route::prefix('don-hang-cua-toi')->name('client-orders.')->middleware('throttle:api')->group(function () {
         Route::get(
             '/',
             [OrderController::class, 'index']
@@ -25,27 +25,27 @@ Route::middleware('auth')->group(function () {
         Route::post(
             '/cancel-order',
             [OrderController::class, 'cancelOrder']
-        )->name('cancel');
+        )->middleware('throttle:auth')->name('cancel');
 
         Route::post(
             '/choose-partner',
             [OrderController::class, 'confirmChoosePartner']
-        )->name('confirm-partner');
+        )->middleware('throttle:auth')->name('confirm-partner');
 
         Route::post(
             '/submit-review',
             [OrderController::class, 'submitReview']
-        )->name('submit-review');
+        )->middleware('throttle:auth')->name('submit-review');
 
         Route::post(
             '/validate-voucher',
             [OrderController::class, 'validateVoucher']
-        )->name('validate-voucher');
+        )->middleware('throttle:auth')->name('validate-voucher');
 
         Route::post(
             '/get-voucher-discount-amount',
             [OrderController::class, 'getVoucherDiscountAmount']
-        )->name('get-voucher-discount-amount');
+        )->middleware('throttle:auth')->name('get-voucher-discount-amount');
 
         require __DIR__.'/asset-order-history.php';
     });

@@ -59,9 +59,9 @@ export interface ClientOrderHistory {
     created_at: string
     updated_at: string
     category: Category
-    event: Pick<Event, 'name'>
-    partner: Partner
-    review: Review
+    event: Pick<Event, 'name'> | null
+    partner: Partner | null
+    review: Review | null
 }
 
 export const OrderStatus = {
@@ -89,6 +89,7 @@ export interface Category {
     min_price: number
     parent: ParentCategory
     image?: string
+    image_tag?: string
 }
 
 export interface ParentCategory {
@@ -106,6 +107,7 @@ export interface Partner {
     id: number
     name: string
     avatar: string
+    avatar_img_tag: string
     partner_profile?: PartnerProfile
     statistics: Pick<Metrics,
         | 'total_ratings'

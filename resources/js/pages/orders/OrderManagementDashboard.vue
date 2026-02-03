@@ -23,11 +23,17 @@ import {
 
 import { confirm } from '@/composables/useConfirm'
 import { hideLoading, showLoading } from '@/composables/useLoading'
+import { showToast } from '@/composables/useToast'
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import { formatPrice } from '@/lib/helper'
 
 import PartnerProfilePreview from './components/PartnerProfilePreview.vue'
 import axios from 'axios'
+import { useTutorialHelper } from '@/lib/tutorial-helper'
+import { tutorialQuickLinks } from '@/lib/tutorial-links'
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 const activeTab = ref<'current' | 'history'>('current')
 
@@ -35,7 +41,7 @@ const selectedOrder = ref<ClientOrder | null>(null)
 const selectedMode = ref<'current' | 'history'>('current')
 const detailsMap = ref<Record<number, { items: ClientOrderDetail[]; version?: number }>>({})
 const showMobileDetail = ref(false)
-const historyStatuses = new Set([
+const historyStatuses = new Set<string>([
     OrderStatus.COMPLETED,
     OrderStatus.CANCELLED,
     OrderStatus.EXPIRED,
@@ -354,7 +360,7 @@ function fetchDetails(id: number, reload = false) {
     })
 }
 
-function refreshDetails(order : ClientOrder | undefined) {
+function refreshDetails(order: ClientOrder | undefined) {
     if (!order?.id || activeTab.value !== 'current') {
         return
     } else {
@@ -492,11 +498,18 @@ async function handleCancelOrder() {
         onBefore: () => {
             showLoading({ title: 'Đang tải', message: 'Đợi xíu nhé' })
         },
-        onSuccess: () => {
+        onSuccess: (page) => {
             selectedOrder.value = null
             delete detailsMap.value[orderId]
             updateOrderQueryParam(null)
             refreshCurrentOrders()
+
+            const flash = page.props.flash as any
+            if (flash?.success) {
+                showToast(flash.success)
+            } else if (flash?.error) {
+                showToast({ message: flash.error, type: 'error' })
+            }
         },
         onFinish: () => {
             hideLoading(true)
@@ -554,9 +567,14 @@ function submitRating(payload: { rating: number; comment: string }) {
                     ; (selectedOrder.value as any).user_comment = payload.comment
             }
             showRatingDialog.value = false
+            showToast('Đã gửi đánh giá của bạn thành công!')
         },
         onError: (e) => {
             console.error('[submit rating] lỗi', e)
+            showToast({
+                message: 'Gửi đánh giá không thành công. Vui lòng kiểm tra lại!',
+                type: 'error'
+            })
         },
         onBefore: () => {
             showLoading({ title: 'Đang tải lên đánh giá của bạn', message: 'Đợi xíu nhé' })
@@ -628,13 +646,24 @@ onBeforeUnmount(() => {
         clearInterval(pollInterval)
     }
 })
+
+const { addTutorialRoutes } = useTutorialHelper();
+addTutorialRoutes([
+    tutorialQuickLinks.clientQuickOrder,
+    tutorialQuickLinks.clientChatGuide,
+    tutorialQuickLinks.clientReportsGuide,
+    tutorialQuickLinks.clientReviewStaff,
+    tutorialQuickLinks.clientInspectPartner,
+    tutorialQuickLinks.clientTrackingFlow,
+    tutorialQuickLinks.clientVoucher,
+]);
 </script>
 
 <template>
 
     <Head title="Đơn hàng của tôi" />
     <ClientHeaderLayout :show-footer="false">
-        <div class="flex h-[95vh] bg-background w-full overflow-visible">
+        <div class="flex h-[calc(100vh-4rem)] bg-background w-full overflow-visible">
             <div :class="[showMobileDetail ? 'hidden md:block' : 'block', 'w-full md:w-auto']">
                 <Sidebar :orderList="currentOrders" :history-loading="loadingForSidebar"
                     :order-loading="loadingForSidebar" :orderHistory="historyItems"

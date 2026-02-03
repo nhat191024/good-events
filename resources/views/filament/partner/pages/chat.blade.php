@@ -12,7 +12,7 @@
             'lg:w-1/3',
             'hidden lg:flex' => !$showThreadListOnMobile,
         ])>
-            <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+            <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-900">
                 <div class="space-y-3">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('chat.thread_list') }}</h3>
                     <div class="relative">
@@ -63,7 +63,7 @@
                             </div>
                             <div class="ml-2 flex flex-col items-end gap-1">
                                 @if ($thread->is_unread)
-                                    <span class="bg-primary-600 inline-flex items-center justify-center rounded-full px-2 py-1 text-xs font-bold leading-none text-white">
+                                    <span class="bg-primary-800 inline-flex items-center justify-center rounded-full px-2 py-1 text-xs font-bold leading-none text-white">
                                         {{ __('chat.new') }}
                                     </span>
                                 @endif
@@ -217,7 +217,7 @@
                 <div class="border-t border-gray-200 p-4 dark:border-gray-700">
                     <form class="flex flex-col gap-2 sm:flex-row" wire:submit="sendMessage">
                         <input class="focus:border-primary-500 focus:ring-primary-500 flex-1 rounded-lg border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" type="text" wire:model="messageBody" placeholder="{{ __('chat.message_placeholder') }}" />
-                        <button class="bg-primary-600 hover:bg-primary-700 inline-flex items-center justify-center rounded-lg px-6 py-2 text-sm font-medium text-white transition" type="submit">
+                        <button class="bg-primary-800 hover:bg-primary-700 inline-flex items-center justify-center rounded-lg px-6 py-2 text-sm font-medium text-white transition" type="submit">
                             Gửi
                         </button>
                     </form>

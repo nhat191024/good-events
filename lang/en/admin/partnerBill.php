@@ -16,6 +16,7 @@ return [
         'category' => 'Category',
         'status' => 'Status',
         'arrival_photo' => 'Arrival Photo',
+        'completion_photo' => 'Completion Photo',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
     ],

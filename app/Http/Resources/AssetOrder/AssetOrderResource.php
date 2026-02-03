@@ -36,6 +36,13 @@ class AssetOrderResource extends JsonResource
             'can_download' => $statusEnum === FileProductBillStatus::PAID,
             'file_product' => $this->whenLoaded('fileProduct', function () use ($expireAt, $statusEnum) {
                 $product = $this->fileProduct;
+                $image = $product->getFirstMedia('thumbnails');
+                $url = $image->getUrl() ?? null;
+                $imageTag = $image->img('thumb')->attributes([
+                    'class' => 'w-full h-full object-cover lazy-image',
+                    'loading' => 'lazy',
+                    'alt' => $product->name,
+                ])->toHtml();
 
                 return [
                     'id' => $product->id,
@@ -43,7 +50,8 @@ class AssetOrderResource extends JsonResource
                     'slug' => $product->slug,
                     'price' => $product->price,
                     'description' => $product->description,
-                    'thumbnail' => TemporaryImage::getTemporaryImageUrl($product, $expireAt, 'thumbnails'),
+                    'thumbnail' => $url,
+                    'image_tag' => $imageTag,
                     'category' => $this->when(
                         $product->relationLoaded('category') && $product->category,
                         fn () => [

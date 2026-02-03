@@ -18,6 +18,9 @@
     } from '@/components/ui/dialog';
     import { Input } from '@/components/ui/input';
     import { Label } from '@/components/ui/label';
+    import { inject } from "vue";
+
+    const route = inject('route') as any;
 
     const passwordInput = ref<InstanceType<typeof Input> | null>(null);
 </script>

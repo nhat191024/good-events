@@ -17,6 +17,7 @@ use Database\Factories\UserFactory;
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property bool $can_accept_shows
+ * @property string|null $google_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -57,6 +58,8 @@ use Database\Factories\UserFactory;
  * @property-read int|null $statistics_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Thread> $threads
  * @property-read int|null $threads_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read int|null $tokens_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transaction> $transactions
  * @property-read int|null $transactions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $transfers
@@ -80,6 +83,7 @@ use Database\Factories\UserFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereGoogleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner wherePassword($value)
@@ -97,6 +101,7 @@ class Partner extends User
     use HasFactory;
 
     protected $table = 'users';
+    protected $guard_name = 'web';
 
     /**
      * Create a new factory instance for the model.

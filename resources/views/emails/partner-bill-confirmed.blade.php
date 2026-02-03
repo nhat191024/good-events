@@ -232,11 +232,6 @@
                     <span class="info-value">{{ $partnerBill->address }}</span>
                 </div>
 
-                <div class="info-row">
-                    <span class="info-label">{{ __('emails.common.phone') }}:</span>
-                    <span class="info-value">{{ $partnerBill->phone }}</span>
-                </div>
-
                 @if ($partnerBill->final_total)
                     <div class="info-row">
                         <span class="info-label">{{ __('emails.common.total_amount') }}:</span>

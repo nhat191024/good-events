@@ -70,7 +70,7 @@ class VocationalKnowledgeResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['category', 'author', 'media'])
+            ->with(['category', 'author'])
             ->whereType('vocational_knowledge');
     }
 

@@ -6,18 +6,30 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import { Form, Head, Link } from '@inertiajs/vue3';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
+
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
 
+const { addTutorialRoutes } = useTutorialHelper();
+
 const showPassword = ref(false);
 const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
+};
+
+const redirectToProvider = (provider: string) => {
+    window.location.href = route('socialite.redirect', provider);
 };
 </script>
 
@@ -72,7 +84,13 @@ const togglePasswordVisibility = () => {
                     <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
                     Đăng nhập
                 </Button>
+
             </div>
+
+            <Button type="button" class="w-full font-bold text-white hover:bg-primary-700 active:bg-primary-800 cursor-pointer" :tabindex="4" :disabled="processing" @click="redirectToProvider('google')">
+                <LoaderCircle v-if="processing" class="w-4 h-4 animate-spin" />
+                Đăng nhập với Google
+            </Button>
 
             <div class="text-sm text-center text-muted-foreground">
                 Chưa có tài khoản?

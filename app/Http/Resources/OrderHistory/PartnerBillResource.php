@@ -26,27 +26,45 @@ class PartnerBillResource extends JsonResource
             'total' => $this->total,
             'final_total' => $this->final_total,
             'note' => $this->note,
-            'arrival_photo' => TemporaryImage::getTemporaryImageUrl($this, $expireAt,'arrival_photo'),
+            'arrival_photo' => $this->getFirstMedia('arrival_photo')?->getUrl(),
             'status' => $this->status,
             'thread_id' => $this->thread_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'category' => $this->whenLoaded('category', function () use ($expireAt) {
                 $cat = $this->category;
-
+                $image = $cat?->getFirstMedia('images');
+                $url = $image?->getUrl();
+                $imageTag = $image?->img('thumb')->attributes([
+                    'class' => 'w-full h-full object-cover lazy-image',
+                    'loading' => 'lazy',
+                    'alt' => $cat->name,
+                ])->toHtml();
                 return [
                     'id' => $cat->id,
                     'name' => $cat->name,
                     'max_price' => $cat->max_price,
                     'min_price' => $cat->min_price,
-                    'image' => TemporaryImage::getTemporaryImageUrl($cat, $expireAt),
+                    'image' => $url,
+                    'image_tag' => $imageTag,
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,
-                        fn () => [
-                            'id' => $cat->parent->id,
-                            'name' => $cat->parent->name,
-                            'image' => TemporaryImage::getTemporaryImageUrl($cat->parent, $expireAt),
-                        ]
+                        function () {
+                            $cat = $this->category?->parent;
+                            $image = $cat?->getFirstMedia('images');
+                            $url = $image?->getUrl();
+                            $imageTag = $image?->img('thumb')->attributes([
+                                'class' => 'w-full h-full object-cover lazy-image',
+                                'loading' => 'lazy',
+                                'alt' => $cat->name,
+                            ])->toHtml();
+                            return [
+                                'id' => $cat->id,
+                                'name' => $cat->name,
+                                'image' => $url,
+                                'image_tag' => $imageTag,
+                            ];
+                        }
                     ),
                 ];
             }),

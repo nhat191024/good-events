@@ -270,11 +270,6 @@
                     <span class="info-value">{{ $partnerBill->address }}</span>
                 </div>
 
-                <div class="info-row">
-                    <span class="info-label">{{ __('emails.common.phone') }}:</span>
-                    <span class="info-value">{{ $partnerBill->phone }}</span>
-                </div>
-
                 @if ($recipientType === 'client' && $partnerBill->partner)
                     <div class="info-row">
                         <span class="info-label">{{ __('emails.common.partner_name') }}:</span>
@@ -304,7 +299,6 @@
                     <strong>{{ __('emails.partner_bill_reminder.contact_info_client_title') }}</strong><br>
                     {{ __('emails.partner_bill_reminder.contact_name') }}: {{ $partnerBill->partner->name ?? 'N/A' }}<br>
                     {{ __('emails.partner_bill_reminder.contact_email') }}: {{ $partnerBill->partner->email ?? 'N/A' }}<br>
-                    {{ __('emails.partner_bill_reminder.contact_phone') }}: {{ $partnerBill->partner->phone ?? 'N/A' }}
                 </div>
 
                 <p>
@@ -324,7 +318,6 @@
                     <strong>{{ __('emails.partner_bill_reminder.contact_info_partner_title') }}</strong><br>
                     {{ __('emails.partner_bill_reminder.contact_name') }}: {{ $partnerBill->client->name ?? 'N/A' }}<br>
                     {{ __('emails.partner_bill_reminder.contact_email') }}: {{ $partnerBill->client->email ?? 'N/A' }}<br>
-                    {{ __('emails.partner_bill_reminder.contact_phone') }}: {{ $partnerBill->phone }}
                 </div>
 
                 <p>

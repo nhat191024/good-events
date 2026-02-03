@@ -2,31 +2,25 @@
     <section class="grid gap-8 lg:grid-cols-2">
         <div class="space-y-5">
             <div class="overflow-hidden rounded-3xl border border-gray-100 bg-gray-50">
-                <img :src="getImg(coverImage)" :alt="fileProduct.name" class="h-full w-full object-cover" loading="lazy" />
+                <ImageWithLoader :src="getImg(coverImage)" :alt="fileProduct.name" class="h-full w-full"
+                    img-class="h-full w-full object-cover" loading="lazy" />
             </div>
 
             <div v-if="secondaryPreviews.length" class="flex flex-wrap gap-3">
-                <button
-                    v-for="media in secondaryPreviews"
-                    :key="media.id ?? media.url"
-                    type="button"
+                <button v-for="media in secondaryPreviews" :key="media.id ?? media.url" type="button"
                     class="group overflow-hidden rounded-2xl border border-transparent shadow-sm transition hover:-translate-y-0.5 hover:border-primary-200"
-                    @click="setPrimary(media.url)"
-                >
-                    <img
-                        :src="getImg(media.thumbnail ?? media.url)"
-                        :alt="`Xem trước ${fileProduct.name}`"
-                        class="h-20 w-28 object-cover brightness-95 transition group-hover:brightness-100"
-                    />
+                    @click="setPrimary(media.url)">
+                    <ImageWithLoader :src="getImg(media.thumbnail ?? media.url)" :alt="`Xem trước ${fileProduct.name}`"
+                        :img-tag="primaryImageTag"
+                        class="h-20 w-28"
+                        img-class="h-full w-full object-cover brightness-95 transition group-hover:brightness-100"
+                        loading="lazy" />
                 </button>
             </div>
 
             <div v-if="tags.length" class="flex flex-wrap gap-2">
-                <span
-                    v-for="tag in tags"
-                    :key="tag.slug"
-                    class="rounded-full border border-primary-100 bg-primary-10 px-3 py-1 text-xs font-semibold text-primary-700"
-                >
+                <span v-for="tag in tags" :key="tag.slug"
+                    class="rounded-full border border-primary-100 bg-primary-10 px-3 py-1 text-xs font-semibold text-primary-700">
                     {{ tag.name }}
                 </span>
             </div>
@@ -34,10 +28,8 @@
 
         <aside class="flex h-max flex-col gap-6 rounded-3xl bg-white px-0 py-0 md:px-6 md:py-6">
             <div class="space-y-2">
-                <span
-                    v-if="fileProduct.category"
-                    class="inline-flex w-max items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700"
-                >
+                <span v-if="fileProduct.category"
+                    class="inline-flex w-max items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
                     {{ fileProduct.category.name }}
                 </span>
                 <h1 class="text-2xl font-semibold text-gray-900">
@@ -62,90 +54,76 @@
             <div class="rounded-2xl bg-primary-50/60 p-5 ring-1 ring-primary-100">
                 <p class="text-sm font-medium text-primary-800">Giá trọn gói</p>
                 <p class="mt-1 text-3xl font-semibold text-primary-900">{{ priceText }}</p>
-                <p class="mt-1 text-xs text-primary-700/70">Bao gồm đầy đủ file thiết kế chất lượng cao cùng thiết kế hướng dẫn triển khai.</p>
+                <p class="mt-1 text-xs text-primary-700/70">Bao gồm đầy đủ file thiết kế chất lượng cao cùng thiết kế
+                    hướng dẫn triển khai.</p>
             </div>
 
             <div class="flex flex-col gap-3">
-                <a
-                    v-if="isPurchased && downloadZipUrl"
-                    :href="downloadZipUrl"
-                    target="_blank"
-                    rel="noopener"
-                    class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none"
-                >
+                <a v-if="isPurchased && downloadZipUrl" :href="downloadZipUrl" target="_blank" rel="noopener"
+                    class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none">
                     Tải (ZIP)
                 </a>
-                <Link
-                    v-else
-                    :href="route('asset.buy', { slug: fileProduct.slug })"
-                    class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none"
-                >
+                <Link v-else :href="route('asset.buy', { slug: fileProduct.slug })"
+                    class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none">
                     Mua ngay
                 </Link>
-                <button
-                    type="button"
+                <Link :href="route('contact.index')"
+                    class="inline-flex w-full items-center justify-center rounded-lg border-2 border-red-600 bg-white px-4 py-3 text-base font-bold text-red-600 shadow-sm transition hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:outline-none">
+                    Liên hệ thi công
+                </Link>
+                <button type="button"
                     class="inline-flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 text-base font-semibold text-primary-600 shadow-sm transition hover:bg-primary-50 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:outline-none"
-                    @click="isContactModalOpen = true"
-                >
+                    @click="isContactModalOpen = true">
                     Gọi: {{ hotlineDisplay }}
                 </button>
             </div>
 
             <ul class="space-y-2 rounded-2xl border border-gray-100 bg-gray-50 p-5 text-sm text-gray-600">
                 <li class="flex items-center gap-3">
-                    <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                    <span
+                        class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
                     File nguồn chất lượng cao, dễ chỉnh sửa.
                 </li>
                 <li class="flex items-center gap-3">
-                    <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                    <span
+                        class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
                     Phù hợp cho nhiều loại hình sự kiện.
                 </li>
                 <li class="flex items-center gap-3">
-                    <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                    <span
+                        class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
                     Hỗ trợ nhanh chóng khi cần điều chỉnh.
                 </li>
             </ul>
         </aside>
 
-        <div
-            v-if="isContactModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4"
-            @click="isContactModalOpen = false"
-        >
-            <div
-                class="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
-                @click.stop
-            >
-                <button
-                    type="button"
+        <div v-if="isContactModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4"
+            @click="isContactModalOpen = false">
+            <div class="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" @click.stop>
+                <button type="button"
                     class="absolute right-3 top-3 rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                    @click="isContactModalOpen = false"
-                >
+                    @click="isContactModalOpen = false">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                            fill-rule="evenodd"
+                        <path fill-rule="evenodd"
                             d="M10 8.586 4.293 2.879 2.879 4.293 8.586 10l-5.707 5.707 1.414 1.414L10 11.414l5.707 5.707 1.414-1.414L11.414 10l5.707-5.707-1.414-1.414L10 8.586Z"
-                            clip-rule="evenodd"
-                        />
+                            clip-rule="evenodd" />
                     </svg>
                 </button>
                 <h3 class="text-lg font-semibold text-gray-900">Chọn cách liên hệ</h3>
                 <p class="mt-1 text-sm text-gray-600">Vui lòng chọn kênh liên hệ với tư vấn viên.</p>
                 <div class="mt-5 flex flex-col gap-3">
-                    <a
-                        :href="zaloHref"
-                        target="_blank"
-                        rel="noopener"
-                        class="inline-flex w-full items-center justify-center rounded-lg border border-primary-200 bg-primary-50 px-4 py-3 text-base font-semibold text-primary-700 transition hover:border-primary-300 hover:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                    >
+                    <a :href="zaloHref" target="_blank" rel="noopener"
+                        class="inline-flex w-full items-center justify-center rounded-lg border border-primary-200 bg-primary-50 px-4 py-3 text-base font-semibold text-primary-700 transition hover:border-primary-300 hover:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
                         Liên hệ qua Zalo
                     </a>
-                    <a
-                        :href="hotlineHref"
-                        class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                    >
+                    <a :href="hotlineHref"
+                        class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
                         Gọi trực tiếp
                     </a>
+                    <Link :href="route('contact.index')"
+                        class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
+                        Liên hệ thi công
+                    </Link>
                 </div>
             </div>
         </div>
@@ -153,14 +131,18 @@
 </template>
 
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { inject } from "vue";
 import { computed, ref } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
 
 import { formatDate, formatPrice } from '@/lib/helper';
 
 import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import type { FileProduct, Tag } from '@/pages/home/types';
 import type { AppSettings } from '@/types';
+
+const route = inject('route') as any;
 
 interface PreviewMedia {
     id?: number | string | null;
@@ -202,6 +184,7 @@ const placeholderImage = computed(
 );
 
 const coverImage = computed(() => selectedImage.value ?? props.previewImages[0]?.url ?? props.fileProduct.image ?? placeholderImage.value);
+const primaryImageTag = computed(() => (!selectedImage.value ? props.fileProduct.image_tag ?? null : null));
 
 const secondaryPreviews = computed(() => props.previewImages);
 

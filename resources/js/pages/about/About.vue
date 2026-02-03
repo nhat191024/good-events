@@ -33,13 +33,16 @@
 
 <script setup lang="ts">
 import { motion } from 'motion-v';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
 import AboutHero from './components/AboutHero.vue';
 import AboutRoles from './components/AboutRoles.vue';
 import AboutTalentShowcase from './components/AboutTalentShowcase.vue';
+import { computed, watch } from 'vue';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
 
 const sectionMotion = {
     initial: { opacity: 0, y: 40 },
@@ -89,7 +92,7 @@ const heroGallery = [
     {
         label: 'Đối tác',
         caption: 'Nhận show phù hợp năng lực, thanh toán an toàn',
-        image: 'https://images.unsplash.com/photo-1509099836639-18ba02e2e38d?auto=format&fit=crop&w=1200&q=80',
+        image: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=1200&q=80',
     },
     {
         label: 'Kho tiết mục',
@@ -144,4 +147,26 @@ const talentCategories = [
         cover: 'https://images.unsplash.com/photo-1527933053326-89d1746b76c2?auto=format&fit=crop&w=1200&q=80',
     },
 ];
+
+const page = usePage();
+const user = computed(() => page.props.auth?.user ?? null);
+const { addTutorialRoutes } = useTutorialHelper();
+
+watch(
+    user,
+    (value) => {
+        setTutorialRoutesBasedOnAuth(value);
+        // clearTutorialRoutes();
+    },
+    { immediate: true }
+);
+
+function setTutorialRoutesBasedOnAuth(value: any) {
+    if (!value) {
+        addTutorialRoutes([tutorialQuickLinks.clientRegister, tutorialQuickLinks.partnerRegister, tutorialQuickLinks.clientRegisterAndFastBooking]);
+    }
+    else {
+        addTutorialRoutes([tutorialQuickLinks.clientQuickOrder]);
+    }
+}
 </script>

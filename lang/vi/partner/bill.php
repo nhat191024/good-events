@@ -123,6 +123,8 @@ return [
     'arrival_photo_max_size' => 'Kích thước ảnh tối đa 5MB',
     'arrival_photo_invalid_format' => 'Định dạng ảnh không hợp lệ. Chỉ chấp nhận: JPEG, PNG, JPG, WEBP',
     'click_to_upload_photo' => 'Nhấp để tải lên ảnh',
+    'take_photo' => 'Chụp ảnh',
+    'max_5mb' => 'Tối đa 5MB',
     'max_5mb' => 'Tối đa 5MB',
     'arrival_photo_description' => 'Ảnh này sẽ được sử dụng làm bằng chứng xác nhận bạn đã đến địa điểm tổ chức sự kiện.',
     'no_arrival_photo' => 'Chưa có ảnh xác nhận',

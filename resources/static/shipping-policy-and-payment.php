@@ -1,9 +1,7 @@
 <?php
 
 return <<<'TEXT'
-CHÍNH SÁCH GIAO NHẬN & THANH TOÁN
-
-CÔNG TY TNHH CÔNG NGHỆ SỰ KIỆN TỐT
+Chính sách đối với những dịch vụ phát sinh trên nền tảng sukientot.com và có sử dụng hình thức vận chuyển
 
 ---
 

@@ -31,7 +31,7 @@ class RentHomeController extends Controller
         $rentProducts = RentProduct::with('category.parent', 'category', 'tags', 'media')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
-        $appRentalBanner = optional(Banner::where('type', 'rental')->first())
+        $appRentalBanner = optional(Banner::whereType('rental')->first())
             ?->getMedia('banners') ?? collect();
 
         $tags = Taggable::getModelTags('RentProduct');
@@ -40,6 +40,7 @@ class RentHomeController extends Controller
             ->orderBy('order', 'asc')
             ->whereParentId(null)
             ->whereIsShow(1)
+            ->with('media')
             ->get();
 
         return Inertia::render('home/RentHome', [

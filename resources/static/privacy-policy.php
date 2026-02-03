@@ -1,27 +1,7 @@
 <?php
 
 return <<<'TEXT'
-CHÍNH SÁCH BẢO MẬT DỮ LIỆU CÁ NHÂN
-
-CÔNG TY TNHH CÔNG NGHỆ SỰ KIỆN TỐT (sau đây gọi là “SỰ KIỆN TỐT”, “chúng tôi”, “của chúng tôi”)
-
-Giới thiệu Tại CÔNG TY TNHH CÔNG NGHỆ SỰ KIỆN TỐT, chúng tôi luôn đặt quyền riêng tư và an toàn dữ liệu cá nhân của Người dùng lên hàng đầu. Chính sách Bảo mật Dữ liệu Cá nhân này (“Chính sách”) được xây dựng nhằm cung cấp thông tin đầy đủ, minh bạch về cách chúng tôi thu thập, xử lý, lưu trữ và bảo vệ dữ liệu cá nhân trong quá trình cung cấp sản phẩm, dịch vụ hoặc thực hiện các giao dịch kinh doanh.
-
-Chính sách này nêu rõ mục đích thu thập dữ liệu, cách sử dụng, phạm vi chia sẻ, cũng như quyền của Người dùng đối với dữ liệu cá nhân của mình. Chính sách áp dụng chỉ cho người dùng là cá nhân. Chúng tôi khuyến khích người dùng thường xuyên theo dõi để cập nhật những thay đổi mới nhất.
-
-Giải thích thuật ngữ
-
-“Sự Kiện Tốt ”: CÔNG TY TNHH CÔNG NGHỆ SỰ KIỆN TỐT.
-
-“Xử lý dữ liệu”: Một hoặc nhiều hành động, hoạt động lên dữ liệu cá nhân như thu thập, ghi nhận, phân tích, xác thực, lưu trữ, chỉnh sửa, công khai, kết hợp, truy cập, truy xuất, mã hóa, giải mã, chia sẻ, truyền đưa, cung cấp, chuyển giao, xóa hoặc tiêu thụ dữ liệu.
-
-“Dữ liệu cá nhân”: Các thông tin bên dưới dạng chữ viết, số, ký hiệu, âm thanh, hình ảnh hoặc dữ liệu điện tử có khả năng xác định hoặc liên kết đến một cụ thể.
-
-“Người dùng”: Cá nhân truy cập, tìm hiểu, đăng ký hoặc sử dụng sản phẩm, dịch vụ của Sự kiện Tốt nghiệp.
-
-“Bên thứ ba”: Tổ chức hoặc cá nhân không phải là Sự Kiện Tốt hoặc Người dùng.
-
-Việc cung cấp dữ liệu cá nhân là hoàn toàn tự nguyện; Tuy nhiên, nếu không cung cấp đầy đủ thông tin cần thiết, chúng tôi không thể cung cấp dịch vụ một cách trọn vẹn.
+Trách nhiệm của công ty đối với thông tin cá nhân của người dùng (nhân sự và khách hàng)
 
 PHẦN A – Các loại dữ liệu cá nhân chúng tôi thu thập và xử lý
 

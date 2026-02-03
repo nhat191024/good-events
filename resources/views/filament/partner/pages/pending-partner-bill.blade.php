@@ -2,7 +2,7 @@
     <div class="space-y-6">
         {{-- Header Section --}}
         <div class="rounded-lg bg-white shadow-sm dark:bg-gray-800">
-            <div class="border-b border-gray-200 bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-700/50">
+            <div class="rounded-xl bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-800/50">
                 <div class="flex items-center justify-between">
                     <h3 class="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
                         {{ __('partner/bill.bill_pending') }} ({{ $this->bills->total() }})
@@ -13,7 +13,7 @@
                 <div class="mt-4 space-y-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0 lg:grid-cols-4">
                     {{-- Search --}}
                     <div class="relative sm:col-span-2 lg:col-span-1">
-                        <input class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" type="text" placeholder="{{ __('partner/bill.search_placeholder') }}"
+                        <input class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400" type="text" placeholder="{{ __('partner/bill.search_placeholder') }}"
                             wire:model.live.debounce.300ms="searchQuery" />
                         <div class="absolute right-2 top-2" wire:loading wire:target="searchQuery">
                             <svg class="h-4 w-4 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
@@ -25,7 +25,7 @@
 
                     {{-- Date Filter --}}
                     <div class="relative">
-                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" wire:model.live="dateFilter">
+                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white" wire:model.live="dateFilter">
                             <option value="all">{{ __('partner/bill.filter_date') }}</option>
                             <option value="today">{{ __('partner/bill.today') }}</option>
                             <option value="tomorrow">{{ __('partner/bill.tomorrow') }}</option>
@@ -43,7 +43,7 @@
 
                     {{-- Sort By --}}
                     <div class="relative">
-                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" wire:model.live="sortBy">
+                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white" wire:model.live="sortBy">
                             <option value="newest">{{ __('partner/bill.newest_first') }}</option>
                             <option value="oldest">{{ __('partner/bill.oldest_first') }}</option>
                             <option value="date_asc">{{ __('partner/bill.event_date_asc') }}</option>
@@ -59,15 +59,15 @@
 
                     {{-- Clear Filters --}}
                     <div class="flex items-end">
-                        <button class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                        <button
+                            class="flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-900 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-black/10"
                             wire:click="clearFilters" wire:loading.attr="disabled">
                             <span wire:loading.remove wire:target="clearFilters">{{ __('partner/bill.clear_filters') }}</span>
-                            <span class="flex items-center justify-center" wire:loading wire:target="clearFilters">
-                                <svg class="mr-2 h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <span wire:loading wire:target="clearFilters">
+                                <svg class="mr-2 h-4 w-4 animate-spin align-middle" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                {{ __('partner/bill.clear_filters') }}
                             </span>
                         </button>
                     </div>
@@ -79,7 +79,7 @@
         @if ($this->bills->count() > 0)
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
                 @foreach ($this->bills as $bill)
-                    <div class="hover:border-primary-500 dark:hover:border-primary-500 group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800" wire:click="viewBill({{ $bill->id }})">
+                    <div class="hover:border-primary-500 dark:hover:border-primary-500 group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-lg dark:border-gray-900 dark:bg-gray-800" wire:click="viewBill({{ $bill->id }})">
                         {{-- Status Badge --}}
                         <div class="flex-1 p-6 pb-4">
                             <div class="mb-4 flex items-start justify-between">
@@ -106,15 +106,10 @@
 
                             {{-- Client Info --}}
                             <div class="mb-4 flex items-center gap-3">
-                                <div class="from-primary-400 to-primary-600 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br font-semibold text-white">
-                                    {{ substr($bill->client?->name ?? 'U', 0, 1) }}
-                                </div>
+                                {{-- <img class="h-10 w-10 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700" src="{{ $bill->client?->avatar_url }}" alt="{{ $bill->client?->name }}"> --}}
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
                                         {{ $bill->client?->name ?? __('partner/bill.unknown_client') }}
-                                    </p>
-                                    <p class="truncate text-xs text-gray-500 dark:text-gray-400">
-                                        {{ $bill->phone }}
                                     </p>
                                 </div>
                             </div>

@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import AppContent from '@/components/AppContent.vue';
+import AppInstallBanner from '@/components/AppInstallBanner.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import Loading from '@/components/Loading.vue';
+import TutorialHelpButton from '@/components/TutorialHelpButton.vue';
 import Footer from '@/pages/home/partials/Footer.vue';
 import Header from '@/pages/home/partials/Header.vue';
+import Toast from '@/components/Toast.vue';
+import SeoHead from '@/components/SeoHead.vue';
+import { setDefaultTutorialLinks, setTutorialHiddenRoutes } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import type { BreadcrumbItemType } from '@/types';
 import { onMounted } from 'vue';
 
@@ -14,6 +20,12 @@ interface Props {
     backgroundClassNames?: string;
     breadcrumbs?: BreadcrumbItemType[];
 }
+
+setDefaultTutorialLinks([
+    tutorialQuickLinks.seeAllTutorials,
+]);
+
+setTutorialHiddenRoutes(['chat.index']);
 
 withDefaults(defineProps<Props>(), {
     showBannerBackground: () => true,
@@ -28,9 +40,11 @@ onMounted(() => {
 </script>
 
 <template>
+    <SeoHead />
     <Header v-if="showNav" :background-class-names="backgroundClassNames" />
     <main :class="showNav ? 'pt-16' : 'pt-0'">
-        <div class="flex min-h-screen flex-col bg-white">
+        <AppInstallBanner :show-nav="showNav" />
+        <div :class="['flex flex-col bg-white', showNav ? 'min-h-[calc(100vh-4rem)]' : 'min-h-screen']">
             <AppContent class="flex-1">
                 <!-- the red bg banner on top of the page -->
                 <!-- <div v-if="showBannerBackground" :class="`absolute top-0 left-0 z-0 flex w-full h-48 items-center ${bannerBackgroundClassName || ''}`"> -->
@@ -43,5 +57,8 @@ onMounted(() => {
 
         <ConfirmModal />
         <Loading />
+        <Toast />
+        <TutorialHelpButton />
     </main>
 </template>
+

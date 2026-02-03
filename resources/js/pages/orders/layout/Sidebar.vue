@@ -1,7 +1,8 @@
 <script setup lang="ts">
 
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { Package, History, SlidersHorizontal, Filter, ChevronDown, Calendar } from 'lucide-vue-next'
+import { Package, History, SlidersHorizontal, Filter, ChevronDown, Calendar, Search } from 'lucide-vue-next'
+import { Motion } from 'motion-v'
 import OrderList from '../components/OrderList.vue'
 import OrderHistoryList from '../components/OrderHistoryList.vue'
 
@@ -222,153 +223,217 @@ const selectedHistoryId = computed(() =>
 
 <template>
     <div
-        class="w-full md:w-96 md:flex-shrink-0 bg-sidebar border-r border-sidebar-border overflow-y-auto scrollbar-hide h-full">
-        <div class="py-2 md:p-6">
-            <!-- tabs -->
-            <div
-                class="grid grid-cols-2 z-10 gap-2 mb-3 md:mb-6 items-center pt-1 pb-2 sticky top-0 bg-sidebar w-full md:h-fit h-[50px]">
-                <button type="button"
-                    class="h-10 rounded-md border border-border flex items-center justify-center gap-2"
-                    :class="activeTab === 'current' ? 'bg-primary-700 text-white' : 'bg-card'"
-                    @click="activeTab = 'current'">
-                    <Package class="h-4 w-4" />
-                    Đơn hiện tại
-                </button>
-                <button type="button"
-                    class="h-10 rounded-md border border-border flex items-center justify-center gap-2"
-                    :class="activeTab === 'history' ? 'bg-primary-700 text-white' : 'bg-card'"
-                    @click="activeTab = 'history'">
-                    <History class="h-4 w-4" />
-                    Lịch sử
-                </button>
+        class="w-full md:w-96 md:flex-shrink-0 bg-sidebar border-r border-sidebar-border overflow-y-auto scrollbar-hide h-full flex flex-col relative">
+        <div class="px-1 md:px-4 flex-1">
+            <!-- <div
+                class="fixed top-0 z-10 w-1/3 h-20 bg-sidebar/95 backdrop-blur-sm -mx-2 px-2 pb-2 space-y-4 border-b border-gray-100 m-0">
+            </div> -->
+            <!-- tabs control -->
+            <div class="sticky top-0 z-20 bg-sidebar/80 backdrop-blur-md py-0">
+                <div class="flex p-1 bg-gray-100/80 rounded-xl gap-1">
+                    <button type="button"
+                        class="relative flex-1 h-10 rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition-all duration-200"
+                        :class="activeTab === 'current' ? 'text-white' : 'text-gray-600 hover:bg-gray-200/50'"
+                        @click="activeTab = 'current'">
+                        <div v-if="activeTab === 'current'"
+                            class="absolute inset-0 bg-primary-700 rounded-lg shadow-sm"></div>
+                        <Package class="h-4 w-4 relative z-10" />
+                        <span class="relative z-10">Đơn hiện tại</span>
+                    </button>
+                    <button type="button"
+                        class="relative flex-1 h-10 rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition-all duration-200"
+                        :class="activeTab === 'history' ? 'text-white' : 'text-gray-600 hover:bg-gray-200/50'"
+                        @click="activeTab = 'history'">
+                        <div v-if="activeTab === 'history'"
+                            class="absolute inset-0 bg-primary-700 rounded-lg shadow-sm"></div>
+                        <History class="h-4 w-4 relative z-10" />
+                        <span class="relative z-10">Lịch sử</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- CURRENT TAB -->
-            <div v-if="activeTab === 'current'" class="">
-                <div class="space-y-1 z-10 md:space-y-4 top-13 sticky bg-white shadow p-2 mb-3 rounded-b-md">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-lexend font-semibold text-sidebar-foreground">Đơn hàng của bạn</h2>
-                        <span class="bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded">
-                            {{ visibleOrders.length }} đơn
-                        </span>
-                        <ReloadButton :is-reloading="isReloading" @reload="reloadOrders()" />
-                    </div>
+            <Motion :key="activeTab" :initial="{ opacity: 0, y: 10 }" :animate="{ opacity: 1, y: 0 }"
+                :transition="{ duration: 0.3 }">
 
-                    <!-- filters -->
-                    <div class="space-y-2 md:space-y-4 mb-1">
-                        <!-- search keyword -->
-                        <input v-model="kw" placeholder="Tìm theo tiêu đề, lĩnh vực, mô tả, ngân sách..."
-                            class="w-full h-9 rounded-md bg-white border border-gray-200 px-3 text-sm" type="text" />
-
-                        <!-- sort select -->
-                        <div class="space-y-2">
-                            <select v-model="sortBy"
-                                class="w-full h-9 rounded-md bg-white border border-gray-200 px-3 text-sm">
-                                <option value="newest">Đơn sắp tới</option>
-                                <option value="oldest">Đơn muộn nhất</option>
-                                <option v-if="activeTab == 'current'" value="most-applicants">Nhiều ứng viên nhất
-                                </option>
-                                <option value="highest-budget">Ngân sách cao nhất</option>
-                                <option value="lowest-budget">Ngân sách thấp nhất</option>
-                            </select>
+                <!-- CURRENT TAB -->
+                <div v-if="activeTab === 'current'" class="space-y-4">
+                    <div
+                        class="sticky top-10 z-10 bg-sidebar/95 backdrop-blur-sm -mx-2 px-2 py-2 space-y-4 border-b border-gray-100 m-0">
+                        <div class="flex items-center justify-between px-1">
+                            <div>
+                                <h2 class="text-xl font-lexend font-bold text-gray-900">Đơn hàng</h2>
+                                <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Hiện tại của
+                                    bạn</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="bg-primary-50 text-primary-700 text-xs font-bold px-2 py-0.5 rounded-full border border-primary-100">
+                                    {{ visibleOrders.length }} đơn
+                                </span>
+                                <ReloadButton :is-reloading="isReloading" @reload="reloadOrders()" />
+                            </div>
                         </div>
 
-                        <!-- advanced filter toggle -->
-                        <div id="orders-adv-filter" class="relative">
-                            <div class="flex flex-row space-x-4">
-                                <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" class="size-4" :value="OrderStatus.PENDING"
-                                        v-model="statusFilter" />
-                                    Đang chờ
-                                </label>
-                                <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" class="size-4" :value="OrderStatus.CONFIRMED"
-                                        v-model="statusFilter" />
-                                    Đã chốt
-                                </label>
-                                <label class="flex items-center gap-2 text-sm">
-                                    <input type="checkbox" class="size-4" :value="OrderStatus.IN_JOB"
-                                        v-model="statusFilter" />
-                                    Đã đến nơi
-                                </label>
+                        <!-- filters -->
+                        <div class="space-y-3">
+                            <!-- search keyword -->
+                            <div class="relative group">
+                                <Search
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                                <input v-model="kw" placeholder="Tìm kiếm đơn hàng..."
+                                    class="w-full h-10 rounded-xl bg-gray-50/50 border border-gray-200 pl-10 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
+                                    type="text" />
                             </div>
-                            <div v-if="showAdvancedFilter"
-                                class="absolute left-0 mt-2 w-80 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg p-4 z-10">
-                                <div class="space-y-3">
-                                    <label class="text-sm font-medium">Trạng thái đơn hàng</label>
-                                    <div class="space-y-2">
-                                        <label class="flex items-center gap-2 text-sm">
-                                            <input type="checkbox" class="size-4" value="pending"
-                                                v-model="statusFilter" />
-                                            Đang chờ
-                                        </label>
-                                        <label class="flex items-center gap-2 text-sm">
-                                            <!-- note: sửa 'paid' -> 'confirmed' cho đồng bộ -->
-                                            <input type="checkbox" class="size-4" value="confirmed"
-                                                v-model="statusFilter" />
-                                            Đã chốt
-                                        </label>
-                                    </div>
+
+                            <!-- sort & filter row -->
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <select v-model="sortBy"
+                                        class="w-full h-9 rounded-lg bg-gray-50/50 border border-gray-200 px-3 text-xs font-medium cursor-pointer hover:bg-gray-100 transition-colors appearance-none outline-none">
+                                        <option value="newest">Đơn sắp tới</option>
+                                        <option value="oldest">Đơn muộn nhất</option>
+                                        <option v-if="activeTab == 'current'" value="most-applicants">Nhiều ứng viên
+                                            nhất
+                                        </option>
+                                        <option value="highest-budget">Ngân sách cao nhất</option>
+                                        <option value="lowest-budget">Ngân sách thấp nhất</option>
+                                    </select>
+                                    <ChevronDown
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" />
                                 </div>
                             </div>
+
+                            <!-- filter chips -->
+                            <div class="flex flex-wrap gap-2 px-1">
+                                <label class="flex items-center gap-1.5 cursor-pointer group">
+                                    <input type="checkbox" class="hidden" :value="OrderStatus.PENDING"
+                                        v-model="statusFilter" />
+                                    <span :class="[
+                                        'px-3 py-1 rounded-full text-[11px] font-bold transition-all border',
+                                        statusFilter.includes(OrderStatus.PENDING)
+                                            ? 'bg-amber-100 text-amber-700 border-amber-200 shadow-sm ring-2 ring-amber-800/70'
+                                            : 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'
+                                    ]">Đang chờ</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer group">
+                                    <input type="checkbox" class="hidden" :value="OrderStatus.CONFIRMED"
+                                        v-model="statusFilter" />
+                                    <span :class="[
+                                        'px-3 py-1 rounded-full text-[11px] font-bold transition-all border',
+                                        statusFilter.includes(OrderStatus.CONFIRMED)
+                                            ? 'bg-blue-100 text-blue-700 border-blue-200 shadow-sm ring-2 ring-blue-800/70'
+                                            : 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'
+                                    ]">Đã chốt</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer group">
+                                    <input type="checkbox" class="hidden" :value="OrderStatus.IN_JOB"
+                                        v-model="statusFilter" />
+                                    <span :class="[
+                                        'px-3 py-1 rounded-full text-[11px] font-bold transition-all border',
+                                        statusFilter.includes(OrderStatus.IN_JOB)
+                                            ? 'bg-green-100 text-green-700 border-green-200 shadow-sm ring-2 ring-green-800/70'
+                                            : 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'
+                                    ]">Đã đến nơi</span>
+                                </label>
+                            </div>
                         </div>
+                    </div>
+
+                    <div
+                        class="sticky top-5 z-10 bg-sidebar/95 backdrop-blur-sm -mx-2 px-2 pb-2 space-y-4 border-b border-gray-100 m-0">
+                    </div>
+                    <div class="px-1">
+                        <OrderList :orders="visibleOrders" :loading="orderLoading" :selected-id="selectedCurrentId"
+                            @select="(o) => emit('select', { order: o, mode: 'current' })"
+                            @load-more="loadMoreOrders" />
                     </div>
                 </div>
 
-                <OrderList :orders="visibleOrders" :loading="orderLoading" :selected-id="selectedCurrentId"
-                    @select="(o) => emit('select', { order: o, mode: 'current' })" @load-more="loadMoreOrders" />
-            </div>
+                <!-- HISTORY TAB -->
+                <div v-else class="space-y-4">
+                    <div
+                        class="sticky top-10 z-10 bg-sidebar/95 backdrop-blur-sm -mx-2 px-2 py-2 space-y-4 border-b border-gray-100 m-0">
+                        <div class="flex items-center justify-between px-1">
+                            <div>
+                                <h2 class="text-xl font-lexend font-bold text-gray-900">Lịch sử</h2>
+                                <p class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Các đơn đã
+                                    qua
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span v-if="orderHistory?.length > 0"
+                                    class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full border border-gray-200">
+                                    {{ orderHistory.length }} đơn
+                                </span>
+                                <span v-else class="text-xs text-gray-400 italic">Trống</span>
+                                <ReloadButton :is-reloading="isReloading" @reload="reloadHistory()" />
+                            </div>
+                        </div>
 
-            <!-- HISTORY TAB -->
-            <div v-else>
-                <div class="space-y-1 md:space-y-4 top-12 rounded-md sticky bg-white/30 backdrop-blur-md p-2 mb-3 z-10">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-lexend font-semibold text-sidebar-foreground">Lịch sử đơn hàng</h2>
-                        <div class="flex items-center gap-2">
-                            <span v-if="orderHistory?.length > 0"
-                                class="bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded">
-                                {{ orderHistory.length }} đơn
-                            </span>
-                            <span v-else class="bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded">
-                                Trống </span>
-                            <ReloadButton :is-reloading="isReloading" @reload="reloadHistory()" />
+                        <!-- filters for history -->
+                        <div class="space-y-3">
+                            <div class="relative group">
+                                <Search
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-primary-600 transition-colors" />
+                                <input v-model="kw" placeholder="Tìm trong lịch sử..."
+                                    class="w-full h-10 rounded-xl bg-gray-50/50 border border-gray-200 pl-10 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
+                                    type="text" />
+                            </div>
+
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <select v-model="sortByHistory"
+                                        class="w-full h-9 rounded-lg bg-gray-50/50 border border-gray-200 px-3 text-xs font-medium cursor-pointer hover:bg-gray-100 transition-colors appearance-none outline-none">
+                                        <option value="newest">Gần đây</option>
+                                        <option value="oldest">Cũ hơn</option>
+                                        <option value="highest-budget">Ngân sách cao nhất</option>
+                                        <option value="lowest-budget">Ngân sách thấp nhất</option>
+                                    </select>
+                                    <ChevronDown
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" />
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2 px-1">
+                                <label class="flex items-center gap-1.5 cursor-pointer group">
+                                    <input type="checkbox" class="hidden" value="completed" v-model="statusFilter" />
+                                    <span :class="[
+                                        'px-3 py-1 rounded-full text-[11px] font-bold transition-all border',
+                                        statusFilter.includes('completed')
+                                            ? 'bg-green-100 text-green-700 border-green-200 shadow-sm ring-2 ring-green-800/70'
+                                            : 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'
+                                    ]">Hoàn thành</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer group">
+                                    <input type="checkbox" class="hidden" value="cancelled" v-model="statusFilter" />
+                                    <span :class="[
+                                        'px-3 py-1 rounded-full text-[11px] font-bold transition-all border',
+                                        statusFilter.includes('cancelled')
+                                            ? 'bg-rose-100 text-rose-700 border-rose-200 shadow-sm ring-2 ring-rose-800/70'
+                                            : 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'
+                                    ]">Đã hủy</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer group">
+                                    <input type="checkbox" class="hidden" value="expired" v-model="statusFilter" />
+                                    <span :class="[
+                                        'px-3 py-1 rounded-full text-[11px] font-bold transition-all border',
+                                        statusFilter.includes('expired')
+                                            ? 'bg-gray-100 text-gray-600 border-gray-200 shadow-sm ring-2 ring-gray-800/70'
+                                            : 'bg-white text-gray-500 border-gray-300 hover:border-gray-400'
+                                    ]">Hết hạn</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- filters for history -->
-                    <div class="space-y-2 md:space-y-4 mb-1">
-                        <input v-model="kw" placeholder="Tìm theo mã, ghi chú, trạng thái, địa chỉ..."
-                            class="w-full h-9 rounded-md bg-white border border-gray-200 px-3 text-sm" type="text" />
-
-                        <select v-model="sortByHistory"
-                            class="w-full h-9 rounded-md bg-white border border-gray-200 px-3 text-sm">
-                            <option value="newest">Gần đây</option>
-                            <option value="oldest">Cũ hơn</option>
-                            <option value="highest-budget">Ngân sách cao nhất</option>
-                            <option value="lowest-budget">Ngân sách thấp nhất</option>
-                        </select>
-
-                        <div class="flex flex-row space-x-4">
-                            <label class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" class="size-4" value="completed" v-model="statusFilter" />
-                                Hoàn thành
-                            </label>
-                            <label class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" class="size-4" value="cancelled" v-model="statusFilter" />
-                                Đã hủy
-                            </label>
-                            <label class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" class="size-4" value="expired" v-model="statusFilter" />
-                                Hết hạn
-                            </label>
-                        </div>
+                    <div class="px-1">
+                        <OrderHistoryList :orders="visibleHistoryOrders" :loading="historyLoading"
+                            :selected-id="selectedHistoryId"
+                            @select="(o) => emit('select', { order: o, mode: 'history' })" @load-more="loadMoreHistory"
+                            @reload="reloadHistory()" />
                     </div>
                 </div>
-
-                <OrderHistoryList :orders="visibleHistoryOrders" :loading="historyLoading"
-                    :selected-id="selectedHistoryId" @select="(o) => emit('select', { order: o, mode: 'history' })"
-                    @load-more="loadMoreHistory" @reload="reloadHistory()" />
-            </div>
+            </Motion>
         </div>
     </div>
 </template>

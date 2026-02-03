@@ -39,6 +39,10 @@ import PurchaseForm from '@/pages/asset/purchase/components/PurchaseForm.vue';
 import PurchaseSummary from '@/pages/asset/purchase/components/PurchaseSummary.vue';
 import type { PurchaseFormFields, PurchasePageProps } from '@/pages/asset/purchase/types';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 const props = withDefaults(defineProps<PurchasePageProps>(), {
     buyer: () => ({}),
     paymentMethods: () => [],

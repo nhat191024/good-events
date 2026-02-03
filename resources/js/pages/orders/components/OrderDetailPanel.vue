@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import BookingSummaryCard from './BookingSummaryCard.vue'
 import ApplicantCard from './ApplicantCard.vue'
 import { ArrowLeft, Star } from 'lucide-vue-next'
@@ -10,6 +9,8 @@ import ReloadButton from './ReloadButton.vue';
 import { debounce } from '../helper';
 import { cn } from '@/lib/utils';
 import ArrivalPhotoModal from './ArrivalPhotoModal.vue'
+import ReportModal from '@/components/ReportModal.vue'
+import { Flag } from 'lucide-vue-next'
 
 const props = withDefaults(defineProps<{
     mode?: 'current' | 'history'
@@ -33,9 +34,9 @@ const emit = defineEmits<{
     (e: 'back'): void,
     (e: 'rate'): void,
     (e: 'reload-detail',
-    orderId: number | undefined): void
-    (e: 'cancel-order') : void
-    (e: 'confirm-choose-partner', partner?: Partner | null | undefined, total?: number | null | undefined, voucher_code?: string | null | undefined) : void
+        orderId: number | undefined): void
+    (e: 'cancel-order'): void
+    (e: 'confirm-choose-partner', partner?: Partner | null | undefined, total?: number | null | undefined, voucher_code?: string | null | undefined): void
     (e: 'view-partner-profile', partnerId: number): void
 }>()
 
@@ -43,13 +44,9 @@ const bookedPartner = computed<ClientOrderDetail | undefined>(() => {
     return props.applicants.find(item => item.status === OrderDetailStatus.CLOSED)
 })
 
-console.log('applicant list '
-    , props.applicants
-);
-
-
 const isReloading = ref(false)
 const applyVoucher = ref(true)
+const isReportModalOpen = ref(false)
 
 const reloadOrderDetails = debounce(() => {
     isReloading.value = true
@@ -59,8 +56,8 @@ const reloadOrderDetails = debounce(() => {
     }, 10000)
 }, 5000)
 
-const classIfBookedPartnerFound = computed(()=>{
-    return (bookedPartner.value && props.mode === 'current' && (props.order?.status==OrderStatus.CONFIRMED || props.order?.status==OrderStatus.IN_JOB)) ? 'hidden' : '';
+const classIfBookedPartnerFound = computed(() => {
+    return (bookedPartner.value && props.mode === 'current' && (props.order?.status == OrderStatus.CONFIRMED || props.order?.status == OrderStatus.IN_JOB)) ? 'hidden' : '';
 });
 
 const shouldShowArrivalPhoto = computed(() => Boolean(props.order?.arrival_photo))
@@ -98,17 +95,28 @@ watch(() => props.order?.id, () => {
                     Chi tiết đơn hàng {{ props.order ? ' - ' + props.order.code : '' }}
                 </h2>
                 <!-- <p class="text-muted-foreground">{{ description }}</p> -->
-                <ReloadButton :is-reloading="isReloading" @reload="reloadOrderDetails()" />
+                <div class="flex items-center gap-2 ml-auto">
+                    <ReloadButton :is-reloading="isReloading" @reload="reloadOrderDetails()" />
+                    <button title="Báo cáo"
+                        class="p-2.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-300 transition-colors"
+                        @click="isReportModalOpen = true">
+                        <Flag class="w-4 h-4" />
+                    </button>
+                </div>
             </div>
 
             <template v-if="order">
-                <div v-if="props.mode === 'current'" :class="cn('border-2 border-primary/20 rounded-xl bg-card p-3 md:p-3 mb-2', classIfBookedPartnerFound)">
+                <div v-if="props.mode === 'current'"
+                    :class="cn('border-2 border-primary/20 rounded-xl bg-card p-3 md:p-3 mb-2', classIfBookedPartnerFound)">
                     <div class="grid gap-2 md:gap-3">
                         <p v-text="description" class="text-secondary text-sm md:text-md"></p>
                         <div v-if="props.applicants.length > 0" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
                         </div>
-                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)" :show-buttons="props.order?.status !=  OrderStatus.CONFIRMED && props.order?.status != OrderStatus.IN_JOB" v-for="a in props.applicants" :key="a.id" v-bind="a" @confirm-choose-partner="(partner, total) => emitConfirmChoosePartnerWithVoucher(partner, total)"/>
+                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)"
+                            :show-buttons="props.order?.status != OrderStatus.CONFIRMED && props.order?.status != OrderStatus.IN_JOB"
+                            v-for="a in props.applicants" :key="a.id" v-bind="a"
+                            @confirm-choose-partner="(partner, total) => emitConfirmChoosePartnerWithVoucher(partner, total)" />
                     </div>
                 </div>
                 <div v-else class="border-2 border-primary/20 rounded-xl bg-card p-3 md:p-5">
@@ -117,34 +125,25 @@ watch(() => props.order?.id, () => {
                         <div v-if="bookedPartner" class="md:hidden block md:mt-0 mt-2 md:mb-0 mb-3">
                             <hr>
                         </div>
-                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)" :show-buttons="false" v-if="bookedPartner" v-bind="bookedPartner" />
+                        <ApplicantCard @view-partner-profile="emit('view-partner-profile', $event)"
+                            :show-buttons="false" v-if="bookedPartner" v-bind="bookedPartner" />
                         <!-- rating button chỉ hiện ở history + completed -->
                         <!-- <div class="bg-white fixed bottom-1 md:bottom-3 w-[90%] md:w-[45%] lg:w-[55%] justify-self-center"> -->
-                            <button v-if="bookedPartner && props.mode === 'history' && !props.order?.review"
-                                class="z-10 fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center h-10 rounded-md border border-yellow-700 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 flex-1 inline-flex items-center justify-center gap-2"
-                                @click="emit('rate')">
-                                <Star class="h-4 w-4 text-white stroke-yellow-800 fill-white" />
-                                <span class="font-bold text-yellow-950">Đánh giá</span>
-                            </button>
+                        <button v-if="bookedPartner && props.mode === 'history' && !props.order?.review"
+                            class="z-10 fixed bottom-[3vh] w-[90%] md:w-[45%] lg:w-[55%] justify-self-center h-10 rounded-md border border-yellow-700 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 flex-1 inline-flex items-center justify-center gap-2"
+                            @click="emit('rate')">
+                            <Star class="h-4 w-4 text-white stroke-yellow-800 fill-white" />
+                            <span class="font-bold text-yellow-950">Đánh giá</span>
+                        </button>
                         <!-- </div> -->
                     </div>
                 </div>
-                <ArrivalPhotoModal
-                    v-if="shouldShowArrivalPhoto"
-                    class="mt-4"
-                    :arrival-photo="order?.arrival_photo"
-                    :alt-text="arrivalPhotoAlt"
-                />
-                <BookingSummaryCard
-                    v-model="voucher_code"
-                    v-model:applyVoucher="applyVoucher"
-                    @view-partner-profile="emit('view-partner-profile', $event)"
-                    :mode="props.mode"
-                    :booked-partner="bookedPartner"
-                    :order="props.order"
-                    class="mt-6"
-                    @cancel-order="emit('cancel-order')"
-                />
+                <ArrivalPhotoModal v-if="shouldShowArrivalPhoto" class="mt-4" :arrival-photo="order?.arrival_photo"
+                    :alt-text="arrivalPhotoAlt" />
+                <BookingSummaryCard v-model="voucher_code" v-model:applyVoucher="applyVoucher"
+                    @view-partner-profile="emit('view-partner-profile', $event)" :mode="props.mode"
+                    :booked-partner="bookedPartner" :order="props.order" class="mt-6"
+                    @cancel-order="emit('cancel-order')" />
 
             </template>
             <template v-else>
@@ -152,4 +151,6 @@ watch(() => props.order?.id, () => {
             </template>
         </div>
     </div>
+    <ReportModal v-model:open="isReportModalOpen" :bill-id="order?.id" :user-id="bookedPartner?.id"
+        :bill-code="order?.code" />
 </template>

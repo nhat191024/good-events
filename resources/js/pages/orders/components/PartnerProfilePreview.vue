@@ -7,12 +7,19 @@ import PartnerIntroCard from '@/pages/profile/partner/components/PartnerIntroCar
 import PartnerReviewsCard from '@/pages/profile/partner/components/PartnerReviewsCard.vue'
 import PartnerImagesCard from '@/pages/profile/partner/components/PartnerImagesCard.vue'
 import axios from 'axios'
-import { getImg } from '@/pages/booking/helper'
-import { X } from 'lucide-vue-next'
+import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
+import { X, Flag, ExternalLink } from 'lucide-vue-next'
+import ReportModal from '@/components/ReportModal.vue'
+import { inject } from "vue";
+import PartnerVideoCard from '@/pages/profile/partner/components/PartnerVideoCard.vue'
+
+const route = inject('route') as any;
 
 type UserInfo = {
-    id: number; name: string; avatar_url: string; location: string | null;
+    id: number; name: string; avatar_url: string; location: string | null; avatar_img_tag?: string;
     joined_year: string | null; is_pro: boolean; rating: number; total_reviews: number; total_customers: number | null;
+    is_verified?: boolean; is_legit?: boolean;
 }
 type Media = { id: number; url: string }
 type Service = { id: number; name: string | null; field: string | null; price: number | null; media: Media[] }
@@ -25,6 +32,7 @@ type Payload = {
     services: Service[];
     reviews: Review[];
     intro: string | null;
+    video_url: string | null;
 }
 
 const props = defineProps<{
@@ -32,6 +40,7 @@ const props = defineProps<{
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
+const isReportModalOpen = ref(false)
 
 const data = ref<Payload | null>(null)
 const status = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
@@ -79,10 +88,25 @@ const user = computed(() => data.value?.user)
                     <!-- header: sticky để luôn hiện khi cuộn -->
                     <div class="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white z-10">
                         <div class="flex items-center gap-3">
-                            <img v-if="user?.avatar_url" :src="getImg(user!.avatar_url)" :alt="user!.name"
-                                class="w-10 h-10 rounded-full object-cover" />
+                            <ImageWithLoader v-if="user?.avatar_url" :src="getImg(user!.avatar_url)" :alt="user!.name" :img-tag="user!.avatar_img_tag"
+                                class="w-10 h-10 rounded-full" img-class="w-10 h-10 rounded-full object-cover"
+                                loading="lazy" />
                             <div>
-                                <div class="font-semibold">{{ user?.name ?? '—' }}</div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <div class="font-semibold">{{ user?.name ?? '—' }}</div>
+                                    <span v-if="user?.is_verified"
+                                        class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded border border-slate-200"
+                                        title="Người dùng này đã xác minh email"
+                                        aria-label="Người dùng này đã xác minh email">
+                                        Đã xác minh
+                                    </span>
+                                    <span v-if="user?.is_legit"
+                                        class="px-2 py-0.5 bg-amber-100 text-amber-800 text-xs rounded border border-amber-200"
+                                        title="Người dùng đã xác minh thông tin cá nhân chuẩn thông qua KYC"
+                                        aria-label="Người dùng đã xác minh thông tin cá nhân chuẩn thông qua KYC">
+                                        Đáng tin cậy
+                                    </span>
+                                </div>
                                 <div class="text-xs text-muted-foreground">
                                     Thành viên • {{ user?.joined_year ? `từ ${user?.joined_year}` : '—'
                                     }}
@@ -106,6 +130,22 @@ const user = computed(() => data.value?.user)
 
                         <template v-else-if="status === 'success' && data">
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                <div class="md:col-span-12 space-y-4">
+                                    <a
+                                        v-if="user?.id"
+                                        target="_blank"
+                                        :href="route('profile.client.show', { user: user.id })"
+                                        class="w-full cursor-pointer flex items-center justify-center gap-2 rounded-xl bg-slate-50 p-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 ring ring-gray-200"
+                                    >
+                                        <ExternalLink class="h-4 w-4" />
+                                        Mở trong trang  mới
+                                    </a>
+                                    <button @click="isReportModalOpen = true"
+                                        class="w-full cursor-pointer flex items-center justify-center gap-2 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-100">
+                                        <Flag class="h-4 w-4" />
+                                        Báo cáo người dùng này
+                                    </button>
+                                </div>
                                 <!-- sidebar -->
                                 <div class="md:col-span-4 space-y-4">
                                     <PartnerContactCard :contact="data.contact" />
@@ -114,6 +154,7 @@ const user = computed(() => data.value?.user)
                                 <!-- main -->
                                 <div class="md:col-span-8 space-y-4">
                                     <PartnerIntroCard :intro="data.intro" :stats="data.stats" />
+                                    <PartnerVideoCard :iframe="data.video_url" />
                                     <PartnerServiceCard :services="data.services" />
                                     <PartnerReviewsCard :items="data.reviews" />
                                 </div>
@@ -128,4 +169,8 @@ const user = computed(() => data.value?.user)
             </div>
         </div>
     </div>
+
+    <ReportModal v-model:open="isReportModalOpen" :user-id="user?.id" />
 </template>
+
+

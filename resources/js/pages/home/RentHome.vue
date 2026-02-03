@@ -29,12 +29,12 @@
         </div>
         <div id="search" class="container-fluid p-2 sm:p-4 md:p-12 space-y-12 w-full max-w-7xl bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl scroll-mt-24">
             <div class="max-w-5xl mx-auto">
-                <SearchBar :show-search-btn="false" v-model="search" />
+                <SearchBar v-model="search" :show-search-btn="true" @search="submitSearch" />
                 <div v-if="keywordSuggestions.length" class="container mx-auto px-4 mt-4">
                     <div class="flex flex-wrap gap-2">
                         <button v-for="suggestion in keywordSuggestions" :key="suggestion" type="button"
                             class="rounded-full border border-primary-200 bg-white px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
-                            @click="search = suggestion">
+                            @click="submitSearch(suggestion)">
                             {{ suggestion }}
                         </button>
                     </div>
@@ -60,8 +60,9 @@
 </template>
 
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import axios from 'axios';
+import { computed, inject } from 'vue';
 
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 import CardListLayout from './layouts/CardListLayout.vue';
@@ -73,12 +74,14 @@ import PartnerCategoryIcons from './partials/PartnerCategoryIcons/index.vue';
 import type { PartnerCategoryItems } from './partials/PartnerCategoryIcons/type';
 import type { Category, RentCardItemProps, RentProduct, Tag } from './types';
 
-import { normText } from '@/lib/search-filter';
 import { useSearchSuggestion } from '@/lib/useSearchSuggestion';
 
 import { Button } from '@/components/ui/button';
 import CardItem from './components/CardItem/index.vue';
 import SearchBar from '../categories/partials/SearchBar.vue';
+
+const route = inject('route') as any;
+
 interface BannerImage {
     image_tag?: string | null;
 }
@@ -98,21 +101,25 @@ interface Props {
     };
 }
 
+interface SearchSuggestionResponse {
+    suggestions: string[];
+}
+
 const props = defineProps<Props>();
 
-const {
-    query: search,
-    filteredLocal,
-    setItems,
-} = useSearchSuggestion<RentProduct>({
-    keys: ['name', 'slug'],
-    initialItems: props.rentProducts.data ?? [],
-});
+const fetchRentSuggestions = async (q: string): Promise<SearchSuggestionResponse> => {
+    const { data } = await axios.get(route('rent.search'), {
+        params: { q },
+    });
+    return data as SearchSuggestionResponse;
+};
 
-watch(
-    () => props.rentProducts.data,
-    (val) => setItems(val ?? [])
-);
+const { query: search, suggestions } = useSearchSuggestion<string, SearchSuggestionResponse>({
+    fetcher: fetchRentSuggestions,
+    minLength: 2,
+    debounceMs: 300,
+    suggestionSelector: (response) => response.suggestions ?? [],
+});
 
 const heroBannerImages = computed(() => props.settings.banner_images.data ?? []);
 const heroHeaderText = computed(() => 'Thuê thiết bị, loa đài ánh sáng');
@@ -120,8 +127,6 @@ const heroDescription = computed(
     () =>
         props.settings.hero_title ?? 'Đặt loa, màn hình, ánh sáng, sân khấu và nhân sự kỹ thuật chỉ với vài thao tác. Nhận hỗ trợ vận hành trọn gói cho sự kiện của bạn.',
 );
-
-const filteredRentProducts = computed(() => filteredLocal.value ?? []);
 
 const categories = computed<PartnerCategoryItems[]>(() =>
     (props.categories.data ?? []).map((item) => ({
@@ -135,7 +140,7 @@ const categories = computed<PartnerCategoryItems[]>(() =>
 );
 
 const rentProductList = computed<RentCardItemProps[]>(() =>
-    (filteredRentProducts.value ?? []).map((item) => ({
+    (props.rentProducts.data ?? []).map((item) => ({
         id: item.id,
         name: item.name,
         slug: item.slug,
@@ -150,17 +155,15 @@ const handleRentReachEnd = () => {
 };
 
 const keywordSuggestions = computed(() => {
-    const term = search.value.trim();
-    if (term.length < 2) return [];
-
-    const names = new Set<string>();
-    filteredRentProducts.value.forEach((item) => {
-        if (item?.name) names.add(item.name);
-    });
-
-    const normalizedTerm = normText(term);
-    return Array.from(names)
-        .filter((name) => normText(name).includes(normalizedTerm))
-        .slice(0, 8);
+    const unique = Array.from(new Set(suggestions.value ?? []));
+    return unique.filter(Boolean).slice(0, 8);
 });
+
+const submitSearch = (term?: string) => {
+    const next = typeof term === 'string' ? term : search.value;
+    const query = next.trim();
+    if (!query) return;
+    search.value = query;
+    router.get(route('rent.discover'), { q: query });
+};
 </script>

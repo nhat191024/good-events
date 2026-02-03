@@ -11,10 +11,10 @@ class PaymentService
     public function __construct()
     {
         $this->payOS = new PayOS(
-            env("PAYOS_CLIENT_ID"),
-            env("PAYOS_API_KEY"),
-            env("PAYOS_CHECKSUM_KEY"),
-            env("PAYOS_PARTNER_CODE")
+            config('services.payos.client_id'),
+            config('services.payos.api_key'),
+            config('services.payos.checksum_key'),
+            config('services.payos.partner_code')
         );
     }
 
@@ -106,7 +106,7 @@ class PaymentService
         ?string $buyerPhone = null,
         ?array $items = null,
         ?int $expiryTime = null,
-        bool $isAppRequest,
+        ?bool $isAppRequest = false,
         ?string $returnUrl = null,
         ?string $cancelUrl = null,
     ) {

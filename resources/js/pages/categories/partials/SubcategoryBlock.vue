@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 interface Item {
     id: number;
@@ -27,7 +30,7 @@ const props = defineProps<{
                 class="group flex flex-col items-center text-center">
             <div
                 class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden ring-1 ring-gray-200 group-hover:ring-[#ED3B50] transition">
-                <img :src="it.image" :alt="it.name" class="w-full h-full object-cover" />
+                <img :src="it.image" :alt="it.name" class="w-full h-full object-cover" loading="lazy" />
             </div>
             <div class="mt-2 text-xs md:text-sm text-gray-700 group-hover:text-[#ED3B50] line-clamp-1">
                 {{ it.name }}

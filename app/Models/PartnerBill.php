@@ -22,15 +22,10 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-use App\Events\PartnerBillCreated;
-use App\Events\NewThreadCreated;
-use App\Events\PartnerBillStatusChanged;
-
 use App\Jobs\PartnerBillFirstJob;
 
 use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
-use Cmgmyr\Messenger\Models\Message;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -152,6 +147,10 @@ class PartnerBill extends Model implements HasMedia
         $this->addMediaCollection('arrival_photo')
             ->singleFile() // Only allow 1 file
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
+
+        $this->addMediaCollection('completion_photo')
+            ->singleFile() // Only allow 1 file
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
     }
 
     //model boot method
@@ -177,8 +176,6 @@ class PartnerBill extends Model implements HasMedia
                     PartnerBillStatus::EXPIRED => static::handleExpiredStatus($partnerBill),
                     default => null,
                 };
-
-                PartnerBillStatusChanged::dispatch($partnerBill);
             }
 
             // Clear widget caches when bill is updated
@@ -195,7 +192,7 @@ class PartnerBill extends Model implements HasMedia
      */
     protected static function handleBillCreated(PartnerBill $partnerBill): void
     {
-        $superAdmin = User::whereName('Super Admin')->first();
+        // $superAdmin = User::whereName('Super Admin')->first();
         $admin = User::whereName('Admin')->first();
         $mailService = new PartnerBillMailService();
         $mailService->sendOrderReceivedNotification($partnerBill);
@@ -328,7 +325,7 @@ class PartnerBill extends Model implements HasMedia
         }
 
         //with draw to partner balance
-        $user = Auth::user();
+        $user = Partner::find($partnerId);
         $feePercentage = app(PartnerSettings::class)->fee_percentage;
         $withdrawAmount = floor($partnerBill->total * ($feePercentage / 100));
 
@@ -405,19 +402,33 @@ class PartnerBill extends Model implements HasMedia
         $mailService = new PartnerBillMailService();
         $mailService->sendOrderConfirmedNotification($partnerBill);
 
-        $partner = User::find($partnerBill->partner_id);
+        $partner = Partner::findOrFail($partnerBill->partner_id);
+
+        if (!$partner) {
+            Log::warning('Partner bill confirmed but partner record missing', [
+                'partner_bill_id' => $partnerBill->id,
+                'partner_id' => $partnerBill->partner_id,
+            ]);
+
+            return;
+        }
+
         $client = User::find($partnerBill->client_id);
+        $clientName = $client?->name ?? 'Khách hàng';
 
         Notification::make()
             ->title(__('notification.client_accepted_title'))
-            ->body(__('notification.client_accepted_body', ['code' => $partnerBill->code, 'client_name' => $client->name]))
+            ->body(__('notification.client_accepted_body', [
+                'code' => $partnerBill->code,
+                'client_name' => $clientName,
+            ]))
             ->warning()
             ->actions([
                 Action::make('open')
                     ->label('Mở chat')
-                    ->url(route('chat.index', ['chat' => $partnerBill->thread_id])),
+                    ->url(route('filament.partner.pages.chat', ['chat' => $partnerBill->thread_id])),
             ])
-            ->sendToDatabase($partner);
+            ->sendToDatabase($partner,  true);
     }
 
     /**
@@ -438,9 +449,9 @@ class PartnerBill extends Model implements HasMedia
             ->actions([
                 Action::make('open')
                     ->label('Xem đơn')
-                    ->url(route('client-orders.dashboard', ['order' => $partnerBill->id])),
+                    ->url(route('filament.partner.resources.partner-bill-histories.index', ['order' => $partnerBill->id])),
             ])
-            ->sendToDatabase(User::find($partnerBill->client_id));
+            ->sendToDatabase(Partner::findOrFail($partnerBill->client_id), true);
     }
 
     //model helpers method

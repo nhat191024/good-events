@@ -1,5 +1,4 @@
-/* lexend font */
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap');
+@import './fonts.css';
 
 @import 'tailwindcss';
 
@@ -9,6 +8,8 @@
 @source '../../storage/framework/views/*.php';
 
 @custom-variant dark (&:is(.dark *));
+
+@plugin "@tailwindcss/typography";
 
 @theme inline {
     --font-sans: 'Lexend', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -136,39 +137,7 @@
     }
 }
 
-#nprogress .bar {
-    background: linear-gradient(
-        -90deg,
-        #8b5cf6 0%,
-        #f97316 14%,
-        #eab308 28%,
-        #22c55e 42%,
-        #0ea5e9 56%,
-        #6366f1 70%,
-        #a855f7 84%,
-        #f65c5c 100%
-    ) !important;
-    
-    background-size: 200% 100% !important;
-    
-    animation: nprogress-rainbow 0.3s linear infinite !important;
-    
-    position: fixed !important;
-    z-index: 1031 !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 2px !important;
-}
 
-@keyframes nprogress-rainbow {
-    0% {
-        background-position: 0% 0%;
-    }
-    100% {
-        background-position: 200% 0%;
-    }
-}
 :root {
     --background: hsl(0 0% 100%);
     --foreground: hsl(0 0% 3.9%);

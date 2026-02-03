@@ -19,7 +19,7 @@ class RentProductResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'price' => $this->price,
-            'image' => $this->getFirstMediaUrl('thumbnails'),
+            'image' => $this->getFirstMediaUrl('thumbnails', 'thumb'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'category' => $this->whenLoaded('category', function () use ($expireAt) {

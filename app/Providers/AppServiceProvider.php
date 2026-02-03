@@ -6,7 +6,6 @@ use Inertia\Inertia;
 
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 
-use App\Enum\Role;
 use App\Settings\AppSettings;
 use App\Enum\FilamentNavigationGroup;
 
@@ -16,6 +15,10 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Gate;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
 
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
@@ -50,6 +53,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('global', function (Request $request) {
+            return Limit::perMinute(100)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('auth', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip());
+        });
+
+        RateLimiter::for('search', function (Request $request) {
+            return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
         Auth::provider('polymorphic', function ($app, array $config) {
             return new PolymorphicUserProvider($app['hash'], $config['model']);
         });
@@ -86,13 +105,7 @@ class AppServiceProvider extends ServiceProvider
             $settings = app(AppSettings::class);
             $settingsArray = $this->getSettingsArray($settings);
         } catch (\Exception $e) {
-            $settingsArray = [
-                'app_name'    => config('app.name'),
-                'app_logo'    => null,
-                'app_favicon' => null,
-                'contact_hotline' => null,
-                'contact_email' => null,
-            ];
+            $settingsArray = $this->getFallbackSettingsArray();
         }
 
         Inertia::share([
@@ -113,19 +126,34 @@ class AppServiceProvider extends ServiceProvider
         try {
             return [
                 'app_name'    => $settings->app_name,
-                'app_logo'    => $settings->app_logo,
-                'app_favicon' => $settings->app_favicon,
+                'app_logo'    => secure_asset($settings->app_logo),
+                'app_favicon' => secure_asset($settings->app_favicon),
                 'contact_hotline' => $settings->contact_hotline,
                 'contact_email' => $settings->contact_email,
+                'social_facebook' => $settings->social_facebook,
+                'social_facebook_group' => $settings->social_facebook_group,
+                'social_zalo' => $settings->social_zalo,
+                'social_youtube' => $settings->social_youtube,
+                'social_tiktok' => $settings->social_tiktok,
             ];
         } catch (\Exception $e) {
-            return [
-                'app_name'    => config('app.name'),
-                'app_logo'    => null,
-                'app_favicon' => null,
-                'contact_hotline' => null,
-                'contact_email' => null,
-            ];
+            return $this->getFallbackSettingsArray();
         }
+    }
+
+    private function getFallbackSettingsArray(): array
+    {
+        return [
+            'app_name'    => config('app.name'),
+            'app_logo'    => null,
+            'app_favicon' => null,
+            'contact_hotline' => null,
+            'contact_email' => null,
+            'social_facebook' => null,
+            'social_facebook_group' => null,
+            'social_zalo' => null,
+            'social_youtube' => null,
+            'social_tiktok' => null,
+        ];
     }
 }

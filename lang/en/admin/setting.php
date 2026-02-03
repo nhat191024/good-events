@@ -21,6 +21,8 @@ return [
     ],
 
     'fields' => [
+        'title' => 'Application Title',
+        'description' => 'Application Description',
         'name' => 'Application Name',
         'logo' => 'Application Logo',
         'favicon' => 'Favicon',
@@ -45,7 +47,20 @@ return [
         'contact_hotline' => 'Contact Hotline',
         'contact_email' => 'Contact Email',
 
+        'socials' => [
+            'facebook' => 'Facebook Link',
+            'facebook_group' => 'Facebook Group Link',
+            'zalo' => 'Zalo Link',
+            'youtube' => 'Youtube Link',
+            'tiktok' => 'Tiktok Link',
+        ],
+
         'minimum_balance' => 'Minimum Balance',
         'fee_percentage' => 'Fee Percentage',
+        'default_balance' => 'Default Balance',
+    ],
+
+    'placeholders' => [
+        'default_balance' => 'Default balance for new partners',
     ]
 ];

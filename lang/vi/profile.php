@@ -19,6 +19,18 @@ return [
         'identity_card_number' => 'Số chứng minh thư',
         'city_id' => 'Thành phố',
         'location_id' => 'Phường/Xã',
+        'selfie_image' => 'Ảnh chân dung',
+        'front_identity_card_image' => 'Ảnh mặt trước CMND/CCCD',
+        'back_identity_card_image' => 'Ảnh mặt sau CMND/CCCD',
+        'video_url' => 'URL video giới thiệu dịch vụ',
+    ],
+
+    'partner_placeholder' => [
+        'video_url' => 'Nhập URL video giới thiệu dịch vụ của bạn',
+    ],
+
+    'partner_helpers' => [
+        'video_url' => 'web sẽ tự dộng định dạng lại link để nhúng video từ các nền tảng như YouTube, Vimeo, Facebook, ...',
     ],
 
     'buttons' => [

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Enum\PartnerServiceStatus;
+use App\Enum\CacheKey;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -83,6 +85,31 @@ class PartnerService extends Model implements HasMedia
         'status' => 'required|string|in:pending,approved,rejected',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($model) {
+            Cache::tags([CacheKey::PARTNER_SERVICES->value])->flush();
+        });
+
+        static::deleted(function ($model) {
+            Cache::tags([CacheKey::PARTNER_SERVICES->value])->flush();
+        });
+
+        static::restored(function ($model) {
+            Cache::tags([CacheKey::PARTNER_SERVICES->value])->flush();
+        });
+    }
+
+    public static function getByUserCached($userId)
+    {
+        return Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_user_{$userId}", function () use ($userId) {
+            return static::where('user_id', $userId)
+                ->with('serviceMedia')
+                ->get();
+        });
+    }
 
     /**
      * Register media collections for partner service

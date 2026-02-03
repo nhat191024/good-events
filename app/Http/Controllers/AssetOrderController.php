@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Enum\FileProductBillStatus;
 use App\Enum\PaymentMethod;
 use App\Http\Resources\AssetOrder\AssetOrderResource;
+use App\Jobs\GenerateFileProductZip;
 use App\Models\FileProductBill;
 use App\Services\PaymentService;
 use Filament\Support\Assets\Asset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -132,8 +134,12 @@ class AssetOrderController extends Controller
             : FileProductBillStatus::tryFrom((string) $bill->status);
 
         if ($statusEnum !== FileProductBillStatus::PAID) {
-            return view('error', [
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'error',
+                'title' => __('Không thể tải xuống'),
                 'message' => __('Đơn hàng chưa thanh toán hoặc không thể tải xuống.'),
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
             ]);
         }
 
@@ -143,88 +149,59 @@ class AssetOrderController extends Controller
             $seconds = RateLimiter::availableIn($key);
             $availableAt = now()->addSeconds($seconds)->format('H:i d/m/Y');
 
-            return view('error', [
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'warning',
+                'title' => __('Vượt quá giới hạn'),
                 'message' => __('Bạn đã vượt quá giới hạn tải xuống (5 lần/tuần). Vui lòng thử lại vào lúc :time.', ['time' => $availableAt]),
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
             ]);
         }
 
-        $bill->loadMissing('fileProduct');
+        $bill->loadMissing('fileProduct.files');
         $fileProduct = $bill->fileProduct;
 
         if (!$fileProduct) {
-            return response()->json([
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'error',
+                'title' => __('Lỗi'),
                 'message' => __('Không tìm thấy thông tin sản phẩm cho đơn hàng.'),
-            ], 500);
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
+            ]);
         }
 
-        $medias = $fileProduct->getMedia('designs');
-        if ($medias->isEmpty()) {
-            return response()->json([
+        $files = $fileProduct->files;
+        if ($files->isEmpty()) {
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'error',
+                'title' => __('Không có file'),
                 'message' => __('Không có tệp để tải xuống.'),
-            ], 404);
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
+            ]);
+        }
+
+        // Get the latest file
+        $file = $files->sortByDesc('created_at')->first();
+
+        if (!Storage::disk('s3')->exists($file->path)) {
+            return Inertia::render('asset/orders/ProcessingMessage', [
+                'type' => 'error',
+                'title' => __('File không tồn tại'),
+                'message' => __('File không tồn tại trên hệ thống. Vui lòng liên hệ hỗ trợ.'),
+                'backUrl' => route('client-orders.asset.dashboard'),
+                'backText' => __('Quay lại danh sách đơn hàng'),
+            ]);
         }
 
         RateLimiter::hit($key, 60 * 60 * 24 * 7);
 
-        $zipFileName = sprintf('FPB-%s-designs.zip', $bill->getKey());
-
-        if (!class_exists('\ZipStream\\ZipStream')) {
-            return response()->json([
-                'message' => 'ZipStream not installed. Please composer require maennchen/zipstream-php',
-            ], 500);
-        }
-
-        $response = new StreamedResponse(function () use ($medias, $zipFileName) {
-            $zipStreamClass = '\\ZipStream\\ZipStream';
-
-            $zip = new $zipStreamClass(outputName: $zipFileName, sendHttpHeaders: false, enableZip64: true);
-
-            foreach ($medias as $media) {
-                try {
-                    $disk = $media->disk;
-                    $path = $media->getPath();
-                    try {
-                        $diskRoot = Storage::disk($disk)->path('');
-                        if (!empty($diskRoot) && Str::startsWith($path, $diskRoot)) {
-                            $path = ltrim(Str::after($path, $diskRoot), '/\\');
-                        }
-                    } catch (Throwable $ex) {
-                        // ignore
-                    }
-
-                    $fileStream = Storage::disk($disk)->readStream($path);
-                    if (!$fileStream) {
-                        // skip this file
-                        continue;
-                    }
-
-                    $fileName = $media->file_name;
-                    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-
-                    $storeExtensions = ['psd', 'psb', 'tif'];
-                    $isStore = in_array($ext, $storeExtensions, true) || ($media->size && $media->size > 50 * 1024 * 1024);
-
-                    $compressionMethod = $isStore ? \ZipStream\CompressionMethod::STORE : null;
-                    $deflateLevel = $isStore ? 0 : null;
-
-                    $zip->addFileFromStream($fileName, $fileStream, '', $compressionMethod, $deflateLevel);
-
-                    if (is_resource($fileStream)) {
-                        fclose($fileStream);
-                    }
-                } catch (Throwable $ex) {
-                    report($ex);
-                    // continue with next file
-                }
-            }
-
-            $zip->finish();
-        });
-
-        $response->headers->set('Content-Type', 'application/octet-stream');
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $zipFileName . '"');
-
-        return $response;
+        // Redirect to S3 signed URL to trigger download
+        return redirect()->away(Storage::disk('s3')->temporaryUrl(
+            $file->path,
+            now()->addMinutes(120) // Link valid for 2 hours
+        ));
     }
 
     private function getOrders(Request $request): AnonymousResourceCollection|array

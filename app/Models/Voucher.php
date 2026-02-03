@@ -171,7 +171,6 @@ class Voucher extends BaseVoucher
             $discount = $orderTotal * ($this->discountPercentage() / 100);
 
             if ($this->maxDiscountAmount() !== null) {
-                ds($discount, $this->maxDiscountAmount());
                 $discount = min($discount, $this->maxDiscountAmount());
             }
         }

@@ -71,6 +71,10 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Category, Tag } from '@/pages/home/types';
 
+import { inject } from "vue";
+
+const route = inject('route') as any;
+
 interface SelectedTagItem {
     slug: string;
     name: string;

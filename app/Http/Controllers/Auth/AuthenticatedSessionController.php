@@ -35,9 +35,30 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if ($request->user()->hasRole(Role::PARTNER)) {
+        $user = $request->user();
+        $intendedUrl = session()->get('url.intended');
+
+        if ($user->hasRole(Role::PARTNER)) {
             $intendedUrl = session()->pull('url.intended', route('filament.partner.pages.dashboard'));
             return Inertia::location($intendedUrl);
+        }
+
+        if ($intendedUrl) {
+            $restrictedKeywords = ['partner', 'admin', 'filament'];
+            $urlLower = strtolower($intendedUrl);
+            
+            $isRestricted = false;
+            foreach ($restrictedKeywords as $keyword) {
+                if (str_contains($urlLower, $keyword)) {
+                    $isRestricted = true;
+                    break;
+                }
+            }
+            
+            if ($isRestricted) {
+                session()->forget('url.intended');
+                return redirect()->route('home');
+            }
         }
 
         return redirect()->intended(route('home', absolute: false));

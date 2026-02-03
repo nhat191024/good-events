@@ -7,29 +7,52 @@ use App\Http\Resources\Home\AppBannerResource;
 use App\Models\Banner;
 use App\Models\PartnerCategory;
 use App\Settings\AppSettings;
+use App\Support\SeoPayload;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
+use RalphJSmit\Laravel\SEO\Support\SEOData;
+use RalphJSmit\Laravel\SEO\TagManager;
 
 class HomeController extends Controller
 {
-    public const INITIAL_EVENT_CATEGORY_LIMIT = 8;
-    public const EVENT_CATEGORY_BATCH_SIZE = 4;
-    public const CHILD_CATEGORY_LIMIT = 99;
+    public const int INITIAL_EVENT_CATEGORY_LIMIT = 8;
+    public const int EVENT_CATEGORY_BATCH_SIZE = 4;
+    public const int CHILD_CATEGORY_LIMIT = 99;
 
     private ?int $parentCategoryCount = null;
 
     /**
      * Show the home page.
      */
-    public function index(AppSettings $settings): Response
+    public function index(AppSettings $settings, TagManager $tagManager): Response
     {
-
         $app_partner_banner = Banner::where('type', 'partner')->first()?->getMedia('banners') ?? collect();
         $app_partner_banner_mobile = Banner::where('type', 'mobile_partner')->first()?->getMedia('banners') ?? collect();
 
         $initialData = $this->fetchEventCategories(self::INITIAL_EVENT_CATEGORY_LIMIT, 0);
+
+        $keywords = collect($initialData['eventCategories'])
+            ->pluck('name')
+            ->merge(collect($initialData['partnerCategories'])->flatten()->pluck('name'))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $seoData = new SEOData(
+            title: $settings->app_title,
+            description: $settings->app_description,
+            url: url('/'),
+            canonical_url: url('/'),
+            image: $app_partner_banner->first()?->getUrl() ?? null,
+            tags: $keywords,
+            site_name: $settings->app_name,
+        );
+
+        $seo = SeoPayload::toArray($seoData, $tagManager);
 
         return Inertia::render('home/Home', [
             'eventCategories' => $initialData['eventCategories'],
@@ -46,6 +69,7 @@ class HomeController extends Controller
                 'mobile_banner_images' => AppBannerResource::collection($app_partner_banner_mobile),
                 'hero_title' => $settings->app_partner_title,
             ],
+            'seo' => $seo,
         ]);
     }
 
@@ -75,9 +99,8 @@ class HomeController extends Controller
             'limit' => 'nullable|integer|min:1|max:50',
         ]);
 
-        $category = PartnerCategory::whereNull('parent_id')
-            ->where('slug', $validated['category_slug'])
-            ->firstOrFail();
+        $categories = PartnerCategory::getTree();
+        $category = $categories->where('slug', $validated['category_slug'])->firstOrFail();
 
         $offset = (int) ($validated['offset'] ?? 0);
         $limit = (int) ($validated['limit'] ?? self::CHILD_CATEGORY_LIMIT);
@@ -125,41 +148,54 @@ class HomeController extends Controller
             ]);
         }
 
-        $eventCategories = PartnerCategory::whereNull('parent_id')
-            ->where(function ($query) use ($term) {
-                $query->where('name', 'like', "%{$term}%")
-                    ->orWhere('slug', 'like', "%{$term}%")
-                    ->orWhereHas('children', function ($childQuery) use ($term) {
-                        $childQuery->where('name', 'like', "%{$term}%")
-                            ->orWhere('slug', 'like', "%{$term}%");
-                    });
-            })
-            ->with([
-                'media',
-                'children' => function ($query) use ($term) {
-                    $query->orderBy('order', 'asc')
-                        ->limit(self::CHILD_CATEGORY_LIMIT)
-                        ->where(function ($child) use ($term) {
-                            $child->where('name', 'like', "%{$term}%")
-                                ->orWhere('slug', 'like', "%{$term}%");
-                        })
-                        ->with('media');
-                },
-            ])
-            ->withCount(['children as total_children_count'])
-            ->orderBy('order', 'asc')
-            ->take(self::INITIAL_EVENT_CATEGORY_LIMIT)
-            ->get();
+        $allCategories = PartnerCategory::getTree();
+
+        $eventCategories = $allCategories->filter(function ($category) use ($term) {
+            if (stripos($category->name, $term) !== false || stripos($category->slug, $term) !== false) {
+                return true;
+            }
+
+            return $category->children->contains(function ($child) use ($term) {
+                return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
+            });
+        })->take(self::INITIAL_EVENT_CATEGORY_LIMIT)->values();
+
+        $categoriesToLoad = new EloquentCollection();
+
+        $eventCategories->each(function ($category) use ($term, $categoriesToLoad) {
+            $categoriesToLoad->push($category);
+
+            $children = $category->children
+                ->filter(function ($child) use ($term) {
+                    return stripos($child->name, $term) !== false || stripos($child->slug, $term) !== false;
+                })
+                ->take(self::CHILD_CATEGORY_LIMIT)
+                ->values();
+
+            $category->setRelation('children', $children);
+
+            foreach ($children as $child) {
+                $categoriesToLoad->push($child);
+            }
+
+            $category->setAttribute('total_children_count', $children->count());
+        });
+
+        if ($categoriesToLoad->isNotEmpty()) {
+            $categoriesToLoad->load('media');
+        }
 
         return response()->json($this->transformEventCategoryResponse($eventCategories));
     }
 
-    public function showCategory(string $categorySlug, AppSettings $settings): Response
+    public function showCategory(string $categorySlug, AppSettings $settings, TagManager $tagManager): Response
     {
-        $category = PartnerCategory::whereNull('parent_id')
-            ->where('slug', $categorySlug)
-            ->with('media')
-            ->firstOrFail();
+        $categories = PartnerCategory::getTree();
+        $category = $categories->where('slug', $categorySlug)->first();
+        if (!$category) {
+            abort(404);
+        }
+        $category->load('media');
 
         $children = $category->children()
             ->orderBy('order', 'asc')
@@ -177,6 +213,18 @@ class HomeController extends Controller
                 ];
             });
 
+        $seoData = new SEOData(
+            title: 'Danh mục ' . $category->name . ' | ' . $settings->app_title,
+            description: 'Tìm thấy ' . $children->count() . ' hạng mục liên quan - ' . $settings->app_description,
+            url: route('home.category', ['category_slug' => $category->slug]),
+            canonical_url: route('home.category', ['category_slug' => $category->slug]),
+            image: $this->getImageUrl($category) ?? null,
+            tags: $children->pluck('name')->filter()->unique()->values()->all(),
+            site_name: $settings->app_name,
+        );
+
+        $seo = SeoPayload::toArray($seoData, $tagManager);
+
         return Inertia::render('home/CategoryChildren', [
             'category' => [
                 'id' => $category->id,
@@ -191,25 +239,34 @@ class HomeController extends Controller
                 'app_name' => $settings->app_name,
                 'hero_title' => $settings->app_partner_title,
             ],
+            'seo' => $seo,
         ]);
     }
 
     private function fetchEventCategories(int $limit, int $offset): array
     {
-        $eventCategories = PartnerCategory::whereNull('parent_id')
-            ->with([
-                'media',
-                'children' => function ($query) {
-                    $query->orderBy('order', 'asc')
-                        ->limit(self::CHILD_CATEGORY_LIMIT)
-                        ->with('media');
-                },
-            ])
-            ->withCount(['children as total_children_count'])
-            ->orderBy('order', 'asc')
-            ->skip($offset)
-            ->take($limit)
-            ->get();
+        $allCategories = PartnerCategory::getTree();
+        $eventCategories = $allCategories->slice($offset, $limit)->values();
+
+        $categoriesToLoad = new EloquentCollection();
+
+        $eventCategories->each(function ($category) use ($categoriesToLoad) {
+            $categoriesToLoad->push($category);
+
+            $children = $category->children->take(self::CHILD_CATEGORY_LIMIT)->values();
+
+            $category->setRelation('children', $children);
+
+            foreach ($children as $child) {
+                $categoriesToLoad->push($child);
+            }
+
+            $category->setAttribute('total_children_count', $children->count());
+        });
+
+        if ($categoriesToLoad->isNotEmpty()) {
+            $categoriesToLoad->load('media');
+        }
 
         return $this->transformEventCategoryResponse($eventCategories);
     }
@@ -218,17 +275,20 @@ class HomeController extends Controller
     {
         $partnerCategories = [];
         foreach ($eventCategories as $category) {
-            $partnerCategories[$category->id] = $category->children->map(function ($pc) {
-                return [
-                    'id' => $pc->id,
-                    'name' => $pc->name,
-                    'slug' => $pc->slug,
-                    'description' => $pc->description,
-                    'min_price' => $pc->min_price,
-                    'max_price' => $pc->max_price,
-                    'image' => $this->getImageUrl($pc),
-                ];
-            });
+            $partnerCategories[$category->id] = $category->children
+                ->values()
+                ->map(function ($pc) {
+                    return [
+                        'id' => $pc->id,
+                        'name' => $pc->name,
+                        'slug' => $pc->slug,
+                        'description' => $pc->description,
+                        'min_price' => $pc->min_price,
+                        'max_price' => $pc->max_price,
+                        'image' => $this->getImageUrl($pc),
+                    ];
+                })
+                ->values();
         }
 
         return [
@@ -243,7 +303,7 @@ class HomeController extends Controller
             return $this->parentCategoryCount;
         }
 
-        $this->parentCategoryCount = PartnerCategory::whereNull('parent_id')->count();
+        $this->parentCategoryCount = PartnerCategory::getTree()->count();
 
         return $this->parentCategoryCount;
     }

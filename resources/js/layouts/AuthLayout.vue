@@ -1,7 +1,13 @@
 <script setup lang="ts">
+import TutorialHelpButton from '@/components/TutorialHelpButton.vue';
 import AuthLayout from '@/layouts/auth/AuthSimpleLayout.vue';
+import { clearDefaultTutorialLinks, setDefaultTutorialLinks } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import { router } from '@inertiajs/core';
 import { ArrowLeft } from 'lucide-vue-next';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 defineProps<{
     title?: string;
@@ -11,6 +17,13 @@ defineProps<{
 function goHome(){
     router.get(route('home'))
 }
+
+setDefaultTutorialLinks([
+    tutorialQuickLinks.seeAllTutorials,
+    tutorialQuickLinks.clientRegister,
+    tutorialQuickLinks.partnerLoginEvent,
+    tutorialQuickLinks.partnerRegister,
+]);
 </script>
 
 <template>
@@ -24,4 +37,5 @@ function goHome(){
     <AuthLayout :title="title" :description="description">
         <slot />
     </AuthLayout>
+    <TutorialHelpButton />
 </template>

@@ -3,6 +3,7 @@ export interface CardItemProps {
     name: string;
     slug: string;
     image?: string | null;
+    image_tag?: string | null;
     description?: string | null;
 }
 

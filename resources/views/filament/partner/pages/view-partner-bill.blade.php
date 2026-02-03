@@ -104,16 +104,11 @@
                     <div class="space-y-4 px-6 py-4">
                         <div class="flex items-center gap-3">
                             <div class="flex-shrink-0">
-                                <x-filament::avatar src="{{ $bill->client->avatar_url ?? null }}" alt="{{ $bill->client->name ?? 'Client' }}" size="lg" />
+                                <x-filament::avatar src="{{ $customer->avatar_url ?? null }}" alt="{{ $customer->name ?? 'Client' }}" size="lg" />
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $bill->client->name ?? 'N/A' }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $bill->client->email ?? '' }}</p>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $customer->name ?? 'N/A' }}</p>
                             </div>
-                        </div>
-                        <div class="border-t border-gray-100 pt-4 dark:border-gray-800">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('partner/bill.phone') }}</p>
-                            <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ $bill->phone }}</p>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('partner/bill.address') }}</p>

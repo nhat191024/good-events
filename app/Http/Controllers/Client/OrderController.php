@@ -19,10 +19,6 @@ use App\Http\Resources\OrderHistory\PartnerBillDetailResource;
 use App\Http\Resources\OrderHistory\PartnerBillHistoryResource;
 use App\Http\Resources\OrderHistory\PartnerBillResource;
 
-use App\Notifications\OrderCancelled;
-use App\Notifications\OrderStatusChanged;
-use App\Notifications\PartnerAcceptedOrder;
-
 use App\Models\Voucher;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
@@ -96,7 +92,7 @@ class OrderController extends Controller
         $billUpdatedTs = optional(
             PartnerBill::select(['id', 'updated_at'])->find($billId)
         )->updated_at?->timestamp;
-
+        
         return [
             'billId' => $billId,
             'items' => PartnerBillDetailResource::collection($details),
@@ -162,16 +158,22 @@ class OrderController extends Controller
             ])
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
-
+                // dd(PartnerBillResource::collection($bills)->resolve());
         return PartnerBillResource::collection($bills);
     }
 
     public function cancelOrder(CancelOrderRequest $request)
     {
         $bill_id = $request->input('order_id');
-        $bill = PartnerBill::findOrFail($bill_id);
+        Log::debug('[cancelOrder] Request to cancel order', ['bill_id' => $bill_id]);
 
-        if ($bill->status != PartnerBillStatus::PENDING) return;
+        $bill = PartnerBill::findOrFail($bill_id);
+        Log::debug('[cancelOrder] Bill found', ['status' => $bill->status]);
+
+        if ($bill->status != PartnerBillStatus::PENDING) {
+            Log::debug('[cancelOrder] Bill status is not PENDING, skipping cancellation', ['status' => $bill->status]);
+            return back()->with('error', 'Không thể hủy đơn hàng này.');
+        }
 
         if ($bill->date && $bill->start_time) {
             $tz = config('app.timezone') ?: 'UTC';
@@ -180,18 +182,20 @@ class OrderController extends Controller
                 $startDate = $bill->date->format('Y-m-d');
                 $startTime = $bill->start_time->format('H:i');
                 $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $startDate . ' ' . $startTime, $tz);
+                Log::debug('[cancelOrder] Calculated start date time', ['startDateTime' => $startDateTime->toDateTimeString()]);
             } catch (\Throwable $exception) {
+                Log::debug('[cancelOrder] Failed to parse start date time', ['error' => $exception->getMessage()]);
                 $startDateTime = null;
             }
 
             if ($startDateTime) {
                 $cutoff = $startDateTime->copy()->subHours(8);
                 $now = Carbon::now($tz);
+                Log::debug('[cancelOrder] Checking cutoff time', ['cutoff' => $cutoff->toDateTimeString(), 'now' => $now->toDateTimeString()]);
 
                 if ($now->greaterThanOrEqualTo($cutoff)) {
-                    throw ValidationException::withMessages([
-                        'order_id' => 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.',
-                    ]);
+                    Log::debug('[cancelOrder] Cancellation failed: within 8-hour cutoff');
+                    return back()->with('error', 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.');
                 }
             }
         }
@@ -199,12 +203,7 @@ class OrderController extends Controller
         $bill->status = PartnerBillStatus::CANCELLED;
         $bill->save();
 
-        $client = $bill->client;
-        OrderCancelled::send($bill, $client);
-
-        if ($bill->partner) {
-            OrderCancelled::send($bill, $bill->partner);
-        }
+        return back()->with('success', 'Đã hủy đơn hàng thành công.');
     }
 
     public function confirmChoosePartner(ConfirmPartnerRequest $request)
@@ -241,12 +240,6 @@ class OrderController extends Controller
 
             $partnerBillDetail->status = PartnerBillDetailStatus::CLOSED;
             $partnerBillDetail->save();
-
-            $client = $bill->client;
-            PartnerAcceptedOrder::send($bill, $client);
-
-            $partner = $bill->partner;
-            OrderStatusChanged::send($bill, $partner, PartnerBillStatus::CONFIRMED);
         } catch (\Throwable $th) {
             Log::error('error in confirming choose partner', context: ['exception' => $th]);
         }
@@ -262,7 +255,7 @@ class OrderController extends Controller
         ]);
 
         $partner = User::findOrFail($data['partner_id']);
-        $bill = PartnerBill::findOrFail($data['order_id']);
+        // $bill = PartnerBill::findOrFail($data['order_id']);
 
         $partner->addReview([
             'review' => $data['comment'],

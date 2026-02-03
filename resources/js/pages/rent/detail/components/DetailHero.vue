@@ -2,36 +2,24 @@
     <section class="grid gap-8 lg:grid-cols-2">
         <div class="space-y-5">
             <div class="overflow-hidden rounded-3xl border border-gray-100 bg-gray-50">
-                <img
-                    :src="getImg(coverImage)"
-                    :alt="rentProduct.name"
-                    class="h-full w-full object-cover"
-                    loading="lazy"
-                />
+                <ImageWithLoader :src="getImg(coverImage)" :alt="rentProduct.name" class="h-full w-full"
+                    img-class="h-full w-full object-cover" loading="lazy" />
             </div>
 
             <div v-if="secondaryPreviews.length" class="flex flex-wrap gap-3">
-                <button
-                    v-for="media in secondaryPreviews"
-                    :key="media.id ?? media.url"
-                    type="button"
+                <button v-for="media in secondaryPreviews" :key="media.id ?? media.url" type="button"
                     class="group overflow-hidden rounded-2xl border border-transparent shadow-sm transition hover:-translate-y-0.5 hover:border-primary-200"
-                    @click="setPrimary(media.url)"
-                >
-                    <img
-                        :src="getImg(media.thumbnail ?? media.url)"
-                        :alt="`Xem trước ${rentProduct.name}`"
-                        class="h-20 w-28 object-cover brightness-95 transition group-hover:brightness-100"
-                    />
+                    @click="setPrimary(media.url)">
+                    <ImageWithLoader :src="getImg(media.thumbnail ?? media.url)" :alt="`Xem trước ${rentProduct.name}`"
+                        class="h-20 w-28"
+                        img-class="h-20 w-28 object-cover brightness-95 transition group-hover:brightness-100"
+                        loading="lazy" />
                 </button>
             </div>
 
             <div v-if="tags.length" class="flex flex-wrap gap-2">
-                <span
-                    v-for="tag in tags"
-                    :key="tag.slug"
-                    class="rounded-full border border-primary-100 bg-primary-10 px-3 py-1 text-xs font-semibold text-primary-700"
-                >
+                <span v-for="tag in tags" :key="tag.slug"
+                    class="rounded-full border border-primary-100 bg-primary-10 px-3 py-1 text-xs font-semibold text-primary-700">
                     {{ tag.name }}
                 </span>
             </div>
@@ -39,10 +27,8 @@
 
         <aside class="flex h-max flex-col gap-6 rounded-3xl bg-white md:px-6 md:py-6 px-0 py-0">
             <div class="space-y-2">
-                <span
-                    v-if="rentProduct.category"
-                    class="inline-flex w-max items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700"
-                >
+                <span v-if="rentProduct.category"
+                    class="inline-flex w-max items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
                     {{ rentProduct.category.name }}
                 </span>
                 <h1 class="text-2xl font-semibold text-gray-900">
@@ -69,71 +55,57 @@
             </div>
 
             <div class="flex flex-col gap-3">
-                <button
-                    type="button"
+                <button type="button"
                     class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                    @click="isContactModalOpen = true"
-                >
+                    @click="isContactModalOpen = true">
                     Gọi ngay: {{ hotlineDisplay }}
                 </button>
                 <p class="text-xs text-gray-500">
-                    Hotline hỗ trợ 24/7 của Sukientot sẵn sàng tư vấn giải pháp thuê thiết bị phù hợp cho sự kiện của bạn.
+                    Hotline hỗ trợ 24/7 của Sukientot sẵn sàng tư vấn giải pháp thuê thiết bị phù hợp cho sự kiện của
+                    bạn.
                 </p>
             </div>
 
             <ul class="space-y-2 rounded-2xl border border-gray-100 bg-gray-50 p-5 text-sm text-gray-600">
                 <li class="flex items-center gap-3">
-                    <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                    <span
+                        class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
                     Thiết bị được kiểm tra trước khi bàn giao.
                 </li>
                 <li class="flex items-center gap-3">
-                    <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                    <span
+                        class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
                     Hỗ trợ set up tại địa điểm tổ chức.
                 </li>
                 <li class="flex items-center gap-3">
-                    <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
+                    <span
+                        class="inline-flex size-8 items-center justify-center rounded-full bg-white text-primary-600 shadow-sm">✓</span>
                     Lịch giao nhận linh hoạt theo yêu cầu.
                 </li>
             </ul>
         </aside>
 
-        <div
-            v-if="isContactModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4"
-            @click="isContactModalOpen = false"
-        >
-            <div
-                class="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
-                @click.stop
-            >
-                <button
-                    type="button"
+        <div v-if="isContactModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4"
+            @click="isContactModalOpen = false">
+            <div class="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" @click.stop>
+                <button type="button"
                     class="absolute right-3 top-3 rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                    @click="isContactModalOpen = false"
-                >
+                    @click="isContactModalOpen = false">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                            fill-rule="evenodd"
+                        <path fill-rule="evenodd"
                             d="M10 8.586 4.293 2.879 2.879 4.293 8.586 10l-5.707 5.707 1.414 1.414L10 11.414l5.707 5.707 1.414-1.414L11.414 10l5.707-5.707-1.414-1.414L10 8.586Z"
-                            clip-rule="evenodd"
-                        />
+                            clip-rule="evenodd" />
                     </svg>
                 </button>
                 <h3 class="text-lg font-semibold text-gray-900">Chọn cách liên hệ</h3>
                 <p class="mt-1 text-sm text-gray-600">Vui lòng chọn kênh liên hệ với tư vấn viên.</p>
                 <div class="mt-5 flex flex-col gap-3">
-                    <a
-                        :href="zaloHref"
-                        target="_blank"
-                        rel="noopener"
-                        class="inline-flex w-full items-center justify-center rounded-lg border border-primary-200 bg-primary-50 px-4 py-3 text-base font-semibold text-primary-700 transition hover:border-primary-300 hover:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                    >
+                    <a :href="zaloHref" target="_blank" rel="noopener"
+                        class="inline-flex w-full items-center justify-center rounded-lg border border-primary-200 bg-primary-50 px-4 py-3 text-base font-semibold text-primary-700 transition hover:border-primary-300 hover:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
                         Liên hệ qua Zalo
                     </a>
-                    <a
-                        :href="hotlineHref"
-                        class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                    >
+                    <a :href="hotlineHref"
+                        class="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">
                         Gọi trực tiếp
                     </a>
                 </div>
@@ -145,6 +117,7 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 
 import { formatDate, formatPrice } from '@/lib/helper';
 

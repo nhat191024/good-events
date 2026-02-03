@@ -43,15 +43,19 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 use App\Settings\AppSettings;
 
+use RalphJSmit\Filament\Upload\FilamentUpload;
+use Filafly\Themes\Brisk\BriskTheme;
+use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
+
 class PartnerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         try {
             $settings = app(AppSettings::class);
-            $favicon = asset($settings->app_favicon);
+            $favicon = secure_asset($settings->app_favicon);
         } catch (\Exception $e) {
-            $favicon = asset('images/favicon.ico');
+            $favicon = secure_asset('images/favicon.ico');
         }
 
         return $panel
@@ -65,7 +69,7 @@ class PartnerPanelProvider extends PanelProvider
             ->brandName('Sự Kiện tốt - Đối tác')
             ->favicon($favicon)
             ->colors([
-                'primary' => Color::Rose
+                'primary' => ShadcnColor::Red,
             ])
             ->maxContentWidth(Width::Full)
 
@@ -82,8 +86,8 @@ class PartnerPanelProvider extends PanelProvider
             ])
 
             ->databaseNotifications()
-            // ->lazyLoadedDatabaseNotifications(true)
-            ->databaseNotificationsPolling('90s')
+            ->lazyLoadedDatabaseNotifications(true)
+            ->databaseNotificationsPolling('300s')
 
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
@@ -107,6 +111,11 @@ class PartnerPanelProvider extends PanelProvider
                 PartnerStatisticsWidget::class,
                 PartnerRevenueChart::class,
                 PartnerTopServicesWidget::class,
+            ])
+
+            ->plugins([
+                BriskTheme::make(),
+                FilamentUpload::make(),
             ])
 
             ->middleware([

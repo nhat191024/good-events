@@ -21,7 +21,7 @@
                 </div>
                 <div
                     :class="['relative h-full min-h-[300px] w-full bg-gray-50 lg:min-h-[500px]', isReversed ? 'lg:order-first' : '']">
-                    <img :src="image" :alt="title" class="absolute inset-0 h-full w-full object-cover" />
+                    <img :src="image" :alt="title" class="absolute inset-0 h-full w-full object-cover" loading="lazy" />
                     <!-- Gradient overlay for better text contrast if needed, though we separated text -->
                     <div class="absolute inset-0 ring-1 ring-inset ring-gray-900/5"></div>
                 </div>

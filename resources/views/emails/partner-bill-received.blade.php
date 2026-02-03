@@ -221,11 +221,6 @@
                 </div>
 
                 <div class="info-row">
-                    <span class="info-label">{{ __('emails.common.phone') }}:</span>
-                    <span class="info-value">{{ $partnerBill->phone }}</span>
-                </div>
-
-                <div class="info-row">
                     <span class="info-label">{{ __('emails.common.status') }}:</span>
                     <span class="info-value">
                         <span class="status-badge status-pending">{{ __('emails.common.status_pending') }}</span>
@@ -250,7 +245,7 @@
             <p>{{ __('emails.common.contact_support') }}</p>
 
             <div class="cta-section">
-                <a class="cta-button" href="#">
+                <a class="cta-button" href="{{ route('filament.partner.pages.realtime-partner-bill') }}">
                     {{ __('emails.partner_bill_received.' . ($recipientType === 'client' ? 'cta_view_order' : 'cta_accept_order')) }}
                 </a>
             </div>

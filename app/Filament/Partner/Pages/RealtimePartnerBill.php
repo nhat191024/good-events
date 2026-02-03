@@ -3,6 +3,7 @@
 namespace App\Filament\Partner\Pages;
 
 use App\Models\User;
+use App\Models\Customer;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 
@@ -139,8 +140,7 @@ class RealtimePartnerBill extends Page
 
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
             ->with([
-                'client:id,name,email,avatar,created_at',
-                'client.partnerProfile:id,user_id,partner_name',
+                'client:id,name',
                 'event:id,name'
             ])
             ->where('status', PartnerBillStatus::PENDING)
@@ -316,7 +316,7 @@ class RealtimePartnerBill extends Page
 
     public function openClientModal($clientId): void
     {
-        $client = User::with(['statistics', 'partnerProfile'])
+        $client = Customer::with(['statistics', 'partnerProfile', 'media'])
             ->find($clientId);
 
         if ($client) {

@@ -22,4 +22,7 @@
 
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 </script>

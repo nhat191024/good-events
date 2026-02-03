@@ -21,25 +21,28 @@ class CategoryController extends Controller
 
             $search = trim((string) $request->query('q', ''));
 
-            // Lấy toàn bộ danh mục con của parent
-            // và eager load partner_categories (lọc theo q nếu có)
-            $parent = PartnerCategory::query()
-                ->with(['children' => function ($q) use ($search) {
-                    if ($search !== '') {
-                        $q->where('name', 'like', "%{$search}%");
-                    }
-                    $q->orderBy('name');
-                }])->with([
-                    'media',
-                    'children' => function ($query) {
-                        $query->orderBy('min_price')
-                            ->limit(8)
-                            ->with('media');
-                    },
-                ])
-                ->whereNull('parent_id')
-                ->orderBy('name')
-                ->get();
+            // Use cached tree for better performance
+            $parent = PartnerCategory::getTree();
+            
+            // Load additional media relationships
+            $parent->load(['media', 'children.media']);
+            
+            // Filter children if search term is provided
+            if ($search !== '') {
+                $parent->each(function ($category) use ($search) {
+                    $category->setRelation('children', 
+                        $category->children->filter(function ($child) use ($search) {
+                            return stripos($child->name, $search) !== false;
+                        })->sortBy('name')->values()
+                    );
+                });
+            } else {
+                $parent->each(function ($category) {
+                    $category->setRelation('children', 
+                        $category->children->sortBy('name')->values()
+                    );
+                });
+            }
 
             // Chuẩn hóa dữ liệu gửi sang Inertia (tránh gửi cả model kèm thuộc tính không cần)
             $expireAt = now()->addMinutes(3600);

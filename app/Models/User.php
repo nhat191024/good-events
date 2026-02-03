@@ -28,11 +28,17 @@ use Codebyray\ReviewRateable\Models\Review;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 
 use App\Enum\Role;
+
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * @property int $id
@@ -45,6 +51,7 @@ use App\Enum\Role;
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property bool $can_accept_shows
+ * @property string|null $google_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -85,6 +92,8 @@ use App\Enum\Role;
  * @property-read int|null $statistics_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Thread> $threads
  * @property-read int|null $threads_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read int|null $tokens_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transaction> $transactions
  * @property-read int|null $transactions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $transfers
@@ -108,6 +117,7 @@ use App\Enum\Role;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGoogleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
@@ -120,10 +130,10 @@ use App\Enum\Role;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, Confirmable, MustVerifyEmail
+class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, Confirmable, MustVerifyEmail, HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanConfirm, CanRedeemVouchers, ReviewRateable, LogsActivity, CanResetPassword;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanConfirm, CanRedeemVouchers, ReviewRateable, LogsActivity, CanResetPassword, HasApiTokens, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -139,6 +149,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'phone',
         'password',
         'can_accept_shows',
+        'google_id',
     ];
 
     /**
@@ -159,6 +170,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
     protected $appends = [
         'avatar_url',
         'partner_profile_name',
+        'avatar_image_tag',
     ];
 
     /**
@@ -197,7 +209,8 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             Role::ADMIN,
             Role::HUMAN_RESOURCE_MANAGER,
             Role::DESIGN_MANAGER,
-            Role::RENTAL_MANAGER
+            Role::RENTAL_MANAGER,
+            Role::BLOG_MANAGER,
         ])) {
             return true;
         } elseif ($panel->getId() === 'partner' && $this->hasRole(Role::PARTNER)) {
@@ -212,7 +225,35 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
      */
     public function getFilamentAvatarUrl(): ?string
     {
-        return $this->avatar_url;
+        return $this->getFirstMediaUrl('avatar', 'avatar_webp') ?: $this->avatar_url;
+    }
+
+    /**
+     * Render the avatar as an HTML img tag with lazy loading and cover styling.
+     */
+    public function getAvatarImageTag(): ?string
+    {
+        $image = $this->getFirstMedia('avatar');
+        if (! $image) {
+            return null;
+        }
+
+        return $image
+            ->img('avatar_webp')
+            ->attributes([
+                'class' => 'w-full h-full object-cover lazy-image',
+                'loading' => 'lazy',
+                'alt' => $this->name,
+            ])
+            ->toHtml();
+    }
+
+    /**
+     * Accessor for serialized avatar image tag.
+     */
+    public function getAvatarImageTagAttribute(): ?string
+    {
+        return $this->getAvatarImageTag();
     }
 
     /**
@@ -220,6 +261,10 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
      */
     public function getAvatarUrlAttribute(): ?string
     {
+        if ($this->hasMedia('avatar')) {
+            return $this->getFirstMediaUrl('avatar');
+        }
+
         if (empty($this->avatar)) {
             return null;
         }
@@ -244,14 +289,12 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
     {
         parent::boot();
         static::creating(function ($user) {
-            if (empty($user->avatar)) {
-                $name = urlencode($user->name);
-                $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
-            }
+            $name = urlencode($user->name);
+            $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
         });
 
         static::updating(function ($user) {
-            if ($user->isDirty('name') && Str::startsWith($user->avatar, 'https://ui-avatars.com/')) {
+            if ($user->isDirty('name')) {
                 $name = urlencode($user->name);
                 $user->avatar = "https://ui-avatars.com/api/?name={$name}&background=random&size=512";
             }
@@ -266,6 +309,32 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             $user->partnerProfile()->restore();
             $user->partnerServices()->restore();
         });
+    }
+
+    /*
+    * Register the media collections for the model.
+    */
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('avatar')
+            ->useDisk('public');
+    }
+
+    /**
+     * Summary of registerMediaConversions
+     * @param Media|null $media
+     * @return void
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('avatar_webp')
+            ->width(400)
+            ->height(400)
+            ->format('webp')
+            ->performOnCollections('avatar')
+            ->optimize()
+            ->queued();
     }
 
     //model relationships

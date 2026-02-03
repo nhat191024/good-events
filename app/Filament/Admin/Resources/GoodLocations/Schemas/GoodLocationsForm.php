@@ -18,13 +18,14 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
 
 use OpenCage\Geocoder\Geocoder;
 use Dotswan\MapPicker\Fields\Map;
 
 use Cohensive\OEmbed\Facades\OEmbed;
+
+use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
 class GoodLocationsForm
 {
@@ -89,6 +90,15 @@ class GoodLocationsForm
                             ->afterStateUpdated(function (Set $set, ?string $state): void {
                                 if ($state) {
                                     try {
+                                        if (str_contains($state, '/shorts/')) {
+                                            $state = strtok($state, '?');
+                                            $state = str_replace('/shorts/', '/watch?v=', $state);
+                                        }
+
+                                        if (!str_contains($state, 'www.') && str_contains($state, 'youtube.com')) {
+                                            $state = str_replace('youtube.com', 'www.youtube.com', $state);
+                                        }
+
                                         $embed = OEmbed::get($state);
                                         if ($embed) {
                                             $set('video_url', $embed->html([
@@ -141,13 +151,18 @@ class GoodLocationsForm
                     ->icon('heroicon-o-photo')
                     ->collapsible()
                     ->schema([
-                        SpatieMediaLibraryFileUpload::make('images')
+                        AdvancedFileUpload::make('images')
                             ->label(__('admin/blog.fields.thumbnail'))
+                            ->helperText(__('admin/blog.helpers.thumbnail'))
+                            ->spatieMediaLibrary()
                             ->collection('thumbnail')
                             ->required()
+
+                            ->disk('local')
+                            ->temporaryFileUploadDisk('local')
+
                             ->image()
-                            ->imageEditor()
-                            ->maxFiles(1),
+                            ->maxSize(1024 * 10),
                     ])
                     ->columnSpanFull(),
 
@@ -184,8 +199,8 @@ class GoodLocationsForm
                                     )
                                     ->afterStateUpdated(fn(callable $set) => $set('location_id', null))
                                     ->afterStateHydrated(function ($state, $record, Set $set): void {
-                                        if ($record && $record->location_id) {
-                                            $ward = Location::find($record->location_id);
+                                        if ($record && $record->location) {
+                                            $ward = $record->location;
                                             if ($ward && $ward->parent_id) {
                                                 $set('city_id', $ward->parent_id);
                                             }

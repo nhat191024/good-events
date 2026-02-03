@@ -74,7 +74,7 @@
         <!-- Partner Bills List -->
         <div class="rounded-lg bg-white shadow-sm dark:bg-gray-800">
             <!-- Header với filters -->
-            <div class="border-b border-gray-200 bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-700/50">
+            <div class="border-b border-gray-200 bg-gray-50 px-4 py-4 sm:px-6 dark:border-gray-700 dark:bg-gray-800/50">
                 <div class="flex items-center justify-between">
                     <h3 class="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
                         {{ __('partner/bill.pending_orders') }} ({{ count($partnerBills) }})
@@ -85,7 +85,7 @@
                 <div class="mt-4 space-y-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0 lg:grid-cols-4">
                     <!-- Search -->
                     <div class="relative sm:col-span-2 lg:col-span-1">
-                        <input class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" type="text" placeholder="{{ __('partner/bill.search_placeholder') }}"
+                        <input class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400" type="text" placeholder="{{ __('partner/bill.search_placeholder') }}"
                             wire:model.live.debounce.300ms="searchQuery" />
                         <div class="absolute right-2 top-2" wire:loading wire:target="searchQuery">
                             <svg class="h-4 w-4 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
@@ -97,7 +97,7 @@
 
                     <!-- Date Filter -->
                     <div class="relative">
-                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" wire:model.live="dateFilter">
+                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white" wire:model.live="dateFilter">
                             <option value="all">{{ __('partner/bill.filter_date') }}</option>
                             <option value="today">{{ __('partner/bill.today') }}</option>
                             <option value="this_week">{{ __('partner/bill.this_week') }}</option>
@@ -113,7 +113,7 @@
 
                     <!-- Category Filter -->
                     <div class="relative">
-                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" wire:model.live="categoryFilter">
+                        <select class="w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white" wire:model.live="categoryFilter">
                             <option value="all">{{ __('partner/bill.all_categories') }}</option>
                             @foreach ($availableCategories as $category)
                                 <option value="{{ $category['id'] }}">{{ $category['name'] }}</option>
@@ -401,7 +401,8 @@
                                     </label>
                                     <div class="relative mt-2">
                                         <input id="price"
-                                            class="@error('priceInput') border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-red-500 dark:border-red-600 dark:bg-red-900/20 dark:text-red-400 dark:placeholder:text-red-400/60 @else border-gray-300 bg-white focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-green-500 dark:focus:ring-green-500 @enderror block w-full rounded-lg border py-3 pl-10 pr-16 text-base transition-colors duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2"
+                                            class="@error('priceInput') border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-red-500 dark:border-red-600 dark:bg-red-900/20 dark:text-red-400 dark:placeholder:text-red-400/60
+                                            @else border-gray-300 bg-white focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-green-500 dark:focus:ring-green-500 @enderror block w-full rounded-lg border py-3 pl-10 pr-16 text-base transition-colors duration-200 placeholder:text-gray-400 focus:outline-none focus:ring-2"
                                             type="number" wire:model.live="priceInput" placeholder="Nhập số tiền..." min="0" step="1000">
                                     </div>
                                     @error('priceInput')
@@ -428,7 +429,7 @@
                         <button class="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:ml-3 sm:w-auto" type="button" wire:click="acceptOrder">
                             {{ __('partner/bill.confirm_accept') }}
                         </button>
-                        <button class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600" type="button"
+                        <button class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-900 dark:text-white dark:ring-gray-800 dark:hover:bg-gray-600" type="button"
                             wire:click="closeAcceptModal">
                             {{ __('partner/bill.cancel') }}
                         </button>
@@ -451,7 +452,7 @@
                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" @click.away="$wire.closeClientModal()">
                     <!-- Header -->
-                    <div class="border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-700/50">
+                    <div class="border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-900/50">
                         <div class="flex items-center justify-between">
                             <h3 id="client-modal-title" class="text-lg font-semibold text-gray-900 dark:text-white">
                                 <x-heroicon-m-user class="mr-2 inline-block h-5 w-5 text-blue-500" />
@@ -469,7 +470,7 @@
                             <!-- Avatar and Name -->
                             <div class="flex items-center gap-4">
                                 @if (!empty($selectedClient['avatar']))
-                                    <img class="h-20 w-20 rounded-full object-cover ring-4 ring-gray-200 dark:ring-gray-700" src="{{ $selectedClient['avatar'] }}" alt="{{ $selectedClient['name'] }}">
+                                    <img class="h-20 w-20 rounded-full object-cover ring-4 ring-gray-200 dark:ring-gray-700" src="{{ $selectedClient['avatar_url'] }}" alt="{{ $selectedClient['name'] }}">
                                 @else
                                     <div class="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 ring-4 ring-gray-200 dark:bg-blue-900/20 dark:ring-gray-700">
                                         <x-heroicon-m-user class="h-10 w-10 text-blue-600 dark:text-blue-400" />
@@ -600,7 +601,7 @@
                                 <x-heroicon-m-exclamation-triangle class="h-6 w-6 text-red-600 dark:text-red-400" />
                             </div>
                             <div class="mt-3 w-full text-center sm:ml-4 sm:mt-0 sm:text-left">
-                                <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white" id="modal-title">
+                                <h3 id="modal-title" class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
                                     {{ __('partner/bill.ban_partner_title') }}
                                 </h3>
                                 <div class="mt-2">
@@ -612,7 +613,7 @@
                         </div>
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 dark:bg-gray-900/20">
-                        <button type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto" wire:click="closeBannedModal">
+                        <button class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto" type="button" wire:click="closeBannedModal">
                             {{ __('global.close') }}
                         </button>
                     </div>

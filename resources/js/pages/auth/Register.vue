@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 import { Form, Head, Link } from '@inertiajs/vue3';
 import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
@@ -13,6 +15,11 @@ const showPassword = ref(false);
 const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
 };
+
+const { setTutorialRoutes } = useTutorialHelper();
+
+import { inject } from "vue";
+const route = inject('route') as any;
 </script>
 
 <template>

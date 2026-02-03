@@ -11,6 +11,11 @@
     import { createSearchFilter } from '@/lib/search-filter';
     import { computed, ref } from 'vue';
     import { getImg } from './helper';
+    import { useTutorialHelper } from '@/lib/tutorial-helper';
+    import { tutorialQuickLinks } from '@/lib/tutorial-links';
+    import { inject } from "vue";
+
+    const route = inject('route') as any;
 
     const pageProps = usePage().props
     const partnerChildrenList = computed(() => pageProps.partnerChildrenList as PartnerCategory[])
@@ -21,15 +26,18 @@
     const title = `Trong lĩnh vực \'${partnerCategory.name}\', bạn muốn thuê đối tác cụ thể nào dưới đây?`
     const subtitle = 'Chọn loại sụ kiện quay chụp phù hợp với nhu cầu'
 
-    // TODO: test img, needs to change later
-    const cardImgDemo = "https://framerusercontent.com/images/IDBlVR9F6tbH9i8opwaJiutM.png?scale-down-to=512&width=1024&height=1024"
-
     const searchKeyword = ref('')
     const searchColumns = ['name', 'slug', 'description']
     const filteredPartnerChildrenList = computed(() => {
         const filter = createSearchFilter(searchColumns, searchKeyword.value)
         return partnerChildrenList.value.filter(filter)
     })
+
+    const { addTutorialRoutes } = useTutorialHelper();
+
+    addTutorialRoutes([
+        tutorialQuickLinks.clientQuickOrder,
+    ]);
 </script>
 
 <!-- quick booking page STEP 2 -->
@@ -37,7 +45,7 @@
     <Head title="Đặt show nhanh - Điền thông tin" />
     <!-- layout -->
     <ClientAppHeaderLayout>
-        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="getImg(partnerCategory.media)">
+        <SelectPartnerHeader :title="title" :subtitle="subtitle" :header-img-src="getImg(partnerCategory.media)" :header-img-tag="partnerCategory.image_tag">
             <!-- search bar -->
             <div class="w-full relative">
                 <LargeSearchBar v-model="searchKeyword" :placeholder="'Tìm cụ thể đối tác...'" />
@@ -50,7 +58,7 @@
             <!-- grid list -->
             <CardGrid>
                 <Link v-for="item in filteredPartnerChildrenList" :href="route('quick-booking.fill-info',{partner_child_category_slug: item.slug, partner_category_slug: parentPartnerCategorySlug})">
-                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getImg(item.media)"/>
+                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getImg(item.media)"  :card-img-tag="item.image_tag"/>
                 </Link>
             </CardGrid>
         </SelectPartnerHeader>

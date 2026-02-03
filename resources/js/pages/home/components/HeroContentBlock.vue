@@ -9,10 +9,10 @@
             :initial="itemMotion.initial" :animate="itemMotion.animate" :transition="headlineTransition">
             {{ title }}
         </motion.h1>
-        <motion.p v-if="description" class="text-base md:text-lg text-white/80 max-w-3xl"
+        <motion.h1 v-if="description" class="text-base md:text-lg text-white/80 max-w-3xl"
             :initial="itemMotion.initial" :animate="itemMotion.animate" :transition="bodyTransition">
             {{ description }}
-        </motion.p>
+        </motion.h1>
         <motion.div class="flex flex-wrap items-center gap-3" :initial="itemMotion.initial"
             :animate="itemMotion.animate" :transition="ctaTransition">
             <a v-if="primaryCta" :href="primaryCta.href"
@@ -22,6 +22,10 @@
             <Link v-if="secondaryCta" :href="secondaryCta.href"
                 class="inline-flex items-center rounded-full border border-white/40 px-5 py-3 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10 hover:border-white/60">
                 {{ secondaryCta.label }}
+            </Link>
+            <Link v-if="tertiaryCta" :href="tertiaryCta.href"
+                class="inline-flex items-center rounded-full border border-white/40 px-5 py-3 text-sm font-semibold text-white/90 backdrop-blur transition hover:bg-white/10 hover:border-white/60">
+                {{ tertiaryCta.label }}
             </Link>
         </motion.div>
         <div v-if="stats && stats.length" class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-white/80">
@@ -56,12 +60,14 @@ withDefaults(defineProps<{
     description?: string;
     primaryCta?: CTA;
     secondaryCta?: CTA;
+    tertiaryCta?: CTA;
     stats?: Stat[];
 }>(), {
     tagLabel: '',
     description: '',
     primaryCta: undefined,
     secondaryCta: undefined,
+    tertiaryCta: undefined,
     stats: () => [],
 });
 

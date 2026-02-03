@@ -11,6 +11,7 @@ enum Role: string
     case HUMAN_RESOURCE_MANAGER = 'human_resource_manager';
     case DESIGN_MANAGER = 'design_manager';
     case RENTAL_MANAGER = 'rental_manager';
+    case BLOG_MANAGER = 'blog_manager';
 
     public function label(): string
     {
@@ -22,6 +23,7 @@ enum Role: string
             self::HUMAN_RESOURCE_MANAGER => __('global.role.human_resource_manager'),
             self::DESIGN_MANAGER => __('global.role.design_manager'),
             self::RENTAL_MANAGER => __('global.role.rental_manager'),
+            self::BLOG_MANAGER => __('global.role.blog_manager'),
         };
     }
 }

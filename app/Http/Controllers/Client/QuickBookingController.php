@@ -40,13 +40,16 @@ class QuickBookingController extends Controller
      */
     public function chooseCategory(Request $request)
     {
-        $expireAt = now()->addMinutes(3600);
-
-        $partnerCategories = PartnerCategory::where('parent_id', '=', null)
-            ->with('media')
-            ->orderBy('order', 'asc')
-            ->get()
-            ->map(function ($category) use ($expireAt) {
+        $partnerCategories = PartnerCategory::getTree()
+            ->load('media')
+            ->map(function ($category) {
+                $image = $category->getFirstMedia('images');
+                $url = $image?->getUrl();
+                $imageTag = $image?->img('thumb')->attributes([
+                    'class' => 'w-full h-full object-cover lazy-image',
+                    'loading' => 'lazy',
+                    'alt' => $category->name,
+                ])->toHtml();
                 return [
                     'id' => $category->id,
                     'name' => $category->name,
@@ -58,7 +61,8 @@ class QuickBookingController extends Controller
                     'deleted_at' => $category->deleted_at,
                     'created_at' => $category->created_at,
                     'updated_at' => $category->updated_at,
-                    'media' => $this->getTemporaryImageUrl($category, $expireAt),
+                    'media' => $url,
+                    'image_tag' => $imageTag,
                 ];
             });
 
@@ -74,27 +78,35 @@ class QuickBookingController extends Controller
      */
     public function choosePartnerCategory(string $partner_category_slug)
     {
-        $expireAt = now()->addMinutes(3600);
 
-        $partnerCategory = PartnerCategory::where('slug', $partner_category_slug)
-            ->with([
-                'media',
-                'children' => function ($query) {
-                    $query->orderBy('order', 'asc')
-                        ->limit(8)
-                        ->with('media');
-                },
-            ])
-            ->first();
+        $allCategories = PartnerCategory::getTree();
+        $partnerCategory = $allCategories->where('slug', $partner_category_slug)->first();
 
-        if (! $partnerCategory) {
+        if (!$partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);
         }
+
+        // Load children with media (limit 8 as before)
+        $partnerCategory->load([
+            'children' => function ($query) {
+                $query->orderBy('order', 'asc')
+                    ->limit(8)
+                    ->with('media');
+            },
+        ]);
+
 
         if ($partnerCategory->children->count() == 0) {
             return $this->quickBookingService->goBackWithError(self::PARENT_HAS_NO_CHILD);
         }
 
+        $partnerCategoryImage = $partnerCategory->getFirstMedia('images');
+        $partnerCategoryImgUrl = $partnerCategoryImage?->getUrl();
+        $partnerCategoryImgTag = $partnerCategoryImage?->img('thumb')->attributes([
+            'class' => 'w-full h-full object-cover lazy-image',
+            'loading' => 'lazy',
+            'alt' => $partnerCategory->name,
+        ])->toHtml();
         $transformedParentCategory = [
             'id' => $partnerCategory->id,
             'name' => $partnerCategory->name,
@@ -106,10 +118,18 @@ class QuickBookingController extends Controller
             'deleted_at' => $partnerCategory->deleted_at,
             'created_at' => $partnerCategory->created_at,
             'updated_at' => $partnerCategory->updated_at,
-            'media' => $this->getTemporaryImageUrl($partnerCategory, $expireAt),
+            'media' => $partnerCategoryImgUrl,
+            'image_tag' => $partnerCategoryImgTag,
         ];
 
-        $transformedChildrenList = $partnerCategory->children->map(function ($child) use ($expireAt) {
+        $transformedChildrenList = $partnerCategory->children->map(function ($child) {
+            $image = $child->getFirstMedia('images');
+            $url = $image?->getUrl();
+            $imageTag = $image?->img('thumb')->attributes([
+                'class' => 'w-full h-full object-cover lazy-image',
+                'loading' => 'lazy',
+                'alt' => $child->name,
+            ])->toHtml();
             return [
                 'id' => $child->id,
                 'name' => $child->name,
@@ -121,7 +141,8 @@ class QuickBookingController extends Controller
                 'deleted_at' => $child->deleted_at,
                 'created_at' => $child->created_at,
                 'updated_at' => $child->updated_at,
-                'media' => $this->getTemporaryImageUrl($child, $expireAt),
+                'media' => $url,
+                'image_tag' => $imageTag,
             ];
         });
 
@@ -138,15 +159,17 @@ class QuickBookingController extends Controller
      */
     public function fillOrderInfo(string $partner_category_slug, string $partner_child_category_slug)
     {
-        $expireAt = now()->addMinutes(3600);
 
-        $partnerCategory = PartnerCategory::where('slug', $partner_category_slug)
-            ->with(['media', 'children.media'])
-            ->first();
+        $allCategories = PartnerCategory::getTree();
+        $partnerCategory = $allCategories->where('slug', $partner_category_slug)->first();
 
-        if (! $partnerCategory) {
+        if (!$partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);
         }
+
+        // Load all children with media
+        $partnerCategory->load(['children.media']);
+
 
         if ($partnerCategory->children->count() == 0) {
             return $this->quickBookingService->goBackWithError(self::PARENT_HAS_NO_CHILD);
@@ -170,6 +193,13 @@ class QuickBookingController extends Controller
 
         $provinces = Location::whereNull('parent_id')->select(['id', 'name'])->orderBy('name')->get();
 
+        $partnerCategoryImage = $partnerCategory->getFirstMedia('images');
+        $partnerCategoryImgUrl = $partnerCategoryImage?->getUrl();
+        $partnerCategoryImgTag = $partnerCategoryImage?->img('thumb')->attributes([
+            'class' => 'w-full h-full object-cover lazy-image',
+            'loading' => 'lazy',
+            'alt' => $partnerCategory->name,
+        ])->toHtml();
         $transformedParentCategory = [
             'id' => $partnerCategory->id,
             'name' => $partnerCategory->name,
@@ -181,9 +211,17 @@ class QuickBookingController extends Controller
             'deleted_at' => $partnerCategory->deleted_at,
             'created_at' => $partnerCategory->created_at,
             'updated_at' => $partnerCategory->updated_at,
-            'media' => $this->getTemporaryImageUrl($partnerCategory, $expireAt),
+            'media' => $partnerCategoryImgUrl,
+            'image_tag' => $partnerCategoryImgTag,
         ];
 
+        $searchItemImage = $searchItem->getFirstMedia('images');
+        $searchItemImgUrl = $searchItemImage?->getUrl();
+        $searchItemImgTag = $searchItemImage?->img('thumb')->attributes([
+            'class' => 'w-full h-full object-cover lazy-image',
+            'loading' => 'lazy',
+            'alt' => $searchItem->name,
+        ])->toHtml();
         $transformedChildCategory = [
             'id' => $searchItem->id,
             'name' => $searchItem->name,
@@ -195,7 +233,8 @@ class QuickBookingController extends Controller
             'deleted_at' => $searchItem->deleted_at,
             'created_at' => $searchItem->created_at,
             'updated_at' => $searchItem->updated_at,
-            'media' => $this->getTemporaryImageUrl($searchItem, $expireAt),
+            'media' => $searchItemImgUrl,
+            'image_tag' => $searchItemImgTag,
         ];
 
         return Inertia::render('booking/QuickBookingDetail', [
@@ -227,7 +266,8 @@ class QuickBookingController extends Controller
 
         $provinceItem = Location::find($provinceId);
 
-        if (PartnerCategory::where('id', '=', $categoryId)->where('parent_id', '=', null)->exists()) {
+        $allCategories = PartnerCategory::getAllCached();
+        if ($allCategories->where('id', '=', $categoryId)->where('parent_id', '=', null)->isNotEmpty()) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_CHILD_INVALID);
         }
 
@@ -279,20 +319,5 @@ class QuickBookingController extends Controller
             'partnerBill' => $newBill,
             'categoryName' => $partnerCategory->name,
         ]);
-    }
-
-    private function getTemporaryImageUrl($model, $expireAt)
-    {
-        if (! method_exists($model, 'getFirstTemporaryUrl')) {
-            return null;
-        }
-
-        try {
-            return $model->getFirstTemporaryUrl($expireAt, 'images');
-        } catch (\Throwable $e) {
-            return method_exists($model, 'getFirstMediaUrl')
-                ? $model->getFirstMediaUrl('images')
-                : null;
-        }
     }
 }

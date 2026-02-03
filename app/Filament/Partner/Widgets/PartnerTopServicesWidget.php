@@ -54,8 +54,8 @@ class PartnerTopServicesWidget extends TableWidget
 
         if (empty($categoryIds)) {
             return $table
-                ->query(\App\Models\PartnerCategory::query()->whereRaw('1 = 0'))
-                ->columns($this->getTableColumns())
+                ->query(PartnerCategory::query()->whereRaw('1 = 0'))
+                ->columns($this->getTableColumns(sortable: false))
                 ->emptyStateHeading('Chưa có dịch vụ phổ biến')
                 ->emptyStateDescription('Các dịch vụ phổ biến sẽ hiển thị khi bạn có đơn hàng hoàn thành.')
                 ->searchable(false)
@@ -64,8 +64,7 @@ class PartnerTopServicesWidget extends TableWidget
 
         return $table
             ->query(
-                PartnerCategory::query()
-                    ->select([
+                PartnerCategory::select([
                         'partner_categories.*',
                         'category_stats.order_count',
                         'category_stats.total_revenue',
@@ -85,29 +84,29 @@ class PartnerTopServicesWidget extends TableWidget
             ->paginated(false);
     }
 
-    protected function getTableColumns(): array
+    protected function getTableColumns(bool $sortable = true): array
     {
         return [
             TextColumn::make('name')
                 ->label('Danh mục dịch vụ')
-                ->sortable(),
+                ->sortable($sortable),
 
             TextColumn::make('order_count')
                 ->label('Số lần được đặt')
                 ->badge()
                 ->color('success')
-                ->sortable(),
+                ->sortable($sortable),
 
             TextColumn::make('total_revenue')
                 ->label('Tổng doanh thu')
                 ->money('VND')
                 ->color('primary')
-                ->sortable(),
+                ->sortable($sortable),
 
             TextColumn::make('latest_order')
                 ->label('Đơn gần nhất')
                 ->dateTime('d/m/Y')
-                ->sortable(),
+                ->sortable($sortable),
         ];
     }
 }

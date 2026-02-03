@@ -6,9 +6,14 @@
     import CardItem from '@/pages/booking/components/CardItem.vue'
     import { PartnerCategory as PartnerCategoryType } from '@/types/database';
     import CardGrid from '@/pages/booking/layout/CardGrid.vue';
-    import { computed, ref } from 'vue';
+    import { computed, ref, watch } from 'vue';
     import { createSearchFilter } from '@/lib/search-filter'
     import { getImg } from './helper';
+    import { useTutorialHelper } from '@/lib/tutorial-helper';
+    import { tutorialQuickLinks } from '@/lib/tutorial-links';
+    import { inject } from "vue";
+
+    const route = inject('route') as any;
 
     const title: string = 'Bạn đang cần kiểu đối tác nào cho sự kiện?'
     const subtitle: string = 'Chọn loại sụ kiện phù hợp với nhu cầu của bạn'
@@ -22,6 +27,12 @@
         const filter = createSearchFilter(searchColumns, searchKeyword.value)
         return partnerCategories.value.filter(filter)
     })
+
+    const { addTutorialRoutes } = useTutorialHelper();
+
+    addTutorialRoutes([
+        tutorialQuickLinks.clientQuickOrder,
+    ]);
 </script>
 
 <!-- quick booking page STEP 1-->
@@ -38,7 +49,7 @@
             <CardGrid>
                 <Link v-for="item in filteredPartnerCategories"
                     :href="route('quick-booking.choose-partner-category', { partner_category_slug: item.slug })">
-                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getImg(item.media)" />
+                    <CardItem :title="item.name" :description="item.description??''" :card-img-src="getImg(item.media)" :card-img-tag="item.image_tag" />
                 </Link>
             </CardGrid>
         </SelectPartnerHeader>

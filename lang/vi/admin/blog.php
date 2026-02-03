@@ -68,5 +68,6 @@ return [
         'latitude' => 'Không tự nhập trừ khi bạn biết mình đang làm gì.',
         'longitude' => 'Không tự nhập trừ khi bạn biết mình đang làm gì.',
         'search' => 'Sử dụng nút tìm kiếm để tự động điền tọa độ dựa trên địa chỉ. (lưu ý: kết quả có thể không chính xác 100%) - Tọa độ được điền sẽ giúp hiển thị vị trí trên bản đồ ở giao diện khách',
+        'thumbnail' => 'Hỗ trợ định dạng: jpg, png, webp. Kích thước tối đa: 10MB.',
     ],
 ];

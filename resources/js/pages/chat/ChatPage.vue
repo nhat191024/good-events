@@ -5,6 +5,8 @@ import { computed, provide, ref } from 'vue';
 import ChatDetail from './components/ChatDetail.vue';
 import ChatSidebar from './components/ChatSidebar.vue';
 import type { Thread } from './types';
+import { useTutorialHelper } from '@/lib/tutorial-helper';
+import { tutorialQuickLinks } from '@/lib/tutorial-links';
 
 interface Props {
     initialThreads: Thread[];
@@ -75,6 +77,14 @@ function handleBack() {
 function handleToggleMobileMenu() {
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
 }
+
+const { addTutorialRoutes } = useTutorialHelper();
+addTutorialRoutes([
+    tutorialQuickLinks.clientChatGuide,
+    tutorialQuickLinks.clientReportsGuide,
+    tutorialQuickLinks.clientReviewStaff,
+    tutorialQuickLinks.clientTrackingFlow,
+]);
 </script>
 
 <template>

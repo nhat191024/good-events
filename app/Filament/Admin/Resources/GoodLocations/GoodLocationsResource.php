@@ -70,7 +70,7 @@ class GoodLocationsResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['category', 'author', 'media', 'location.province'])
+            ->with(['category', 'author', 'location.province'])
             ->whereType('good_location');
     }
 

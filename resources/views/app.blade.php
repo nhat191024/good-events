@@ -4,6 +4,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1">
+
+    <!-- Google tag (gtag.js) -->
+    @production
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-NSC22EQJDL"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+
+            gtag('config', 'G-NSC22EQJDL');
+        </script>
+
+        <meta name="google-site-verification" content="xzQBSYjswFBEVPucgfh7szJ9LdS2z7BMZ7kgRFBn7GQ" />
+    @endproduction
+
     {{-- Inline script to detect system dark mode preference and apply it immediately --}}
     <script>
         (function() {
@@ -30,23 +48,23 @@
         }
     </style>
 
-    <title inertia>{{ $settings['app_name'] }}</title>
-
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Sự Kiện Tốt" />
+    <link rel="manifest" href="/site.webmanifest" />
 
     @if (!empty($settings['app_favicon']))
-        <link rel="icon" href="{{ asset($settings['app_favicon']) }}" sizes="any">
+        <link rel="icon" href="{{ $settings['app_favicon'] }}" sizes="any">
     @endif
-
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
     @routes
     @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
     @inertiaHead
 </head>
 
-<body class="font-sans antialiased">
+<body class="font-sans antialiased" style="margin: 0 !important;">
     @inertia
 </body>
 

@@ -25,8 +25,8 @@ npm run build:ssr
 
 # Set proper permissions
 echo "Setting permissions..."
-chgrp -R www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R g+w /var/www/html/storage /var/www/html/bootstrap/cache
+chgrp -R www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
+chmod -R g+w /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 find /var/www/html/storage -type d -exec chmod g+s {} +
 find /var/www/html/bootstrap/cache -type d -exec chmod g+s {} +
 
@@ -36,10 +36,11 @@ php artisan optimize:clear
 
 # Cache for production
 echo "Caching for production..."
-php artisan route:cache
-php artisan view:cache
-php artisan event:cache
-php artisan filament:optimize
+# php artisan route:cache
+# php artisan view:cache
+# php artisan event:cache
+php artisan optimize
+# php artisan filament:optimize
 
 # fix nginx tmp dir permission
 echo "Fixing nginx client_body_temp_path permissions..."

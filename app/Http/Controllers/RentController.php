@@ -2,33 +2,70 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\Home\CategoryResource;
-use App\Http\Resources\Home\RentProductResource;
-use App\Http\Resources\Home\TagResource;
+use Inertia\Inertia;
+use Inertia\Response;
+
+use App\Enum\CacheKey;
+
 use App\Models\Category;
 use App\Models\RentProduct;
 use App\Models\Taggable;
+
+use App\Http\Resources\Home\CategoryResource;
+use App\Http\Resources\Home\RentProductResource;
+use App\Http\Resources\Home\TagResource;
+
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Support\Facades\Cache;
+
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class RentController extends Controller
 {
     private const DISCOVER_PER_PAGE = 12;
+    private const SUGGESTION_LIMIT = 10;
 
     public function rentDiscover(Request $request): Response|RedirectResponse
     {
         return $this->renderDiscoverPage($request, null);
     }
 
+    public function searchSuggestions(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $term = trim((string) ($validated['q'] ?? ''));
+        if ($term === '') {
+            return response()->json(['suggestions' => []]);
+        }
+
+        $suggestions = RentProduct::query()
+            ->where(function ($builder) use ($term) {
+                $builder->where('name', 'like', '%' . $term . '%')
+                    ->orWhere('slug', 'like', '%' . $term . '%')
+                    ->orWhere('description', 'like', '%' . $term . '%');
+            })
+            ->orderByDesc('created_at')
+            ->limit(self::SUGGESTION_LIMIT * 3)
+            ->pluck('name')
+            ->filter()
+            ->unique()
+            ->take(self::SUGGESTION_LIMIT)
+            ->values();
+
+        return response()->json(['suggestions' => $suggestions]);
+    }
+
     public function rentCategory(Request $request, string $categorySlug): Response|RedirectResponse
     {
-        $category = Category::query()
-            ->with('parent')
+        $category = Category::with('parent')
             ->where('slug', $categorySlug)
             ->firstOrFail();
 
@@ -37,21 +74,34 @@ class RentController extends Controller
 
     public function rentDetail(Request $request, string $categorySlug, string $rentProductSlug): Response
     {
+        $category = Cache::remember(
+            CacheKey::RENT_CATEGORY_DETAIL->value . ":{$categorySlug}",
+            now()->addHours(4),
+            fn() => Category::query()
+                ->with(['parent', 'media'])
+                ->where('slug', $categorySlug)
+                ->firstOrFail()
+        );
+
         $rentProduct = RentProduct::query()
-            ->with(['category.parent', 'tags', 'media'])
-            ->whereHas('category', fn ($builder) => $builder->where('slug', $categorySlug))
-            ->where('slug', $rentProductSlug)
+            ->with(['tags', 'media'])
+            ->whereSlug($rentProductSlug)
+            ->where('category_id', $category->getKey()) //!what da point of this where if slug is we are already filtering by slug??
             ->firstOrFail();
+
+        $rentProduct->setRelation('category', $category);
 
         $previewImages = $this->buildPreviewImages($rentProduct);
 
         $related = RentProduct::query()
-            ->with(['category.parent', 'tags', 'media'])
+            ->with(['tags', 'media'])
             ->where('category_id', $rentProduct->category_id)
             ->whereKeyNot($rentProduct->getKey())
             ->latest('created_at')
             ->take(6)
             ->get();
+
+        $related->each(fn($product) => $product->setRelation('category', $category));
 
         $rentProductPayload = array_merge(
             RentProductResource::make($rentProduct)->resolve($request),
@@ -73,9 +123,40 @@ class RentController extends Controller
 
     private function renderDiscoverPage(Request $request, ?Category $category = null): Response|RedirectResponse
     {
+        [$search, $tagSlugs, $page] = $this->getRequestParams($request);
+
+        if ($redirect = $this->getRedirectResponse($request, $category, $search, $tagSlugs, $page)) {
+            return $redirect;
+        }
+
+        $childCategories = $category ? $this->fetchChildCategories($category) : new Collection();
+
+        $rentProducts = $this->fetchRentProducts($category, $childCategories, $search, $tagSlugs, $page);
+
+        $categories = $this->fetchSidebarCategories($category);
+        $tags = $this->fetchSidebarTags();
+
+        return Inertia::render('rent/Discover', [
+            'rentProducts' => RentProductResource::collection($rentProducts),
+            'categories' => CategoryResource::collection($categories),
+            'tags' => TagResource::collection($tags),
+            'category' => $category ? CategoryResource::make($category)->resolve($request) : null,
+            'childCategories' => CategoryResource::collection($childCategories),
+            'filters' => [
+                'q' => $search !== '' ? $search : null,
+                'tags' => $tagSlugs->values()->all(),
+            ],
+        ]);
+    }
+
+    /**
+     * @return array{0: string, 1: Collection, 2: int}
+     */
+    private function getRequestParams(Request $request): array
+    {
         $search = trim((string) $request->query('q', ''));
         $tagSlugs = collect(Arr::wrap($request->query('tags', [])))
-            ->map(fn ($slug) => trim((string) $slug))
+            ->map(fn($slug) => trim((string) $slug))
             ->filter();
 
         if ($tagSlugs->isEmpty() && $request->filled('tag')) {
@@ -87,6 +168,11 @@ class RentController extends Controller
 
         $page = max(1, (int) $request->query('page', 1));
 
+        return [$search, $tagSlugs, $page];
+    }
+
+    private function getRedirectResponse(Request $request, ?Category $category, string $search, Collection $tagSlugs, int $page): ?RedirectResponse
+    {
         $normalizedQuery = $this->normalizedQueryPayload($search, $tagSlugs, $page);
         if ($this->shouldRedirectToNormalizedQuery($request, $normalizedQuery)) {
             $routeName = $category ? 'rent.category' : 'rent.discover';
@@ -94,23 +180,34 @@ class RentController extends Controller
             return redirect()->route($routeName, array_merge($routeParams, $normalizedQuery));
         }
 
-        $query = RentProduct::query()
-            ->with(['category.parent', 'tags', 'media']);
+        return null;
+    }
 
-        $childCategories = new Collection();
-        $categoryIds = new Collection();
+    private function fetchChildCategories(Category $category): Collection
+    {
+        $category->loadMissing(['parent', 'media']);
+
+        return Category::with('media')
+            ->whereType('rental')
+            ->where('parent_id', $category->getKey())
+            ->orderBy('name')
+            ->get()
+            ->each(fn($c) => $c->setRelation('parent', $category));
+    }
+
+    private function fetchRentProducts(?Category $category, Collection $childCategories, string $search, Collection $tagSlugs, int $page)
+    {
+        $query = RentProduct::query()
+            ->with(['tags', 'media']);
+
         if ($category) {
-            $category = $category->loadMissing('parent');
-            $childCategories = Category::query()
-                ->with('parent', 'media')
-                ->where('parent_id', $category->getKey())
-                ->orderBy('name')
-                ->get();
             $categoryIds = $childCategories
                 ->pluck('id')
                 ->prepend($category->getKey());
 
             $query->whereIn('category_id', $categoryIds->all());
+        } else {
+            $query->with(['category.parent']);
         }
 
         if ($search !== '') {
@@ -141,25 +238,50 @@ class RentController extends Controller
             ->paginate(self::DISCOVER_PER_PAGE, ['*'], 'page', $page)
             ->withQueryString();
 
-        $categories = Category::query()
-            ->with('parent', 'media')
-            ->orderBy('name')
-            ->limit(15)
-            ->get();
+        if ($category) {
+            $relatedCategories = $childCategories->concat([$category])->keyBy('id');
+            $rentProducts->getCollection()->each(function (RentProduct $product) use ($relatedCategories) {
+                if ($cat = $relatedCategories->get($product->category_id)) {
+                    $product->setRelation('category', $cat);
+                }
+            });
+        }
 
-        $tags = Taggable::getModelTags('RentProduct');
+        return $rentProducts;
+    }
 
-        return Inertia::render('rent/Discover', [
-            'rentProducts' => RentProductResource::collection($rentProducts),
-            'categories' => CategoryResource::collection($categories),
-            'tags' => TagResource::collection($tags),
-            'category' => $category ? CategoryResource::make($category)->resolve($request) : null,
-            'childCategories' => CategoryResource::collection($childCategories),
-            'filters' => [
-                'q' => $search !== '' ? $search : null,
-                'tags' => $tagSlugs->values()->all(),
-            ],
-        ]);
+    private function fetchSidebarCategories(?Category $category): Collection
+    {
+        $categories = Cache::remember(
+            CacheKey::RENT_DISCOVER_CATEGORIES_SIDEBAR->value,
+            now()->addhours(4),
+            fn() => Category::whereType('rental')
+                ->with('media')
+                ->orderBy('name')
+                ->limit(15)
+                ->get()
+        );
+
+        if ($category) {
+            $categories->each(function (Category $cat) use ($category) {
+                if ($cat->parent_id === $category->id) {
+                    $cat->setRelation('parent', $category);
+                }
+            });
+        }
+
+        $categories->loadMissing('parent');
+
+        return $categories;
+    }
+
+    private function fetchSidebarTags(): Collection
+    {
+        return Cache::remember(
+            CacheKey::RENT_DISCOVER_TAGS_SIDEBAR->value,
+            now()->addHours(4),
+            fn() => Taggable::getModelTags('RentProduct')
+        );
     }
 
     /**
@@ -199,7 +321,7 @@ class RentController extends Controller
         $currentTags = [];
         if (isset($currentQuery['tags']) && is_array($currentQuery['tags'])) {
             $currentTags = collect($currentQuery['tags'])
-                ->map(fn ($tag) => trim((string) $tag))
+                ->map(fn($tag) => trim((string) $tag))
                 ->filter()
                 ->values()
                 ->all();
@@ -243,13 +365,11 @@ class RentController extends Controller
      */
     private function buildPreviewImages(RentProduct $rentProduct): array
     {
-        $expireAt = now()->addDay();
-
         return $rentProduct
             ->getMedia('thumbnails')
-            ->map(function (Media $media) use ($expireAt) {
+            ->map(function (Media $media) {
                 try {
-                    $url = $media->getTemporaryUrl($expireAt);
+                    $url = $media->getUrl('thumb');
                 } catch (\Throwable $e) {
                     $url = $media->getFullUrl();
                 }

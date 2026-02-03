@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import { ClientOrderHistory } from '../types';
 import { statusBadge } from '../helper';
 import { formatDate, formatPrice, formatTime } from '@/lib/helper';
@@ -11,22 +12,19 @@ const orders = withDefaults(defineProps<ClientOrderHistory & { selected?: boolea
 </script>
 
 <template>
-    <div
-        :class="[
-            'relative cursor-pointer transition-shadow border rounded-lg bg-card',
-            orders.selected ? 'border-primary-500 shadow-lg ring-1 ring-primary-400/60' : 'border-border hover:shadow-md'
-        ]"
-    >
-        <span
-            v-if="orders.selected"
-            class="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary-700 text-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-        >
+    <div :class="[
+        'relative cursor-pointer transition-shadow border rounded-lg bg-card',
+        orders.selected ? 'border-primary-500 shadow-lg ring-1 ring-primary-400/60' : 'border-border hover:shadow-md'
+    ]">
+        <span v-if="orders.selected"
+            class="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary-700 text-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
             Đang xem
         </span>
         <div class="p-4">
             <div class="flex items-start gap-3">
                 <div class="h-10 w-10 rounded-full overflow-hidden bg-muted grid place-items-center">
-                    <img :src="getImg(orders.category?.image)" alt="org" class="h-full w-full object-cover" />
+                    <ImageWithLoader :src="getImg(orders.category?.image)" :img-tag="orders.category?.image_tag" alt="org" class="h-10 w-10 rounded-full"
+                        img-class="h-full w-full object-cover" loading="lazy" />
                 </div>
                 <div class="flex-1 min-w-0">
                     <h3 class="font-semibold text-card-foreground text-sm mb-1">{{ orders.category?.name ?? '' }}</h3>

@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import { formatDate, formatPrice } from '@/lib/helper';
 
 import { getImg } from '@/pages/booking/helper';
+import ImageWithLoader from '@/components/ImageWithLoader.vue';
 import type { AssetOrder } from '../types';
 
 const props = withDefaults(
@@ -68,11 +69,9 @@ function triggerRepay() {
                 <h2 class="font-lexend text-xl font-semibold text-gray-900">Chi tiết đơn thiết kế</h2>
                 <p class="text-sm text-gray-500">Xem thông tin thiết kế đã mua và trạng thái thanh toán.</p>
             </div>
-            <span
-                v-if="order"
+            <span v-if="order"
                 class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset"
-                :class="detailStatusClass"
-            >
+                :class="detailStatusClass">
                 {{ order.status_label }}
             </span>
         </header>
@@ -91,12 +90,11 @@ function triggerRepay() {
             <div class="grid gap-4 md:grid-cols-[minmax(0,200px)_minmax(0,1fr)]">
                 <div class="relative overflow-hidden rounded-2xl bg-gray-50">
                     <template v-if="product?.thumbnail">
-                        <img :src="getImg(product.thumbnail)" :alt="product.name" class="h-full w-full object-cover" loading="lazy" />
+                        <ImageWithLoader :src="getImg(product.thumbnail)" :img-tag="product.image_tag" :alt="product.name" class="h-full w-full"
+                            img-class="h-full w-full object-cover" loading="lazy" />
                     </template>
-                    <div
-                        v-else
-                        class="flex h-full min-h-[160px] items-center justify-center bg-gradient-to-br from-primary-100 via-primary-200 to-primary-300 text-sm font-medium text-primary-900"
-                    >
+                    <div v-else
+                        class="flex h-full min-h-[160px] items-center justify-center bg-gradient-to-br from-primary-100 via-primary-200 to-primary-300 text-sm font-medium text-primary-900">
                         {{ product?.name || `Đơn #${order.id}` }}
                     </div>
                 </div>
@@ -106,7 +104,8 @@ function triggerRepay() {
                         <h3 class="font-lexend text-lg font-semibold text-gray-900">
                             {{ product?.name || `Đơn #${order.id}` }}
                         </h3>
-                        <p v-if="product?.category?.name" class="text-sm text-gray-500">Danh mục: {{ product.category.name }}</p>
+                        <p v-if="product?.category?.name" class="text-sm text-gray-500">Danh mục: {{
+                            product.category.name }}</p>
                     </div>
 
                     <div class="grid gap-3 rounded-2xl bg-gray-50 p-4 text-sm text-gray-700 sm:grid-cols-2">
@@ -121,7 +120,9 @@ function triggerRepay() {
                         <div class="flex flex-col gap-1 sm:col-span-2">
                             <span class="text-xs tracking-wide text-gray-500 uppercase">Giá thiết kế</span>
                             <span class="font-semibold text-primary-700">{{ totalAmount }}</span>
-                            <span v-if="hasDiscount" class="text-xs text-emerald-600"> Thành tiền sau khi điều chỉnh: {{ finalAmount }} </span>
+                            <span v-if="hasDiscount" class="text-xs text-emerald-600"> Thành tiền sau khi điều chỉnh: {{
+                                finalAmount }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -133,22 +134,15 @@ function triggerRepay() {
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <a
-                        :href="downloadZipUrl ?? undefined"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <a :href="downloadZipUrl ?? undefined" target="_blank" rel="noopener noreferrer"
                         class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:outline-none"
-                        :disabled="!order.can_download"
-                    >
+                        :disabled="!order.can_download">
                         Tải ZIP
                     </a>
 
-                    <button
-                        v-if="order.can_repay"
-                        type="button"
+                    <button v-if="order.can_repay" type="button"
                         class="inline-flex h-11 min-w-[140px] items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:outline-none"
-                        @click="triggerRepay"
-                    >
+                        @click="triggerRepay">
                         Thanh toán lại
                     </button>
                     <!-- Background ZIP modal removed -->
@@ -156,13 +150,13 @@ function triggerRepay() {
             </div>
         </div>
 
-        <div
-            v-else
-            class="mt-6 flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center"
-        >
+        <div v-else
+            class="mt-6 flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
             <h3 class="font-lexend text-lg font-semibold text-gray-700">Chọn một đơn hàng bên trái</h3>
             <p class="mt-2 max-w-md text-sm text-gray-500">
-                Danh sách bên trái hiển thị các đơn thiết kế bạn đã mua. Hãy chọn một đơn để xem chi tiết và thao tác thanh toán.
+                Danh sách bên trái hiển thị các đơn thiết kế bạn đã mua. Hãy chọn một đơn để xem chi tiết và thao tác
+                thanh
+                toán.
             </p>
         </div>
     </section>

@@ -19,6 +19,7 @@ return [
         'image' => 'Image',
         'name' => 'Name',
         'parent_id' => 'Parent Category',
+        'video_url' => 'URL video',
         'slug' => 'Slug',
         'order' => 'Order',
         'min_price' => 'Minimum Price',
@@ -34,6 +35,7 @@ return [
     ],
 
     'placeholders' => [
+        'video_url' => 'Enter video URL here',
         'slug' => 'Automatically generated from name',
     ],
 

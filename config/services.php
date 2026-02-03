@@ -39,4 +39,16 @@ return [
         'key' => env('OPEN_CAGE_API_KEY'),
     ],
 
+    'google' => [
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect'      => env('GOOGLE_REDIRECT_URI'),
+    ],
+
+    'payos' => [
+        'client_id' => env('PAYOS_CLIENT_ID', ''),
+        'api_key' => env('PAYOS_API_KEY', ''),
+        'checksum_key' => env('PAYOS_CHECKSUM_KEY', ''),
+        'partner_code' => env('PAYOS_PARTNER_CODE', ''),
+    ],
 ];

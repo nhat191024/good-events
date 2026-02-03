@@ -2,22 +2,28 @@
 import { getImg } from '@/pages/booking/helper';
 import { AppSettings } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
+
+const route = inject('route') as any;
 
 const page = usePage();
 const settings = computed(() => page.props.app_settings as AppSettings);
 
-const socialLinks = [
-    { label: 'Nhóm Zalo Đối Tác', href: 'https://zalo.me/g/mudhks623', icon: 'zalo' },
-    { label: 'Facebook', href: 'https://www.facebook.com/share/16WPcoU7x7/?mibextid=wwXIfr', icon: 'facebook' },
-    { label: 'Nhóm Cộng Đồng', href: 'https://www.facebook.com/share/g/1D9PCXgbbq/?mibextid=wwXIfr', icon: 'facebook-group' },
-    { label: 'YouTube', href: 'https://youtube.com/@sukientot?si=00L9WnYoZyxfuPDb', icon: 'youtube' },
-    { label: 'TikTok', href: 'https://www.tiktok.com/@sukien.com?_r=1&_t=ZS-92A2PZ54gxJ', icon: 'tiktok' },
-];
+const socialLinks = computed(() => {
+    const s = settings.value || {};
+    const links = [
+        { label: 'Nhóm Zalo Đối Tác', href: s.social_zalo, icon: 'zalo' },
+        { label: 'Facebook', href: s.social_facebook, icon: 'facebook' },
+        { label: 'Nhóm Cộng Đồng', href: s.social_facebook_group, icon: 'facebook-group' },
+        { label: 'YouTube', href: s.social_youtube, icon: 'youtube' },
+        { label: 'TikTok', href: s.social_tiktok, icon: 'tiktok' },
+    ];
+    return links.filter((l) => !!l.href);
+});
 
 const primaryLinks = [
     { label: 'Câu hỏi thường gặp', routeName: 'static.faq' },
-    { label: 'Hướng dẫn đăng ký thành Thợ', routeName: 'tutorial.index' },
+    { label: 'Hướng dẫn', routeName: 'tutorial.index' },
     { label: 'Về chúng tôi', routeName: 'about.index' },
     { label: 'Chương trình khuyến mãi', href: '#' },
     { label: 'Phiên bản phát hành', href: '#' },
@@ -33,12 +39,13 @@ const policyLinks = [
 ];
 
 const downloadButtons = [
+    { label: 'PWA (Cài App 1 chạm)', routeName: 'static.download-app' },
     { label: 'Google Play', href: '#' },
     { label: 'App Store', href: '#' },
 ];
 
 const address = '36 Nguyễn Thiện Thuật, phường Bình Thạnh, quận Bình Thạnh, TP. Hồ Chí Minh';
-const taxCode = 'Mã số thuế: 0318063280 do Sở Kế hoạch & Đầu tư TP Hồ Chí Minh cấp lần đầu ngày 25/09/2023';
+const taxCode = 'Mã số thuế: 0319314603';
 </script>
 
 <template>
@@ -47,8 +54,8 @@ const taxCode = 'Mã số thuế: 0318063280 do Sở Kế hoạch & Đầu tư T
             <div class="grid gap-3 md:gap-10 lg:grid-cols-3 lg:items-start">
                 <div class="space-y-6">
                     <Link :href="route('home')" class="inline-block">
-                        <img :src="getImg(`/${settings.app_logo}`)" alt="Sự Kiện Tốt"
-                            class="rounded-full h-16 w-auto object-contain" />
+                        <img :src="getImg(`${settings.app_logo}`)" alt="Sự Kiện Tốt"
+                            class="rounded-full h-16 w-auto object-contain" loading="lazy" />
                     </Link>
 
                     <div class="space-y-3">
@@ -119,10 +126,11 @@ const taxCode = 'Mã số thuế: 0318063280 do Sở Kế hoạch & Đầu tư T
                 <div class="space-y-4">
                     <p class="text-lg font-semibold">Tải ứng dụng:</p>
                     <div class="flex flex-wrap gap-3">
-                        <a v-for="button in downloadButtons" :key="button.label" :href="button.href"
+                        <component :is="button.routeName ? Link : 'a'" v-for="button in downloadButtons"
+                            :key="button.label" :href="button.routeName ? route(button.routeName) : button.href"
                             class="rounded-xl bg-white/15 px-4 py-3 text-sm font-semibold backdrop-blur transition hover:bg-white/25">
                             {{ button.label }}
-                        </a>
+                        </component>
                     </div>
                 </div>
 

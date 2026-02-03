@@ -10,6 +10,7 @@
                 :src="getImg(props.productThumbnail)"
                 :alt="props.fileProduct.name"
                 class="h-20 w-20 flex-none rounded-2xl object-cover"
+                loading="lazy"
             />
             <div class="flex flex-1 flex-col gap-1">
                 <p class="text-sm font-semibold text-gray-900">{{ props.fileProduct.name }}</p>

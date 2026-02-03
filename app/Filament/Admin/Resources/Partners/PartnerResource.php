@@ -9,6 +9,7 @@ use UnitEnum;
 
 use App\Filament\Admin\Resources\Partners\Pages\CreatePartner;
 use App\Filament\Admin\Resources\Partners\Pages\EditPartner;
+use App\Filament\Admin\Resources\Partners\Pages\ManagePartnerServices;
 use App\Filament\Admin\Resources\Partners\Pages\ListPartners;
 use App\Filament\Admin\Resources\Partners\Schemas\PartnerForm;
 use App\Filament\Admin\Resources\Partners\Tables\PartnersTable;
@@ -66,6 +67,7 @@ class PartnerResource extends Resource
             'index' => ListPartners::route('/'),
             'create' => CreatePartner::route('/create'),
             'edit' => EditPartner::route('/{record}/edit'),
+            'services' => ManagePartnerServices::route('/{record}/services'),
         ];
     }
 

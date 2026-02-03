@@ -31,6 +31,7 @@ export interface User {
     email: string;
     avatar?: string;
     avatar_url?: string | null;
+    avatar_image_tag?: string | null;
     partner_profile_name?: string | null;
     country_code?: string | null;
     phone?: string | null;
@@ -48,6 +49,11 @@ export interface AppSettings {
     app_favicon?: string | null;
     contact_hotline?: string | null;
     contact_email?: string | null;
+    social_facebook?: string | null;
+    social_facebook_group?: string | null;
+    social_zalo?: string | null;
+    social_youtube?: string | null;
+    social_tiktok?: string | null;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
