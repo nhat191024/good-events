@@ -72,7 +72,7 @@ class Report extends Model
 
     public function reportedUser()
     {
-        return $this->belongsTo(User::class, 'reported_user_id');
+        return $this->belongsTo(User::class, 'reported_user_id')->withTrashed();
     }
 
     public function reportedBill()
