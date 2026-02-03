@@ -29,7 +29,7 @@ class ReportsTable
                     ->label(__('admin/report.fields.title'))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('user.name')
+                TextColumn::make('reporter.name')
                     ->label(__('admin/report.fields.user'))
                     ->searchable()
                     ->sortable(),
