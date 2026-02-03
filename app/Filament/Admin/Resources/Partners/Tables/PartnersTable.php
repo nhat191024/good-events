@@ -2,6 +2,8 @@
 
 namespace App\Filament\Admin\Resources\Partners\Tables;
 
+use App\Enum\Role;
+
 use App\Models\Partner;
 use App\Filament\Admin\Resources\Partners\PartnerResource;
 
@@ -213,6 +215,12 @@ class PartnersTable
                         ]),
                 ]),
             ])
+            ->recordUrl(function (Partner $record) {
+                if (auth()->user()->hasRole(Role::SUPER_ADMIN)) {
+                    return PartnerResource::getUrl('edit', ['record' => $record]);
+                }
+                return null;
+            })
             ->toolbarActions([
                 //
             ]);

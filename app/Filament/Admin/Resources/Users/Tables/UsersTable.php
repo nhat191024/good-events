@@ -2,6 +2,10 @@
 
 namespace App\Filament\Admin\Resources\Users\Tables;
 
+use App\Enum\Role;
+
+use App\Filament\Admin\Resources\Users\UserResource;
+
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -80,6 +84,12 @@ class UsersTable
                     ->successNotificationTitle(__('admin/user.ban_success_message')),
                 RestoreAction::make(),
             ])
+            ->recordUrl(function (User $record) {
+                if (auth()->user()->hasRole(Role::SUPER_ADMIN)) {
+                    return UserResource::getUrl('edit', ['record' => $record]);
+                }
+                return null;
+            })
             ->toolbarActions([
                 BulkActionGroup::make([
                     //
