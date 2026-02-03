@@ -86,6 +86,11 @@ class StaticPageController extends Controller
         ]);
     }
 
+    public function downloadApp(): Response
+    {
+        return Inertia::render('app/DownloadApp');
+    }
+
     private function parseSections(string $content, string $headingPattern): array
     {
         $content = $this->normalizeContent($content);
