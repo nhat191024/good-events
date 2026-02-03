@@ -43,7 +43,7 @@ class Report extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'user_id',
+        'reporter_id',
         'reported_user_id',
         'reported_bill_id',
         'thread_id',
@@ -65,9 +65,9 @@ class Report extends Model
     }
 
     // Relationships
-    public function user()
+    public function reporter()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'reporter_id')->withTrashed();
     }
 
     public function reportedUser()
