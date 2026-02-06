@@ -33,10 +33,11 @@ class AssetHomeController extends Controller
         $page = max(1, (int) $request->query('page', 1));
 
         $fileProducts = FileProduct::with('category.parent', 'category', 'tags', 'media')
+            ->orderBy('created_at', 'desc')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
         $appDesignBanner = optional(Banner::whereType('design')->first())
-            ?->getMedia('banners') ?? collect();
+                ?->getMedia('banners') ?? collect();
 
         $tags = Taggable::getModelTags('FileProduct');
         $categories = DesignCategory::limit(15)
