@@ -1,4 +1,4 @@
-FROM php:8.4-apache
+FROM php:8.4-fpm
 
 # Set working directory
 WORKDIR /var/www/html
@@ -32,16 +32,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Enable Apache modules
-RUN a2enmod rewrite headers
-
-# Copy Apache configuration
-COPY 000-default-redirect.conf /etc/apache2/sites-available/000-default.conf
-
 # Copy PHP custom configuration
-COPY docker-php-custom.ini /usr/local/etc/php/conf.d/custom.ini
-
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 # Copy auth.json for private repositories
 COPY auth.json /var/www/html/
@@ -58,10 +50,10 @@ COPY package.json package-lock.json* ./
 RUN npm install
 
 # Copy supervisor configuration
-COPY supervisor-laravel.conf /etc/supervisor/conf.d/laravel.conf
+COPY docker/supervisor.conf /etc/supervisor/conf.d/laravel.conf
 
 # Copy entrypoint script
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY docker/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Create necessary directories
@@ -75,6 +67,6 @@ RUN mkdir -p /var/www/html/storage/logs \
 # Set proper ownership
 RUN chown -R www-data:www-data /var/www/html
 
-EXPOSE 80
+EXPOSE 9000
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
