@@ -2,11 +2,11 @@ services:
     app:
         build:
             context: .
-            dockerfile: dockerfile
+            dockerfile: docker/Dockerfile
         container_name: sukientot
         restart: unless-stopped
         ports:
-            - '10011:80'
+            - '10011:9000'
         volumes:
             # Mount source code (excluding vendor)
             - ./app:/var/www/html/app
