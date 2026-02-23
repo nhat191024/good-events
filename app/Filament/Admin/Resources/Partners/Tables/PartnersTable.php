@@ -26,6 +26,8 @@ use Filament\Notifications\Notification;
 // use Filament\Actions\RestoreBulkAction;
 // use Filament\Actions\ForceDeleteBulkAction;
 
+use STS\FilamentImpersonate\Actions\Impersonate;
+
 class PartnersTable
 {
     public static function configure(Table $table): Table
@@ -140,6 +142,8 @@ class PartnersTable
                         ->label('Quản lý dịch vụ')
                         ->icon('heroicon-o-rectangle-stack')
                         ->url(fn(Partner $record): string => PartnerResource::getUrl('services', ['record' => $record])),
+                    Impersonate::make()
+                        ->redirectTo(route('filament.partner.pages.dashboard')),
                     // EditAction::make(),
                     DeleteAction::make()
                         ->label(__('global.ban'))

@@ -21,6 +21,8 @@ use Filament\Tables\Table;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
 
+use STS\FilamentImpersonate\Actions\Impersonate;
+
 class UsersTable
 {
     public static function configure(Table $table): Table
@@ -76,6 +78,8 @@ class UsersTable
             ])
             ->recordActions([
                 // EditAction::make(),
+                Impersonate::make()
+                    ->redirectTo(route('home')),
                 DeleteAction::make()
                     ->label(__('global.ban'))
                     ->modalHeading(__('admin/user.ban_title'))
