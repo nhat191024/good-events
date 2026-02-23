@@ -1,76 +1,47 @@
 <?php
 
-namespace App\Filament\Partner\Pages;
+namespace App\Http\Controllers\Api\Partner;
 
+use App\Http\Controllers\Controller;
 use App\Models\PartnerBill;
-use BackedEnum;
-use Filament\Pages\Page;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class CalendarPage extends Page
+class CalendarController extends Controller
 {
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-calendar-days';
-
-    protected string $view = 'filament.partner.pages.calendar-page';
-
-    protected static ?string $navigationLabel = null;
-
-    protected static ?string $title = null;
-
-    protected static ?int $navigationSort = 2;
-
-    public static function getNavigationLabel(): string
-    {
-        return __('partner/calendar.navigation_label');
-    }
-
-    public function getTitle(): string
-    {
-        return __('partner/calendar.page_title');
-    }
-
     /**
-     * GET /api/calendar/events
+     * GET /api/partner/calendar/events
      *
      * Response: array of calendar events with extendedProps
      *
      * @return JsonResponse
      */
-    public function getEvents(): JsonResponse
+    public function events(): JsonResponse
     {
         $user = Auth::user();
 
-        // Get partner bills where current user is the partner
         $bills = PartnerBill::where('partner_id', $user->id)
             ->with(['client', 'category'])
             ->get();
 
         $events = $bills->map(function ($bill) {
-            // Base date from the bill
             $baseDate = $bill->date;
 
-            // Calculate start datetime
             if ($bill->start_time) {
-                // Combine date with start_time
                 $startDateTime = $baseDate->copy()
                     ->setHour($bill->start_time->hour)
                     ->setMinute($bill->start_time->minute)
                     ->setSecond($bill->start_time->second);
             } else {
-                // Use just the date (all day event)
                 $startDateTime = $baseDate->copy()->startOfDay();
             }
 
-            // Calculate end datetime
             if ($bill->end_time) {
-                // Combine date with end_time
                 $endDateTime = $baseDate->copy()
                     ->setHour($bill->end_time->hour)
                     ->setMinute($bill->end_time->minute)
                     ->setSecond($bill->end_time->second);
             } else {
-                // Default to 1 hour after start or end of day
                 $endDateTime = $startDateTime->copy()->addHour();
             }
 
@@ -94,7 +65,7 @@ class CalendarPage extends Page
                     'raw_date' => $bill->date->toDateString(),
                     'raw_start_time' => $bill->start_time?->toTimeString(),
                     'raw_end_time' => $bill->end_time?->toTimeString(),
-                ]
+                ],
             ];
         });
 
@@ -102,40 +73,34 @@ class CalendarPage extends Page
     }
 
     /**
-     * GET /api/calendar/locale
+     * GET /api/partner/calendar/locale
      *
      * Response: { locale, translations }
      *
      * @return JsonResponse
      */
-    public function getLocaleData(): JsonResponse
+    public function locale(): JsonResponse
     {
         $locale = app()->getLocale();
         $translations = __('partner/calendar');
 
         return response()->json([
             'locale' => $locale,
-            'translations' => $translations
+            'translations' => $translations,
         ]);
     }
 
-    /**
-     * Get color based on bill status
-     */
     private function getEventColor($status): string
     {
         return match ($status->value) {
-            'pending' => '#f59e0b', // amber
-            'completed' => '#10b981',    // emerald
-            'confirmed' => '#FFC000',    // yellow
-            'cancelled' => '#ef4444', // red
-            default => '#6b7280'    // gray
+            'pending' => '#f59e0b',
+            'completed' => '#10b981',
+            'confirmed' => '#FFC000',
+            'cancelled' => '#ef4444',
+            default => '#6b7280',
         };
     }
 
-    /**
-     * Get Vietnamese label for status
-     */
     private function getStatusLabel($status): string
     {
         return match ($status->value) {
@@ -144,7 +109,7 @@ class CalendarPage extends Page
             'confirmed' => __('partner/calendar.status_confirmed'),
             'cancelled' => __('partner/calendar.status_cancelled'),
             'expired' => __('partner/calendar.status_expired'),
-            default => __('partner/calendar.status_unknown')
+            default => __('partner/calendar.status_unknown'),
         };
     }
 }

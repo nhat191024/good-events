@@ -11,6 +11,14 @@ class LocationController extends Controller
 {
     // return wards for a given parent location
     // so we dont have to send over 3k records to the client each time
+    /**
+     * GET /api/locations/{location}/wards
+     *
+     * Response: list of ward locations
+     *
+     * @param Location $location
+     * @return JsonResponse
+     */
     public function wards(Location $location): JsonResponse
     {
         $cacheKey = "location:{$location->id}:wards";
@@ -25,4 +33,3 @@ class LocationController extends Controller
         return response()->json($wards);
     }
 }
-
