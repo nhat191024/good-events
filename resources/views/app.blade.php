@@ -20,6 +20,7 @@
         </script>
 
         <meta name="google-site-verification" content="xzQBSYjswFBEVPucgfh7szJ9LdS2z7BMZ7kgRFBn7GQ" />
+        <meta name="zalo-platform-site-verification" content="GFc06ANE4m10xRCZnD1b017nj3xzXs1eCZ8o" />
     @endproduction
 
     {{-- Inline script to detect system dark mode preference and apply it immediately --}}
