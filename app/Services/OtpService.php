@@ -123,7 +123,7 @@ class OtpService
      */
     protected function getCacheKey(string $identifier): string
     {
-        return CacheKey::OTP_VERIFICATION->value . '_' . md5($identifier);
+        return CacheKey::OTP_VERIFICATION->value . md5($identifier);
     }
 
     /**
@@ -131,7 +131,7 @@ class OtpService
      */
     protected function getRateLimitCacheKey(string $identifier): string
     {
-        return CacheKey::OTP_RESEND_COOLDOWN->value . '_' . md5($identifier);
+        return CacheKey::OTP_RESEND_COOLDOWN->value . md5($identifier);
     }
 
     /**
@@ -139,7 +139,7 @@ class OtpService
      */
     protected function getAttemptsCacheKey(string $identifier): string
     {
-        return 'otp_attempts_' . md5($identifier);
+        return CacheKey::OTP_ATTEMPTS->value . md5($identifier);
     }
 
     /**
