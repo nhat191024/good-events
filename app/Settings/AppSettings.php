@@ -23,6 +23,12 @@ class AppSettings extends Settings
     public ?string $social_zalo = null;
     public ?string $social_youtube = null;
     public ?string $social_tiktok = null;
+    public ?string $app_zalo_refresh_token = null;
+    public ?string $app_zalo_token = null;
+    public ?string $app_zalo_app_id = null;
+    public ?string $app_zalo_app_secret = null;
+    public ?string $app_zalo_admin_phone = null;
+    public ?string $app_zalo_otp_template_id = null;
 
     public static function group(): string
     {
