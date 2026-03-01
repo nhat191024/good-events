@@ -4,8 +4,9 @@ namespace App\Enum;
 
 enum CacheKey: string
 {
-    case OTP_VERIFICATION = 'otp_verification';
-    case OTP_RESEND_COOLDOWN = 'otp_resend_cooldown';
+    case OTP_VERIFICATION = 'otp_verification_';
+    case OTP_RESEND_COOLDOWN = 'otp_resend_cooldown_';
+    case OTP_ATTEMPTS = 'otp_attempts_';
 
         //Partner Categories
     case PARTNER_CATEGORIES = 'partner_categories';
