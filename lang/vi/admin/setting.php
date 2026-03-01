@@ -11,6 +11,24 @@ return [
 
     'saved' => 'Cài đặt đã được lưu thành công!',
 
+    'sections' => [
+        'titles' => [
+            'general' => 'Cài đặt chung',
+            'titles' => 'Tiêu đề các trang',
+            'contact' => 'Thông tin liên hệ',
+            'socials' => 'Mạng xã hội',
+            'zalo' => 'Cài đặt Zalo API',
+        ],
+
+        'descriptions' => [
+            'general' => 'Cấu hình các cài đặt chung cho ứng dụng',
+            'titles' => 'Cấu hình tiêu đề cho các trang danh mục',
+            'contact' => 'Thông tin hiển thị ở footer hoặc trang liên hệ',
+            'socials' => 'Liên kết đến các trang mạng xã hội',
+            'zalo' => 'Cấu hình để gửi tin nhắn qua Zalo API - Không thay đổi nếu bạn không biết mình đang làm gì!!',
+        ],
+    ],
+
     'banners' => [
         'partner' => 'Đối tác',
         'mobile_partner' => 'Đối tác (di động)',
@@ -26,6 +44,12 @@ return [
         'name' => 'Tên ứng dụng',
         'logo' => 'Logo ứng dụng',
         'favicon' => 'Favicon',
+        'zalo_token' => 'Mã truy cập Zalo',
+        'zalo_refresh_token' => 'Mã làm mới Zalo',
+        'zalo_app_secret' => 'App Secret Zalo',
+        'zalo_app_id' => 'App ID Zalo',
+        'zalo_admin_phone' => 'Số điện thoại Admin nhận tin nhắn khi thử nghiệm',
+        'zalo_otp_template_id' => 'ID mẫu tin nhắn OTP trên Zalo',
 
         'titles' => [
             'partner' => 'Tiêu đề trang đối tác',
