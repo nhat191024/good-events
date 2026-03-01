@@ -13,7 +13,7 @@ class OtpService
     protected AppSettings $appSettings;
     protected ZaloService $zaloService;
     protected int $expiresIn = 5; // OTP expires time in minutes
-    protected int $resendCooldown = 2; // Cooldown time for resending OTP in minutes
+    protected int $resendCooldown = 120; // Cooldown time for resending OTP in seconds
     protected int $maxAttempts = 3; // Maximum OTP requests allowed
     protected int $lockoutTime = 1440; // Timeout duration in minutes when max attempts are reached (24 hours)
     protected string $otpTemplateId;
@@ -42,8 +42,8 @@ class OtpService
             throw new \Exception(__('OTP Max Attempts', ['hours' => $hours]), 429);
         }
 
-        if ($this->hasRecentOtpRequest($phone)) {
-            throw new \Exception(__('Resend OTP wait', ['minute' => $this->resendCooldown]), 429);
+        if ($remainingSeconds = $this->getRecentOtpRemainingSeconds($phone)) {
+            throw new \Exception(__('Resend OTP wait', ['seconds' => $remainingSeconds]), 429);
         }
 
         $otp = $this->generateOtp($phone);
@@ -143,11 +143,26 @@ class OtpService
     }
 
     /**
+     * Get remaining seconds before another OTP can be requested
+     */
+    protected function getRecentOtpRemainingSeconds(string $identifier): int
+    {
+        $timestamp = Cache::get($this->getRateLimitCacheKey($identifier));
+
+        if ($timestamp) {
+            $remaining = $timestamp - time();
+            return $remaining > 0 ? (int)$remaining : 0;
+        }
+
+        return 0;
+    }
+
+    /**
      * Check if a recent OTP request was made within the cooldown period
      */
     protected function hasRecentOtpRequest(string $identifier): bool
     {
-        return Cache::has($this->getRateLimitCacheKey($identifier));
+        return $this->getRecentOtpRemainingSeconds($identifier) > 0;
     }
 
     /**
@@ -155,10 +170,13 @@ class OtpService
      */
     protected function markOtpRequestTime(string $identifier): void
     {
+        // Calculate expiration timestamp
+        $expireAt = time() + $this->resendCooldown;
+
         Cache::put(
             $this->getRateLimitCacheKey($identifier),
-            true,
-            now()->addMinutes($this->resendCooldown)
+            $expireAt,
+            now()->addSeconds($this->resendCooldown)
         );
     }
 }
