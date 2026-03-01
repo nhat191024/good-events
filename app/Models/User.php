@@ -38,6 +38,9 @@ use Filament\Panel;
 
 use App\Enum\Role;
 
+use App\Interfaces\MustVerifyPhone;
+use App\Models\Traits\MustVerifyPhoneTrait;
+
 use Laravel\Sanctum\HasApiTokens;
 
 /**
@@ -130,10 +133,10 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, Confirmable, MustVerifyEmail, HasMedia
+class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, Confirmable, MustVerifyEmail, MustVerifyPhone, HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanConfirm, CanRedeemVouchers, ReviewRateable, LogsActivity, CanResetPassword, HasApiTokens, InteractsWithMedia;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanConfirm, CanRedeemVouchers, ReviewRateable, LogsActivity, CanResetPassword, HasApiTokens, InteractsWithMedia, MustVerifyPhoneTrait;
 
     /**
      * The attributes that are mass assignable.
