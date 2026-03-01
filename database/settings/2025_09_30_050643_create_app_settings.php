@@ -21,5 +21,11 @@ return new class extends SettingsMigration
         $this->migrator->add('app.social_zalo', 'https://zalo.me/sukientott');
         $this->migrator->add('app.social_youtube', 'https://www.youtube.com/sukientott');
         $this->migrator->add('app.social_tiktok', 'https://www.tiktok.com/@sukientott');
+        $this->migrator->add('app.app_zalo_token', null);
+        $this->migrator->add('app.app_zalo_refresh_token', null);
+        $this->migrator->add('app.app_zalo_app_id', null);
+        $this->migrator->add('app.app_zalo_app_secret', null);
+        $this->migrator->add('app.app_zalo_admin_phone', null);
+        $this->migrator->add('app.app_zalo_otp_template_id', null);
     }
 };
