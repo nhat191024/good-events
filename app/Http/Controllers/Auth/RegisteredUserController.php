@@ -2,34 +2,30 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-
 use App\Enum\Role;
 
-use App\Models\User;
+use App\Http\Controllers\Controller;
+
 use App\Models\Customer;
+use App\Models\Location;
 use App\Models\Partner;
 use App\Models\PartnerProfile;
-use App\Models\Location;
 
 use App\Services\EmailVerificationMailService;
-
 use App\Settings\PartnerSettings;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 
 use Inertia\Inertia;
 use Inertia\Response;
+
 use Spatie\Permission\PermissionRegistrar;
-use Symfony\Component\HttpKernel\Log\Logger;
 
 class RegisteredUserController extends Controller
 {
@@ -44,7 +40,7 @@ class RegisteredUserController extends Controller
     /**
      * Show the registration page for partner with provinces list.
      */
-    public function createPartner(): Response | RedirectResponse
+    public function createPartner(): Response|RedirectResponse
     {
         // no need to create a completely new partner account if the user is logged in
         if (Auth::check()) {
@@ -91,13 +87,11 @@ class RegisteredUserController extends Controller
         app(EmailVerificationMailService::class)->sendVerificationLink($user);
         Auth::login($user);
 
-        return redirect()->route('verification.notice');
-        // return to_route('login');
+        return redirect()->route('verification.method');
     }
 
     /**
      * Handle an incoming partner registration request.
-     *
      */
     public function storePartner(Request $request)
     {
@@ -146,6 +140,7 @@ class RegisteredUserController extends Controller
 
         app(EmailVerificationMailService::class)->sendVerificationLink($user);
         Auth::login($user);
+
         return Inertia::location(route('filament.partner.pages.dashboard'));
     }
 
@@ -207,7 +202,9 @@ class RegisteredUserController extends Controller
             $asCustomer = Customer::find($authUser->id);
 
             $authUser->syncRoles([]);
-            if ($asCustomer) $asCustomer->syncRoles([]); // xóa hết roles dưới model_type=Customer
+            if ($asCustomer) {
+                $asCustomer->syncRoles([]);
+            } // xóa hết roles dưới model_type=Customer
 
             // gán role Partner dưới model_type=Partner
             $asPartner = Partner::findOrFail($authUser->id);
@@ -221,6 +218,7 @@ class RegisteredUserController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error('Error upgrading user to partner: ' . $th->getMessage());
+
             return back()->with('error', 'Đã có lỗi xảy ra. Vui lòng thử lại.');
         }
     }
