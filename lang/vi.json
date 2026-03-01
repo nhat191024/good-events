@@ -165,7 +165,7 @@
     "Restore :name": "Khôi phục :name",
     "results": "kết quả",
     "Retry With": "Thử Lại Với",
-    "Resend OTP wait": "Vui lòng đợi :minute phút trước khi gửi lại OTP",
+    "Resend OTP wait": "Vui lòng đợi :seconds giây trước khi gửi lại OTP",
     "Save": "Lưu",
     "Save & Close": "Lưu & Đóng",
     "Save & Return": "Lưu & Trả lại",

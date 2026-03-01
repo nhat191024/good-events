@@ -164,7 +164,7 @@
     "Restore :name": "Restore :name",
     "results": "results",
     "Retry With": "Retry With",
-    "Resend OTP wait": "Please wait :minute minutes before requesting a new OTP.",
+    "Resend OTP wait": "Please wait :seconds seconds before requesting a new OTP.",
     "Save": "Save",
     "Save & Close": "Save & Close",
     "Save & Return": "Save & Return",
