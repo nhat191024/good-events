@@ -30,12 +30,12 @@ class ZaloService
      * Send a template message to a Zalo user via phone number
      *
      * @param  string  $phone
-     * @param  string  $mode
+     * @param  string|null  $mode
      * @param  string  $templateId
      * @param  array  $templateData
      * @return array
      */
-    public function sendMessage(string $phone, string $mode, string $templateId, array $templateData): array
+    public function sendMessage(string $phone, ?string $mode, string $templateId, array $templateData): array
     {
         $payload = [
             'mode' => $mode,
