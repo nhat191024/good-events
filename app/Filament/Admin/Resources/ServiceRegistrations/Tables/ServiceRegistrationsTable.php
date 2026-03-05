@@ -99,6 +99,7 @@ class ServiceRegistrationsTable
                     ->modalHeading(__('admin/partnerService.modals.reject.heading'))
                     ->modalDescription(__('admin/partnerService.modals.reject.description')),
             ])
+            ->recordUrl(null)
             ->toolbarActions([
                 BulkActionGroup::make([
                     //

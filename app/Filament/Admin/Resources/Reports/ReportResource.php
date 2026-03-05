@@ -56,7 +56,7 @@ class ReportResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['user', 'reportedUser', 'reportedBill']);
+            ->with(['reporter', 'reportedUser', 'reportedBill']);
     }
 
     public static function getPages(): array

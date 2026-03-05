@@ -2,6 +2,10 @@
 
 namespace App\Filament\Admin\Resources\Users\Tables;
 
+use App\Enum\Role;
+
+use App\Filament\Admin\Resources\Users\UserResource;
+
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -16,6 +20,8 @@ use Filament\Tables\Table;
 
 use App\Models\User;
 use Filament\Actions\DeleteAction;
+
+use STS\FilamentImpersonate\Actions\Impersonate;
 
 class UsersTable
 {
@@ -72,6 +78,8 @@ class UsersTable
             ])
             ->recordActions([
                 // EditAction::make(),
+                Impersonate::make()
+                    ->redirectTo(route('home')),
                 DeleteAction::make()
                     ->label(__('global.ban'))
                     ->modalHeading(__('admin/user.ban_title'))
@@ -80,6 +88,12 @@ class UsersTable
                     ->successNotificationTitle(__('admin/user.ban_success_message')),
                 RestoreAction::make(),
             ])
+            ->recordUrl(function (User $record) {
+                if (auth()->user()->hasRole(Role::SUPER_ADMIN)) {
+                    return UserResource::getUrl('edit', ['record' => $record]);
+                }
+                return null;
+            })
             ->toolbarActions([
                 BulkActionGroup::make([
                     //

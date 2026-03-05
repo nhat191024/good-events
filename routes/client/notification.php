@@ -3,7 +3,7 @@
 use App\Http\Controllers\Client\NotificationController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', 'throttle:api'])
+Route::middleware(['auth', 'verified.any', 'throttle:api'])
     ->prefix('notifications')
     ->name('notifications.')
     ->group(function () {

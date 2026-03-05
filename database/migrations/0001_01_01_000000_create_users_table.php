@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('phone_verified_at')->nullable();
             $table->boolean('can_accept_shows')->default(true);
             $table->string('google_id')->nullable();
             $table->softDeletes();

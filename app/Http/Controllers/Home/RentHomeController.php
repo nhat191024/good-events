@@ -29,10 +29,11 @@ class RentHomeController extends Controller
         $page = max(1, (int) $request->query('page', 1));
 
         $rentProducts = RentProduct::with('category.parent', 'category', 'tags', 'media')
+            ->orderBy('created_at', 'desc')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
 
         $appRentalBanner = optional(Banner::whereType('rental')->first())
-            ?->getMedia('banners') ?? collect();
+                ?->getMedia('banners') ?? collect();
 
         $tags = Taggable::getModelTags('RentProduct');
         $categories = RentalCategory::limit(15)

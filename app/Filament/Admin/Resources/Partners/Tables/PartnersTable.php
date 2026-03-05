@@ -2,6 +2,8 @@
 
 namespace App\Filament\Admin\Resources\Partners\Tables;
 
+use App\Enum\Role;
+
 use App\Models\Partner;
 use App\Filament\Admin\Resources\Partners\PartnerResource;
 
@@ -23,6 +25,8 @@ use Filament\Notifications\Notification;
 // use Filament\Actions\DeleteBulkAction;
 // use Filament\Actions\RestoreBulkAction;
 // use Filament\Actions\ForceDeleteBulkAction;
+
+use STS\FilamentImpersonate\Actions\Impersonate;
 
 class PartnersTable
 {
@@ -138,6 +142,8 @@ class PartnersTable
                         ->label('Quản lý dịch vụ')
                         ->icon('heroicon-o-rectangle-stack')
                         ->url(fn(Partner $record): string => PartnerResource::getUrl('services', ['record' => $record])),
+                    Impersonate::make()
+                        ->redirectTo(route('filament.partner.pages.dashboard')),
                     // EditAction::make(),
                     DeleteAction::make()
                         ->label(__('global.ban'))
@@ -213,6 +219,12 @@ class PartnersTable
                         ]),
                 ]),
             ])
+            ->recordUrl(function (Partner $record) {
+                if (auth()->user()->hasRole(Role::SUPER_ADMIN)) {
+                    return PartnerResource::getUrl('edit', ['record' => $record]);
+                }
+                return null;
+            })
             ->toolbarActions([
                 //
             ]);

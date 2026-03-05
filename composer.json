@@ -56,6 +56,7 @@
         "spatie/laravel-sluggable": "^3.7",
         "spatie/laravel-tags": "^4.10",
         "spatie/laravel-uptime-monitor": "^4.5",
+        "stechstudio/filament-impersonate": "^5.1",
         "tapp/filament-maillog": "^2.0",
         "tightenco/ziggy": "^2.4"
     },

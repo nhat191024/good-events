@@ -11,6 +11,24 @@ return [
 
     'saved' => 'Settings have been saved successfully!',
 
+    'sections' => [
+        'titles' => [
+            'general' => 'General Settings',
+            'titles' => 'Page Titles',
+            'contact' => 'Contact Information',
+            'socials' => 'Social Media',
+            'zalo' => 'Zalo API Settings',
+        ],
+
+        'descriptions' => [
+            'general' => 'Configure general settings for the application',
+            'titles' => 'Configure titles for category pages',
+            'contact' => 'Information displayed in the footer or contact page',
+            'socials' => 'Links to social media pages',
+            'zalo' => "Configuration needed to integrate with external services - Don't change if you don't know what you are doing!!",
+        ],
+    ],
+
     'banners' => [
         'partner' => 'Partner',
         'mobile_partner' => 'Partner (Mobile)',
@@ -26,6 +44,12 @@ return [
         'name' => 'Application Name',
         'logo' => 'Application Logo',
         'favicon' => 'Favicon',
+        'zalo_token' => 'Zalo Access Token',
+        'zalo_refresh_token' => 'Zalo Refresh Token',
+        'zalo_app_secret' => 'Zalo App Secret',
+        'zalo_app_id' => 'Zalo App ID',
+        'zalo_admin_phone' => 'Admin Phone Number to receive messages during testing',
+        'zalo_otp_template_id' => 'Zalo OTP Message Template ID',
 
         'titles' => [
             'partner' => 'Partner Page Title',

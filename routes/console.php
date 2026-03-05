@@ -22,6 +22,10 @@ Schedule::command('app:clear-logs')->weeklyOn(1, '04:00');
 
 //3h00 am daily
 Schedule::command('activitylog:clean --force')->dailyAt('03:00');
+
+// Refresh Zalo Token daily at 2:00 AM
+Schedule::command('app:refresh-zalo-token')->dailyAt('02:00');
+
 Schedule::call(function () {
     Log::info('Starting cleanup of old MailLog and Activity records.');
     if (class_exists(MailLog::class)) {

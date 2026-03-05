@@ -20,6 +20,7 @@
         </script>
 
         <meta name="google-site-verification" content="xzQBSYjswFBEVPucgfh7szJ9LdS2z7BMZ7kgRFBn7GQ" />
+        <meta name="zalo-platform-site-verification" content="GFc06ANE4m10xRCZnD1b017nj3xzXs1eCZ8o" />
     @endproduction
 
     {{-- Inline script to detect system dark mode preference and apply it immediately --}}
@@ -48,8 +49,8 @@
         }
     </style>
 
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link type="image/png" rel="icon" href="/favicon-96x96.png" sizes="96x96" />
+    <link type="image/svg+xml" rel="icon" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Sự Kiện Tốt" />
@@ -65,6 +66,7 @@
 </head>
 
 <body class="font-sans antialiased" style="margin: 0 !important;">
+    <x-impersonate-banner />
     @inertia
 </body>
 

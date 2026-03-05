@@ -47,8 +47,8 @@ class AppManager extends SettingsPage
     {
         return $schema
             ->components([
-                Section::make('Thông tin chung')
-                    ->description('Các thông tin cơ bản về ứng dụng')
+                Section::make(__('admin/setting.sections.titles.general'))
+                    ->description(__('admin/setting.sections.descriptions.general'))
                     ->columns(2)
                     ->schema([
                         TextInput::make('app_name')
@@ -103,8 +103,8 @@ class AppManager extends SettingsPage
                             }),
                     ]),
 
-                Section::make('Tiêu đề các trang')
-                    ->description('Cấu hình tiêu đề cho các trang danh mục')
+                Section::make(__('admin/setting.sections.titles.titles'))
+                    ->description(__('admin/setting.sections.descriptions.titles'))
                     ->columns(2)
                     ->schema([
                         TextInput::make('app_partner_title')
@@ -123,8 +123,8 @@ class AppManager extends SettingsPage
                             ->required(),
                     ]),
 
-                Section::make('Thông tin liên hệ')
-                    ->description('Thông tin hiển thị ở footer hoặc trang liên hệ')
+                Section::make(__('admin/setting.sections.titles.contact'))
+                    ->description(__('admin/setting.sections.descriptions.contact'))
                     ->columns(2)
                     ->schema([
                         TextInput::make('contact_hotline')
@@ -136,8 +136,8 @@ class AppManager extends SettingsPage
                             ->required(),
                     ]),
 
-                Section::make('Mạng xã hội')
-                    ->description('Liên kết đến các trang mạng xã hội')
+                Section::make(__('admin/setting.sections.titles.socials'))
+                    ->description(__('admin/setting.sections.descriptions.socials'))
                     ->columns(2)
                     ->schema([
                         TextInput::make('social_facebook')
@@ -160,6 +160,29 @@ class AppManager extends SettingsPage
                         TextInput::make('social_tiktok')
                             ->label(__(__('admin/setting.fields.socials.tiktok')))
                             ->required(),
+                    ]),
+                Section::make(__('admin/setting.sections.titles.zalo'))
+                    ->description(__('admin/setting.sections.descriptions.zalo'))
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('app_zalo_refresh_token')
+                            ->label(__(__('admin/setting.fields.zalo_refresh_token')))
+                            ->columnSpanFull(),
+                        TextInput::make('app_zalo_token')
+                            ->label(__(__('admin/setting.fields.zalo_token')))
+                            ->columnSpanFull(),
+                        TextInput::make('app_zalo_app_id')
+                            ->label(__(__('admin/setting.fields.zalo_app_id')))
+                            ->columnSpanFull(),
+                        TextInput::make('app_zalo_app_secret')
+                            ->label(__(__('admin/setting.fields.zalo_app_secret')))
+                            ->columnSpanFull(),
+                        TextInput::make('app_zalo_admin_phone')
+                            ->label(__(__('admin/setting.fields.zalo_admin_phone')))
+                            ->columnSpanFull(),
+                        TextInput::make('app_zalo_otp_template_id')
+                            ->label(__(__('admin/setting.fields.zalo_otp_template_id')))
+                            ->columnSpanFull(),
                     ]),
             ]);
     }
