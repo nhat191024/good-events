@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Client;
 
 use App\Enum\FileProductBillStatus;
 use App\Enum\PaymentMethod;

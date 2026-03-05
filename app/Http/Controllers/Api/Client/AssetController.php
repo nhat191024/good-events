@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Client;
 
 use App\Enum\FileProductBillStatus;
 use App\Enum\PaymentMethod;
@@ -83,7 +83,7 @@ class AssetController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
         $tagSlugs = collect(Arr::wrap($request->query('tags', [])))
-            ->map(fn ($slug) => trim((string) $slug))
+            ->map(fn($slug) => trim((string) $slug))
             ->filter();
 
         if ($tagSlugs->isEmpty() && $request->filled('tag')) {
@@ -186,7 +186,7 @@ class AssetController extends Controller
     {
         $fileProduct = FileProduct::query()
             ->with(['category.parent', 'tags', 'media'])
-            ->whereHas('category', fn ($builder) => $builder->where('slug', $categorySlug))
+            ->whereHas('category', fn($builder) => $builder->where('slug', $categorySlug))
             ->where('slug', $fileProductSlug)
             ->firstOrFail();
 
@@ -309,7 +309,7 @@ class AssetController extends Controller
         }
 
         $paymentMethods = PaymentMethod::toOptions();
-        $allowedMethods = array_map(fn (PaymentMethod $m) => $m->value, PaymentMethod::cases());
+        $allowedMethods = array_map(fn(PaymentMethod $m) => $m->value, PaymentMethod::cases());
 
         $validated = $request->validate([
             'slug' => ['required', 'string', 'exists:file_products,slug'],

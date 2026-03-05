@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Client;
 
 use App\Enum\CategoryType;
 use App\Http\Controllers\Api\Concerns\PaginatesApi;

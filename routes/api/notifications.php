@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\Client\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('notifications')->group(function () {

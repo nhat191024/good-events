@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\Client\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {

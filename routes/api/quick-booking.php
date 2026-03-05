@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\QuickBookingController;
+use App\Http\Controllers\Api\Client\QuickBookingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {

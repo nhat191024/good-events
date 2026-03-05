@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\PartnerCategoryController;
+use App\Http\Controllers\Api\Client\PartnerCategoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:api')->group(function () {
