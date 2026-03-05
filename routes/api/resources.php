@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\ResourceController;
+use App\Http\Controllers\Api\Client\ResourceController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('resources')->group(function () {

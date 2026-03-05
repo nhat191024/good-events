@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Api\Client\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:api')->group(function () {

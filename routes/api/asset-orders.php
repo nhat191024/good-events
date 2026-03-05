@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\AssetOrderController;
+use App\Http\Controllers\Api\Client\AssetOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {

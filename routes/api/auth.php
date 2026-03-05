@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Api\ClientToPartnerController;
-use App\Http\Controllers\Api\LoginController;
-use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\Api\Client\ClientToPartnerController;
+use App\Http\Controllers\Api\Client\LoginController;
+use App\Http\Controllers\Api\Client\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:api');
