@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\Client\BlogController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:api')->group(function () {

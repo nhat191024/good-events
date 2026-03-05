@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\AssetController;
+use App\Http\Controllers\Api\Client\AssetController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:api')->group(function () {

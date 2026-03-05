@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\Client\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {

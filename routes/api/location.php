@@ -1,6 +1,6 @@
 <?php
-use App\Http\Controllers\Api\LocationController;
-use App\Http\Controllers\Api\ResourceController;
+use App\Http\Controllers\Api\Client\LocationController;
+use App\Http\Controllers\Api\Client\ResourceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/locations/{location}/wards', [LocationController::class, 'wards'])
