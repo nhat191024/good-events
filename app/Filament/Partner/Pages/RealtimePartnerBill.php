@@ -48,6 +48,7 @@ class RealtimePartnerBill extends Page
             return null;
         }
 
+        //TODO: cache this forever and only refresh when partner add or update a service
         $partnerServices = $user->partnerServices()
             ->where('status', 'approved')
             ->pluck('category_id')
