@@ -8,6 +8,35 @@ use App\Models\PartnerCategory;
 class PartnerCategoryController extends Controller
 {
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        $categories = PartnerCategory::query()
+            ->whereNull('parent_id')
+            ->with('children')
+            ->get();
+
+        return response()->json($categories->map(function ($category) {
+            return [
+                'id' => (string) $category->id,
+                'name' => $category->name,
+                'image' => $category->getFirstMediaUrl('images', 'thumb'),
+                'partnerList' => $category->children->map(function ($child) {
+                    return [
+                        'id' => (string) $child->id,
+                        'name' => $child->name,
+                        'slug' => $child->slug,
+                        'image' => $child->getFirstMediaUrl('images', 'thumb'),
+                    ];
+                }),
+            ];
+        }));
+    }
+
+    /**
      * GET /api/partner-categories/{slug}
      *
      * Response: { item, category, related }
@@ -20,13 +49,6 @@ class PartnerCategoryController extends Controller
         $item = PartnerCategory::query()
             ->where('slug', $slug)
             ->firstOrFail();
-
-        $related = PartnerCategory::query()
-            ->where('parent_id', $item->parent_id)
-            ->where('id', '!=', $item->id)
-            ->latest('updated_at')
-            ->take(8)
-            ->get(['id', 'name', 'slug', 'min_price', 'max_price']);
 
         $category = $item->parent;
 
@@ -46,14 +68,6 @@ class PartnerCategoryController extends Controller
                 'name' => $category->name,
                 'slug' => $category->slug,
             ] : null,
-            'related' => $related->map(fn ($r) => [
-                'id' => $r->id,
-                'name' => $r->name,
-                'slug' => $r->slug,
-                'min_price' => $r->min_price,
-                'max_price' => $r->max_price,
-                'image' => $this->getImageUrl($r),
-            ])->values(),
         ]);
     }
 
