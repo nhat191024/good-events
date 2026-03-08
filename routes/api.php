@@ -15,7 +15,7 @@ $router->get('csrf-token', function() {
 
 require __DIR__ .'/api/location.php';
 require __DIR__ .'/api/auth.php';
-require __DIR__ .'/api/home.php';
+require __DIR__ .'/api/client/home.php';
 require __DIR__ .'/api/asset.php';
 require __DIR__ .'/api/rental.php';
 require __DIR__ .'/api/blog.php';
