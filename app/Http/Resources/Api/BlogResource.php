@@ -10,22 +10,22 @@ class BlogResource extends BaseResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            // 'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
             'type' => $this->type,
-            'published_at' => optional($this->created_at)->toIso8601String(),
+            // 'published_at' => optional($this->created_at)->toIso8601String(),
             'published_human' => optional($this->created_at)->translatedFormat('d M Y'),
             'max_people' => $this->max_people,
             'address' => $this->address,
-            'latitude' => $this->latitude,
-            'longitude' => $this->longitude,
-            'thumbnail' => $this->mediaUrl('thumbnail'),
-            'video_url' => $this->video_url,
-            'author' => $this->whenLoaded('author', fn () => [
-                'id' => $this->author->id,
-                'name' => $this->author->name,
-            ]),
+            // 'latitude' => $this->latitude,
+            // 'longitude' => $this->longitude,
+            'thumbnail' => $this->getFirstMediaUrl('thumbnail', 'thumb'),
+            // 'video_url' => $this->video_url,
+            // 'author' => $this->whenLoaded('author', fn () => [
+            //     'id' => $this->author->id,
+            //     'name' => $this->author->name,
+            // ]),
             'category' => $this->whenLoaded('category', function () {
                 $category = $this->category;
 
