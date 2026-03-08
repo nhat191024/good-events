@@ -3,7 +3,7 @@
 use App\Http\Controllers\Api\Client\HomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('throttle:api')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/event/home', [HomeController::class, 'eventHome']);
     Route::get('/event/home/categories', [HomeController::class, 'loadMoreCategories']);
     Route::get('/event/home/children', [HomeController::class, 'loadMoreChildren']);

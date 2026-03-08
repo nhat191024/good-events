@@ -35,98 +35,23 @@ class HomeController extends Controller
      * @param AppSettings $settings
      * @return \Illuminate\Http\JsonResponse
      */
-    public function eventHome(Request $request, AppSettings $settings)
+    public function eventHome(Request $request)
     {
         $user = $request->user();
 
-        $initialData = $this->fetchEventCategories(self::INITIAL_EVENT_CATEGORY_LIMIT, 0);
-
-        $blogs = Blog::query()
-            ->select([
-                'id',
-                'category_id',
-                'user_id',
-                'title',
-                'slug',
-                'content',
-                'video_url',
-                'location_id',
-                'latitude',
-                'longitude',
-                'address',
-                'max_people',
-                'type',
-                'order',
-                'created_at',
-                'updated_at',
-            ])
-            ->with([
-                'category:id,name,slug,parent_id',
-                'category.parent:id,name,slug',
-                'author:id,name',
-                'media',
-                'tags',
-                'location:id,name,parent_id,type',
-                'location.province:id,name,parent_id',
-            ])
-            ->latest('created_at')
-            ->take(6)
-            ->get();
-
-        $payload = [
-            'event_categories' => $initialData['event_categories'],
-            'partner_categories' => $initialData['partner_categories'],
-            'pagination' => [
-                'total' => $this->getParentCategoryCount(),
-                'initial_limit' => self::INITIAL_EVENT_CATEGORY_LIMIT,
-                'batch_size' => self::EVENT_CATEGORY_BATCH_SIZE,
-                'child_limit' => self::CHILD_CATEGORY_LIMIT,
-            ],
-            'blogs' => BlogResource::collection($blogs),
-        ];
-
-        if ($user) {
-            $user->loadMissing('partnerProfile');
-            $pendingOrders = PartnerBill::query()
-                ->where('client_id', $user->id)
-                ->where('status', PartnerBillStatus::PENDING)
-                ->count();
-
-            $confirmedOrders = PartnerBill::query()
-                ->where('client_id', $user->id)
-                ->whereIn('status', [PartnerBillStatus::CONFIRMED, PartnerBillStatus::IN_JOB])
-                ->count();
-
-            $pendingPartners = PartnerBillDetail::query()
-                ->where('status', PartnerBillDetailStatus::NEW)
-                ->whereHas('partnerBill', fn ($query) => $query->where('client_id', $user->id))
-                ->count();
-
-            $payload = array_merge($payload, [
-                'is_has_new_noti' => $user->unreadNotifications()->count() > 0,
-                'user' => new UserResource($user),
-                'current_money' => $user->balanceInt ?? 0,
-                'pending_orders' => $pendingOrders,
-                'confirmed_orders' => $confirmedOrders,
-                'pending_partners' => $pendingPartners,
-            ]);
-        } else {
-            $payload = array_merge($payload, [
-                'is_has_new_noti' => false,
-                'user' => null,
-                'current_money' => 0,
-                'pending_orders' => 0,
-                'confirmed_orders' => 0,
-                'pending_partners' => 0,
-            ]);
-        }
-
-        $payload['settings'] = [
-            'app_name' => $settings->app_name,
-            'hero_title' => $settings->app_partner_title,
-            'banner_images' => $this->bannerImages('partner'),
-            'mobile_banner_images' => $this->bannerImages('mobile_partner'),
-        ];
+        $payload['is_has_new_noti'] = $user ? $user->unreadNotifications()->count() > 0 : false;
+        $payload['pending_orders'] = $user ? PartnerBill::query()
+            ->where('client_id', $user->id)
+            ->where('status', PartnerBillStatus::PENDING)
+            ->count() : 0;
+        $payload['confirmed_orders'] = $user ? PartnerBill::query()
+            ->where('client_id', $user->id)
+            ->whereIn('status', [PartnerBillStatus::CONFIRMED, PartnerBillStatus::IN_JOB])
+            ->count() : 0;
+        $payload['pending_partners'] = $user ? PartnerBillDetail::query()
+            ->where('status', PartnerBillDetailStatus::NEW)
+            ->whereHas('partnerBill', fn ($query) => $query->where('client_id', $user->id))
+            ->count() : 0;
 
         return response()->json($payload);
     }
