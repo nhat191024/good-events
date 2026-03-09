@@ -20,8 +20,8 @@ php artisan key:generate --force
 php artisan storage:link
 
 # run npm build
-echo "building assets..."
-npm run build:ssr
+# echo "building assets..."
+# npm run build:ssr
 
 # Set proper permissions
 echo "Setting permissions..."
