@@ -5,14 +5,14 @@ use App\Http\Controllers\Api\Client\LoginController;
 use App\Http\Controllers\Api\Client\RegisterController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:api');
-Route::post('/login/google', [LoginController::class, 'loginGoogle'])->middleware('throttle:api');
-Route::post('/forgot', [LoginController::class, 'forgot'])->middleware('throttle:api');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login/google', [LoginController::class, 'loginGoogle']);
+Route::post('/forgot', [LoginController::class, 'forgot']);
 
-Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:api');
-Route::post('/register/partner', [RegisterController::class, 'registerPartner'])->middleware('throttle:api');
+Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/register/partner', [RegisterController::class, 'registerPartner']);
 
-Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/logout', [LoginController::class, 'logout']);
     Route::get('/check-token', [LoginController::class, 'checkToken']);
     Route::get('/register/partner/from-client', [ClientToPartnerController::class, 'form']);
