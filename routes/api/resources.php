@@ -3,7 +3,7 @@
 use App\Http\Controllers\Api\Client\ResourceController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('resources')->group(function () {
+Route::prefix('resources')->group(function () {
     Route::get('/{resource}', [ResourceController::class, 'index']);
     Route::get('/{resource}/{id}', [ResourceController::class, 'show'])->whereNumber('id');
     Route::post('/{resource}', [ResourceController::class, 'store']);
