@@ -52,29 +52,17 @@ class PartnerBillHistoryResource extends BaseResource
             'note' => $this->note,
             'arrival_photo' => $this->mediaUrl('arrival_photo'),
             'status' => $statusValue,
-            'created_at' => optional($this->created_at)->toIso8601String(),
             'updated_at' => optional($this->updated_at)->toIso8601String(),
-            'category' => $this->whenLoaded('category', function () {
-                $cat = $this->category;
-
-                return [
-                    'id' => $cat->id,
-                    'name' => $cat->name,
-                    'image' => $cat->getFirstMediaUrl('images', 'thumb'),
-                    'parent' => $this->when(
-                        $cat->relationLoaded('parent') && $cat->parent,
-                        fn () => [
-                            'name' => $cat->parent->name,
-                            'image' => $cat->parent->getFirstMediaUrl('images', 'thumb'),
-                        ]
-                    ),
-                ];
+            'category_name' => $this->whenLoaded('category', function () {
+                return $this->category->name;
             }),
-            'custom_event' => $this->custom_event,
-            'event' => $this->whenLoaded('event', fn () => [
-                'id' => $this->event?->id,
-                'name' => $this->event?->name,
-            ]),
+            'parent_category_name' => $this->whenLoaded('category', function () {
+                return $this->category->parent->name;
+            }),
+            'category_image' => $this->whenLoaded('category', function () {
+                return $this->category->getFirstMediaUrl('images', 'thumb');
+            }),
+            'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn() => $this->event->name),
             'partner' => $this->whenLoaded('partner', function () {
                 $partner = $this->partner;
 
@@ -94,10 +82,10 @@ class PartnerBillHistoryResource extends BaseResource
                     ),
                 ];
             }),
-            'voucher' => $this->whenLoaded('voucher', fn () => [
-                'id' => $this->voucher?->id,
-                'code' => $this->voucher?->code,
-            ]),
+            // 'voucher' => $this->whenLoaded('voucher', fn () => [
+            //     'id' => $this->voucher?->id,
+            //     'code' => $this->voucher?->code,
+            // ]),
             'review' => $review,
         ];
     }
