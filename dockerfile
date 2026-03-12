@@ -1,16 +1,46 @@
+# ============================================================
+# Stage 1: Node.js — Build frontend assets
+# ============================================================
+FROM node:20-alpine AS node-builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+COPY vite.config.ts tsconfig.json ./
+COPY resources/ ./resources/
+
+RUN npm run build:ssr
+
+# ============================================================
+# Stage 2: Composer — Install PHP dependencies
+# ============================================================
+FROM composer:2 AS composer-builder
+
+WORKDIR /app
+
+COPY auth.json ./
+COPY composer.json composer.lock ./
+RUN composer install \
+    --optimize-autoloader \
+    --no-scripts \
+    --no-dev \
+    --no-cache \
+    && rm auth.json
+
+# ============================================================
+# Stage 3: Runtime — Final production image
+# ============================================================
 FROM php:8.4-apache
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies
+# Install runtime system dependencies, compile PHP extensions,
+# then purge build-time *-dev headers in the same layer to reduce image size
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
     libzip-dev \
     libpng-dev \
-    libpq-dev \
-    nodejs \
-    npm \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libwebp-dev \
@@ -19,43 +49,49 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     supervisor \
     procps \
     curl \
-    zip\
+    zip \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install zip pdo_mysql gd bcmath intl pcntl exif opcache \
-    # Install Imagick via PECL
     && pecl install imagick \
     && docker-php-ext-enable imagick \
+    && apt-get purge -y --auto-remove \
+        libzip-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libwebp-dev \
+        libicu-dev \
+        libmagickwand-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Enable Apache modules
 RUN a2enmod rewrite headers
 
-# Copy Apache configuration
+# Copy Apache and PHP configuration
 COPY 000-default-redirect.conf /etc/apache2/sites-available/000-default.conf
-
-# Copy PHP custom configuration
 COPY docker-php-custom.ini /usr/local/etc/php/conf.d/custom.ini
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-# Copy auth.json for private repositories
-COPY auth.json /var/www/html/
+# Copy application source code
+COPY app/ ./app/
+COPY bootstrap/ ./bootstrap/
+COPY config/ ./config/
+COPY database/ ./database/
+COPY lang/ ./lang/
+COPY public/ ./public/
+COPY resources/ ./resources/
+COPY routes/ ./routes/
+COPY artisan ./
 
-# Copy and install PHP dependencies
-COPY composer.json composer.lock ./
-RUN composer install --optimize-autoloader --no-scripts --no-dev
+# Copy PHP vendor from composer stage
+COPY --from=composer-builder /app/vendor ./vendor/
 
-# Remove auth.json after installing dependencies
-RUN rm /var/www/html/auth.json
-
-# Copy and install Node dependencies
-COPY package.json package-lock.json* ./
-RUN npm install
+# Copy built frontend assets from node stage (overrides public/build & bootstrap/ssr)
+COPY --from=node-builder /app/public/build ./public/build/
+COPY --from=node-builder /app/bootstrap/ssr ./bootstrap/ssr/
 
 # Copy supervisor configuration
 COPY supervisor-laravel.conf /etc/supervisor/conf.d/laravel.conf
@@ -65,7 +101,8 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Create necessary directories
-RUN mkdir -p /var/www/html/storage/logs \
+RUN mkdir -p \
+    /var/www/html/storage/logs \
     /var/www/html/storage/framework/cache \
     /var/www/html/storage/framework/sessions \
     /var/www/html/storage/framework/views \
