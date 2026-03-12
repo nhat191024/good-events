@@ -4,16 +4,17 @@ vendor/
 # Ignore node_modules (will be installed inside container)
 node_modules/
 
-# Ignore storage files (will be mounted)
+# Ignore storage files (will be mounted as volume)
 storage/logs/*
 storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
 
-# Ignore bootstrap cache (will be mounted)
+# Ignore bootstrap cache
 bootstrap/cache/*
 
 # Ignore environment files
+.env
 .env.local
 .env.*.local
 
@@ -35,9 +36,13 @@ docker-compose.yml
 README.md
 docs/
 
-# Ignore tests (will be mounted separately)
+# Ignore tests (not needed in production image)
 tests/
 
 # Ignore OS files
 .DS_Store
 Thumbs.db
+
+# Ignore build outputs (will be generated inside container stages)
+public/build/
+bootstrap/ssr/
