@@ -27,6 +27,7 @@ RUN composer install \
     --no-scripts \
     --no-dev \
     --no-cache \
+    --ignore-platform-reqs \
     && rm auth.json
 
 # ============================================================
