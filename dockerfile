@@ -1,20 +1,5 @@
 # ============================================================
-# Stage 1: Node.js — Build frontend assets
-# ============================================================
-FROM node:20-alpine AS node-builder
-
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-COPY vite.config.ts tsconfig.json ./
-COPY resources/ ./resources/
-
-RUN npm run build:ssr
-
-# ============================================================
-# Stage 2: Composer — Install PHP dependencies
+# Stage 1: Composer — Install PHP dependencies
 # ============================================================
 FROM composer:2 AS composer-builder
 
@@ -29,6 +14,24 @@ RUN composer install \
     --no-cache \
     --ignore-platform-reqs \
     && rm auth.json
+
+# ============================================================
+# Stage 2: Node.js — Build frontend assets
+# ============================================================
+FROM node:20-alpine AS node-builder
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+COPY vite.config.ts tsconfig.json ./
+COPY resources/ ./resources/
+
+# Vendor is needed so Vite can resolve CSS files from PHP packages (e.g. filafly/brisk)
+COPY --from=composer-builder /app/vendor ./vendor/
+
+RUN npm run build:ssr
 
 # ============================================================
 # Stage 3: Runtime — Final production image
