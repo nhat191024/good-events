@@ -23,13 +23,13 @@ class PartnerCategoryController extends Controller
             return [
                 'id' => (string) $category->id,
                 'name' => $category->name,
-                'image' => $category->getFirstMediaUrl('images', 'thumb'),
+                'image' => $this->getImageUrl($category),
                 'partnerList' => $category->children->map(function ($child) {
                     return [
                         'id' => (string) $child->id,
                         'name' => $child->name,
                         'slug' => $child->slug,
-                        'image' => $child->getFirstMediaUrl('images', 'thumb'),
+                        'image' => $this->getImageUrl($child),
                     ];
                 }),
             ];
