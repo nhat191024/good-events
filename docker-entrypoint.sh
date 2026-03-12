@@ -19,11 +19,6 @@ php artisan key:generate --force
 # run storage link
 php artisan storage:link
 
-# run npm build
-echo "building assets..."
-npm run build:ssr
-# npm run build
-
 # Set proper permissions
 echo "Setting permissions..."
 chgrp -R www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
