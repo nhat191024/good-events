@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Broadcast;
 use Cmgmyr\Messenger\Models\Participant;
+use App\Enum\CacheKey;
 
 // Only register channels if we have valid Pusher credentials
 if (
@@ -23,7 +24,10 @@ if (
     });
 
     Broadcast::channel('category.{categoryId}', function ($user, $categoryId) {
-        return $user->partnerServices()->where('category_id', $categoryId)->exists();
+        $key = CacheKey::USER_CATEGORY_EXISTS->value . "{$user->id}_{$categoryId}";
+        return cache()->remember($key, now()->addMinutes(10), function () use ($user, $categoryId) {
+            return $user->partnerServices()->where('category_id', $categoryId)->exists();
+        });
     });
 
     Broadcast::channel('thread.{threadId}', function ($user, $threadId) {
