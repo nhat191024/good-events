@@ -40,18 +40,12 @@ class AssetOrderController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        $page = max(1, (int) $request->query('page', 1));
-        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
-
         $orders = FileProductBill::query()
             ->where('client_id', $userId)
             ->with(['fileProduct.media', 'fileProduct.category'])
-            ->orderByDesc('created_at')
-            ->paginate($perPage, ['*'], 'page', $page);
-
-        return response()->json([
-            'orders' => $this->paginatedData($orders, FileProductBillResource::class),
-        ]);
+            ->orderByDesc('created_at');
+        
+        return response()->json(FileProductBillResource::collection($orders->get()));
     }
 
     /**
@@ -271,14 +265,6 @@ class AssetOrderController extends Controller
         $response->headers->set('Content-Disposition', 'attachment; filename="' . $zipFileName . '"');
 
         return $response;
-    }
-
-    private function resolvePerPage(Request $request, int $default): int
-    {
-        $perPage = (int) $request->query('per_page', $default);
-        $perPage = max(1, $perPage);
-
-        return min(self::MAX_PER_PAGE, $perPage);
     }
 
     private function authorizeBill(FileProductBill $bill, Request $request): void
