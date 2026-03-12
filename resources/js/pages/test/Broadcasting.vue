@@ -7,6 +7,145 @@ const page = usePage<AppPageProps>();
 const auth = computed(() => page.props.auth);
 
 // ──────────────────────────────────────────────
+// Auth configuration for channel authorization
+// ──────────────────────────────────────────────
+type AuthMode = 'csrf' | 'bearer';
+const authMode = ref<AuthMode>('csrf');
+const bearerToken = ref('');
+const csrfToken = ref('');
+const authEndpointStatus = ref<'idle' | 'ok' | 'error'>('idle');
+const authEndpointError = ref('');
+const authApplied = ref(false);
+
+function detectCsrf(): string {
+    return (
+        document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ??
+        (document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ? decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)![1]) : '')
+    );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getEcho(): any | null {
+    return (window as any).Echo ?? null;
+}
+
+function applyAuthToEcho() {
+    const echo = getEcho();
+    if (!echo?.connector?.pusher) {
+        addLog('error', 'auth', 'apply-auth', 'Echo/Pusher chưa khởi tạo.');
+        return;
+    }
+
+    const cfg = echo.connector.pusher.config;
+
+    // Ensure channelAuthorization object exists (Pusher JS 7+)
+    if (!cfg.channelAuthorization) {
+        cfg.channelAuthorization = { transport: 'ajax', endpoint: '/broadcasting/auth', headers: {} };
+    }
+    if (!cfg.channelAuthorization.headers) cfg.channelAuthorization.headers = {};
+
+    // Also patch the legacy auth.headers
+    if (!cfg.auth) cfg.auth = { headers: {} };
+    if (!cfg.auth.headers) cfg.auth.headers = {};
+
+    // Clear previous auth
+    delete cfg.channelAuthorization.headers['X-CSRF-TOKEN'];
+    delete cfg.channelAuthorization.headers['Authorization'];
+    delete cfg.auth.headers['X-CSRF-TOKEN'];
+    delete cfg.auth.headers['Authorization'];
+
+    if (authMode.value === 'csrf') {
+        const token = detectCsrf();
+        if (!token) {
+            addLog('warning', 'auth', 'apply-auth', 'Không tìm thấy CSRF token. Thử Bearer token.');
+            authApplied.value = false;
+            return;
+        }
+        cfg.channelAuthorization.headers['X-CSRF-TOKEN'] = token;
+        cfg.channelAuthorization.headers['X-Requested-With'] = 'XMLHttpRequest';
+        cfg.auth.headers['X-CSRF-TOKEN'] = token;
+        cfg.auth.headers['X-Requested-With'] = 'XMLHttpRequest';
+        csrfToken.value = token;
+        addLog('success', 'auth', 'apply-auth', { mode: 'csrf', tokenPreview: token.substring(0, 20) + '...' });
+    } else {
+        const token = bearerToken.value.trim();
+        if (!token) {
+            addLog('warning', 'auth', 'apply-auth', 'Bearer token trống.');
+            authApplied.value = false;
+            return;
+        }
+        cfg.channelAuthorization.headers['Authorization'] = `Bearer ${token}`;
+        cfg.channelAuthorization.headers['X-Requested-With'] = 'XMLHttpRequest';
+        cfg.auth.headers['Authorization'] = `Bearer ${token}`;
+        cfg.auth.headers['X-Requested-With'] = 'XMLHttpRequest';
+        addLog('success', 'auth', 'apply-auth', { mode: 'bearer', tokenPreview: token.substring(0, 10) + '...' });
+    }
+
+    authApplied.value = true;
+}
+
+async function testAuthEndpoint() {
+    const echo = getEcho();
+    const socketId = echo?.connector?.pusher?.connection?.socket_id;
+
+    if (!socketId) {
+        authEndpointStatus.value = 'error';
+        authEndpointError.value = 'Pusher chưa kết nối (không có socket_id).';
+        return;
+    }
+
+    const def = selectedDefinition.value;
+    const channelName = resolveChannelName(def);
+    if (!channelName || def.params.some((p) => !paramValues.value[p.key]?.trim())) {
+        authEndpointStatus.value = 'error';
+        authEndpointError.value = 'Vui lòng điền tham số channel trước.';
+        return;
+    }
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest',
+    };
+    if (authMode.value === 'csrf') {
+        const token = detectCsrf();
+        if (token) headers['X-CSRF-TOKEN'] = token;
+    } else if (bearerToken.value.trim()) {
+        headers['Authorization'] = `Bearer ${bearerToken.value.trim()}`;
+    }
+
+    const prefix = def.channelType === 'private' ? 'private-' : def.channelType === 'presence' ? 'presence-' : '';
+    const prefixedChannel = `${prefix}${channelName}`;
+    const body = `socket_id=${encodeURIComponent(socketId)}&channel_name=${encodeURIComponent(prefixedChannel)}`;
+
+    addLog('info', channelName, 'test-auth-endpoint', { endpoint: '/broadcasting/auth', channel: prefixedChannel, socketId });
+
+    try {
+        const res = await fetch('/broadcasting/auth', { method: 'POST', headers, body, credentials: 'include' });
+        const text = await res.text();
+        let parsed: unknown = text;
+        try {
+            parsed = JSON.parse(text);
+        } catch {
+            /* keep as text */
+        }
+
+        if (res.ok) {
+            authEndpointStatus.value = 'ok';
+            authEndpointError.value = '';
+            addLog('success', channelName, 'auth-endpoint-response', { status: res.status, body: parsed });
+        } else {
+            authEndpointStatus.value = 'error';
+            authEndpointError.value = `HTTP ${res.status}`;
+            addLog('error', channelName, 'auth-endpoint-response', { status: res.status, body: parsed });
+        }
+    } catch (e) {
+        authEndpointStatus.value = 'error';
+        authEndpointError.value = String(e);
+        addLog('error', channelName, 'auth-endpoint-fetch-error', String(e));
+    }
+}
+
+// ──────────────────────────────────────────────
 // Pusher / Echo state
 // ──────────────────────────────────────────────
 type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'failed';
@@ -104,14 +243,7 @@ function resolveChannelName(def: EventDefinition): string {
 
 function onDefinitionChange() {
     paramValues.value = {};
-}
-
-// ──────────────────────────────────────────────
-// Echo helpers
-// ──────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getEcho(): any | null {
-    return (window as any).Echo ?? null;
+    authEndpointStatus.value = 'idle';
 }
 
 function subscribe() {
@@ -132,6 +264,11 @@ function subscribe() {
     const alreadySubscribed = activeSubs.value.some((s) => s.channelName === channelName);
     if (alreadySubscribed) {
         addLog('warning', channelName, 'subscribe', 'Channel này đã được subscribe rồi.');
+        return;
+    }
+
+    if (def.requiresAuth && !authApplied.value) {
+        addLog('warning', channelName, 'subscribe', 'Channel này cần auth. Hãy Apply Auth trước.');
         return;
     }
 
@@ -195,16 +332,13 @@ function clearLogs() {
 // ──────────────────────────────────────────────
 // Pusher connection monitoring
 // ──────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let pusherInstance: any = null;
-
 function bindPusherEvents() {
     const echo = getEcho();
     if (!echo?.connector?.pusher) return;
 
-    pusherInstance = echo.connector.pusher;
+    const pusher = echo.connector.pusher;
 
-    const conn = pusherInstance.connection;
+    const conn = pusher.connection;
 
     const setState = (s: ConnectionState) => {
         connectionState.value = s;
@@ -230,7 +364,13 @@ function bindPusherEvents() {
 
 onMounted(() => {
     bindPusherEvents();
-    addLog('info', 'system', 'page-mounted', { userId: auth.value?.user?.id ?? null });
+    csrfToken.value = detectCsrf();
+    addLog('info', 'system', 'page-mounted', { userId: auth.value?.user?.id ?? null, csrfFound: !!csrfToken.value });
+    // Auto-apply CSRF when user is logged in via web session
+    if (auth.value?.user && csrfToken.value) {
+        authMode.value = 'csrf';
+        applyAuthToEcho();
+    }
 });
 
 onUnmounted(() => {
@@ -289,6 +429,119 @@ function prettyJson(val: unknown): string {
                     <span class="font-normal text-gray-400">(ID: {{ auth.user.id }})</span>
                 </span>
                 <span v-else class="font-medium text-red-500">Chưa đăng nhập</span>
+            </div>
+        </div>
+
+        <!-- ── Auth configuration ── -->
+        <div class="rounded-xl border border-orange-200 bg-orange-50 p-5 dark:border-orange-800/50 dark:bg-orange-950/20">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-base font-semibold text-orange-900 dark:text-orange-300">Channel Auth Configuration</h2>
+                <span
+                    v-if="authApplied"
+                    class="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                >
+                    ✓ Applied
+                </span>
+                <span v-else class="rounded-full bg-gray-200 px-2.5 py-0.5 text-xs font-semibold text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                    Not applied
+                </span>
+            </div>
+
+            <p class="mb-4 text-xs text-orange-700 dark:text-orange-400">
+                Private channels yêu cầu Laravel xác minh user tại
+                <code class="rounded bg-orange-100 px-1 dark:bg-orange-900/40">/broadcasting/auth</code>. Chọn phương thức rồi nhấn
+                <strong>Apply Auth</strong>.
+            </p>
+
+            <!-- Mode tabs -->
+            <div class="mb-4 flex gap-1 rounded-lg bg-orange-100 p-1 dark:bg-orange-900/30">
+                <button
+                    @click="
+                        authMode = 'csrf';
+                        authApplied = false;
+                    "
+                    :class="[
+                        'flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors',
+                        authMode === 'csrf'
+                            ? 'bg-white text-orange-800 shadow dark:bg-orange-900 dark:text-orange-200'
+                            : 'text-orange-600 hover:text-orange-800 dark:text-orange-400',
+                    ]"
+                >
+                    CSRF (Web Session)
+                </button>
+                <button
+                    @click="
+                        authMode = 'bearer';
+                        authApplied = false;
+                    "
+                    :class="[
+                        'flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors',
+                        authMode === 'bearer'
+                            ? 'bg-white text-orange-800 shadow dark:bg-orange-900 dark:text-orange-200'
+                            : 'text-orange-600 hover:text-orange-800 dark:text-orange-400',
+                    ]"
+                >
+                    Bearer Token (Sanctum)
+                </button>
+            </div>
+
+            <!-- CSRF mode -->
+            <div v-if="authMode === 'csrf'" class="flex flex-col gap-3">
+                <div class="rounded-lg bg-white p-3 dark:bg-gray-900">
+                    <div class="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">CSRF Token detected:</div>
+                    <code v-if="csrfToken" class="font-mono text-xs break-all text-green-700 dark:text-green-400">{{ csrfToken }}</code>
+                    <span v-else class="text-xs text-red-500"
+                        >Không tìm thấy CSRF token — kiểm tra layout có <code>meta[name="csrf-token"]</code>.</span
+                    >
+                </div>
+                <p class="text-xs text-orange-700 dark:text-orange-400">Dùng khi đang đăng nhập bằng Laravel session (Inertia / web).</p>
+            </div>
+
+            <!-- Bearer mode -->
+            <div v-else class="flex flex-col gap-3">
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-medium text-orange-700 dark:text-orange-400">Sanctum API Token</label>
+                    <input
+                        v-model="bearerToken"
+                        type="password"
+                        placeholder="Dán token vào đây..."
+                        class="rounded-lg border border-orange-300 bg-white px-3 py-2 font-mono text-sm text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-orange-400 focus:outline-none dark:border-orange-700 dark:bg-gray-900 dark:text-gray-200"
+                    />
+                </div>
+                <p class="text-xs text-orange-700 dark:text-orange-400">
+                    Lấy bằng:
+                    <code class="rounded bg-orange-100 px-1 dark:bg-orange-900/40">$user-&gt;createToken('test')-&gt;plainTextToken</code> trong
+                    Tinker.
+                </p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button
+                    @click="applyAuthToEcho"
+                    class="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-700"
+                >
+                    Apply Auth
+                </button>
+                <button
+                    @click="testAuthEndpoint"
+                    :disabled="connectionState !== 'connected'"
+                    class="rounded-lg border border-orange-300 px-4 py-2 text-sm font-semibold text-orange-700 transition-colors hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900/20"
+                >
+                    Test Auth Endpoint
+                </button>
+                <span
+                    v-if="authEndpointStatus === 'ok'"
+                    class="flex items-center rounded-lg bg-green-100 px-3 py-2 text-xs font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                >
+                    ✓ Auth endpoint OK
+                </span>
+                <span
+                    v-else-if="authEndpointStatus === 'error'"
+                    class="flex items-center rounded-lg bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-300"
+                >
+                    ✕ {{ authEndpointError }}
+                </span>
             </div>
         </div>
 
@@ -375,17 +628,17 @@ function prettyJson(val: unknown): string {
                     </div>
                 </div>
 
-                <!-- Auth alert -->
+                <!-- Auth warning -->
                 <div
-                    v-if="selectedDefinition.requiresAuth && !auth?.user"
-                    class="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
+                    v-if="selectedDefinition.requiresAuth && !authApplied"
+                    class="rounded-lg border border-orange-200 bg-orange-50 px-3 py-2.5 text-xs text-orange-700 dark:border-orange-800 dark:bg-orange-950/20 dark:text-orange-400"
                 >
-                    Event này yêu cầu xác thực. Vui lòng đăng nhập trước khi subscribe.
+                    ⚠ Channel này cần auth. Hãy <strong>Apply Auth</strong> ở phần trên trước.
                 </div>
 
                 <button
                     @click="subscribe"
-                    :disabled="selectedDefinition.requiresAuth && !auth?.user"
+                    :disabled="selectedDefinition.requiresAuth && !authApplied"
                     class="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     Subscribe
