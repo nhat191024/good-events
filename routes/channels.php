@@ -23,7 +23,7 @@ if (
     });
 
     Broadcast::channel('category.{categoryId}', function ($user, $categoryId) {
-        return $user->partnerServices()->where('id', $categoryId)->exists();
+        return $user->partnerServices()->where('category_id', $categoryId)->exists();
     });
 
     Broadcast::channel('thread.{threadId}', function ($user, $threadId) {
