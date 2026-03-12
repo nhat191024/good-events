@@ -27,7 +27,6 @@ class RealtimePartnerBillResource extends JsonResource
             'start_time' => optional($this->start_time)->format('H:i'),
             'end_time' => optional($this->end_time)->format('H:i'),
             'address' => $this->address,
-            'phone' => $this->phone,
             'note' => $this->note,
         ];
     }

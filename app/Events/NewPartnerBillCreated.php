@@ -61,7 +61,6 @@ class NewPartnerBillCreated implements ShouldBroadcastNow
             'start_time' => optional($this->bill->start_time)->format('H:i'),
             'end_time' => optional($this->bill->end_time)->format('H:i'),
             'address' => $this->bill->address,
-            'phone' => $this->bill->phone,
             'note' => $this->bill->note,
         ];
     }
