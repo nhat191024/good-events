@@ -39,7 +39,9 @@ require __DIR__ . '/client/test-partner.php';
 require __DIR__ . '/client/notification.php';
 require __DIR__ . '/client/report.php';
 
-require __DIR__ . '/test.php';
+if (app()->environment(['local', 'staging', 'testing'])) {
+    require __DIR__ . '/test.php';
+}
 
 Route::get('robots.txt', function () {
     $robots = "User-agent: *\n";

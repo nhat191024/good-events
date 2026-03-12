@@ -6,6 +6,11 @@ use App\Models\PartnerBill;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
+// Broadcasting test screen (dev only)
+Route::get('/test/broadcasting', function () {
+    return Inertia::render('test/Broadcasting');
+})->name('test.broadcasting');
+
 use App\Http\Controllers\PaymentController;
 
 use App\Filament\Partner\Pages\CalendarPage;
