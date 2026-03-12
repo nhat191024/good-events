@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Partner;
+namespace App\Http\Controllers\Api\Common;
 
 use App\Http\Controllers\Controller;
 use App\Models\Thread;
