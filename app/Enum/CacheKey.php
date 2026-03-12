@@ -27,4 +27,6 @@ enum CacheKey: string
 
         //RentProduct Detail Page
     case RENT_CATEGORY_DETAIL = 'rent_category_detail';
+
+    case USER_CATEGORY_EXISTS = 'user_category_exists_';
 }
