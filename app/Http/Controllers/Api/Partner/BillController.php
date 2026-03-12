@@ -138,72 +138,53 @@ class BillController extends Controller
     }
 
     /**
-     * GET /api/partner/bills/pending
+     * GET /api/partner/bills/{status}
      *
+     * Param: status = pending | confirmed
      * Query: search, date_filter, sort, page, per_page
      * Response: { bills: PartnerBillResource[] (paginated) }
      *
      * @param Request $request
+     * @param string $status
      * @return \Illuminate\Http\JsonResponse
      */
-    public function pending(Request $request)
+    public function list(Request $request, string $status)
     {
-        $query = PartnerBill::query()
-            ->where('status', PartnerBillStatus::PENDING)
-            ->whereHas('details', function ($query) {
-                $query->where('partner_id', auth()->id())
-                    ->whereStatus(PartnerBillDetailStatus::NEW);
-            })
-            ->with([
-                'client',
-                'category',
-                'event',
-                'details' => function ($query) {
+        $query = PartnerBill::query();
+
+        if ($status === 'pending') {
+            $query->where('status', PartnerBillStatus::PENDING)
+                ->whereHas('details', function ($query) {
                     $query->where('partner_id', auth()->id())
                         ->whereStatus(PartnerBillDetailStatus::NEW);
-                },
-            ]);
-
-        $this->applyFilters($query, $request, false);
-
-        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
-        $page = max(1, (int) $request->query('page', 1));
-
-        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
-
-        return response()->json([
-            'bills' => $this->paginatedData($paginator, PartnerBillResource::class),
-        ]);
-    }
-
-    /**
-     * GET /api/partner/bills/confirmed
-     *
-     * Query: search, date_filter, sort, page, per_page
-     * Response: { bills: PartnerBillResource[] (paginated) }
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function confirmed(Request $request)
-    {
-        $query = PartnerBill::query()
-            ->whereIn('status', [
+                })
+                ->with([
+                    'client',
+                    'category',
+                    'event',
+                    'details' => function ($query) {
+                        $query->where('partner_id', auth()->id())
+                            ->whereStatus(PartnerBillDetailStatus::NEW);
+                    },
+                ]);
+        } else {
+            $query->whereIn('status', [
                 PartnerBillStatus::CONFIRMED,
                 PartnerBillStatus::IN_JOB,
             ])
-            ->whereHas('details', function ($query) {
-                $query->where('partner_id', auth()->id())
-                    ->whereStatus(PartnerBillDetailStatus::CLOSED);
-            })
-            ->with([
-                'client',
-                'category',
-                'event',
-                'details' => function ($query) {
-                    $query->where('partner_id', auth()->id());
-                },
-            ]);
+                ->whereHas('details', function ($query) {
+                    $query->where('partner_id', auth()->id())
+                        ->whereStatus(PartnerBillDetailStatus::CLOSED);
+                })
+                ->with([
+                    'client',
+                    'category',
+                    'event',
+                    'details' => function ($query) {
+                        $query->where('partner_id', auth()->id());
+                    },
+                ]);
+        }
 
         $this->applyFilters($query, $request, false);
 
