@@ -50,7 +50,19 @@ class NewPartnerBillCreated implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return [
-            'bill' => $this->bill,
+            'id' => $this->bill->id,
+            'code' => $this->bill->code,
+            'final_total' => $this->bill->final_total,
+            'created_at' => optional($this->bill->created_at)->diffForHumans(),
+            'client_name' => $this->bill->client->name,
+            'category_name' => $this->bill->category->name,
+            'event_name' => $this->bill->event->name ?? $this->bill->custom_event,
+            'date' => optional($this->bill->date)->toDateString(),
+            'start_time' => optional($this->bill->start_time)->format('H:i'),
+            'end_time' => optional($this->bill->end_time)->format('H:i'),
+            'address' => $this->bill->address,
+            'phone' => $this->bill->phone,
+            'note' => $this->bill->note,
         ];
     }
 }
