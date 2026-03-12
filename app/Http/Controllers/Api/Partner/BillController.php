@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Api\Partner;
 
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
-use App\Http\Controllers\Api\Concerns\PaginatesApi;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\PartnerBillResource;
+
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
-use App\Models\PartnerCategory;
+
+use App\Http\Controllers\Api\Concerns\PaginatesApi;
+use App\Http\Controllers\Controller;
+
+use App\Http\Resources\Api\PartnerBillResource;
+use App\Http\Resources\Api\RealtimePartnerBillCollection;
+
 use App\Settings\PartnerSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,8 +22,8 @@ class BillController extends Controller
 {
     use PaginatesApi;
 
-    private const DEFAULT_PER_PAGE = 6;
-    private const MAX_PER_PAGE = 50;
+    private const int DEFAULT_PER_PAGE = 6;
+    private const int MAX_PER_PAGE = 50;
 
     /**
      * GET /api/partner/bills/realtime
@@ -48,12 +52,12 @@ class BillController extends Controller
 
         $categoryIds = $partnerServices->pluck('category_id')->unique()->toArray();
         $categoriesMap = $partnerServices
-            ->filter(fn ($service) => $service->category !== null)
+            ->filter(fn($service) => $service->category !== null)
             ->pluck('category', 'category.id')
             ->unique('id');
 
         $availableCategories = $categoriesMap
-            ->map(fn ($category) => [
+            ->map(fn($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
             ])
@@ -81,36 +85,8 @@ class BillController extends Controller
             }
         });
 
-        $partnerBills = $bills->map(function ($bill) {
-            return [
-                'id' => $bill->id,
-                'code' => $bill->code,
-                'address' => $bill->address,
-                'phone' => $bill->phone,
-                'date' => $bill->date?->format('d-m-Y'),
-                'start_time' => $bill->start_time?->format('H:i'),
-                'end_time' => $bill->end_time?->format('H:i'),
-                'status' => $bill->status instanceof \BackedEnum ? $bill->status->value : (string) $bill->status,
-                'client' => $bill->client ? [
-                    'id' => $bill->client->id,
-                    'name' => $bill->client->name,
-                    'email' => $bill->client->email,
-                    'avatar' => $bill->client->avatar_url,
-                    'created_at' => $bill->client->created_at?->format('Y-m-d'),
-                ] : null,
-                'event' => $bill->event ? [
-                    'id' => $bill->event->id,
-                    'name' => $bill->event->name,
-                ] : null,
-                'category' => $bill->category ? [
-                    'id' => $bill->category->id,
-                    'name' => $bill->category->name,
-                ] : null,
-            ];
-        })->values();
-
         return response()->json([
-            'partner_bills' => $partnerBills,
+            'partner_bills' => RealtimePartnerBillCollection::make($bills),
             'available_categories' => $availableCategories,
             'last_updated' => now()->format('H:i:s'),
         ]);
