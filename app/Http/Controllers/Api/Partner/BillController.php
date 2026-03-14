@@ -22,7 +22,7 @@ class BillController extends Controller
 {
     use PaginatesApi;
 
-    private const int DEFAULT_PER_PAGE = 6;
+    private const int DEFAULT_PER_PAGE = 5;
     private const int MAX_PER_PAGE = 50;
 
     /**
@@ -77,16 +77,27 @@ class BillController extends Controller
 
         $this->applyFilters($query, $request, true);
 
-        $bills = $query->latest()->limit(20)->get();
+        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
+        $page = max(1, (int) $request->query('page', 1));
 
-        $bills->each(function ($bill) use ($categoriesMap) {
+        $paginator = $query->latest()->paginate($perPage, ['*'], 'page', $page);
+
+        $paginator->getCollection()->each(function ($bill) use ($categoriesMap) {
             if (isset($categoriesMap[$bill->category_id])) {
                 $bill->setRelation('category', $categoriesMap[$bill->category_id]);
             }
         });
 
         return response()->json([
-            'partner_bills' => RealtimePartnerBillCollection::make($bills),
+            'partner_bills' => [
+                'data' => RealtimePartnerBillCollection::make($paginator->items())->resolve(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                    'last_page' => $paginator->lastPage(),
+                ],
+            ],
             'available_categories' => $availableCategories,
             'last_updated' => now()->format('H:i:s'),
         ]);
