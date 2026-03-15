@@ -149,6 +149,47 @@ class BillController extends Controller
     }
 
     /**
+     * GET /api/partner/bills/history
+     *
+     * Query: search, date_filter, sort, page, per_page
+     * Response: { bills: PartnerBillResource[] (paginated) }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function history(Request $request)
+    {
+        $query = PartnerBill::query()
+            ->whereHas('details', function ($q) {
+                $q->where('partner_id', auth()->id());
+            })
+            ->whereIn('status', [
+                PartnerBillStatus::COMPLETED,
+                PartnerBillStatus::EXPIRED,
+                PartnerBillStatus::CANCELLED,
+            ])
+            ->with([
+                'client',
+                'category',
+                'event',
+                'details' => function ($q) {
+                    $q->where('partner_id', auth()->id());
+                },
+            ]);
+
+        $this->applyFilters($query, $request, false);
+
+        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
+        $page = max(1, (int) $request->query('page', 1));
+
+        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json(
+            $this->paginatedData($paginator, PartnerBillResource::class)
+        );
+    }
+
+    /**
      * GET /api/partner/bills/{status}
      *
      * Param: status = pending | confirmed
@@ -204,9 +245,9 @@ class BillController extends Controller
 
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
-        return response()->json([
-            'bills' => $this->paginatedData($paginator, PartnerBillResource::class),
-        ]);
+        return response()->json(
+            $this->paginatedData($paginator, PartnerBillResource::class),
+        );
     }
 
     /**
