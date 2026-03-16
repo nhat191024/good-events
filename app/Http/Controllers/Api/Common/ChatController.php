@@ -221,12 +221,19 @@ class ChatController extends Controller
             ]);
 
             $formattedMessage = [
-                'id' => $message->id,
-                'thread_id' => $message->thread_id,
                 'sender_id' => $message->user_id,
-                'sender' => $message->user->name,
-                'body' => $message->body,
-                'created_at' => $message->created_at?->diffForHumans(),
+                'message' => [
+                    'id' => $message->id,
+                    'thread_id' => $message->thread_id,
+                    'user_id' => $message->user_id,
+                    'body' => $message->body,
+                    'created_at' => $message->created_at?->toIso8601String(),
+                    'updated_at' => $message->updated_at?->toIso8601String(),
+                ],
+                'user' => [
+                    'id' => $message->user_id,
+                    'name' => $message->user->name ?? 'Ghost',
+                ],
             ];
 
             event(new SendMessage($formattedMessage));
