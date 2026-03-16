@@ -18,7 +18,7 @@ use Illuminate\Database\QueryException;
 class ChatController extends Controller
 {
     private const int THREADS_PER_PAGE = 10;
-    private const int MESSAGES_PER_PAGE = 20;
+    private const int MESSAGES_PER_PAGE = 12;
 
     /**
      * GET /api/chat
@@ -159,11 +159,19 @@ class ChatController extends Controller
         $hasMore = $offset > 0;
 
         $mappedMessages = $messages->map(fn($msg) => [
-            'id' => $msg->id,
             'sender_id' => $msg->user_id,
-            'sender' => $msg->user->name,
-            'body' => $msg->body,
-            'created_at' => $msg->created_at->diffForHumans(),
+            'message' => [
+                'id' => $msg->id,
+                'thread_id' => $msg->thread_id,
+                'user_id' => $msg->user_id,
+                'body' => $msg->body,
+                'created_at' => $msg->created_at?->toIso8601String(),
+                'updated_at' => $msg->updated_at?->toIso8601String(),
+            ],
+            'user' => [
+                'id' => $msg->user_id,
+                'name' => $msg->user->name ?? 'Ghost',
+            ],
         ])->toArray();
 
         return response()->json([
