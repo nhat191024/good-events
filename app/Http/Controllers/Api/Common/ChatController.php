@@ -128,9 +128,43 @@ class ChatController extends Controller
     public function loadMessages(Request $request, int $threadId)
     {
         $page = (int) $request->input('page', 1);
-        $messages = $this->getMessages($threadId, $page);
+        $thread = Thread::find($threadId);
 
-        return response()->json($messages);
+        $thread?->markAsRead(Auth::id());
+
+        if (!$thread) {
+            return response()->json([
+                'messages' => [],
+                'hasMore' => false,
+            ]);
+        }
+
+        $totalMessages = $thread->messages()->count();
+        $offset = max(0, $totalMessages - ($page * self::MESSAGES_PER_PAGE));
+
+        $messages = $thread->messages()
+            ->with(['user' => function ($query) {
+                $query->select('id', 'name');
+            }])
+            ->orderBy('created_at', 'asc')
+            ->skip($offset)
+            ->take(self::MESSAGES_PER_PAGE)
+            ->get();
+
+        $hasMore = $offset > 0;
+
+        $mappedMessages = $messages->map(fn($msg) => [
+            'id' => $msg->id,
+            'sender_id' => $msg->user_id,
+            'sender' => $msg->user->name,
+            'body' => $msg->body,
+            'created_at' => $msg->created_at->diffForHumans(),
+        ])->toArray();
+
+        return response()->json([
+            'messages' => $mappedMessages,
+            'hasMore' => $hasMore,
+        ]);
     }
 
     /**
@@ -193,92 +227,5 @@ class ChatController extends Controller
                 'message' => 'Failed to send message.',
             ], 500);
         }
-    }
-
-    private function getMessages(int $threadId, int $page): array
-    {
-        $thread = Thread::with([
-            'bill' => function ($query) {
-                $query->select('id', 'thread_id', 'event_id', 'custom_event', 'date', 'start_time', 'address');
-            },
-            'bill.event' => function ($query) {
-                $query->select('id', 'name');
-            },
-        ])->find($threadId);
-        $thread?->markAsRead(Auth::id());
-
-        if (!$thread) {
-            return [
-                'data' => [],
-                'hasMore' => false,
-                'thread' => null,
-            ];
-        }
-
-        $totalMessages = $thread->messages()->count();
-        $offset = max(0, $totalMessages - ($page * self::MESSAGES_PER_PAGE));
-
-        $messages = $thread->messages()
-            ->with(['user' => function ($query) {
-                $query->select('id', 'name');
-            }])
-            ->orderBy('created_at', 'asc')
-            ->skip($offset)
-            ->take(self::MESSAGES_PER_PAGE)
-            ->get();
-
-        $hasMore = $offset > 0;
-
-        $mappedMessages = $messages->map(fn($msg) => [
-            'id' => $msg->id,
-            'thread_id' => $msg->thread_id,
-            'user_id' => $msg->user_id,
-            'body' => $msg->body,
-            'created_at' => $msg->created_at->toIso8601String(),
-            'updated_at' => $msg->updated_at->toIso8601String(),
-            'user' => [
-                'id' => $msg->user->id,
-                'name' => $msg->user->name,
-            ],
-        ])->toArray();
-
-        $userId = Auth::id();
-        $participant = $thread->participants->firstWhere('user_id', $userId);
-        $isUnread = false;
-
-        if ($participant) {
-            $isUnread = $participant->last_read === null || $thread->updated_at->gt($participant->last_read);
-        }
-
-        return [
-            'data' => $mappedMessages,
-            'hasMore' => $hasMore,
-            'thread' => [
-                'id' => $thread->id,
-                'subject' => $thread->subject,
-                'updated_at' => $thread->updated_at->toIso8601String(),
-                'is_unread' => $isUnread,
-                'other_participants' => $thread->participants->where('user_id', '!=', $userId)->map(function ($participant) {
-                    return [
-                        'id' => $participant->user->id,
-                        'name' => $participant->user->name,
-                    ];
-                })->values(),
-                'participants' => $thread->participants->map(function ($participant) {
-                    return [
-                        'id' => $participant->user->id,
-                        'name' => $participant->user->name,
-                    ];
-                })->values(),
-                'bill' => $thread->bill ? [
-                    'id' => $thread->bill->id,
-                    'event_name' => $thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event,
-                    'datetime' => $thread->bill->date && $thread->bill->start_time
-                        ? $thread->bill->date->format('d/m/Y') . ' ' . $thread->bill->start_time->format('H:i')
-                        : null,
-                    'address' => $thread->bill->address,
-                ] : null,
-            ],
-        ];
     }
 }
