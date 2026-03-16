@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\Api\Common;
 
 use App\Http\Controllers\Controller;
+
 use App\Models\Thread;
+
+use App\Events\SendMessage;
+
 use Cmgmyr\Messenger\Models\Message;
 use Cmgmyr\Messenger\Models\Participant;
-use Illuminate\Database\QueryException;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\QueryException;
 
 class ChatController extends Controller
 {
@@ -203,21 +208,16 @@ class ChatController extends Controller
             $formattedMessage = [
                 'id' => $message->id,
                 'thread_id' => $message->thread_id,
-                'user_id' => $message->user_id,
+                'sender_id' => $message->user_id,
+                'sender' => $message->user->name,
                 'body' => $message->body,
-                'created_at' => $message->created_at?->toIso8601String(),
-                'updated_at' => $message->updated_at?->toIso8601String(),
-                'user' => [
-                    'id' => $userId,
-                    'name' => Auth::user()?->name ?? 'Unknown',
-                ],
+                'created_at' => $message->created_at?->diffForHumans(),
             ];
 
-            event(new \App\Events\SendMessage($formattedMessage));
+            event(new SendMessage($formattedMessage));
 
             return response()->json([
                 'success' => true,
-                'message' => $formattedMessage,
             ]);
         } catch (QueryException $exception) {
             report($exception);
