@@ -291,10 +291,10 @@ class BillController extends Controller
         }
 
         if ($bill->status !== PartnerBillStatus::CONFIRMED) {
-            return response()->json(['message' => 'Order must be confirmed.'], 422);
+            return response()->json(['message' => 'Order must be confirmed.', 'status' => $bill->status], 422);
         }
 
-        $validated = $request->validate([
+        $request->validate([
             'arrival_photo' => 'required|image|max:5120|mimes:jpeg,png,jpg,webp',
         ]);
 
