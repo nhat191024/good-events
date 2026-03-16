@@ -471,7 +471,7 @@ class Chat extends Page
             'updated_at' => $message->updated_at,
             'user' => [
                 'id' => $userId,
-                'name' => Auth::user() ? Auth::user()->name : 'Người dùng đã xóa',
+                'name' => Auth::user() ? Auth::user()->name : 'Ghost',
             ],
         ];
 
