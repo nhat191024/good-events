@@ -189,7 +189,7 @@ function subscribeToThread(threadId: number) {
     try {
         const channel = echo.private(`thread.${threadId}`);
 
-        channel.listen('SendMessage', (payload: BroadcastMessagePayload) => {
+        channel.listen('.SendMessage', (payload: BroadcastMessagePayload) => {
             handleBroadcastMessage(payload);
         });
 

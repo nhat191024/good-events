@@ -56,7 +56,7 @@ export function useThreadsSubscription(options: UseThreadsSubscriptionOptions) {
         try {
             const channel = echo.private(`thread.${threadId}`)
 
-            channel.listen('SendMessage', (payload: BroadcastMessagePayload) => {
+            channel.listen('.SendMessage', (payload: BroadcastMessagePayload) => {
                 handleBroadcastMessage(payload)
             })
 
