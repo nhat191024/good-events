@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Api\Partner;
 
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
-use App\Http\Controllers\Api\Concerns\PaginatesApi;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\PartnerBillResource;
+
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
-use App\Models\PartnerCategory;
+
+use App\Http\Controllers\Api\Concerns\PaginatesApi;
+use App\Http\Controllers\Controller;
+
+use App\Http\Resources\Api\PartnerBillResource;
+use App\Http\Resources\Api\RealtimePartnerBillCollection;
+
 use App\Settings\PartnerSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,8 +22,8 @@ class BillController extends Controller
 {
     use PaginatesApi;
 
-    private const DEFAULT_PER_PAGE = 6;
-    private const MAX_PER_PAGE = 50;
+    private const int DEFAULT_PER_PAGE = 5;
+    private const int MAX_PER_PAGE = 50;
 
     /**
      * GET /api/partner/bills/realtime
@@ -48,12 +52,12 @@ class BillController extends Controller
 
         $categoryIds = $partnerServices->pluck('category_id')->unique()->toArray();
         $categoriesMap = $partnerServices
-            ->filter(fn ($service) => $service->category !== null)
+            ->filter(fn($service) => $service->category !== null)
             ->pluck('category', 'category.id')
             ->unique('id');
 
         $availableCategories = $categoriesMap
-            ->map(fn ($category) => [
+            ->map(fn($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
             ])
@@ -73,44 +77,27 @@ class BillController extends Controller
 
         $this->applyFilters($query, $request, true);
 
-        $bills = $query->latest()->limit(20)->get();
+        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
+        $page = max(1, (int) $request->query('page', 1));
 
-        $bills->each(function ($bill) use ($categoriesMap) {
+        $paginator = $query->latest()->paginate($perPage, ['*'], 'page', $page);
+
+        $paginator->getCollection()->each(function ($bill) use ($categoriesMap) {
             if (isset($categoriesMap[$bill->category_id])) {
                 $bill->setRelation('category', $categoriesMap[$bill->category_id]);
             }
         });
 
-        $partnerBills = $bills->map(function ($bill) {
-            return [
-                'id' => $bill->id,
-                'code' => $bill->code,
-                'address' => $bill->address,
-                'phone' => $bill->phone,
-                'date' => $bill->date?->format('d-m-Y'),
-                'start_time' => $bill->start_time?->format('H:i'),
-                'end_time' => $bill->end_time?->format('H:i'),
-                'status' => $bill->status instanceof \BackedEnum ? $bill->status->value : (string) $bill->status,
-                'client' => $bill->client ? [
-                    'id' => $bill->client->id,
-                    'name' => $bill->client->name,
-                    'email' => $bill->client->email,
-                    'avatar' => $bill->client->avatar_url,
-                    'created_at' => $bill->client->created_at?->format('Y-m-d'),
-                ] : null,
-                'event' => $bill->event ? [
-                    'id' => $bill->event->id,
-                    'name' => $bill->event->name,
-                ] : null,
-                'category' => $bill->category ? [
-                    'id' => $bill->category->id,
-                    'name' => $bill->category->name,
-                ] : null,
-            ];
-        })->values();
-
         return response()->json([
-            'partner_bills' => $partnerBills,
+            'partner_bills' => [
+                'data' => RealtimePartnerBillCollection::make($paginator->items())->resolve(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                    'last_page' => $paginator->lastPage(),
+                ],
+            ],
             'available_categories' => $availableCategories,
             'last_updated' => now()->format('H:i:s'),
         ]);
@@ -162,7 +149,7 @@ class BillController extends Controller
     }
 
     /**
-     * GET /api/partner/bills/pending
+     * GET /api/partner/bills/history
      *
      * Query: search, date_filter, sort, page, per_page
      * Response: { bills: PartnerBillResource[] (paginated) }
@@ -170,21 +157,23 @@ class BillController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function pending(Request $request)
+    public function history(Request $request)
     {
         $query = PartnerBill::query()
-            ->where('status', PartnerBillStatus::PENDING)
-            ->whereHas('details', function ($query) {
-                $query->where('partner_id', auth()->id())
-                    ->whereStatus(PartnerBillDetailStatus::NEW);
+            ->whereHas('details', function ($q) {
+                $q->where('partner_id', auth()->id());
             })
+            ->whereIn('status', [
+                PartnerBillStatus::COMPLETED,
+                PartnerBillStatus::EXPIRED,
+                PartnerBillStatus::CANCELLED,
+            ])
             ->with([
                 'client',
                 'category',
                 'event',
-                'details' => function ($query) {
-                    $query->where('partner_id', auth()->id())
-                        ->whereStatus(PartnerBillDetailStatus::NEW);
+                'details' => function ($q) {
+                    $q->where('partner_id', auth()->id());
                 },
             ]);
 
@@ -195,39 +184,59 @@ class BillController extends Controller
 
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
-        return response()->json([
-            'bills' => $this->paginatedData($paginator, PartnerBillResource::class),
-        ]);
+        return response()->json(
+            $this->paginatedData($paginator, PartnerBillResource::class)
+        );
     }
 
     /**
-     * GET /api/partner/bills/confirmed
+     * GET /api/partner/bills/{status}
      *
+     * Param: status = pending | confirmed
      * Query: search, date_filter, sort, page, per_page
      * Response: { bills: PartnerBillResource[] (paginated) }
      *
      * @param Request $request
+     * @param string $status
      * @return \Illuminate\Http\JsonResponse
      */
-    public function confirmed(Request $request)
+    public function list(Request $request, string $status)
     {
-        $query = PartnerBill::query()
-            ->whereIn('status', [
+        $query = PartnerBill::query();
+
+        if ($status === 'pending') {
+            $query->where('status', PartnerBillStatus::PENDING)
+                ->whereHas('details', function ($query) {
+                    $query->where('partner_id', auth()->id())
+                        ->whereStatus(PartnerBillDetailStatus::NEW);
+                })
+                ->with([
+                    'client',
+                    'category',
+                    'event',
+                    'details' => function ($query) {
+                        $query->where('partner_id', auth()->id())
+                            ->whereStatus(PartnerBillDetailStatus::NEW);
+                    },
+                ]);
+        } else {
+            $query->whereIn('status', [
                 PartnerBillStatus::CONFIRMED,
                 PartnerBillStatus::IN_JOB,
             ])
-            ->whereHas('details', function ($query) {
-                $query->where('partner_id', auth()->id())
-                    ->whereStatus(PartnerBillDetailStatus::CLOSED);
-            })
-            ->with([
-                'client',
-                'category',
-                'event',
-                'details' => function ($query) {
-                    $query->where('partner_id', auth()->id());
-                },
-            ]);
+                ->whereHas('details', function ($query) {
+                    $query->where('partner_id', auth()->id())
+                        ->whereStatus(PartnerBillDetailStatus::CLOSED);
+                })
+                ->with([
+                    'client',
+                    'category',
+                    'event',
+                    'details' => function ($query) {
+                        $query->where('partner_id', auth()->id());
+                    },
+                ]);
+        }
 
         $this->applyFilters($query, $request, false);
 
@@ -236,9 +245,9 @@ class BillController extends Controller
 
         $paginator = $query->paginate($perPage, ['*'], 'page', $page);
 
-        return response()->json([
-            'bills' => $this->paginatedData($paginator, PartnerBillResource::class),
-        ]);
+        return response()->json(
+            $this->paginatedData($paginator, PartnerBillResource::class),
+        );
     }
 
     /**
@@ -282,10 +291,10 @@ class BillController extends Controller
         }
 
         if ($bill->status !== PartnerBillStatus::CONFIRMED) {
-            return response()->json(['message' => 'Order must be confirmed.'], 422);
+            return response()->json(['message' => 'Order must be confirmed.', 'status' => $bill->status], 422);
         }
 
-        $validated = $request->validate([
+        $request->validate([
             'arrival_photo' => 'required|image|max:5120|mimes:jpeg,png,jpg,webp',
         ]);
 

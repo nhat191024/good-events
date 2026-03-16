@@ -1,35 +1,44 @@
 <?php
 
+use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\HealthController;
+// Health check (public)
+Route::get('/health', [HealthController::class, 'health']);
+Route::get('/ping', [HealthController::class, 'ping']);
+Route::get('/csrf-token', fn() => csrf_token()); // https://stackoverflow.com/a/31451123
 
-// Health check routes (no authentication required)
-Route::get('/health', [HealthController::class, 'health'])->middleware('throttle:api');
-Route::get('/ping', [HealthController::class, 'ping'])->middleware('throttle:api');
+// Public & mixed-auth routes (each file manages its own internal auth groups)
+require __DIR__ . '/api/location.php';
+require __DIR__ . '/api/auth.php';
+require __DIR__ . '/api/blog.php';
+require __DIR__ . '/api/rental.php';
+require __DIR__ . '/api/partner-categories.php';
+require __DIR__ . '/api/asset.php';
+require __DIR__ . '/api/profile.php';
 
-//* https://stackoverflow.com/a/31451123
-$router->get('csrf-token', function() {
-    return csrf_token();
+// Authenticated client routes
+Route::middleware('auth:sanctum')->group(function () {
+    require __DIR__ . '/api/client/home.php';
+    require __DIR__ . '/api/quick-booking.php';
+    require __DIR__ . '/api/orders.php';
+    require __DIR__ . '/api/asset-orders.php';
+    require __DIR__ . '/api/chat.php';
+    require __DIR__ . '/api/notifications.php';
+    require __DIR__ . '/api/reports.php';
+    require __DIR__ . '/api/resources.php';
 });
 
-require __DIR__ .'/api/location.php';
-require __DIR__ .'/api/auth.php';
-require __DIR__ .'/api/client/home.php';
-require __DIR__ .'/api/asset.php';
-require __DIR__ .'/api/rental.php';
-require __DIR__ .'/api/blog.php';
-require __DIR__ .'/api/profile.php';
-require __DIR__ .'/api/orders.php';
-require __DIR__ .'/api/quick-booking.php';
-require __DIR__ .'/api/asset-orders.php';
-require __DIR__ .'/api/chat.php';
-require __DIR__ .'/api/notifications.php';
-require __DIR__ .'/api/reports.php';
-require __DIR__ .'/api/partner-categories.php';
-require __DIR__ .'/api/resources.php';
-require __DIR__ .'/api/partner/dashboard.php';
-require __DIR__ .'/api/partner/chat.php';
-require __DIR__ .'/api/partner/bills.php';
-require __DIR__ .'/api/partner/calendar.php';
-require __DIR__ .'/api/partner/profile.php';
+// Authenticated partner routes
+Route::middleware('auth:sanctum')->prefix('partner')->group(function () {
+    require __DIR__ . '/api/partner/dashboard.php';
+    require __DIR__ . '/api/partner/chat.php';
+    require __DIR__ . '/api/partner/bills.php';
+    require __DIR__ . '/api/partner/calendar.php';
+    require __DIR__ . '/api/partner/profile.php';
+});
+
+// Broadcasting auth endpoint for Sanctum API token authentication
+// Registers POST /api/broadcasting/auth
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
