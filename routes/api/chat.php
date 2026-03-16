@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\Client\ChatController;
+use App\Http\Controllers\Api\Common\ChatController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/chat', [ChatController::class, 'index']);
