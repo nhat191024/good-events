@@ -119,9 +119,7 @@ class OrderController extends Controller
             ])
             ->first();
 
-        return response()->json([
-            'order' => $order ? new PartnerBillResource($order) : null,
-        ]);
+        return response()->json($order ? new PartnerBillResource($order) : null);
     }
 
     /**
