@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Client;
 
 use App\Enum\PartnerBillStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Client\BookingRequest;
 use App\Http\Resources\Api\EventResource;
 use App\Http\Resources\Api\LocationResource;
 use App\Http\Resources\Api\PartnerBillResource;
@@ -15,167 +16,20 @@ use Illuminate\Http\Request;
 
 class QuickBookingController extends Controller
 {
+
     /**
-     * GET /api/quick-booking/categories
+     * GET /api/quick-booking/event-list
      *
-     * Response: { partner_categories }
+     * Response: { event_list }
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function chooseCategory(): \Illuminate\Http\JsonResponse
+    public function eventList()
     {
-        $partnerCategories = PartnerCategory::getTree()
-            ->map(function ($category) {
-                return [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                    'slug' => $category->slug,
-                    'parent_id' => $category->parent_id,
-                    'min_price' => $category->min_price,
-                    'max_price' => $category->max_price,
-                    'description' => $category->description,
-                    'media' => $this->getImageUrl($category),
-                ];
-            });
-
-        return response()->json([
-            'partner_categories' => $partnerCategories->values(),
-        ]);
-    }
-
-    /**
-     * GET /api/quick-booking/{partnerCategorySlug}/children
-     *
-     * Response: { partner_category, partner_children_list }
-     *
-     * @param string $partnerCategorySlug
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function choosePartnerCategory(string $partnerCategorySlug)
-    {
-        $allCategories = PartnerCategory::getTree();
-        $partnerCategory = $allCategories->where('slug', $partnerCategorySlug)->first();
-
-        if (!$partnerCategory) {
-            return response()->json([
-                'message' => 'Category not found.',
-            ], 404);
-        }
-
-        $partnerCategory->load([
-            'children' => function ($query) {
-                $query->orderBy('order', 'asc')
-                    ->limit(8)
-                    ->with('media');
-            },
-        ]);
-
-        if ($partnerCategory->children->count() === 0) {
-            return response()->json([
-                'message' => 'Category has no children.',
-            ], 422);
-        }
-
-        $parent = [
-            'id' => $partnerCategory->id,
-            'name' => $partnerCategory->name,
-            'slug' => $partnerCategory->slug,
-            'parent_id' => $partnerCategory->parent_id,
-            'min_price' => $partnerCategory->min_price,
-            'max_price' => $partnerCategory->max_price,
-            'description' => $partnerCategory->description,
-            'media' => $this->getImageUrl($partnerCategory),
-        ];
-
-        $children = $partnerCategory->children->map(function ($child) {
-            return [
-                'id' => $child->id,
-                'name' => $child->name,
-                'slug' => $child->slug,
-                'parent_id' => $child->parent_id,
-                'min_price' => $child->min_price,
-                'max_price' => $child->max_price,
-                'description' => $child->description,
-                'media' => $this->getImageUrl($child),
-            ];
-        });
-
-        return response()->json([
-            'partner_category' => $parent,
-            'partner_children_list' => $children->values(),
-        ]);
-    }
-
-    /**
-     * GET /api/quick-booking/{partnerCategorySlug}/{partnerChildCategorySlug}/form
-     *
-     * Response: { partner_category, partner_children_category, event_list, provinces }
-     *
-     * @param string $partnerCategorySlug
-     * @param string $partnerChildCategorySlug
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function fillOrderInfo(string $partnerCategorySlug, string $partnerChildCategorySlug)
-    {
-        $allCategories = PartnerCategory::getTree();
-        $partnerCategory = $allCategories->where('slug', $partnerCategorySlug)->first();
-
-        if (!$partnerCategory) {
-            return response()->json([
-                'message' => 'Category not found.',
-            ], 404);
-        }
-
-        $partnerCategory->load(['children.media']);
-
-        if ($partnerCategory->children->count() === 0) {
-            return response()->json([
-                'message' => 'Category has no children.',
-            ], 422);
-        }
-
-        $searchItem = $partnerCategory->children->firstWhere('slug', $partnerChildCategorySlug);
-
-        if (!$searchItem) {
-            return response()->json([
-                'message' => 'Invalid category selection.',
-            ], 422);
-        }
 
         $events = Event::all();
-        $provinces = Location::whereNull('parent_id')
-            ->select(['id', 'name', 'code', 'codename', 'short_codename', 'type', 'phone_code', 'parent_id'])
-            ->orderBy('name')
-            ->get();
 
-        $parent = [
-            'id' => $partnerCategory->id,
-            'name' => $partnerCategory->name,
-            'slug' => $partnerCategory->slug,
-            'parent_id' => $partnerCategory->parent_id,
-            'min_price' => $partnerCategory->min_price,
-            'max_price' => $partnerCategory->max_price,
-            'description' => $partnerCategory->description,
-            'media' => $this->getImageUrl($partnerCategory),
-        ];
-
-        $child = [
-            'id' => $searchItem->id,
-            'name' => $searchItem->name,
-            'slug' => $searchItem->slug,
-            'parent_id' => $searchItem->parent_id,
-            'min_price' => $searchItem->min_price,
-            'max_price' => $searchItem->max_price,
-            'description' => $searchItem->description,
-            'media' => $this->getImageUrl($searchItem),
-        ];
-
-        return response()->json([
-            'partner_category' => $parent,
-            'partner_children_category' => $child,
-            'event_list' => EventResource::collection($events),
-            'provinces' => LocationResource::collection($provinces),
-        ]);
+        return response()->json(EventResource::collection($events));
     }
 
     /**
@@ -188,7 +42,7 @@ class QuickBookingController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function saveBookingInfo(Request $request)
+    public function saveBookingInfo(BookingRequest $request)
     {
         $validated = $request->validate([
             'order_date' => 'required|date',
@@ -203,6 +57,13 @@ class QuickBookingController extends Controller
             'category_id' => 'required|integer|exists:partner_categories,id',
         ]);
 
+        $allCategories = PartnerCategory::getAllCached();
+        if ($allCategories->where('id', '=', $validated['category_id'])->where('parent_id', '=', null)->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Please select a specific sub-category, not a top-level category.',
+            ], 422);
+        }
+
         $provinceItem = Location::find($validated['province_id']);
         $wardItem = $provinceItem?->wards()->find($validated['ward_id']);
         if (!$wardItem) {
@@ -211,12 +72,9 @@ class QuickBookingController extends Controller
             ], 422);
         }
 
+        // return $request->user();
+
         $user = $request->user();
-        if (!$user) {
-            return response()->json([
-                'message' => 'Unauthenticated.',
-            ], 401);
-        }
 
         $address = $validated['location_detail'] . ', ' . $wardItem->name . ', ' . $provinceItem->name;
 

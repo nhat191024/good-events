@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Client;
 
 use App\Enum\PartnerBillStatus;
+use App\Http\Controllers\Controller;
+use App\Services\QuickBookingService;
+use App\Http\Requests\Client\BookingRequest;
 use App\Models\Event;
 use App\Models\Location;
 use App\Models\PartnerBill;

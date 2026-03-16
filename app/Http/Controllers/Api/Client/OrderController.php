@@ -42,8 +42,6 @@ class OrderController extends Controller
      */
     public function list(Request $request)
     {
-        $page = max(1, (int) $request->query('page', 1));
-        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
 
         $bills = PartnerBill::query()
             ->with([
@@ -60,12 +58,9 @@ class OrderController extends Controller
                 PartnerBillStatus::CONFIRMED,
                 PartnerBillStatus::IN_JOB,
             ])
-            ->orderByDesc('id')
-            ->paginate($perPage, ['*'], 'page', $page);
+            ->orderByDesc('id');
 
-        return response()->json([
-            'orders' => $this->paginatedData($bills, PartnerBillResource::class),
-        ]);
+        return response()->json(PartnerBillResource::collection($bills->get()));
     }
 
     /**
@@ -79,8 +74,6 @@ class OrderController extends Controller
      */
     public function history(Request $request)
     {
-        $page = max(1, (int) $request->query('page', 1));
-        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
 
         $bills = PartnerBill::query()
             ->where('client_id', $request->user()->id)
@@ -96,12 +89,9 @@ class OrderController extends Controller
                 PartnerBillStatus::EXPIRED,
                 PartnerBillStatus::CANCELLED,
             ])
-            ->orderByDesc('id')
-            ->paginate($perPage, ['*'], 'page', $page);
+            ->orderByDesc('id');
 
-        return response()->json([
-            'orders' => $this->paginatedData($bills, PartnerBillHistoryResource::class),
-        ]);
+        return response()->json(PartnerBillHistoryResource::collection($bills->get()));
     }
 
     /**

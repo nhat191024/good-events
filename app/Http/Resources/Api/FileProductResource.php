@@ -13,7 +13,7 @@ class FileProductResource extends BaseResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'description' => $this->description,
+            // 'description' => $this->description,
             'price' => $this->price,
             'image' => $this->mediaUrl('thumbnails'),
             'created_at' => optional($this->created_at)->toIso8601String(),
@@ -25,7 +25,7 @@ class FileProductResource extends BaseResource
                     'id' => $cat->id,
                     'name' => $cat->name,
                     'slug' => $cat->slug,
-                    'description' => $cat->description,
+                    // 'description' => $cat->description,
                     'parent' => $this->when(
                         $cat->relationLoaded('parent') && $cat->parent,
                         fn () => [

@@ -27,8 +27,7 @@ class ConfirmPartnerRequest extends FormRequest
         Log::debug('[request file] ConfirmPartnerRequest data', $this->all());
         return [
             'order_id' => ['required', 'integer', 'exists:partner_bills,id'],
-            'partner_id' => ['required', 'integer', 'exists:users,id'],
-            // 'voucher_code' => ['string'],
+            'partner_id' => ['required', 'integer', 'exists:users,id']
         ];
     }
 
