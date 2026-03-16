@@ -192,18 +192,25 @@ class ChatController extends Controller
         $messageBody = $request->input('body');
 
         try {
+            $participant = Participant::where([
+                'thread_id' => $threadId,
+                'user_id' => $userId,
+            ]);
+
+            if (!$participant) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not a participant of this thread.',
+                ], 403);
+            }
+
+            $participant->last_read = now();
+
             $message = Message::create([
                 'thread_id' => $threadId,
                 'user_id' => $userId,
                 'body' => $messageBody,
             ]);
-
-            $participant = Participant::firstOrCreate([
-                'thread_id' => $threadId,
-                'user_id' => $userId,
-            ]);
-            $participant->last_read = now();
-            $participant->save();
 
             $formattedMessage = [
                 'id' => $message->id,
