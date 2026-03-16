@@ -11,7 +11,7 @@ use App\Models\PartnerBillDetail;
 use App\Http\Controllers\Api\Concerns\PaginatesApi;
 use App\Http\Controllers\Controller;
 
-use App\Http\Resources\Api\PartnerBillResource;
+use App\Http\Resources\Api\Partner\PartnerBillResource;
 use App\Http\Resources\Api\Partner\RealtimePartnerBillCollection;
 
 use App\Settings\PartnerSettings;
