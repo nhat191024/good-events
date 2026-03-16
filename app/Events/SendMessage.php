@@ -25,6 +25,14 @@ class SendMessage implements ShouldBroadcastNow
     }
 
     /**
+     * The event's broadcast name.
+     */
+    public function broadcastAs(): string
+    {
+        return 'SendMessage';
+    }
+
+    /**
      * Get the channels the event should broadcast on.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
@@ -32,7 +40,7 @@ class SendMessage implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('thread.' . $this->message['message']['thread_id']),
+            new PrivateChannel('thread.' . $this->message['thread_id']),
         ];
     }
 
@@ -43,8 +51,27 @@ class SendMessage implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
-        Log::info('🚀 Broadcasting message', $this->message);
+        $createdAt = $this->message['created_at']?->toIso8601String();
+        $updatedAt = $this->message['updated_at']?->toIso8601String();
 
-        return $this->message;
+        $payload = [
+            'sender_id' => $this->message['user_id'],
+            'message' => [
+                'id' => $this->message['id'],
+                'thread_id' => $this->message['thread_id'],
+                'user_id' => $this->message['user_id'],
+                'body' => $this->message['body'],
+                'created_at' => $createdAt,
+                'updated_at' => $updatedAt,
+            ],
+            'user' => [
+                'id' => $this->message['user_id'],
+                'name' => $this->message['user']['name'] ?? 'Ghost',
+            ],
+        ];
+
+        Log::info('🚀 Broadcasting message', $payload);
+
+        return $payload;
     }
 }
