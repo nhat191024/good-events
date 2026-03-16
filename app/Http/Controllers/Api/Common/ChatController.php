@@ -21,7 +21,7 @@ class ChatController extends Controller
     private const int MESSAGES_PER_PAGE = 20;
 
     /**
-     * GET /api/partner/chat
+     * GET /api/chat
      *
      * Query: search, page
      * Response: { threads, has_more, current_page }
@@ -121,7 +121,7 @@ class ChatController extends Controller
     }
 
     /**
-     * GET /api/partner/chat/threads/{thread}/messages
+     * GET /api/chat/threads/{thread}/messages
      *
      * Query: page
      * Response: { data, hasMore, thread }
@@ -173,7 +173,7 @@ class ChatController extends Controller
     }
 
     /**
-     * POST /api/partner/chat/threads/{thread}/messages
+     * POST /api/chat/threads/{thread}/messages
      *
      * Body: body
      * Response: { success: true, message } or { success: false, message }
