@@ -33,7 +33,6 @@ Route::middleware('auth:sanctum')->group(function () {
 // Authenticated partner routes
 Route::middleware('auth:sanctum')->prefix('partner')->group(function () {
     require __DIR__ . '/api/partner/dashboard.php';
-    require __DIR__ . '/api/partner/chat.php';
     require __DIR__ . '/api/partner/bills.php';
     require __DIR__ . '/api/partner/calendar.php';
     require __DIR__ . '/api/partner/profile.php';
