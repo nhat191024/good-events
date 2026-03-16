@@ -18,42 +18,101 @@ class ChatController extends Controller
     /**
      * GET /api/partner/chat
      *
-     * Query: search
-     * Response: { threads, has_more }
+     * Query: search, page
+     * Response: { threads, has_more, current_page }
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $userId = Auth::id();
+
+        if ($userId === null) {
+            return response()->json([
+                'threads' => [],
+                'has_more' => false,
+                'current_page' => 1,
+            ]);
+        }
+
         $searchTerm = $request->input('search', '');
-        $threads = $this->getThreads($userId, $searchTerm, 1);
+        $page = max(1, (int) $request->input('page', 1));
+
+        $query = Thread::forUserOrderByNotReadMessages($userId)
+            ->with([
+                'latestMessage',
+                'participants',
+                'participants.user' => function ($query) {
+                    $query->select('id', 'name');
+                },
+                'bill' => function ($query) {
+                    $query->select('id', 'thread_id', 'event_id', 'custom_event', 'date', 'start_time', 'address');
+                },
+                'bill.event' => function ($query) {
+                    $query->select('id', 'name');
+                },
+            ])
+            ->latest('updated_at');
+
+        if (!empty(trim($searchTerm))) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('subject', 'like', '%' . $searchTerm . '%')
+                    ->orWhereHas('participants.user', function ($userQuery) use ($searchTerm) {
+                        $userQuery->where('name', 'like', '%' . $searchTerm . '%');
+                    });
+            });
+        }
+
+        $threads = $query
+            ->skip(($page - 1) * self::THREADS_PER_PAGE)
+            ->take(self::THREADS_PER_PAGE + 1)
+            ->get();
+
+        $hasMore = $threads->count() > self::THREADS_PER_PAGE;
+
+        if ($hasMore) {
+            $threads = $threads->take(self::THREADS_PER_PAGE);
+        }
+
+        $mappedThreads = $threads->map(function ($thread) use ($userId) {
+            $isUnread = false;
+            $participant = $thread->participants->firstWhere('user_id', $userId);
+
+            if ($participant) {
+                $isUnread = $participant->last_read === null || $thread->updated_at->gt($participant->last_read);
+            }
+
+            return [
+                'id' => $thread->id,
+                'subject' => $thread->subject,
+                'is_unread' => $isUnread,
+                'participants' => $thread->participants->map(function ($participant) {
+                    return [
+                        'name' => $participant->user->name,
+                    ];
+                })->values(),
+                'latest_message' => $thread->latestMessage ? [
+                    'body' => $thread->latestMessage->body,
+                    'sender_name' => $thread->latestMessage->user->name,
+                    'created_at' => $thread->latestMessage->created_at?->diffForHumans(),
+                ] : null,
+                'bill' => $thread->bill ? [
+                    'id' => $thread->bill->id,
+                    'event_name' => $thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event,
+                    'datetime' => $thread->bill->date && $thread->bill->start_time
+                        ? $thread->bill->date->format('d/m/Y') . ' ' . $thread->bill->start_time->format('H:i')
+                        : null,
+                    'address' => $thread->bill->address,
+                ] : null,
+            ];
+        });
 
         return response()->json([
-            'threads' => $threads['data'],
-            'has_more' => $threads['hasMore'],
+            'threads' => $mappedThreads->values()->all(),
+            'has_more' => $hasMore,
+            'current_page' => $page,
         ]);
-    }
-
-    /**
-     * GET /api/partner/chat/search
-     *
-     * Query: q or search, page
-     * Response: { data, hasMore }
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function search(Request $request)
-    {
-        $userId = Auth::id();
-        $searchTerm = $request->input('q', $request->input('search', ''));
-        $page = (int) $request->input('page', 1);
-
-        $threads = $this->getThreads($userId, $searchTerm, $page);
-
-        return response()->json($threads);
     }
 
     /**
@@ -136,102 +195,6 @@ class ChatController extends Controller
         }
     }
 
-    private function getThreads(?int $userId, string $searchTerm, int $page): array
-    {
-        if ($userId === null) {
-            return [
-                'data' => [],
-                'hasMore' => false,
-            ];
-        }
-
-        $query = Thread::forUserOrderByNotReadMessages($userId)
-            ->with([
-                'latestMessage',
-                'participants',
-                'participants.user' => function ($query) {
-                    $query->select('id', 'name');
-                },
-                'bill' => function ($query) {
-                    $query->select('id', 'thread_id', 'event_id', 'custom_event', 'date', 'start_time', 'address');
-                },
-                'bill.event' => function ($query) {
-                    $query->select('id', 'name');
-                },
-            ])
-            ->latest('updated_at');
-
-        if (!empty(trim($searchTerm))) {
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('subject', 'like', '%' . $searchTerm . '%')
-                    ->orWhereHas('participants.user', function ($userQuery) use ($searchTerm) {
-                        $userQuery->where('name', 'like', '%' . $searchTerm . '%');
-                    });
-            });
-        }
-
-        $threads = $query
-            ->skip(($page - 1) * self::THREADS_PER_PAGE)
-            ->take(self::THREADS_PER_PAGE + 1)
-            ->get();
-
-        $hasMore = $threads->count() > self::THREADS_PER_PAGE;
-
-        if ($hasMore) {
-            $threads = $threads->take(self::THREADS_PER_PAGE);
-        }
-
-        $mappedThreads = $threads->map(function ($thread) use ($userId) {
-            $isUnread = false;
-            $participant = $thread->participants->firstWhere('user_id', $userId);
-
-            if ($participant) {
-                $isUnread = $participant->last_read === null || $thread->updated_at->gt($participant->last_read);
-            }
-
-            return [
-                'id' => $thread->id,
-                'subject' => $thread->subject,
-                'updated_at' => $thread->updated_at->toIso8601String(),
-                'is_unread' => $isUnread,
-                'other_participants' => $thread->participants->where('user_id', '!=', $userId)->map(function ($participant) {
-                    return [
-                        'id' => $participant->user->id,
-                        'name' => $participant->user->name,
-                    ];
-                })->values(),
-                'participants' => $thread->participants->map(function ($participant) {
-                    return [
-                        'id' => $participant->user->id,
-                        'name' => $participant->user->name,
-                    ];
-                })->values(),
-                'latest_message' => $thread->latestMessage ? [
-                    'body' => $thread->latestMessage->body,
-                    'created_at' => $thread->latestMessage->created_at?->toIso8601String(),
-                    'user_id' => $thread->latestMessage->user_id,
-                    'user' => [
-                        'id' => $thread->latestMessage->user->id,
-                        'name' => $thread->latestMessage->user->name,
-                    ],
-                ] : null,
-                'bill' => $thread->bill ? [
-                    'id' => $thread->bill->id,
-                    'event_name' => $thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event,
-                    'datetime' => $thread->bill->date && $thread->bill->start_time
-                        ? $thread->bill->date->format('d/m/Y') . ' ' . $thread->bill->start_time->format('H:i')
-                        : null,
-                    'address' => $thread->bill->address,
-                ] : null,
-            ];
-        });
-
-        return [
-            'data' => $mappedThreads->values()->all(),
-            'hasMore' => $hasMore,
-        ];
-    }
-
     private function getMessages(int $threadId, int $page): array
     {
         $thread = Thread::with([
@@ -266,7 +229,7 @@ class ChatController extends Controller
 
         $hasMore = $offset > 0;
 
-        $mappedMessages = $messages->map(fn ($msg) => [
+        $mappedMessages = $messages->map(fn($msg) => [
             'id' => $msg->id,
             'thread_id' => $msg->thread_id,
             'user_id' => $msg->user_id,
