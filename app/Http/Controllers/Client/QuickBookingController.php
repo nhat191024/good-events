@@ -8,10 +8,6 @@ use App\Models\Location;
 use App\Models\PartnerBill;
 use App\Models\PartnerCategory;
 
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\Services\QuickBookingService;
-use App\Http\Requests\Client\BookingRequest;
-
 use App\Events\NewPartnerBillCreated;
 
 use Illuminate\Http\Request;
