@@ -34,3 +34,4 @@ pnpm-workspace.yaml
 .rnd
 routes/test.php
 dumb
+/laradumps.yaml
