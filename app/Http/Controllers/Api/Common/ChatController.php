@@ -85,7 +85,7 @@ class ChatController extends Controller
             $participant = $thread->participants->firstWhere('user_id', $userId);
 
             if ($participant) {
-                $isUnread = $participant->last_read === null || $thread->updated_at->gt($participant->last_read);
+                $isUnread = $participant->last_read !== null && $thread->updated_at->gt($participant->last_read);
             }
 
             return [
