@@ -32,7 +32,7 @@ class SendMessage implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('thread.' . $this->message['thread_id']),
+            new PrivateChannel('thread.' . $this->message['message']['thread_id']),
         ];
     }
 
@@ -43,27 +43,8 @@ class SendMessage implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
-        $createdAt = $this->message['created_at']?->toIso8601String();
-        $updatedAt = $this->message['updated_at']?->toIso8601String();
+        Log::info('🚀 Broadcasting message', $this->message);
 
-        $payload = [
-            'sender_id' => $this->message['user_id'],
-            'message' => [
-                'id' => $this->message['id'],
-                'thread_id' => $this->message['thread_id'],
-                'user_id' => $this->message['user_id'],
-                'body' => $this->message['body'],
-                'created_at' => $createdAt,
-                'updated_at' => $updatedAt,
-            ],
-            'user' => [
-                'id' => $this->message['user_id'],
-                'name' => $this->message['user']['name'] ?? 'Người dùng đã xóa',
-            ],
-        ];
-
-        Log::info('🚀 Broadcasting message', $payload);
-
-        return $payload;
+        return $this->message;
     }
 }
