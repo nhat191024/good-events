@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\Concerns\PaginatesApi;
 use App\Http\Controllers\Controller;
 
 use App\Http\Resources\Api\PartnerBillResource;
-use App\Http\Resources\Api\RealtimePartnerBillCollection;
+use App\Http\Resources\Api\Partner\RealtimePartnerBillCollection;
 
 use App\Settings\PartnerSettings;
 use Illuminate\Http\Request;
