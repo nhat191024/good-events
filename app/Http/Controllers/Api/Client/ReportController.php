@@ -28,7 +28,7 @@ class ReportController extends Controller
             'description' => 'required|string',
         ]);
 
-        $exists = Report::where('user_id', Auth::id())
+        $exists = Report::where('reporter_id', Auth::id())
             ->where('reported_user_id', $validated['reported_user_id'])
             ->where('status', ReportStatus::PENDING)
             ->exists();
@@ -40,7 +40,7 @@ class ReportController extends Controller
         }
 
         Report::create([
-            'user_id' => Auth::id(),
+            'reporter_id' => Auth::id(),
             'reported_user_id' => $validated['reported_user_id'],
             'title' => $validated['title'],
             'description' => $validated['description'],
@@ -66,7 +66,7 @@ class ReportController extends Controller
             'description' => 'required|string',
         ]);
 
-        $exists = Report::where('user_id', Auth::id())
+        $exists = Report::where('reporter_id', Auth::id())
             ->where('reported_bill_id', $validated['reported_bill_id'])
             ->where('status', ReportStatus::PENDING)
             ->exists();
@@ -81,7 +81,7 @@ class ReportController extends Controller
         $partnerId = $bill ? $bill->partner_id : null;
 
         Report::create([
-            'user_id' => Auth::id(),
+            'reporter_id' => Auth::id(),
             'reported_user_id' => $partnerId,
             'reported_bill_id' => $validated['reported_bill_id'],
             'title' => $validated['title'],
