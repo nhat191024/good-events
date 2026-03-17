@@ -49,7 +49,9 @@ class ChatController extends Controller
 
         $query = Thread::forUserOrderByNotReadMessages($userId)
             ->with([
-                'latestMessage',
+                'latestMessage.user' => function ($query) {
+                    $query->select('id', 'name');
+                },
                 'participants',
                 'participants.user' => function ($query) {
                     $query->select('id', 'name');
