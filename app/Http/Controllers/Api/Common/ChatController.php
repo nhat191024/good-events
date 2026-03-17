@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Thread;
 
-use App\Events\SendMessage;
+use App\Jobs\SendMessage;
 
 use Cmgmyr\Messenger\Models\Message;
 use Cmgmyr\Messenger\Models\Participant;
@@ -246,7 +246,7 @@ class ChatController extends Controller
                 )),
             ];
 
-            event(new SendMessage($formattedMessage));
+            SendMessage::dispatch($formattedMessage);
 
             return response()->json([
                 'success' => true,

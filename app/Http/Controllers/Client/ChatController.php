@@ -6,7 +6,7 @@ use App\Enum\CacheKey;
 
 use App\Models\Thread;
 
-use App\Events\SendMessage;
+use App\Jobs\SendMessage;
 
 use App\Enum\PartnerBillStatus;
 
@@ -109,8 +109,7 @@ class ChatController extends Controller
                 )),
             ];
 
-            // Broadcast the new message
-            event(new SendMessage($formattedMessage));
+            SendMessage::dispatch($formattedMessage);
 
             return response()->json([
                 'success' => true,
