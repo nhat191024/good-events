@@ -4,7 +4,7 @@ namespace App\Filament\Partner\Pages;
 
 use App\Enum\CacheKey;
 
-use App\Events\SendMessage;
+use App\Jobs\SendMessage;
 
 use App\Models\Thread;
 
@@ -388,8 +388,7 @@ class Chat extends Page
         // Clear message input
         $this->messageBody = '';
 
-        // Broadcast the new message
-        event(new SendMessage($message));
+        SendMessage::dispatch($message);
     }
 
 
