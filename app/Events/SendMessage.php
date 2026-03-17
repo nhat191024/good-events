@@ -39,9 +39,13 @@ class SendMessage implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel('thread.' . $this->message['thread_id']),
-        ];
+        $channels = [new PrivateChannel('thread.' . $this->message['thread_id'])];
+
+        foreach ($this->message['other_participant_ids'] ?? [] as $participantId) {
+            $channels[] = new PrivateChannel('user-messages.' . $participantId);
+        }
+
+        return $channels;
     }
 
     /**
