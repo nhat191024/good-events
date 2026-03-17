@@ -19,6 +19,7 @@ use App\Models\PartnerBillDetail;
 use App\Models\Statistical;
 use App\Models\User;
 use App\Models\Voucher;
+use App\Services\PartnerWidgetCacheService;
 use Codebyray\ReviewRateable\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -43,6 +44,9 @@ class OrderController extends Controller
     public function list(Request $request)
     {
 
+        $page = max(1, (int) $request->query('page', 1));
+        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
+
         $bills = PartnerBill::query()
             ->with([
                 'category.media',
@@ -58,9 +62,12 @@ class OrderController extends Controller
                 PartnerBillStatus::CONFIRMED,
                 PartnerBillStatus::IN_JOB,
             ])
-            ->orderByDesc('id');
+            ->orderByDesc('id')
+            ->paginate($perPage, ['*'], 'page', $page);
 
-        return response()->json(PartnerBillResource::collection($bills->get()));
+        return response()->json([
+            'orders' => $this->paginatedData($bills, PartnerBillResource::class),
+        ]);
     }
 
     /**
@@ -74,6 +81,8 @@ class OrderController extends Controller
      */
     public function history(Request $request)
     {
+        $page = max(1, (int) $request->query('page', 1));
+        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
 
         $bills = PartnerBill::query()
             ->where('client_id', $request->user()->id)
@@ -89,9 +98,12 @@ class OrderController extends Controller
                 PartnerBillStatus::EXPIRED,
                 PartnerBillStatus::CANCELLED,
             ])
-            ->orderByDesc('id');
+            ->orderByDesc('id')
+            ->paginate($perPage, ['*'], 'page', $page);
 
-        return response()->json(PartnerBillHistoryResource::collection($bills->get()));
+        return response()->json([
+            'orders' => $this->paginatedData($bills, PartnerBillHistoryResource::class),
+        ]);
     }
 
     /**
@@ -296,6 +308,11 @@ class OrderController extends Controller
             'comment' => 'nullable|string',
         ]);
 
+        // check if already exist
+        if (Review::where('partner_bill_id', $data['order_id'])->exists()) {
+            return response()->json(['message' => 'Bạn đã đánh giá đơn này rồi.'], 422);
+        }
+
         $partner = User::findOrFail($data['partner_id']);
 
         $partner->addReview([
@@ -318,6 +335,7 @@ class OrderController extends Controller
         }
 
         Statistical::syncPartnerRatingMetrics($partner->id);
+        PartnerWidgetCacheService::clearPartnerCaches($partner->id);
 
         return response()->json(['success' => true]);
     }
