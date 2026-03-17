@@ -17,7 +17,7 @@ use Illuminate\Database\QueryException;
 
 class ChatController extends Controller
 {
-    private const int THREADS_PER_PAGE = 10;
+    private const int THREADS_PER_PAGE = 14;
     private const int MESSAGES_PER_PAGE = 12;
 
     /**
