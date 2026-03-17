@@ -4,18 +4,21 @@ namespace App\Filament\Admin\Pages;
 
 use BackedEnum;
 
+use App\Enum\CacheKey;
+
 use App\Events\SendMessage;
+
+use App\Models\Thread;
 
 use Carbon\Carbon;
 use Cmgmyr\Messenger\Models\Message;
 use Cmgmyr\Messenger\Models\Participant;
 
-use App\Models\Thread;
-
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Notifications\Notification;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use Livewire\Attributes\On;
@@ -229,7 +232,7 @@ class Chat extends Page
                 'bill.event',
             ]
         )
-        ->latest('updated_at');
+            ->latest('updated_at');
 
         // Filter by active tab
         if ($this->activeTab === 'active') {
@@ -473,6 +476,15 @@ class Chat extends Page
                 'id' => $userId,
                 'name' => Auth::user() ? Auth::user()->name : 'Ghost',
             ],
+            //TODO: forget cache when new participant added or removed from thread
+            'other_participant_ids' => Cache::remember(
+                CacheKey::THREAD_OTHER_PARTICIPANTS->value . "{$threadId}_{$userId}",
+                now()->addHour(),
+                fn() => $message->thread->participants()
+                    ->where('user_id', '!=', $userId)
+                    ->pluck('user_id')
+                    ->toArray()
+            ),
         ];
 
         $this->messages = collect($this->messages)->push($message)->toArray();

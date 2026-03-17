@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Common;
 
+use App\Enum\CacheKey;
+
 use App\Http\Controllers\Controller;
 
 use App\Models\Thread;
@@ -13,6 +15,7 @@ use Cmgmyr\Messenger\Models\Participant;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\QueryException;
 
 class ChatController extends Controller
@@ -231,6 +234,15 @@ class ChatController extends Controller
                     'id' => $userId,
                     'name' => Auth::user() ? Auth::user()->name : 'Ghost',
                 ],
+                //TODO: forget cache when new participant added or removed from thread
+                'other_participant_ids' => Cache::remember(
+                    CacheKey::THREAD_OTHER_PARTICIPANTS->value . "{$threadId}_{$userId}",
+                    now()->addHour(),
+                    fn() => $message->thread->participants()
+                        ->where('user_id', '!=', $userId)
+                        ->pluck('user_id')
+                        ->toArray()
+                ),
             ];
 
             event(new SendMessage($formattedMessage));

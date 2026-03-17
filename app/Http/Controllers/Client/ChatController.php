@@ -2,19 +2,25 @@
 
 namespace App\Http\Controllers\Client;
 
-use Inertia\Inertia;
-use Inertia\Response;
-use Carbon\Carbon;
+use App\Enum\CacheKey;
 
 use App\Models\Thread;
+
+use App\Events\SendMessage;
+
+use App\Enum\PartnerBillStatus;
+
+use App\Http\Controllers\Controller;
+
+use Inertia\Inertia;
+use Inertia\Response;
+
 use Cmgmyr\Messenger\Models\Message;
 use Cmgmyr\Messenger\Models\Participant;
 
-use App\Enum\PartnerBillStatus;
-use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\QueryException;
 
 /**
@@ -93,10 +99,18 @@ class ChatController extends Controller
                     'id' => $userId,
                     'name' => Auth::user()?->name ?? 'Người dùng đã xóa',
                 ],
+                'other_participant_ids' => Cache::remember(
+                    CacheKey::THREAD_OTHER_PARTICIPANTS->value . "{$threadId}_{$userId}",
+                    now()->addHour(),
+                    fn() => $message->thread->participants()
+                        ->where('user_id', '!=', $userId)
+                        ->pluck('user_id')
+                        ->toArray()
+                ),
             ];
 
             // Broadcast the new message
-            event(new \App\Events\SendMessage($formattedMessage));
+            event(new SendMessage($formattedMessage));
 
             return response()->json([
                 'success' => true,
