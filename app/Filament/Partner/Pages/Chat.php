@@ -365,15 +365,14 @@ class Chat extends Page
                 'id' => $userId,
                 'name' => Auth::user() ? Auth::user()->name : 'Người dùng đã xóa',
             ],
-            //TODO: forget cache when new participant added or removed from thread
-            'other_participant_ids' => Cache::remember(
-                CacheKey::THREAD_OTHER_PARTICIPANTS->value . "{$threadId}_{$userId}",
-                now()->addHour(),
-                fn() => $message->thread->participants()
-                    ->where('user_id', '!=', $userId)
-                    ->pluck('user_id')
-                    ->toArray()
-            ),
+            'other_participant_ids' => array_values(array_diff(
+                Cache::remember(
+                    CacheKey::THREAD_PARTICIPANT->value . "{$threadId}",
+                    now()->addWeek(),
+                    fn() => Participant::where('thread_id', $threadId)->pluck('user_id')->all()
+                ),
+                [$userId]
+            )),
         ];
 
         $this->messages = collect($this->messages)->push($message)->toArray();
