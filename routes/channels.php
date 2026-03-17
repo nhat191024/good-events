@@ -31,11 +31,12 @@ if (
     });
 
     Broadcast::channel('thread.{threadId}', function ($user, $threadId) {
-        //TODO: forget cache when new user added or removed from thread
-        $key = CacheKey::USER_THREAD_PARTICIPANT->value . "{$user->id}_{$threadId}";
-        return cache()->remember($key, now()->addMinutes(10), function () use ($user, $threadId) {
-            return Participant::where('thread_id', $threadId)->where('user_id', $user->id)->exists();
+        $key = CacheKey::THREAD_PARTICIPANT->value . "{$threadId}";
+        $participantIds = cache()->remember($key, now()->addMinutes(10), function () use ($threadId) {
+            return Participant::where('thread_id', $threadId)->pluck('user_id')->all();
         });
+
+        return in_array($user->id, $participantIds);
     });
 
     Broadcast::channel('user-messages.{userId}', function ($user, $userId) {
