@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enum\PartnerBillStatus;
 use App\Enum\StatisticType;
+use App\Enum\CacheKey;
 
 use App\Services\PartnerWidgetCacheService;
 use App\Services\PartnerBillMailService;
@@ -14,7 +15,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -393,6 +394,7 @@ class PartnerBill extends Model implements HasMedia
      */
     protected static function handleConfirmedStatus(PartnerBill $partnerBill): void
     {
+        Cache::forget(CacheKey::THREAD_PARTICIPANT->value . "{$partnerBill->thread_id}");
         Participant::create([
             'thread_id' => $partnerBill->thread_id,
             'user_id' => $partnerBill->partner_id,
