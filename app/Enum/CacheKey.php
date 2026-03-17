@@ -29,6 +29,6 @@ enum CacheKey: string
     case RENT_CATEGORY_DETAIL = 'rent_category_detail';
 
     case USER_CATEGORY_EXISTS = 'user_category_exists_';
-    case USER_THREAD_PARTICIPANT = 'user_thread_participant_';
+    case THREAD_PARTICIPANT = 'thread_participant_';
     case THREAD_OTHER_PARTICIPANTS = 'thread_other_participants_';
 }
