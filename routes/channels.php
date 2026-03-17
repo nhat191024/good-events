@@ -31,7 +31,14 @@ if (
     });
 
     Broadcast::channel('thread.{threadId}', function ($user, $threadId) {
-        $participants = Participant::where('thread_id', $threadId)->where('user_id', $user->id)->first();
-        return $participants ? true : false;
+        //TODO: forget cache when new user added or removed from thread
+        $key = CacheKey::USER_THREAD_PARTICIPANT->value . "{$user->id}_{$threadId}";
+        return cache()->remember($key, now()->addMinutes(10), function () use ($user, $threadId) {
+            return Participant::where('thread_id', $threadId)->where('user_id', $user->id)->exists();
+        });
+    });
+
+    Broadcast::channel('user-messages.{userId}', function ($user, $userId) {
+        return (int) $user->id === (int) $userId;
     });
 }
