@@ -32,7 +32,7 @@ if (
 
     Broadcast::channel('thread.{threadId}', function ($user, $threadId) {
         $key = CacheKey::THREAD_PARTICIPANT->value . "{$threadId}";
-        $participantIds = cache()->remember($key, now()->addMinutes(10), function () use ($threadId) {
+        $participantIds = cache()->remember($key, now()->addWeek(), function () use ($threadId) {
             return Participant::where('thread_id', $threadId)->pluck('user_id')->all();
         });
 
