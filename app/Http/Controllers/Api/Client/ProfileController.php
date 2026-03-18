@@ -2,21 +2,25 @@
 
 namespace App\Http\Controllers\Api\Client;
 
-use App\Enum\PartnerBillStatus;
 use App\Enum\Role;
+use App\Enum\PartnerBillStatus;
+
+use App\Models\User;
+
 use App\Http\Controllers\Controller;
+
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use App\Http\Resources\Api\PartnerServiceResource;
 use App\Http\Resources\Api\UserResource;
-use App\Models\User;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Http\JsonResponse;
+
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 class ProfileController extends Controller
 {
