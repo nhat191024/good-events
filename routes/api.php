@@ -35,7 +35,6 @@ Route::middleware('auth:sanctum')->prefix('partner')->group(function () {
     require __DIR__ . '/api/partner/dashboard.php';
     require __DIR__ . '/api/partner/bills.php';
     require __DIR__ . '/api/partner/calendar.php';
-    require __DIR__ . '/api/partner/profile.php';
 });
 
 // Broadcasting auth endpoint for Sanctum API token authentication
