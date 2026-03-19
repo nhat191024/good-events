@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use App\Http\Resources\Api\PartnerServiceResource;
 use App\Http\Resources\Api\UserResource;
+use App\Http\Resources\Api\ProfileResource;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -20,14 +21,13 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 class ProfileController extends Controller
 {
     /**
      * GET /api/profile/me
      *
-     * Response: { user: UserResource|null, must_verify_email: bool }
+     * Response: { profile: ProfileResource|null }
      *
      * @param Request $request
      * @return JsonResponse
@@ -35,11 +35,10 @@ class ProfileController extends Controller
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
-        $user?->loadMissing('partnerProfile');
+        $user?->load('partnerProfile');
 
         return response()->json([
-            'user' => $user ? new UserResource($user) : null,
-            'must_verify_email' => $user instanceof MustVerifyEmail,
+            'profile' => $user ? new ProfileResource($user) : null,
         ]);
     }
 
@@ -194,7 +193,7 @@ class ProfileController extends Controller
                 'last_active_human' => optional($user->updated_at)->diffForHumans(),
                 'avg_rating' => $avgRating,
             ],
-            'recent_bills' => $recentBills->map(fn ($b) => [
+            'recent_bills' => $recentBills->map(fn($b) => [
                 'id' => $b->id,
                 'code' => $b->code,
                 'status' => $b->status,
@@ -204,7 +203,7 @@ class ProfileController extends Controller
                 'category' => $b->category?->name,
                 'partner_name' => $b->partner?->name,
             ]),
-            'recent_reviews' => $recentReviews->map(fn ($r) => [
+            'recent_reviews' => $recentReviews->map(fn($r) => [
                 'id' => $r->id,
                 'subject_name' => $r->reviewable?->name ?? null,
                 'department' => $r->department,
