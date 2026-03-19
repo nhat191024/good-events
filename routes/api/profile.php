@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\Client\ProfileController;
+use App\Http\Controllers\Api\Common\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
