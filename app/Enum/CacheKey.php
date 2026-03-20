@@ -31,4 +31,8 @@ enum CacheKey: string
     case USER_CATEGORY_EXISTS = 'user_category_exists_';
 
     case THREAD_PARTICIPANT = 'thread_participant_';
+
+        //Location
+    case LOCATION_WARDS = 'location_wards_';
+    case LOCATION_PROVINCES = 'location_provinces';
 }
