@@ -269,7 +269,6 @@ class ProfileSettings extends Page implements HasForms
                                     ->visibility('private')
                                     ->columnSpanFull()
                                     ->nullable(),
-                                    // ->visible(fn(Get $get) => $get('selfie_image')),
 
                                 FileUpload::make('front_identity_card_image')
                                     ->label(__('profile.partner_label.front_identity_card_image'))
@@ -280,7 +279,6 @@ class ProfileSettings extends Page implements HasForms
                                     ->disk('local')
                                     ->visibility('private')
                                     ->nullable(),
-                                    // ->visible(fn(Get $get) => $get('front_identity_card_image')),
 
                                 FileUpload::make('back_identity_card_image')
                                     ->label(__('profile.partner_label.back_identity_card_image'))
@@ -291,7 +289,6 @@ class ProfileSettings extends Page implements HasForms
                                     ->disk('local')
                                     ->visibility('private')
                                     ->nullable(),
-                                    // ->visible(fn(Get $get) => $get('back_identity_card_image')),
                             ])
                     ])
             ])
