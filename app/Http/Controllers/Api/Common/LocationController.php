@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api\Client;
+namespace App\Http\Controllers\Api\Common;
 
+use App\Enum\CacheKey;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
 use Illuminate\Http\JsonResponse;
@@ -9,8 +10,6 @@ use Illuminate\Support\Facades\Cache;
 
 class LocationController extends Controller
 {
-    // return wards for a given parent location
-    // so we dont have to send over 3k records to the client each time
     /**
      * GET /api/locations/{location}/wards
      *
@@ -18,9 +17,9 @@ class LocationController extends Controller
      */
     public function wards(Location $location): JsonResponse
     {
-        $cacheKey = "location:{$location->id}:wards";
+        $cacheKey = CacheKey::LOCATION_WARDS->value . $location->id;
 
-        $wards = Cache::remember($cacheKey, 60 * 9999, function () use ($location) {
+        $wards = Cache::rememberForever($cacheKey, function () use ($location) {
             return $location->wards()
                 ->select(['id', 'name', 'code', 'codename', 'short_codename', 'parent_id'])
                 ->orderBy('name')
@@ -32,9 +31,9 @@ class LocationController extends Controller
 
     public function provinces(): JsonResponse
     {
-        $cacheKey = 'locations:provinces';
+        $cacheKey = CacheKey::LOCATION_PROVINCES->value;
 
-        $provinces = Cache::remember($cacheKey, 60 * 9999, function () {
+        $provinces = Cache::rememberForever($cacheKey, function () {
             return Location::query()
                 ->whereNull('parent_id')
                 ->select(['id', 'name'])
