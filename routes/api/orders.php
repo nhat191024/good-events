@@ -7,6 +7,7 @@ Route::get('/orders', [OrderController::class, 'list']);
 Route::get('/orders/history', [OrderController::class, 'history']);
 Route::get('/orders/partner-profile/{user}', [OrderController::class, 'partnerProfile'])->whereNumber('user');
 Route::get('/orders/{order}', [OrderController::class, 'single'])->whereNumber('order');
+Route::get('/orders/history/{order}', [OrderController::class, 'singleHistory'])->whereNumber('order');
 Route::get('/orders/{order}/details', [OrderController::class, 'details'])->whereNumber('order');
 Route::post('/orders/cancel', [OrderController::class, 'cancelOrder']);
 Route::post('/orders/choose-partner', [OrderController::class, 'confirmChoosePartner']);

@@ -135,6 +135,34 @@ class OrderController extends Controller
     }
 
     /**
+     * GET /api/orders/history/{order}
+     *
+     * Path: order (id)
+     * Response: { order: PartnerBillHistoryResource|null }
+     *
+     * @param Request $request
+     * @param int $orderId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function singleHistory(Request $request, int $orderId)
+    {
+        $order = PartnerBill::query()
+            ->where('id', $orderId)
+            ->where('client_id', $request->user()->id)
+            ->with([
+                'category.media',
+                'category.parent.media',
+                'event',
+                'details',
+                'partner.statistics',
+                'partner.partnerProfile',
+            ])
+            ->first();
+
+        return response()->json($order ? new PartnerBillHistoryResource($order) : null);
+    }
+
+    /**
      * GET /api/orders/{order}/details
      *
      * Path: order (id)
@@ -310,7 +338,7 @@ class OrderController extends Controller
 
         // check if already exist
         if (Review::where('partner_bill_id', $data['order_id'])->exists()) {
-            return response()->json(['message' => 'Bạn đã đánh giá đơn này rồi.'], 422);
+            return response()->json(['success' => true, 'message' => 'Bạn đã đánh giá đơn này rồi.']);
         }
 
         $partner = User::findOrFail($data['partner_id']);
