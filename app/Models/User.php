@@ -276,7 +276,11 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             return $this->avatar;
         }
 
-        return asset('storage/' . ltrim($this->avatar, '/'));
+        // return asset('storage/' . ltrim($this->avatar, '/'));
+
+        $url = env('APP_ENV') === 'production' ? asset(ltrim($this->avatar, '/')) : asset('storage/' . ltrim($this->avatar, '/'));
+
+        return $url;
     }
 
     /**
