@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Common;
 
 use App\Enum\Role;
 use App\Enum\PartnerBillStatus;
+use App\Enum\StatisticType;
 
 use App\Models\User;
 
@@ -11,13 +12,11 @@ use App\Http\Controllers\Controller;
 
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use App\Http\Resources\Api\PartnerServiceResource;
-use App\Http\Resources\Api\UserResource;
 use App\Http\Resources\Api\ProfileResource;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
@@ -35,10 +34,102 @@ class ProfileController extends Controller
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
-        $user?->load('partnerProfile');
+        $user?->load(['partnerProfile.location.province']);
+
+        $stats = $user->statistics()->get()->keyBy('metrics_name');
+
+        $completedOrdersStat = optional($stats->get(StatisticType::COMPLETED_ORDERS->value))->metrics_value;
+        $cancelledOrdersPctStat = optional($stats->get(StatisticType::CANCELLED_ORDERS_PERCENTAGE->value))->metrics_value;
+
+        $profile = new ProfileResource($user);
+        $profileArray = $profile->toArray($request);
+        $profileArray['stats'] = [
+            'completed_orders' => $completedOrdersStat !== null ? (int) $completedOrdersStat : null,
+            'cancelled_orders_pct' => $cancelledOrdersPctStat !== null ? (string) $cancelledOrdersPctStat : null,
+        ];
 
         return response()->json([
-            'profile' => $user ? new ProfileResource($user) : null,
+            'profile' => $profileArray,
+        ]);
+    }
+
+    /**
+     * POST /api/profile/update (multipart/form-data)
+     *
+     * Body: name, email, country_code, phone, bio, avatar (file)
+     * Response: { success: true, user }
+     *
+     * @param ProfileUpdateRequest $request
+     * @return JsonResponse
+     */
+    public function update(ProfileUpdateRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $partnerImageFields = ['selfie_image', 'front_identity_card_image', 'back_identity_card_image'];
+        $excludedFromFill = array_merge(['avatar'], $partnerImageFields);
+        $validated = $request->safe()->except($excludedFromFill);
+
+        $user->fill(array_intersect_key($validated, array_flip(['name', 'email', 'country_code', 'phone', 'bio'])));
+
+        if (array_key_exists('bio', $validated)) {
+            $bio = trim((string) ($validated['bio'] ?? ''));
+            $user->bio = $bio === '' ? null : $bio;
+        }
+
+        if ($request->hasFile('avatar')) {
+            $avatar = $request->file('avatar');
+            $filename = Str::ulid() . '.' . $avatar->getClientOriginalExtension();
+            $path = $avatar->storeAs('uploads/avatars', $filename, 'public');
+
+            if ($user->getOriginal('avatar') && !Str::startsWith($user->getOriginal('avatar'), ['http://', 'https://'])) {
+                Storage::disk('public')->delete($user->getOriginal('avatar'));
+            }
+
+            $user->avatar = $path;
+        }
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        if ($user->hasRole(Role::PARTNER)) {
+            $partnerProfile = $user->partnerProfile ?? $user->partnerProfile()->create([
+                'partner_name' => $user->name,
+                'user_id' => $user->id,
+            ]);
+
+            $partnerFillable = array_intersect_key($validated, array_flip(['partner_name', 'identity_card_number', 'location_id']));
+            $partnerProfile->fill($partnerFillable);
+
+            foreach ($partnerImageFields as $field) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
+                    $path = $file->storeAs('uploads/partner', $filename, 'public');
+
+                    $oldPath = $partnerProfile->getOriginal($field);
+                    if ($oldPath && !Str::startsWith($oldPath, ['http://', 'https://'])) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+
+                    $partnerProfile->{$field} = $path;
+                }
+            }
+
+            $partnerProfile->save();
+        }
+
+        $user->loadMissing('partnerProfile');
+
+        return response()->json([
+            'success' => true,
+            'user' => new ProfileResource($user),
         ]);
     }
 
@@ -64,58 +155,6 @@ class ProfileController extends Controller
         return response()->json([
             'profile_type' => $isPartner ? 'partner' : 'client',
             'payload' => $payload,
-        ]);
-    }
-
-    /**
-     * POST /api/profile/update (multipart/form-data)
-     *
-     * Body: name, email, country_code, phone, bio, avatar (file)
-     * Response: { success: true, user }
-     *
-     * @param ProfileUpdateRequest $request
-     * @return JsonResponse
-     */
-    public function update(ProfileUpdateRequest $request): JsonResponse
-    {
-        $user = $request->user();
-        if (!$user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
-        }
-
-        $validated = $request->safe()->except('avatar');
-
-        $user->fill($validated);
-
-        if (array_key_exists('bio', $validated)) {
-            $bio = trim((string) ($validated['bio'] ?? ''));
-            $user->bio = $bio === '' ? null : $bio;
-        }
-
-        if ($request->hasFile('avatar')) {
-            $avatar = $request->file('avatar');
-            $filename = Str::ulid() . '.' . $avatar->getClientOriginalExtension();
-            $path = $avatar->storeAs('uploads/avatars', $filename, 'public');
-
-            if ($user->getOriginal('avatar') && !Str::startsWith($user->getOriginal('avatar'), ['http://', 'https://'])) {
-                Storage::disk('public')->delete($user->getOriginal('avatar'));
-            }
-
-            $user->avatar = $path;
-        }
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
-        Cache::forget("profile:client:v2:{$user->id}");
-        Cache::forget("profile:partner:v2:{$user->id}");
-
-        $user->loadMissing('partnerProfile');
-        return response()->json([
-            'success' => true,
-            'user' => new UserResource($user),
         ]);
     }
 
