@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
+use App\Enum\CacheKey;
 use App\Models\PartnerCategory;
 use App\Http\Controllers\Controller;
+
+use Illuminate\Support\Facades\Cache;
 
 class PartnerCategoryController extends Controller
 {
@@ -14,9 +17,11 @@ class PartnerCategoryController extends Controller
      */
     public function index()
     {
-        $categories = PartnerCategory::query()
-            ->whereNotNull('parent_id')
-            ->get();
+        $categories = Cache::remember(CacheKey::PARTNER_CATEGORY_WITHOUT_PARENT->value, 600, function () {
+            return PartnerCategory::query()
+                ->whereNull('parent_id')
+                ->get();
+        });
 
         return response()->json($categories->map(function ($category) {
             return [
