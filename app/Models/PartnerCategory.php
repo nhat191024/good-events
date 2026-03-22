@@ -145,7 +145,7 @@ class PartnerCategory extends Model implements HasMedia
         parent::boot();
 
         static::saved(function ($model) {
-            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value, CacheKey::PARTNER_CATEGORY_WITHOUT_PARENT->value])->flush();
         });
 
         static::deleted(function ($model) {
@@ -155,7 +155,7 @@ class PartnerCategory extends Model implements HasMedia
         });
 
         static::restored(function ($model) {
-            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value, CacheKey::PARTNER_CATEGORY_WITHOUT_PARENT->value])->flush();
         });
     }
 
