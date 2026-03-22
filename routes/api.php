@@ -33,8 +33,11 @@ Route::middleware('auth:sanctum')->group(function () {
 // Authenticated partner routes
 Route::middleware('auth:sanctum')->prefix('partner')->group(function () {
     require __DIR__ . '/api/partner/dashboard.php';
+    require __DIR__ . '/api/partner/analytics.php';
     require __DIR__ . '/api/partner/bills.php';
     require __DIR__ . '/api/partner/calendar.php';
+    require __DIR__ . '/api/partner/service.php';
+    require __DIR__ . '/api/partner/category.php';
 });
 
 // Broadcasting auth endpoint for Sanctum API token authentication
