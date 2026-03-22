@@ -1,0 +1,20 @@
+meta {
+  name: analytics
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{url}}partner/analytics
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,20 @@
+meta {
+  name: category
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{url}}partner/category/index
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
