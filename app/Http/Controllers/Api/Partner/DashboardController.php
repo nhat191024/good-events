@@ -30,15 +30,6 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // $user->addReview([
-        //     'review'     => 'Great product! The quality is superb and customer service was excellent.',
-        //     'recommend' => true,
-        //     'approved' => true,
-        //     'ratings' => ['rating' => 5],
-        //     'partner_bill_id' => 1,
-        // ], 1);
-        $user->loadMissing('partnerProfile');
-        $balance = $user->balance_int;
         $revenue = Statistical::where('user_id', $user->id)->where('metrics_name', StatisticType::REVENUE_GENERATED->value)
             ->latest()
             ->first();
@@ -53,7 +44,6 @@ class DashboardController extends Controller
 
         return response()->json([
             'has_notification' => $user->unreadNotifications()->count() > 0,
-            'balance' => $balance,
             'revenue' => (int) $revenue?->metrics_value ?? 0,
             'show_data' => $showData,
             'recent_reviews_count' => $recentReviewsCount,
