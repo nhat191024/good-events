@@ -114,14 +114,14 @@ class PaymentService
         $url = $returnUrl;
         if (!$url) {
             $url = $isAppRequest
-                ? env('APP_PAYMENT_RESULT_DEEPLINK_URL')
+                ? config('services.payos.app_deep_link')
                 : route('payment.result');
         }
 
         $cancelTarget = $cancelUrl;
         if (!$cancelTarget) {
             $cancelTarget = $isAppRequest
-                ? env('APP_PAYMENT_RESULT_DEEPLINK_URL')
+                ? config('services.payos.app_deep_link')
                 : route('payment.result');
         }
 
