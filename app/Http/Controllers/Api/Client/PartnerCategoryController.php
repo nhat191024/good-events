@@ -53,21 +53,22 @@ class PartnerCategoryController extends Controller
         $category = $item->parent;
 
         return response()->json([
+            'category' => $category ? [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+            ] : null,
             'item' => [
                 'id' => $item->id,
                 'name' => $item->name,
                 'slug' => $item->slug,
                 'min_price' => $item->min_price,
                 'max_price' => $item->max_price,
-                'description' => $item->description,
                 'updated_human' => $item->updated_at?->diffForHumans(),
                 'image' => $this->getImageUrl($item),
+                'video_url' => $item->video_url,
+                'description' => $item->description,
             ],
-            'category' => $category ? [
-                'id' => $category->id,
-                'name' => $category->name,
-                'slug' => $category->slug,
-            ] : null,
         ]);
     }
 
