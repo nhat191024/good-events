@@ -11,6 +11,7 @@ class BlogResource extends BaseResource
     {
         return [
             // 'id' => $this->id,
+            'blog_url' => $this->getUrlByBlogType($this->slug, $this->type),
             'title' => $this->title,
             'slug' => $this->slug,
             'type' => $this->type,
@@ -60,5 +61,29 @@ class BlogResource extends BaseResource
             }),
             'tags' => $this->whenLoaded('tags', fn () => TagResource::collection($this->tags)),
         ];
+    }
+
+    function getUrlByBlogType($slug, $type) {
+        switch ($type) {
+            case 'vocational_knowledge':
+                return route('blog.knowledge.show', [
+                    'category_slug' => $this->category->slug,
+                    'blog_slug' => $slug,
+                ]);
+            case 'event_organization_guide':
+                return route('blog.guides.show', [
+                    'category_slug' => $this->category->slug,
+                    'blog_slug' => $slug,
+                ]);
+            case 'good_location':
+                return route('blog.show', [
+                    'category_slug' => $this->category->slug,
+                    'blog_slug' => $slug,
+                ]);
+            
+            default:
+                return route('blog.discover');
+        }
+
     }
 }
