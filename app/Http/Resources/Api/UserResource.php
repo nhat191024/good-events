@@ -34,6 +34,7 @@ class UserResource extends BaseResource
             'created_at' => optional($this->created_at)->toIso8601String(),
             'updated_at' => optional($this->updated_at)->toIso8601String(),
             'partner_profile' => $partnerProfile ? new PartnerProfileResource($partnerProfile) : null,
+            'wallet_balance' => $this->balanceInt,
         ];
     }
 }
