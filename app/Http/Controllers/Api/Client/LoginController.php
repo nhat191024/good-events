@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api\Client;
 
 use App\Enum\Role;
+use App\Models\User;
+
+use App\Services\PasswordResetMailService;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\Api\UserResource;
-use App\Models\User;
-use App\Services\PasswordResetMailService;
+
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
@@ -28,7 +31,6 @@ class LoginController extends Controller
         $request->authenticate();
 
         $user = $request->user();
-        $user->loadMissing('partnerProfile');
         $token = $user->createToken('mobile')->plainTextToken;
 
         return response()->json([
@@ -72,7 +74,6 @@ class LoginController extends Controller
             $user->forceFill(['google_id' => $googleUser->getId()])->save();
         }
 
-        $user->loadMissing('partnerProfile');
         $token = $user->createToken('mobile')->plainTextToken;
 
         return response()->json([
@@ -116,10 +117,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $user = $request->user();
-        if ($user && $user->currentAccessToken()) {
-            $user->currentAccessToken()->delete();
-        }
+        $request->user()?->currentAccessToken()?->delete();
 
         return response()->json([
             'success' => true,
