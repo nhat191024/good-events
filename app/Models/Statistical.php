@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
  * @property string|null $metadata
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\User $user
+ * @property-read \App\Models\User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Statistical newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Statistical newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Statistical query()
