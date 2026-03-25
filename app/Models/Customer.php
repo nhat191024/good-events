@@ -16,8 +16,10 @@ use Database\Factories\UserFactory;
  * @property string $phone
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property string|null $phone_verified_at
  * @property bool $can_accept_shows
  * @property string|null $google_id
+ * @property string|null $fcm_token
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -26,11 +28,14 @@ use Database\Factories\UserFactory;
  * @property-read int|null $activities_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $authoredReviews
  * @property-read int|null $authored_reviews_count
+ * @property-read string|null $avatar_image_tag
  * @property-read string|null $avatar_url
  * @property-read non-empty-string $balance
  * @property-read int $balance_int
  * @property-read string|null $partner_profile_name
  * @property-read \Bavix\Wallet\Models\Wallet $wallet
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read int|null $media_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Message> $messages
  * @property-read int|null $messages_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
@@ -83,11 +88,13 @@ use Database\Factories\UserFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereFcmToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereGoogleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer wherePhoneVerifiedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer withTrashed(bool $withTrashed = true)

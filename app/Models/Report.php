@@ -8,7 +8,7 @@ use App\Enum\ReportStatus;
 
 /**
  * @property int $id
- * @property int $user_id
+ * @property int $reporter_id
  * @property int|null $reported_user_id
  * @property int|null $reported_bill_id
  * @property int|null $thread_id
@@ -19,7 +19,7 @@ use App\Enum\ReportStatus;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\PartnerBill|null $reportedBill
  * @property-read \App\Models\User|null $reportedUser
- * @property-read \App\Models\User $user
+ * @property-read \App\Models\User|null $reporter
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report query()
@@ -28,11 +28,11 @@ use App\Enum\ReportStatus;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereReportedBillId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereReportedUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereReporterId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereThreadId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereUserId($value)
  * @mixin \Eloquent
  */
 class Report extends Model

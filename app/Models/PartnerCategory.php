@@ -44,6 +44,7 @@ use Spatie\Activitylog\LogOptions;
  * @property-read PartnerCategory|null $parent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerService> $partnerServices
  * @property-read int|null $partner_services_count
+ * @property-read \RalphJSmit\Laravel\SEO\Models\SEO $seo
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory onlyTrashed()
