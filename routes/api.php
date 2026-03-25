@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     require __DIR__ . '/api/notifications.php';
     require __DIR__ . '/api/reports.php';
     require __DIR__ . '/api/resources.php';
+    require __DIR__ . '/api/FCM.php';
 });
 
 // Authenticated partner routes
