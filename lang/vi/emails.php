@@ -11,11 +11,11 @@ return [
         'regards' => 'Trân trọng',
 
         // Company Info
-        'team_name' => 'Đội ngũ SukiEntot',
-        'company_name' => 'SukiEntot',
+        'team_name' => 'Đội ngũ Sukientot',
+        'company_name' => 'Sukientot',
         'support_email' => 'support@sukientot.com',
         'website' => 'https://sukientot.com',
-        'copyright' => '© :year SukiEntot - Event Management Platform',
+        'copyright' => '© :year Sukientot - Event Management Platform',
 
         // Order/Bill Fields
         'order_code' => 'Mã đơn hàng',
