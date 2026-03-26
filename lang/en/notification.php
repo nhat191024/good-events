@@ -36,4 +36,20 @@ return [
     'balance_low_title' => 'Account Balance Warning!',
     'balance_low_body' => 'Hello Partner! Your account balance is currently only :balance VND. Please top up at least :amount VND to continue using the service without interruption.',
     'open_wallet' => 'Go to your wallet',
+
+    'bill_received' => [
+        'title' => 'New Event Order Notification',
+        'subject' => 'New event order matching your service - :code',
+    ],
+
+    'bill_confirmed' => [
+        'title' => 'Event Order Update',
+        'subject' => 'Event order code :code has been confirmed by the client',
+    ],
+
+    'bill_reminder' => [
+        'title' => 'Upcoming Event Reminder',
+        'client_subject' => 'Reminder! Event ',
+        'partner_subject' => 'Reminder! Event for order :code is coming up, please take a confirmation photo if you have arrived at the venue!',
+    ],
 ];
