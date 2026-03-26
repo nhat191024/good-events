@@ -26,7 +26,7 @@ class ProcessFileProductDesigns implements ShouldQueue
      */
     public function handle(): void
     {
-        $designPaths = Arr::wrap($this->designPaths);
+        $designPaths = Arr::flatten(Arr::wrap($this->designPaths));
 
         // Get current media to manage deletions and updates
         $existingMedia = $this->record->media()
