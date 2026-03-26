@@ -3,32 +3,19 @@ return [
     'partner_show_reminder_title' => 'Reminder: Partner show :code is starting soon',
     'partner_show_reminder_body' => 'The show with code :code is starting on :start_date. Please ensure timely attendance.',
 
-    'order_created_title' => 'New Order Created',
-    'order_created_body' => 'Your order :code has been created successfully',
-
-    'thread_created_title' => 'Chat Box for Order Created',
-    'thread_created_body' => 'The chat box for your order :code has been created',
-
-    'order_status_changed_title' => 'Order Status Updated',
-    'order_status_changed_body' => 'Order :code status changed to :status',
-
     'order_completed_title' => 'Order Completed',
     'order_completed_body' => 'Your order :code has been completed. Please leave a review!',
+    'partner_order_completed_body' => 'Order :code has been completed. Please complete the order',
     'action_review' => 'Leave Review',
 
-    'partner_accepted_title' => 'Partner Accepted Your Order',
-    'partner_accepted_body' => ':partner_name has accepted your order :code',
+    'partner_accepted_title' => 'New Partner Submitted a Quote',
+    'partner_accepted_body' => ':partner_name has submitted a quote for your event order :code',
 
     'client_accepted_title' => 'Client Accepted Your Order',
     'client_accepted_body' => ':client_name has accepted your order :code',
 
-    'order_cancelled_title' => 'Order Cancelled',
-    'order_cancelled_body' => 'Your order :code has been cancelled',
-
-    'partner_bill_expired_title' => 'Partner Bill :code has expired',
-    'partner_bill_expired_body' => 'The partner bill with code :code has expired without any partner confirmation. The order has been cancelled.',
-
-    'partner_bill_followup_reminder_body' => 'The order with code :code has completed the booking time. Please finalize the order to ensure service quality.',
+    'partner_bill_expired_title' => 'Event Order :code has Expired',
+    'partner_bill_expired_body' => 'The event order with code :code has expired due to no partner confirmation.',
 
     'client_order_expired_title' => 'Your order :code has expired',
     'client_order_expired_body' => 'Your order :code has expired due to no confirmation from partners and has been cancelled.',
