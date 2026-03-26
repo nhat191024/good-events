@@ -43,4 +43,20 @@ return [
     'balance_low_body' => 'Xin chào đối tác! Số dư tài khoản của bạn hiện chỉ còn :balance VNĐ. Vui lòng nạp thêm ít nhất :amount VNĐ để tiếp tục sử dụng dịch vụ mà không bị gián đoạn.',
 
     'open_wallet' => 'Tới ví của bạn',
+
+    'bill_received' => [
+        'title' => 'Thông báo đơn sự kiện mới',
+        'subject' => 'Đơn sự kiện mới phù hợp với dịch vụ của bạn - :code',
+    ],
+
+    'bill_confirmed' => [
+        'title' => 'Cập nhật đơn sự kiện',
+        'subject' => 'Đơn sự kiện mã :code đã được khách hàng xác nhận',
+    ],
+
+    'bill_reminder' => [
+        'title' => 'Sự kiện sắp diễn ra',
+        'client_subject' => 'Nhắc nhở! Sự kiện ',
+        'partner_subject' => 'Nhắc nhở! Sự kiện thuộc đơn :code sắp diễn ra, hãy chụp ảnh xác nhận nếu bạn đã đến nơi!',
+    ],
 ];
