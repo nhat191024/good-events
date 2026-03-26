@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\Partner;
+use App\Models\Customer;
 use App\Models\PartnerBill;
 
 use App\Services\FCMService;
@@ -44,9 +46,13 @@ class PartnerBillNotificationService
     public function sendOrderReceivedNotification(PartnerBill $partnerBill): void
     {
         try {
-            if ($partnerBill->client && $partnerBill->client->email) {
-                $clientLocale = $this->getUserLocale($partnerBill->client);
-                Mail::to($partnerBill->client->email)
+            /** @var Customer|null $client */
+            $client = Customer::find($partnerBill->client_id);
+
+
+            if ($client && $client->email) {
+                $clientLocale = $this->getUserLocale($client);
+                Mail::to($client->email)
                     ->queue(new PartnerBillReceived($partnerBill, 'client', $clientLocale));
             }
 
@@ -63,7 +69,7 @@ class PartnerBillNotificationService
 
                 if ($partner->fcm_token) {
                     $title = __('notification.bill_received.title');
-                    $body = __('notification.bill_received.new_order_notification', ['code' => $partnerBill->code]);
+                    $body = __('notification.bill_received.subject', ['code' => $partnerBill->code]);
 
                     //TODO: add data payload with order details link
                     $this->fcmService->sendToUser($partner, $title, $body);
@@ -83,7 +89,8 @@ class PartnerBillNotificationService
     public function sendOrderConfirmedNotification(PartnerBill $partnerBill): void
     {
         try {
-            $partner = $partnerBill?->partner;
+            /** @var Partner|null $partner */
+            $partner = Partner::find($partnerBill->partner_id);
             $clientName = $partnerBill->client?->name ?? 'Khách hàng';
 
             if (!$partner) {
@@ -95,10 +102,13 @@ class PartnerBillNotificationService
                 return;
             }
 
-            if ($partner && $partner->email) {
+            if ($partner) {
                 $partnerLocale = $this->getUserLocale($partner);
-                Mail::to($partner->email)
-                    ->queue(new PartnerBillConfirmed($partnerBill, $partnerLocale));
+
+                if ($partner->email) {
+                    Mail::to($partner->email)
+                        ->queue(new PartnerBillConfirmed($partnerBill, $partnerLocale));
+                }
 
                 if ($partner->fcm_token) {
                     $title = __('notification.bill_confirmed.title');
@@ -139,18 +149,23 @@ class PartnerBillNotificationService
                 return;
             }
 
-            /** @var User|null $partner */
-            $partner = $partnerBill->partner;
+            /** @var Partner|null $partner */
+            $partner = Partner::find($partnerBill->partner_id);
+            /** @var Customer|null $client */
+            $client = Customer::find($partnerBill->client_id);
 
-            if ($partnerBill->client && $partnerBill->client->email) {
-                $clientLocale = $this->getUserLocale($partnerBill->client);
-                Mail::to($partnerBill->client->email)
-                    ->send(new PartnerBillReminder($partnerBill, 'client', $clientLocale));
+            if ($client) {
+                $clientLocale = $this->getUserLocale($client);
 
-                if ($partnerBill->client->fcm_token) {
+                if ($client->email) {
+                    Mail::to($client->email)
+                        ->send(new PartnerBillReminder($partnerBill, 'client', $clientLocale));
+                }
+
+                if ($client->fcm_token) {
                     $title = __('notification.bill_reminder.title');
                     $body = __('notification.bill_reminder.client_subject', ['code' => $partnerBill->code]);
-                    $this->fcmService->sendToUser($partnerBill->client, $title, $body);
+                    $this->fcmService->sendToUser($client, $title, $body);
                 }
             }
 
@@ -171,6 +186,7 @@ class PartnerBillNotificationService
 
                 $eventDateTime = $partnerBill->date->copy()
                     ->setTimeFrom($partnerBill->start_time);
+
                 if ($eventDateTime->isFuture() && $eventDateTime->diffInHours(now()) <= 2) {
                     Notification::make()
                         ->title(__('notification.partner_show_reminder_title', ['code' => $partnerBill->code]))
@@ -211,8 +227,8 @@ class PartnerBillNotificationService
                 Mail::to($partnerBill->client->email)
                     ->queue(new PartnerBillExpired($partnerBill, $clientLocale));
 
-                /** @var User|null $client */
-                $client = $partnerBill->client;
+                /** @var Customer|null $client */
+                $client = Customer::find($partnerBill->client_id);
                 Notification::make()
                     ->title(__('notification.client_order_expired_title', ['code' => $partnerBill->code]))
                     ->body(__('notification.client_order_expired_body', ['code' => $partnerBill->code]))
@@ -241,20 +257,25 @@ class PartnerBillNotificationService
     public function sendBillCompletedReminder(PartnerBill $partnerBill): void
     {
         try {
-            /** @var User|null $partner */
-            $partner = User::find($partnerBill->partner_id);
+            /** @var Partner|null $partner */
+            $partner = Partner::find($partnerBill->partner_id);
+            /** @var Customer|null $client */
+            $client = Customer::find($partnerBill->client_id);
 
             if ($partner) {
                 Notification::make()
-                    ->title(__('notification.order_completed_title', ['code' => $partnerBill->code]))
+                    ->title(__('notification.order_completed_title'))
+                    ->body(__('notification.partner_order_completed_body', ['code' => $partnerBill->code]))
+                    ->success()
+                    ->sendToDatabase($partner);
+            }
+
+            if ($client) {
+                Notification::make()
+                    ->title(__('notification.order_completed_title'))
                     ->body(__('notification.order_completed_body', ['code' => $partnerBill->code]))
                     ->success()
-                    ->actions([
-                        Action::make('review')
-                            ->label(__('notification.action_review'))
-                            ->url(route('chat.index', ['chat' => $partnerBill->thread_id])),
-                    ])
-                    ->sendToDatabase($partner);
+                    ->sendToDatabase($client);
             }
         } catch (\Exception $e) {
             Log::error('Failed to send bill completed reminder', [
