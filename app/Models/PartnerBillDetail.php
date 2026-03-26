@@ -3,13 +3,8 @@
 namespace App\Models;
 
 use App\Models\User;
-
 use App\Enum\PartnerBillDetailStatus;
-use App\Events\PartnerBillDetailCreated;
-use App\Events\PartnerBillDetailStatusChanged;
-
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
+use App\Services\PartnerBillNotificationService;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -77,24 +72,12 @@ class PartnerBillDetail extends Model
 
     protected static function handleBillDetailCreated(PartnerBillDetail $partnerBillDetail): void
     {
-        // this is the client-side notification, check lang/vi/notification.php and find for key 'partner_accepted_title' for more info
-        $partner = User::find($partnerBillDetail->partner_id)->name ?? 'Đối tác';
-        Notification::make()
-            ->title(__('notification.partner_accepted_title'))
-            ->body(__('notification.partner_accepted_body', [
-                'partner_name' => $partner,
-                'code' => $partnerBillDetail->partnerBill->code,
-            ]))
-            ->success()
-            ->actions([
-                Action::make('open')
-                    ->label('Xem đơn')
-                    ->url(route('client-orders.dashboard', ['order' => $partnerBillDetail->partner_bill_id])),
-            ])
-            ->sendToDatabase(User::find($partnerBillDetail->partnerBill->client_id));
+        $notificationService = app(PartnerBillNotificationService::class);
+        $notificationService->sendNewPartnerAcceptedNotification($partnerBillDetail);
     }
 
-    protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void {
+    protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void
+    {
         // client does not need to know about their own partner-confirmation, they problably know it already
     }
 

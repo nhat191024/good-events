@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Partner;
 use App\Models\Customer;
 use App\Models\PartnerBill;
+use App\Models\PartnerBillDetail;
 
 use App\Services\FCMService;
 
@@ -280,6 +281,40 @@ class PartnerBillNotificationService
         } catch (\Exception $e) {
             Log::error('Failed to send bill completed reminder', [
                 'partner_bill_id' => $partnerBill->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function sendNewPartnerAcceptedNotification(PartnerBillDetail $partnerBillDetail): void
+    {
+        try {
+            /** @var PartnerBill|null $partnerBill */
+            $partnerBill = $partnerBillDetail->partnerBill;
+            /** @var Customer|null $client */
+            $client = Customer::find($partnerBill->client_id);
+            /** @var Partner|null $partner */
+            $partner = Partner::find($partnerBillDetail->partner_id);
+
+            if ($client) {
+                Notification::make()
+                    ->title(__('notification.partner_accepted_title'))
+                    ->body(__('notification.partner_accepted_body', [
+                        'partner_name' => $partner->name,
+                        'code' => $partnerBill->code,
+                    ]))
+                    ->success()
+                    ->actions([
+                        Action::make('open')
+                            ->label('Xem đơn')
+                            ->url(route('client-orders.dashboard', ['order' => $partnerBill->id])),
+                    ])
+                    ->sendToDatabase($client);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send new partner accepted notification', [
+                'partner_bill_id' => $partnerBill->id,
+                'new_partner_id' => $partner->id,
                 'error' => $e->getMessage()
             ]);
         }
