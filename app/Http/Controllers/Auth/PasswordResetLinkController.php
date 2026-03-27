@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Services\PasswordResetMailService;
+use App\Services\PhoneLoginService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -36,11 +37,17 @@ class PasswordResetLinkController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => ['required', 'string'],
         ]);
 
-        $email = $request->input('email');
-        $this->passwordResetService->sendResetLinkByEmail($email);
+        $input = $request->input('email');
+
+        $phoneService = app(PhoneLoginService::class);
+        if ($phoneService->isPhoneNumber($input)) {
+            $input = $phoneService->findEmailByPhone($input) ?? $input;
+        }
+
+        $this->passwordResetService->sendResetLinkByEmail($input);
 
         return back()->with('status', __('Một đường dẫn đặt lại mật khẩu đã được gửi đến email của bạn nếu tài khoản tồn tại.'));
     }
