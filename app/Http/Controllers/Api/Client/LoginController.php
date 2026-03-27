@@ -6,6 +6,7 @@ use App\Enum\Role;
 use App\Models\User;
 
 use App\Services\PasswordResetMailService;
+use App\Services\PhoneLoginService;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
@@ -94,13 +95,21 @@ class LoginController extends Controller
      * @param PasswordResetMailService $passwordResetMailService
      * @return JsonResponse
      */
-    public function forgot(Request $request, PasswordResetMailService $passwordResetMailService): JsonResponse
+    public function forgot(Request $request, PasswordResetMailService $passwordResetMailService, PhoneLoginService $phoneLoginService): JsonResponse
     {
         $validated = $request->validate([
-            'email' => 'required|email',
+            // Accept both email addresses and phone numbers
+            'email' => ['required', 'string'],
         ]);
 
-        $sent = $passwordResetMailService->sendResetLinkByEmail($validated['email']);
+        $input = $validated['email'];
+
+        // Resolve phone number to the registered email before sending the reset link
+        if ($phoneLoginService->isPhoneNumber($input)) {
+            $input = $phoneLoginService->findEmailByPhone($input) ?? $input;
+        }
+
+        $sent = $passwordResetMailService->sendResetLinkByEmail($input);
 
         return response()->json([
             'success' => $sent,
