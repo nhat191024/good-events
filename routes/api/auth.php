@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\Client\ClientToPartnerController;
-use App\Http\Controllers\Api\Client\LoginController;
-use App\Http\Controllers\Api\Client\RegisterController;
+use App\Http\Controllers\Api\Common\LoginController;
+use App\Http\Controllers\Api\Common\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [LoginController::class, 'login']);

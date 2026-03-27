@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Client;
+namespace App\Http\Controllers\Api\Common;
 
 use App\Enum\Role;
 use App\Http\Controllers\Controller;
