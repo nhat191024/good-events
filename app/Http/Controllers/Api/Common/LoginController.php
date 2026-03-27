@@ -57,7 +57,9 @@ class LoginController extends Controller
         ]);
 
         try {
-            $googleUser = Socialite::driver('google')->userFromToken($validated['access_token']);
+            /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+            $driver = Socialite::driver('google');
+            $googleUser = $driver->userFromToken($validated['access_token']);
         } catch (\Throwable $e) {
             return response()->json([
                 'message' => 'Invalid Google token.',
@@ -71,9 +73,7 @@ class LoginController extends Controller
             ], 404);
         }
 
-        if ($googleUser->getId()) {
-            $user->forceFill(['google_id' => $googleUser->getId()])->save();
-        }
+        $user->update(['google_id' => $googleUser->getId()]);
 
         $token = $user->createToken('mobile')->plainTextToken;
 
