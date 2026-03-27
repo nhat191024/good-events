@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\Common;
 
 use App\Enum\Role;
+use App\Models\Customer;
+use App\Models\Partner;
 use App\Models\User;
 
 use App\Services\PasswordResetMailService;
@@ -14,6 +16,7 @@ use App\Http\Resources\Api\UserResource;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
@@ -66,7 +69,7 @@ class LoginController extends Controller
             ], 401);
         }
 
-        $user = User::where('email', $googleUser->getEmail())->first();
+        $user = $this->resolveUserByEmail($googleUser->getEmail());
         if (!$user) {
             return response()->json([
                 'message' => 'Account not found.',
@@ -145,6 +148,25 @@ class LoginController extends Controller
         return response()->json([
             'valid' => true,
         ]);
+    }
+
+    private function resolveUserByEmail(string $email): ?User
+    {
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return null;
+        }
+
+        $modelType = DB::table('model_has_roles')
+            ->where('model_id', $user->id)
+            ->value('model_type');
+
+        return match ($modelType) {
+            Customer::class => Customer::find($user->id),
+            Partner::class => Partner::find($user->id),
+            default => $user,
+        };
     }
 
     private function resolvePrimaryRole(User $user): ?string
