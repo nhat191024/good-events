@@ -101,15 +101,21 @@ class LoginController extends Controller
     public function forgot(Request $request, PasswordResetMailService $passwordResetMailService, PhoneLoginService $phoneLoginService): JsonResponse
     {
         $validated = $request->validate([
-            // Accept both email addresses and phone numbers
             'email' => ['required', 'string'],
         ]);
 
         $input = $validated['email'];
 
-        // Resolve phone number to the registered email before sending the reset link
         if ($phoneLoginService->isPhoneNumber($input)) {
             $input = $phoneLoginService->findEmailByPhone($input) ?? $input;
+        }
+
+        $user = User::where('email', $input)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'No account found with that email or phone number.',
+            ]);
         }
 
         $sent = $passwordResetMailService->sendResetLinkByEmail($input);
