@@ -54,7 +54,15 @@ class PhoneLoginService
     {
         $normalized = $this->normalizePhone($phone);
 
-        $user = User::where('phone', $normalized)->first();
+        // The DB may store the phone in any of these formats, so check all variants
+        $variants = [
+            $normalized,           // 987654329
+            '0' . $normalized,     // 0987654329
+            '84' . $normalized,    // 84987654329
+            '+84' . $normalized,   // +84987654329
+        ];
+
+        $user = User::whereIn('phone', $variants)->first();
 
         return $user?->email;
     }
