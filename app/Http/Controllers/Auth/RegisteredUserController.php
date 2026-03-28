@@ -11,7 +11,6 @@ use App\Models\Location;
 use App\Models\Partner;
 use App\Models\PartnerProfile;
 
-use App\Services\EmailVerificationMailService;
 use App\Settings\PartnerSettings;
 
 use Illuminate\Http\RedirectResponse;
@@ -84,7 +83,6 @@ class RegisteredUserController extends Controller
 
         $user->assignRole(Role::CLIENT);
 
-        app(EmailVerificationMailService::class)->sendVerificationLink($user);
         Auth::login($user);
 
         return redirect()->route('verification.method');
@@ -138,10 +136,9 @@ class RegisteredUserController extends Controller
             'location_id' => $ward->id,
         ]);
 
-        app(EmailVerificationMailService::class)->sendVerificationLink($user);
         Auth::login($user);
 
-        return Inertia::location(route('filament.partner.pages.dashboard'));
+        return redirect()->route('verification.method');
     }
 
     /**
