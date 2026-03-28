@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\EmailVerificationMailService;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,7 +43,13 @@ class VerificationMethodController extends Controller
             'method' => ['required', 'string', 'in:email,phone'],
         ]);
 
-        $route = $request->input('method') === 'email' ? 'verification.notice' : 'verification.phone.notice';
+        $method = $request->input('method');
+
+        if ($method === 'email') {
+            app(EmailVerificationMailService::class)->sendVerificationLink($request->user());
+        }
+
+        $route = $method === 'email' ? 'verification.notice' : 'verification.phone.notice';
 
         return redirect()->route($route);
     }
