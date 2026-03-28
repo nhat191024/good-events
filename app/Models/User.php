@@ -182,7 +182,6 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'avatar_url',
         'partner_profile_name',
         'avatar_image_tag',
-        'fcm_token',
     ];
 
     /**
