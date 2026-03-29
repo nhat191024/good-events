@@ -17,6 +17,7 @@ require __DIR__ . '/api/rental.php';
 require __DIR__ . '/api/partner-categories.php';
 require __DIR__ . '/api/asset.php';
 require __DIR__ . '/api/profile.php';
+require __DIR__ . '/api/setting.php';
 
 // Authenticated client routes
 Route::middleware('auth:sanctum')->group(function () {
