@@ -50,7 +50,7 @@ class HomeController extends Controller
             ->count() : 0;
         $payload['pending_partners'] = $user ? PartnerBillDetail::query()
             ->where('status', PartnerBillDetailStatus::NEW)
-            ->whereHas('partnerBill', fn ($query) => $query->where('client_id', $user->id))
+            ->whereHas('partnerBill', fn($query) => $query->where('client_id', $user->id))
             ->count() : 0;
 
         return response()->json($payload);
@@ -263,30 +263,5 @@ class HomeController extends Controller
         }
 
         return $model->getFirstMediaUrl('images', 'thumb');
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function bannerImages(string $type): array
-    {
-        $banner = Banner::where('type', $type)->first();
-        if (!$banner) {
-            return [];
-        }
-
-        return $banner->getMedia('banners')
-            ->map(function ($media) {
-                try {
-                    $url = $media->getUrl('thumb');
-                } catch (\Throwable $e) {
-                    $url = $media->getFullUrl();
-                }
-
-                return $url ?: null;
-            })
-            ->filter()
-            ->values()
-            ->all();
     }
 }
