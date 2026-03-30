@@ -50,8 +50,12 @@ class HomeController extends Controller
             ->count() : 0;
         $payload['pending_partners'] = $user ? PartnerBillDetail::query()
             ->where('status', PartnerBillDetailStatus::NEW)
-            ->whereHas('partnerBill', fn($query) => $query->where('client_id', $user->id))
+            ->whereHas('partnerBill', fn($query) => $query->where('client_id', $user->id)->where('status', PartnerBillStatus::PENDING))
             ->count() : 0;
+        $payload['pending_partner_avatars'] = $user ? PartnerBillDetail::query()
+            ->where('status', PartnerBillDetailStatus::NEW)
+            ->whereHas('partnerBill', fn($query) => $query->where('client_id', $user->id)->where('status', PartnerBillStatus::PENDING))
+            ->get()->map(fn($billDetail) => $billDetail->partner->avatar)->unique()->take(4) : [];
 
         return response()->json($payload);
     }
