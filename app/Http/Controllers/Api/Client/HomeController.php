@@ -51,11 +51,12 @@ class HomeController extends Controller
         $payload['pending_partners'] = $user ? PartnerBillDetail::query()
             ->where('status', PartnerBillDetailStatus::NEW)
             ->whereHas('partnerBill', fn($query) => $query->where('client_id', $user->id)->where('status', PartnerBillStatus::PENDING))
-            ->count() : 0;
+            ->get() : 0;
         $payload['pending_partner_avatars'] = $user ? PartnerBillDetail::query()
+            ->with(['partner.media'])
             ->where('status', PartnerBillDetailStatus::NEW)
             ->whereHas('partnerBill', fn($query) => $query->where('client_id', $user->id)->where('status', PartnerBillStatus::PENDING))
-            ->get()->map(fn($billDetail) => $billDetail->partner->avatar)->unique()->take(4) : [];
+            ->get()->map(fn($billDetail) => $billDetail->partner?->getFilamentAvatarUrl())->filter()->unique()->take(4)->values() : [];
 
         return response()->json($payload);
     }

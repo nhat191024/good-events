@@ -99,6 +99,6 @@ class PartnerBillDetail extends Model
 
     public function partner()
     {
-        return $this->belongsTo(User::class, 'partner_id');
+        return $this->belongsTo(Partner::class, 'partner_id');
     }
 }
