@@ -51,7 +51,7 @@ class HomeController extends Controller
         $payload['pending_partners'] = $user ? PartnerBillDetail::query()
             ->where('status', PartnerBillDetailStatus::NEW)
             ->whereHas('partnerBill', fn($query) => $query->where('client_id', $user->id)->where('status', PartnerBillStatus::PENDING))
-            ->get() : 0;
+            ->count() : 0;
         $payload['pending_partner_avatars'] = $user ? PartnerBillDetail::query()
             ->with(['partner.media'])
             ->where('status', PartnerBillDetailStatus::NEW)
