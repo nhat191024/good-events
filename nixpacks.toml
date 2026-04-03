@@ -14,7 +14,7 @@ nixPkgs = [
 cmds = [
     "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
     "npm install -g pnpm@10",
-    "cp /auth.json ./auth.json",
+    # "cp /auth.json ./auth.json",
     "composer install --ignore-platform-reqs",
     "pnpm i --frozen-lockfile",
 ]
