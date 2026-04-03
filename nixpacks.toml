@@ -1,5 +1,21 @@
 [phases.setup]
-nixPkgs = ["...", "python311Packages.supervisor"]
+# Explicit list without pnpm-10_x to avoid LICENSE collision with phpPackages.composer
+nixPkgs = [
+    "(php.withExtensions (pe: pe.enabled ++ []))",
+    "nginx",
+    "libmysqlclient",
+    "phpPackages.composer",
+    "nodejs_22",
+    "python311Packages.supervisor",
+]
+
+[phases.install]
+cmds = [
+    "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
+    "npm install -g pnpm@10",
+    "composer install --ignore-platform-reqs",
+    "pnpm i --frozen-lockfile",
+]
 
 [phases.build]
 cmds = [
@@ -7,7 +23,7 @@ cmds = [
     "cp /assets/worker-*.conf /etc/supervisor/conf.d/",
     "cp /assets/supervisord.conf /etc/supervisord.conf",
     "chmod +x /assets/start.sh",
-    "...",
+    "pnpm run build:ssr",
 ]
 
 [start]
@@ -26,10 +42,6 @@ php /app/artisan key:generate --force
 
 # Run storage link
 php /app/artisan storage:link
-
-# Build SSR assets
-echo "Building SSR assets..."
-cd /app && npm run build:ssr
 
 # Set proper permissions
 echo "Setting permissions..."
