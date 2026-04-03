@@ -91,7 +91,7 @@ files = /etc/supervisor/conf.d/*.conf
 "worker-nginx.conf" = '''
 [program:worker-nginx]
 process_name=%(program_name)s_%(process_num)02d
-command=nginx -c /etc/nginx.conf
+command=bash -c 'exec nginx -c /etc/nginx.conf'
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/worker-nginx.log
@@ -128,7 +128,7 @@ stderr_logfile=/var/log/worker-laravel-queue.log
 "worker-laravel-scheduler.conf" = '''
 [program:worker-laravel-scheduler]
 process_name=%(program_name)s_%(process_num)02d
-command=php /app/artisan schedule:work
+command=bash -c 'exec php /app/artisan schedule:work'
 directory=/app
 user=www-data
 autostart=true
@@ -141,7 +141,7 @@ stopwaitsecs=60
 "worker-laravel-ssr.conf" = '''
 [program:worker-laravel-ssr]
 process_name=%(program_name)s_%(process_num)02d
-command=php /app/artisan inertia:start-ssr
+command=bash -c 'exec php /app/artisan inertia:start-ssr'
 directory=/app
 user=www-data
 autostart=true
