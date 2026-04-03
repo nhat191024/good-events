@@ -36,10 +36,6 @@ set -e
 
 echo "Starting Laravel application setup..."
 
-# Generate application key
-echo "Generating application key..."
-php /app/artisan key:generate --force
-
 # Run storage link
 php /app/artisan storage:link
 
