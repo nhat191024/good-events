@@ -13,7 +13,7 @@ nixPkgs = [
 [phases.install]
 cmds = [
     "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
-    "npm install -g pnpm@10",
+    # "npm install -g pnpm@10",
     # "cp /auth.json ./auth.json",
     "composer install --ignore-platform-reqs --no-interaction --no-scripts",
     "pnpm i --frozen-lockfile",
