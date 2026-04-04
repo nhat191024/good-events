@@ -35,3 +35,4 @@ pnpm-workspace.yaml
 routes/test.php
 dumb
 laradumps.yaml
+.env.coolify
