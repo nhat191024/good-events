@@ -17,9 +17,9 @@ class PartnerCategoryController extends Controller
      */
     public function index()
     {
-        $categories = Cache::remember(CacheKey::PARTNER_CATEGORY_WITHOUT_PARENT->value, 600, function () {
+        $categories = Cache::remember(CacheKey::PARTNER_CATEGORY_WITH_PARENT->value, 600, function () {
             return PartnerCategory::query()
-                ->whereNull('parent_id')
+                ->whereNotNull('parent_id')
                 ->get();
         });
 
