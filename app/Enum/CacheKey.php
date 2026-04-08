@@ -12,7 +12,7 @@ enum CacheKey: string
     case PARTNER_CATEGORIES = 'partner_categories';
     case PARTNER_CATEGORIES_TREE = 'partner_categories_tree';
     case PARTNER_CATEGORIES_ALL = 'partner_categories_all';
-    case PARTNER_CATEGORY_WITHOUT_PARENT = 'partner_category_without_parent';
+    case PARTNER_CATEGORY_WITH_PARENT = 'partner_category_with_parent';
 
         //Partner Services
     case PARTNER_SERVICES = 'partner_services';
