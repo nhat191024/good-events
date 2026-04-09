@@ -1,10 +1,9 @@
 [phases.setup]
-# Explicit list without pnpm-10_x to avoid LICENSE collision with phpPackages.composer
 nixPkgs = [
-    "(php83.withExtensions ({ enabled, all, ... }: enabled ++ (with all; [ zip pdo_mysql gd bcmath intl pcntl exif opcache imagick ])))",
+    "(php84.withExtensions ({ enabled, all, ... }: enabled ++ (with all; [ zip pdo_mysql gd bcmath intl pcntl exif opcache imagick ])))",
     "nginx",
     "libmysqlclient",
-    "php83Packages.composer",
+    "php84Packages.composer",
     "nodejs_22",
     "openssh",
     "python311Packages.supervisor",
