@@ -1,9 +1,9 @@
 [phases.setup]
 nixPkgs = [
-    "(php84.withExtensions ({ enabled, all, ... }: enabled ++ (with all; [ zip pdo_mysql gd bcmath intl pcntl exif opcache imagick ])))",
+    "(php83.withExtensions ({ enabled, all, ... }: enabled ++ (with all; [ zip pdo_mysql gd bcmath intl pcntl exif opcache imagick ])))",
     "nginx",
     "libmysqlclient",
-    "php84Packages.composer",
+    "php83Packages.composer",
     "nodejs_22",
     "openssh",
     "python311Packages.supervisor",
