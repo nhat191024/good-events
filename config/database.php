@@ -62,6 +62,7 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
                 // PDO::MYSQL_ATTR_GET_SERVER_PUBLIC_KEY => true,
                 1011 => true,
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             ]) : [],
         ],
 
