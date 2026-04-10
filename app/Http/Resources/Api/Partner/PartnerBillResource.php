@@ -25,7 +25,7 @@ class PartnerBillResource extends JsonResource
             'final_total' => $this->final_total ?? $this->details[0]->total ?? 0,
             'updated_at' => optional($this->updated_at)->diffForHumans(),
 
-            'event' => $this->event->name ?? $this->custom_event,
+            'event' => $this->event->name ?? $this->custom_event ?? 'N/A',
             'note' => $this->note,
             'status' => $statusValue,
             'thread_id' => $this->thread_id,
