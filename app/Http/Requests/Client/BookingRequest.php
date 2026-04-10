@@ -64,6 +64,8 @@ class BookingRequest extends FormRequest
             $date = $this->input('order_date');
             $startTime = $this->input('start_time');
             $endTime = $this->input('end_time');
+            $eventId = $this->input('event_id');
+            $customEvent = $this->input('custom_event');
 
             if (!$date || !$startTime || !$endTime) {
                 return;
@@ -95,8 +97,8 @@ class BookingRequest extends FormRequest
                 }
             }
 
-            if ($startDateTime->greaterThanOrEqualTo($endDateTime)) {
-                $validator->errors()->add('start_time', 'Giờ bắt đầu phải nhỏ hơn giờ kết thúc.');
+            if (!$eventId && !$customEvent) {
+                $validator->errors()->add('event_id', 'Vui lòng chọn hoặc ghi rõ nội dung sự kiện.');
             }
 
             $duration = $startDateTime->diffInMinutes($endDateTime, false);
