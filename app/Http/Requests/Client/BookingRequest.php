@@ -97,6 +97,10 @@ class BookingRequest extends FormRequest
                 }
             }
 
+            if ($startDateTime->greaterThanOrEqualTo($endDateTime)) {
+                $validator->errors()->add('start_time', 'Giờ bắt đầu phải nhỏ hơn giờ kết thúc.');
+            }
+
             if (!$eventId && !$customEvent) {
                 $validator->errors()->add('event_id', 'Vui lòng chọn hoặc ghi rõ nội dung sự kiện.');
             }
