@@ -65,6 +65,15 @@ const initial: PartnerBillForm = JSON.parse(localStorage.getItem(LS_KEY) || 'nul
     note: '',
 }
 
+if (JSON.parse(localStorage.getItem(LS_KEY) || 'null')) {
+    // set null or empty for the unrecoverable fields
+    initial.order_date = null
+    initial.event_id = null
+    initial.custom_event = null
+    initial.province_id = null
+    initial.ward_id = null
+}
+
 const location = reactive({
     provinceId: initial.province_id as string | null,
 })
@@ -157,6 +166,11 @@ const validateClient = (): boolean => {
         hasError = true
     } else if (!parsedDate) {
         form.setError('order_date', 'Ngày đặt lịch không đúng định dạng (Y-m-d).')
+        hasError = true
+    }
+
+    if (!form.event_id && !form.custom_event) {
+        form.setError('event_id', 'Vui lòng chọn hoặc ghi rõ nội dung sự kiện.')
         hasError = true
     }
 
