@@ -151,8 +151,10 @@ class LoginController extends Controller
      */
     public function checkToken(): JsonResponse
     {
+        $is_legit = auth()->check() && auth()->user()->partnerProfile?->is_legit;
         return response()->json([
             'valid' => true,
+            'is_legit' => $is_legit,
         ]);
     }
 
