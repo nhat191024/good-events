@@ -70,6 +70,9 @@ class ChatController extends Controller
                 $q->where('subject', 'like', '%' . $searchTerm . '%')
                     ->orWhereHas('participants.user', function ($userQuery) use ($searchTerm) {
                         $userQuery->where('name', 'like', '%' . $searchTerm . '%');
+                    })
+                    ->orWhereHas('bill', function ($billQuery) use ($searchTerm) {
+                        $billQuery->where('code', 'like', '%' . $searchTerm . '%');
                     });
             });
         }
