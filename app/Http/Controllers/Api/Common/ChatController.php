@@ -57,7 +57,7 @@ class ChatController extends Controller
                     $query->select('id', 'name');
                 },
                 'bill' => function ($query) {
-                    $query->select('id', 'thread_id', 'event_id', 'custom_event', 'date', 'start_time', 'address');
+                    $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'date', 'start_time', 'address');
                 },
                 'bill.event' => function ($query) {
                     $query->select('id', 'name');
@@ -97,7 +97,7 @@ class ChatController extends Controller
                 'id' => $thread->id,
                 'subject' => $thread->subject,
                 'is_unread' => $isUnread,
-                'code' => $thread->bill ? $thread->bill->code : null,
+                'code' => $thread->bill->code,
                 'participants' => $thread->participants->map(function ($participant) {
                     return [
                         'name' => $participant->user->name,
