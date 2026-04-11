@@ -36,6 +36,7 @@ class UserResource extends BaseResource
             'partner_profile' => $partnerProfile ? new PartnerProfileResource($partnerProfile) : null,
             'wallet_balance' => $this->balanceInt,
             'is_have_partner_profile' => $this->partnerProfile ? true : false,
+            'is_legit' => $this->partnerProfile ? $this->partnerProfile->is_legit : false,
         ];
     }
 }
