@@ -97,6 +97,7 @@ class ChatController extends Controller
                 'id' => $thread->id,
                 'subject' => $thread->subject,
                 'is_unread' => $isUnread,
+                'code' => $thread->bill ? $thread->bill->code : null,
                 'participants' => $thread->participants->map(function ($participant) {
                     return [
                         'name' => $participant->user->name,
