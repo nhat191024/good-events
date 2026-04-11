@@ -199,6 +199,7 @@ class PartnerBill extends Model implements HasMedia
         $mailService->sendOrderReceivedNotification($partnerBill);
 
         $clientId = $partnerBill->client_id;
+        $clientName = $partnerBill->client ? $partnerBill->client->name : 'Khách hàng';
 
         $stats = Statistical::whereUserId($clientId)
             ->whereMetricsName(StatisticType::ORDERS_PLACED->value)
@@ -213,7 +214,7 @@ class PartnerBill extends Model implements HasMedia
         //create thread for communication
         $partnerCategoryName = $partnerBill->category ? $partnerBill->category->name : 'General';
         $thread = Thread::create([
-            'subject' => "$partnerBill->code - $partnerCategoryName"
+            'subject' => "$clientName - $partnerCategoryName"
         ]);
 
         try {
