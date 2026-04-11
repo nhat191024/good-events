@@ -63,7 +63,7 @@ class ChatController extends Controller
                     $query->select('id', 'name');
                 },
             ])
-            ->latest('updated_at');
+            ->orderBy('threads.updated_at', 'desc');
 
         if (!empty(trim($searchTerm))) {
             $query->where(function ($q) use ($searchTerm) {
