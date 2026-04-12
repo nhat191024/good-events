@@ -69,12 +69,15 @@ class ProfileSettings extends Page implements HasForms
             $cityId = $this->cachedLocation?->parent_id;
         }
 
+        $avatar = $user->getFirstMedia('avatar') ? ('uploads/' . $user->getFirstMedia('avatar')->id . '/' . $user->getFirstMedia('avatar')->file_name) : null;
+
         $this->data = [
             'name' => $user->name,
             'email' => $user->email,
             'country_code' => $user->country_code,
             'phone' => $user->phone,
             'bio' => $user->bio,
+            'avatar' => $avatar,
             'partner_name' => $partnerProfile?->partner_name,
             'location_id' => $partnerProfile?->location_id,
             'city_id' => $cityId,
@@ -101,9 +104,9 @@ class ProfileSettings extends Page implements HasForms
                             ->temporaryFileUploadDisk('local')
                             ->disk('public')
 
-                            ->directory('uploads/avatars')
                             ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
                             ->nullable(),
+
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('name')
@@ -363,10 +366,17 @@ class ProfileSettings extends Page implements HasForms
                 ]);
             }
 
+            $newMedia = $user->refresh()->getFirstMedia('avatar');
+            $this->data['avatar'] = $newMedia
+                ? ('uploads/' . $newMedia->id . '/' . $newMedia->file_name)
+                : null;
+
             Notification::make()
                 ->title(__('profile.notifications.update_success_title'))
                 ->success()
                 ->send();
+
+            $this->dispatch('refresh-topbar');
         } catch (\Exception $e) {
             Log::error('Profile update error for user ID ' . $user->id . ': ' . $e->getMessage());
 
