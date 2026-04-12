@@ -41,6 +41,11 @@ return [
         'video_url_valid' => 'The document URL must be in a valid format or include "https://" (you can copy the link from Facebook, Youtube, Drive...)',
     ],
 
+    'tooltip' => [
+        'cannot_show_partner_category_has_disabled' => 'Cannot display this service because the admin has disabled the category.',
+    ],
+
+
     'action' => [
         'manage_images' => 'Manage Images',
     ],

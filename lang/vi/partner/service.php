@@ -41,6 +41,10 @@ return [
         'video_url_valid' => 'Vui lòng nhập URL hợp lệ hoặc bao gồm "https://" (bạn có thể copy link từ Facebook, Youtube, Drive...)',
     ],
 
+    'tooltip' => [
+        'cannot_show_partner_category_has_disabled' => 'Không thể hiện thị dịch vụ này do admin đã vô hiệu hóa danh mục.',
+    ],
+
     'action' => [
         'manage_images' => 'Quản lý hình ảnh',
     ],
