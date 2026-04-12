@@ -117,7 +117,7 @@ class PartnerServicesTable
                     }),
                 ForceDeleteAction::make()
                     ->label(__('global.delete')),
-                ForceDeleteAction::make()
+                RestoreAction::make()
                     ->label(__('global.show')),
             ])
             ->toolbarActions([
