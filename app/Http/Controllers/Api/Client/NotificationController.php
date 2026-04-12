@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\NotificationResource;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
 
@@ -21,12 +20,10 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
-        $authUser = $request->user();
-        if (!$authUser) {
+        $user = $request->user();
+        if (!$user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
-
-        $user = User::find($authUser->id);
 
         $perPage = (int) min(50, max(5, (int) $request->integer('per_page', 10)));
         $onlyUnread = $request->boolean('unread');
@@ -55,12 +52,10 @@ class NotificationController extends Controller
      */
     public function read(Request $request, string $id)
     {
-        $authUser = $request->user();
-        if (!$authUser) {
+        $user = $request->user();
+        if (!$user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
-
-        $user = User::find($authUser->id);
 
         /** @var DatabaseNotification $notification */
         $notification = $user->notifications()->where('id', $id)->firstOrFail();
@@ -89,7 +84,7 @@ class NotificationController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        $user = User::find($authUser->id);
+        $user = $request->user();
         $user->unreadNotifications->markAsRead();
 
         return response()->json(['success' => true]);
@@ -106,12 +101,10 @@ class NotificationController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $authUser = $request->user();
-        if (!$authUser) {
+        $user = $request->user();
+        if (!$user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
-
-        $user = User::find($authUser->id);
 
         $notification = $user->notifications()->where('id', $id)->firstOrFail();
         $notification->delete();
