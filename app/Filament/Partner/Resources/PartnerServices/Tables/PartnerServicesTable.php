@@ -109,7 +109,7 @@ class PartnerServicesTable
                     }),
                 EditAction::make()
                     ->label(__('global.edit'))
-                    ->disabled(fn($record) => ! in_array($record->status, [PartnerServiceStatus::PENDING, PartnerServiceStatus::REJECTED]))
+                    ->disabled(fn($record) => !in_array($record->status, [PartnerServiceStatus::PENDING, PartnerServiceStatus::REJECTED]))
                     ->mutateDataUsing(function (array $data): array {
                         $data['user_id'] = auth()->id();
 
@@ -118,6 +118,8 @@ class PartnerServicesTable
                 ForceDeleteAction::make()
                     ->label(__('global.delete')),
                 RestoreAction::make()
+                    ->tooltip(fn($record): ?string => !$record->category_exists ? __('partner/service.tooltip.cannot_show_partner_category_has_disabled') : null)
+                    ->disabled(fn($record): bool => (bool) !$record->category_exists)
                     ->label(__('global.show')),
             ])
             ->toolbarActions([
