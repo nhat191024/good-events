@@ -146,7 +146,7 @@ class ProfileController extends Controller
     {
         $user->loadMissing('partnerProfile');
 
-        $isPartner = $user->partnerProfile && $user->hasRole(Role::PARTNER);
+        $isPartner = $user->partnerProfile;
 
         $payload = $isPartner
             ? $this->partnerPayload($user)
