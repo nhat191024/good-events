@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Http\Controllers\Controller;
+
 use App\Enum\PartnerBillStatus;
 use App\Models\Event;
 use App\Models\Location;
