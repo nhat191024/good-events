@@ -156,6 +156,8 @@ class PartnerCategory extends Model implements HasMedia
 
         static::restored(function ($model) {
             Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
+
+            $model->partnerServices()->restore();
         });
     }
 
