@@ -1,0 +1,20 @@
+meta {
+  name: realtime bill
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{url}}partner/bills/realtime
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

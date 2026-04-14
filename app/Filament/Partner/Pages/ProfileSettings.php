@@ -268,8 +268,8 @@ class ProfileSettings extends Page implements HasForms
                                     ->imageEditor()
                                     ->directory('uploads/partner_profiles/' . Auth::id() . '/selfies')
                                     ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
-                                    ->disk('public')
-                                    ->visibility('public')
+                                    ->disk('local')
+                                    ->visibility('private')
                                     ->columnSpanFull()
                                     ->nullable(),
 
@@ -279,8 +279,8 @@ class ProfileSettings extends Page implements HasForms
                                     ->imageEditor()
                                     ->directory('uploads/partner_profiles/' . Auth::id() . '/id_cards')
                                     ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
-                                    ->disk('public')
-                                    ->visibility('public')
+                                    ->disk('local')
+                                    ->visibility('private')
                                     ->nullable(),
 
                                 FileUpload::make('back_identity_card_image')
@@ -289,8 +289,8 @@ class ProfileSettings extends Page implements HasForms
                                     ->imageEditor()
                                     ->directory('uploads/partner_profiles/' . Auth::id() . '/id_cards')
                                     ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
-                                    ->disk('public')
-                                    ->visibility('public')
+                                    ->disk('local')
+                                    ->visibility('private')
                                     ->nullable(),
                             ])
                     ])

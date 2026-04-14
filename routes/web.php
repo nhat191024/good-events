@@ -5,6 +5,10 @@ use Illuminate\Support\Facades\App;
 
 use App\Http\Controllers\PaymentController;
 
+Route::get('/health', function () {
+    return response()->json(['status' => 'OK']);
+})->name('health');
+
 Route::middleware(['auth'])->group(function () {
     require __DIR__ . '/api/calendar.php';
 

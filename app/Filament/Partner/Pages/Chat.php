@@ -2,17 +2,20 @@
 
 namespace App\Filament\Partner\Pages;
 
-use App\Events\SendMessage;
+use App\Enum\CacheKey;
+
+use App\Jobs\SendMessage;
+
+use App\Models\Thread;
 
 use Carbon\Carbon;
 use Cmgmyr\Messenger\Models\Message;
 use Cmgmyr\Messenger\Models\Participant;
 
-use App\Models\Thread;
-
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use Livewire\Attributes\On;
@@ -362,6 +365,14 @@ class Chat extends Page
                 'id' => $userId,
                 'name' => Auth::user() ? Auth::user()->name : 'Người dùng đã xóa',
             ],
+            'other_participant_ids' => array_values(array_diff(
+                Cache::remember(
+                    CacheKey::THREAD_PARTICIPANT->value . "{$threadId}",
+                    now()->addWeek(),
+                    fn() => Participant::where('thread_id', $threadId)->pluck('user_id')->all()
+                ),
+                [$userId]
+            )),
         ];
 
         $this->messages = collect($this->messages)->push($message)->toArray();
@@ -377,8 +388,7 @@ class Chat extends Page
         // Clear message input
         $this->messageBody = '';
 
-        // Broadcast the new message
-        event(new SendMessage($message));
+        SendMessage::dispatch($message);
     }
 
 

@@ -1,0 +1,14 @@
+{
+    "agents": [
+        "copilot"
+    ],
+    "editors": [
+        "vscode"
+    ],
+    "guidelines": [
+        "filament/filament",
+        "inertiajs/inertia-laravel",
+        "spatie/laravel-medialibrary"
+    ],
+    "herd_mcp": true
+}

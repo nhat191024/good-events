@@ -13,7 +13,6 @@ use Filament\Notifications\Notification;
 
 use Filament\Support\Icons\Heroicon;
 
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 
 use Livewire\WithPagination;

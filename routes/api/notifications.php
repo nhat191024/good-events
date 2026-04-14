@@ -1,0 +1,11 @@
+<?php
+
+use App\Http\Controllers\Api\Client\NotificationController;
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'index']);
+    Route::post('/{id}/read', [NotificationController::class, 'read']);
+    Route::post('/read-all', [NotificationController::class, 'readAll']);
+    Route::post('/{id}/delete', [NotificationController::class, 'destroy']);
+});

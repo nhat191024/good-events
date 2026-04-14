@@ -1,0 +1,20 @@
+meta {
+  name: show
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{url}}partner/service/792
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -67,7 +67,7 @@ class UserFactory extends Factory
     public function createPartner(): static
     {
         $locationIds = Location::pluck('id')->toArray();
-        $categoryIds = PartnerCategory::whereNull('parent_id')->pluck('id')->toArray();
+        $categoryIds = PartnerCategory::whereNotNull('parent_id')->pluck('id')->toArray();
         return $this->afterCreating(function (User $user) use ($locationIds, $categoryIds) {
             $user->partnerProfile()->create([
                 'partner_name' => fake()->name(),

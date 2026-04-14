@@ -16,7 +16,7 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -31,5 +31,18 @@ class ProfileUpdateRequest extends FormRequest
             'bio' => ['nullable', 'string', 'max:255'],
             'avatar' => ['nullable', File::image()->max(5 * 1024)],
         ];
+
+        if ($this->user()->hasRole(\App\Enum\Role::PARTNER)) {
+            $rules = array_merge($rules, [
+                'partner_name' => ['nullable', 'string', 'max:255'],
+                'identity_card_number' => ['nullable', 'string', 'max:50'],
+                'location_id' => ['nullable', 'integer', 'exists:locations,id'],
+                'selfie_image' => ['nullable', File::image()->max(5 * 1024)],
+                'front_identity_card_image' => ['nullable', File::image()->max(5 * 1024)],
+                'back_identity_card_image' => ['nullable', File::image()->max(5 * 1024)],
+            ]);
+        }
+
+        return $rules;
     }
 }

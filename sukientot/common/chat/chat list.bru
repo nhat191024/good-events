@@ -1,0 +1,28 @@
+meta {
+  name: chat list
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{url}}chat/
+  body: multipartForm
+  auth: bearer
+}
+
+params:query {
+  ~search: PB202603144334
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:multipart-form {
+  search: PB202603121463
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -116,7 +116,7 @@ function submit() {
         preserveScroll: true,
         onSuccess: () => {
             form.reset('password', 'password_confirmation')
-            router.get('filament.partner.pages.profile-settings')
+            // router.get('filament.partner.pages.profile-settings')
         },
     })
 }

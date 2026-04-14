@@ -24,8 +24,7 @@ class CancelOrderRequest extends FormRequest
     {
         \Log::debug('CancelOrderRequest data', $this->all());
         return [
-            'order_id' => ['required', 'integer', 'exists:partner_bills,id'],
-            // 'reason' => ['nullable', 'string', 'max:500'],
+            'order_id' => ['required', 'integer', 'exists:partner_bills,id']
         ];
     }
 

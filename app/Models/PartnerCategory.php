@@ -44,6 +44,7 @@ use Spatie\Activitylog\LogOptions;
  * @property-read PartnerCategory|null $parent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerService> $partnerServices
  * @property-read int|null $partner_services_count
+ * @property-read \RalphJSmit\Laravel\SEO\Models\SEO $seo
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory onlyTrashed()
@@ -145,7 +146,7 @@ class PartnerCategory extends Model implements HasMedia
         parent::boot();
 
         static::saved(function ($model) {
-            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value, CacheKey::PARTNER_CATEGORY_WITH_PARENT->value])->flush();
         });
 
         static::deleted(function ($model) {
@@ -155,7 +156,7 @@ class PartnerCategory extends Model implements HasMedia
         });
 
         static::restored(function ($model) {
-            Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
+            Cache::tags([CacheKey::PARTNER_CATEGORIES->value, CacheKey::PARTNER_CATEGORY_WITH_PARENT->value])->flush();
         });
     }
 

@@ -11,11 +11,11 @@ return [
         'regards' => 'Best regards',
 
         // Company Info
-        'team_name' => 'SukiEntot Team',
-        'company_name' => 'SukiEntot',
+        'team_name' => 'SuKienTot Team',
+        'company_name' => 'SuKienTot',
         'support_email' => 'support@sukientot.com',
         'website' => 'https://sukientot.com',
-        'copyright' => '© :year SukiEntot - Event Management Platform',
+        'copyright' => '© :year SuKienTot - Event Management Platform',
 
         // Order/Bill Fields
         'order_code' => 'Order Code',
