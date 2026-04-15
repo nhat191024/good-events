@@ -297,12 +297,15 @@ class PartnerBillNotificationService
             $partner = Partner::find($partnerBillDetail->partner_id);
 
             if ($client) {
+                $title = __('notification.partner_accepted_title');
+                $body = __('notification.partner_accepted_body', [
+                    'partner_name' => $partner->name,
+                    'code' => $partnerBill->code,
+                ]);
+
                 Notification::make()
-                    ->title(__('notification.partner_accepted_title'))
-                    ->body(__('notification.partner_accepted_body', [
-                        'partner_name' => $partner->name,
-                        'code' => $partnerBill->code,
-                    ]))
+                    ->title($title)
+                    ->body($body)
                     ->success()
                     ->actions([
                         Action::make('open')
@@ -310,6 +313,8 @@ class PartnerBillNotificationService
                             ->url(route('client-orders.dashboard', ['order' => $partnerBill->id])),
                     ])
                     ->sendToDatabase($client);
+
+                $this->fcmService->sendToUser($client, $title, $body);
             }
         } catch (\Exception $e) {
             Log::error('Failed to send new partner accepted notification', [
