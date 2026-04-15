@@ -43,4 +43,8 @@ return [
         'create' => 'Add Event Category',
         'create_partner_category' => 'Add Partner Category',
     ],
+
+    'messages' => [
+        'delete' => 'Are you sure you want to hide this category? This action will hide all partner services under this category, cancel orders and delete chats belong to this category.',
+    ],
 ];
