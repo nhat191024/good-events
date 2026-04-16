@@ -11,3 +11,4 @@ Route::get('/bills/{status}', [BillController::class, 'list'])->whereIn('status'
 Route::get('/bills/{bill}', [BillController::class, 'show'])->whereNumber('bill');
 Route::post('/bills/{bill}/mark-in-job', [BillController::class, 'markInJob'])->whereNumber('bill');
 Route::post('/bills/{bill}/complete', [BillController::class, 'complete'])->whereNumber('bill');
+Route::post('/bills/{bill}/cancel', [BillController::class, 'cancel'])->whereNumber('bill');
