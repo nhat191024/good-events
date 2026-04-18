@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Api\Client;
 
 use App\Enum\PartnerBillStatus;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Client\BookingRequest;
-use App\Http\Resources\Api\EventResource;
-use App\Http\Resources\Api\LocationResource;
-use App\Http\Resources\Api\PartnerBillResource;
+
 use App\Models\Event;
 use App\Models\Location;
 use App\Models\PartnerBill;
 use App\Models\PartnerCategory;
+
 use App\Events\NewPartnerBillCreated;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Client\BookingRequest;
+use App\Http\Resources\Api\EventResource;
+use App\Http\Resources\Api\PartnerBillResource;
+
 use Illuminate\Http\Request;
 
 class QuickBookingController extends Controller
