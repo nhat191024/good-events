@@ -347,6 +347,23 @@ class BillController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function cancel(Request $request, PartnerBill $bill)
+    {
+        if ($bill->status === PartnerBillStatus::IN_JOB || $bill->status === PartnerBillStatus::COMPLETED) {
+            return response()->json(['message' => 'Order must be pending to cancel.'], 422);
+        }
+        
+        if ($bill->status == PartnerBillStatus::PENDING) {
+            $billDetail = PartnerBillDetail::where('partner_bill_id', $bill->id)
+                ->where('partner_id', auth()->id())
+                ->first();
+            $billDetail->delete();
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['message' => 'Order might be already accepted or completed.'], 422);
+    }
+
     private function resolvePerPage(Request $request, int $default): int
     {
         $perPage = (int) $request->query('per_page', $default);
