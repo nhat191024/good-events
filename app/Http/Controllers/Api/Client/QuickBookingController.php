@@ -12,6 +12,7 @@ use App\Models\Event;
 use App\Models\Location;
 use App\Models\PartnerBill;
 use App\Models\PartnerCategory;
+use App\Events\NewPartnerBillCreated;
 use Illuminate\Http\Request;
 
 class QuickBookingController extends Controller
@@ -92,6 +93,8 @@ class QuickBookingController extends Controller
             'note' => $validated['note'],
             'status' => PartnerBillStatus::PENDING,
         ]);
+
+        NewPartnerBillCreated::dispatch($newBill);
 
         return response()->json([
             'success' => true,
