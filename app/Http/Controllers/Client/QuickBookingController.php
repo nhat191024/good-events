@@ -14,6 +14,8 @@ use App\Events\NewPartnerBillCreated;
 
 use App\Services\QuickBookingService;
 
+use App\Http\Requests\Client\BookingRequest;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
