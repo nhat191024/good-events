@@ -32,6 +32,9 @@
 import { Head, usePage } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 import { computed } from 'vue';
+import { inject } from "vue";
+
+const route = inject('route') as any;
 
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
