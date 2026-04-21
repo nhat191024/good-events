@@ -34,8 +34,6 @@ import { motion } from 'motion-v';
 import { computed } from 'vue';
 import { inject } from "vue";
 
-const route = inject('route') as any;
-
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
 import ContactFAQ from './components/ContactFAQ.vue';
@@ -70,6 +68,7 @@ const getSectionTransition = (index: number) => ({
 });
 
 const page = usePage();
+const route = inject('route') as any;
 
 // Pull server settings passed by the controller
 const settings = computed(() => page.props.app_settings as {
