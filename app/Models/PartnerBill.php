@@ -409,7 +409,8 @@ class PartnerBill extends Model implements HasMedia
         ]);
 
         PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
-            ->update(['status' => PartnerBillDetailStatus::CLOSED]);
+            ->where('status', '!=', PartnerBillDetailStatus::CLOSED)
+            ->update(['status' => PartnerBillDetailStatus::CANCELLED]);
 
         $notificationService = new PartnerBillNotificationService();
         $notificationService->sendOrderConfirmedNotification($partnerBill);

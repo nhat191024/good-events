@@ -307,6 +307,9 @@ class OrderController extends Controller
             $bill->status = PartnerBillStatus::CONFIRMED;
             $bill->save();
 
+            $partnerBillDetail->status = PartnerBillDetailStatus::CLOSED;
+            $partnerBillDetail->save();
+
             return response()->json(['success' => true]);
         } catch (\Throwable $th) {
             Log::error('Error in confirming partner', ['exception' => $th]);
