@@ -92,7 +92,7 @@ class OrderController extends Controller
         $billUpdatedTs = optional(
             PartnerBill::select(['id', 'updated_at'])->find($billId)
         )->updated_at?->timestamp;
-        
+
         return [
             'billId' => $billId,
             'items' => PartnerBillDetailResource::collection($details),
@@ -102,7 +102,7 @@ class OrderController extends Controller
 
     public function getPartnerProfile(User $user)
     {
-        $user->loadMissing('partnerProfile','reviews');
+        $user->loadMissing('partnerProfile', 'reviews');
 
         // only expose partner profiles that actually exist
         if (! $user->partnerProfile) {
@@ -158,7 +158,7 @@ class OrderController extends Controller
             ])
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
-                // dd(PartnerBillResource::collection($bills)->resolve());
+        // dd(PartnerBillResource::collection($bills)->resolve());
         return PartnerBillResource::collection($bills);
     }
 
@@ -237,9 +237,6 @@ class OrderController extends Controller
             $bill->partner_id = $partnerBillDetail->partner_id;
             $bill->status = PartnerBillStatus::CONFIRMED;
             $bill->save();
-
-            $partnerBillDetail->status = PartnerBillDetailStatus::CLOSED;
-            $partnerBillDetail->save();
         } catch (\Throwable $th) {
             Log::error('error in confirming choose partner', context: ['exception' => $th]);
         }

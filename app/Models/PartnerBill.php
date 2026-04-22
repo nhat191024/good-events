@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\PartnerBillStatus;
+use App\Enum\PartnerBillDetailStatus;
 use App\Enum\StatisticType;
 use App\Enum\CacheKey;
 
@@ -406,6 +407,9 @@ class PartnerBill extends Model implements HasMedia
             'user_id' => $partnerBill->partner_id,
             'last_read' => null
         ]);
+
+        PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
+            ->update(['status' => PartnerBillDetailStatus::CLOSED]);
 
         $notificationService = new PartnerBillNotificationService();
         $notificationService->sendOrderConfirmedNotification($partnerBill);
