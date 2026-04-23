@@ -1,6 +1,6 @@
 @use('Illuminate\Support\Facades\Storage')
 
-@if (!$record->partnerProfile->identity_card_number)
+@if (!$record->partnerProfile->identity_card_number || !$record->partnerProfile->selfie_image || !$record->partnerProfile->front_identity_card_image || !$record->partnerProfile->back_identity_card_image)
     <x-filament::section>
         <div class="pt-2 text-center">
             <x-filament::icon class="m-auto h-12 w-12 opacity-50" icon="heroicon-o-video-camera" />
