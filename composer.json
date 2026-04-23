@@ -28,7 +28,7 @@
         "hugomyb/filament-error-mailer": "^4.0",
         "inertiajs/inertia-laravel": "^2.0",
         "jacobtims/filament-logger": "^1.0",
-        "kreait/laravel-firebase": "^7.1",
+        "kreait/laravel-firebase": "*",
         "laravel/framework": "^12.0",
         "laravel/pulse": "^1.4",
         "laravel/sanctum": "^4.0",
