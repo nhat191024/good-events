@@ -58,7 +58,8 @@ class PartnerBillDetail extends Model
         });
 
         static::created(function ($partnerBillDetail) {
-            static::handleBillDetailCreated($partnerBillDetail);
+            $notificationService = app(PartnerBillNotificationService::class);
+            $notificationService->sendNewPartnerAcceptedNotification($partnerBillDetail);
         });
 
         static::updated(function ($partnerBillDetail) {
@@ -68,12 +69,6 @@ class PartnerBillDetail extends Model
                 default => null,
             };
         });
-    }
-
-    protected static function handleBillDetailCreated(PartnerBillDetail $partnerBillDetail): void
-    {
-        $notificationService = app(PartnerBillNotificationService::class);
-        $notificationService->sendNewPartnerAcceptedNotification($partnerBillDetail);
     }
 
     protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void
