@@ -137,8 +137,8 @@ class LoginController extends Controller
     {
         $user = $request->user();
         $user?->currentAccessToken()?->delete();
-        $user?->fcm_token = null;
-        $user?->save();
+        $user->fcm_token = null;
+        $user->save();
 
         return response()->json([
             'success' => true,
