@@ -49,12 +49,13 @@ class OrderController extends Controller
 
         $bills = PartnerBill::query()
             ->with([
+                'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
-                'category.parent.media',
                 'event',
                 'details',
                 'partner.statistics',
                 'partner.partnerProfile',
+                'media',
             ])
             ->where('client_id', $request->user()->id)
             ->whereIn('status', [
@@ -87,7 +88,9 @@ class OrderController extends Controller
         $bills = PartnerBill::query()
             ->where('client_id', $request->user()->id)
             ->with([
+                'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
+                'category.parent' => fn ($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'partner.statistics',
@@ -122,7 +125,9 @@ class OrderController extends Controller
             ->where('id', $orderId)
             ->where('client_id', $request->user()->id)
             ->with([
+                'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
+                'category.parent' => fn ($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'details',
@@ -150,7 +155,9 @@ class OrderController extends Controller
             ->where('id', $orderId)
             ->where('client_id', $request->user()->id)
             ->with([
+                'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
+                'category.parent' => fn ($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'details',
