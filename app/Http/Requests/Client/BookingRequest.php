@@ -106,8 +106,8 @@ class BookingRequest extends FormRequest
             }
 
             $duration = $startDateTime->diffInMinutes($endDateTime, false);
-            if ($duration < 30) {
-                $validator->errors()->add('end_time', 'Thời gian tổ chức sự kiện phải ít nhất 30 phút.');
+            if ($duration < 5) {
+                $validator->errors()->add('end_time', 'Thời gian tổ chức sự kiện phải ít nhất 5 phút.');
             }
         });
     }
