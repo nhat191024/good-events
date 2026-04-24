@@ -17,7 +17,7 @@ use Filament\Forms\Components\SpatieTagsInput;
 
 use Cohensive\OEmbed\Facades\OEmbed;
 
-use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
+// // use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
 class EventOrganizationGuideForm
 {
@@ -140,16 +140,24 @@ class EventOrganizationGuideForm
                     ->icon('heroicon-o-photo')
                     ->collapsible()
                     ->schema([
-                        AdvancedFileUpload::make('images')
+                        // AdvancedFileUpload::make('images')
+                        //     ->label(__('admin/blog.fields.thumbnail'))
+                        //     ->helperText(__('admin/blog.helpers.thumbnail'))
+                        //     ->spatieMediaLibrary()
+                        //     ->collection('thumbnail')
+                        //     ->required()
+
+                        //     ->disk('local')
+                        //     ->temporaryFileUploadDisk('local')
+
+                        //     ->image()
+                        //     ->maxSize(1024 * 10),
+
+                        SpatieMediaLibraryFileUpload::make('images')
                             ->label(__('admin/blog.fields.thumbnail'))
                             ->helperText(__('admin/blog.helpers.thumbnail'))
-                            ->spatieMediaLibrary()
                             ->collection('thumbnail')
-                            ->required()
-
                             ->disk('local')
-                            ->temporaryFileUploadDisk('local')
-
                             ->image()
                             ->maxSize(1024 * 10),
                     ])
