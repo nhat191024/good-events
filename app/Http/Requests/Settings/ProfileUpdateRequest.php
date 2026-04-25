@@ -35,6 +35,7 @@ class ProfileUpdateRequest extends FormRequest
         if ($this->user()->hasRole(\App\Enum\Role::PARTNER)) {
             $rules = array_merge($rules, [
                 'partner_name' => ['nullable', 'string', 'max:255'],
+                'video_url' => ['nullable', 'string', 'url', 'max:2048'],
                 'identity_card_number' => ['nullable', 'string', 'max:50'],
                 'location_id' => ['nullable', 'integer', 'exists:locations,id'],
                 'selfie_image' => ['nullable', File::image()->max(5 * 1024)],
