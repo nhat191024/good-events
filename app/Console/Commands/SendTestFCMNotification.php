@@ -16,8 +16,7 @@ class SendTestFCMNotification extends Command
     protected $signature = 'fcm:test
                             {user_id? : The ID of the user to send the notification to}
                             {--title= : Notification title}
-                            {--body= : Notification body}
-                            {--data= : Additional data as JSON string}';
+                            {--body= : Notification body}';
 
     /**
      * The console command description.
@@ -55,14 +54,13 @@ class SendTestFCMNotification extends Command
 
         $title = $this->option('title') ?? $this->ask('Notification title', 'Test Notification');
         $body = $this->option('body') ?? $this->ask('Notification body', 'This is a test push notification.');
-        $data = $this->option('data') ?? $this->ask('Additional data (JSON)', '{}');
 
         $this->info("Sending FCM notification to user [{$user->name}] (ID: {$user->id})...");
         $this->line("  FCM Token : {$user->fcm_token}");
         $this->line("  Title     : {$title}");
         $this->line("  Body      : {$body}");
-        $this->line("  Data      : {$data}");
-        $success = $this->fcmService->sendToUser($user, $title, $body, ['code' => 'TEST_NOTIFICATION', 'data' => json_decode($data, true)]);
+
+        $success = $this->fcmService->sendToUser($user, $title, $body, ['CODE' => 'TEST_NOTIFICATION']);
 
         if ($success) {
             $this->info('Notification sent successfully.');
