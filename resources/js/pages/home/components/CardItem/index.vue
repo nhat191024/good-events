@@ -16,18 +16,9 @@
                 </div>
             </figure>
             <div v-if="showInfo"
-                class="z-10 card-body absolute inset-0 shadow-2xl rounded-2xl opacity-100 duration-300 text-white flex flex-col justify-center p-4 overflow-scroll scrollbar-hide">
+                class="card-body absolute inset-0 shadow-2xl rounded-2xl opacity-100 duration-300 text-white flex flex-col justify-center p-4 overflow-scroll scrollbar-hide">
                 <div class="overflow-y-scroll scrollbar-hide">
                     <p class="text-[0.75rem] sm:text-[0.80rem] md:text-[1rem] scrollbar-hide">
-                        <h4 class="font-semibold block hidden">{{ truncatedName }}</h4>
-                    </p>
-                </div>
-                <div class="card-actions justify-end mt-auto pt-2"></div>
-            </div>
-            <div v-if="showInfo"
-                class="card-body absolute inset-0 shadow-2xl opacity-100 duration-300 text-white flex flex-col justify-center p-0 overflow-scroll scrollbar-hide">
-                <div class="overflow-y-scroll scrollbar-hide bg-gradient-to-b from-black to-transparent h-fit z-0 text-transparent">
-                    <p class="text-[0.75rem] p-4 sm:text-[0.80rem] md:text-[1rem] scrollbar-hide">
                         <h4 class="font-semibold block">{{ truncatedName }}</h4>
                     </p>
                 </div>
