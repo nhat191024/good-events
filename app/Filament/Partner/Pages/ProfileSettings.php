@@ -326,11 +326,14 @@ class ProfileSettings extends Page implements HasForms
                 'partner_name' => $data['partner_name'],
                 'location_id' => $data['location_id'],
                 'identity_card_number' => $data['identity_card_number'],
-                'selfie_image' => $data['selfie_image'] ?? null,
-                'front_identity_card_image' => $data['front_identity_card_image'] ?? null,
-                'back_identity_card_image' => $data['back_identity_card_image'] ?? null,
                 'video_url' => $data['video_url'] ?? null,
             ];
+
+            foreach (['selfie_image', 'front_identity_card_image', 'back_identity_card_image'] as $imageField) {
+                if (!empty($data[$imageField])) {
+                    $partnerData[$imageField] = $data[$imageField];
+                }
+            }
 
             $user->update($userData);
 
