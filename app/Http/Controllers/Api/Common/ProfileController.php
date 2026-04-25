@@ -133,8 +133,15 @@ class ProfileController extends Controller
                 }
             }
 
-            $validated['video_url'] = $videoUrl;
-            $partnerFillable = array_intersect_key($validated, array_flip(['video_url', 'partner_name', 'identity_card_number', 'location_id']));
+            $partnerFillable = array_filter(
+                array_intersect_key($validated, array_flip(['partner_name', 'identity_card_number', 'location_id'])),
+                fn($value) => $value !== null
+            );
+
+            if ($videoUrl !== null || array_key_exists('video_url', $validated)) {
+                $partnerFillable['video_url'] = $videoUrl;
+            }
+
             $partnerProfile->fill($partnerFillable);
 
             foreach ($partnerImageFields as $field) {
