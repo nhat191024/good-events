@@ -50,7 +50,7 @@ const provinceList = [{ name: 'Chọn tỉnh thành', children: provinceListProp
 
 const LS_KEY = `quick-booking:partner-form:ls`
 const MIN_LEAD_MINUTES = 15
-const MIN_EVENT_DURATION_MINUTES = 30
+const MIN_EVENT_DURATION_MINUTES = 5
 
 const emptyInitial: PartnerBillForm = {
     order_date: null,
