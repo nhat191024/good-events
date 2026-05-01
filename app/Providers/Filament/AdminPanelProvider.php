@@ -33,7 +33,7 @@ use BinaryBuilds\FilamentFailedJobs\FilamentFailedJobsPlugin;
 use Boquizo\FilamentLogViewer\FilamentLogViewerPlugin;
 use Tapp\FilamentMailLog\FilamentMailLogPlugin;
 use Hugomyb\FilamentErrorMailer\FilamentErrorMailerPlugin;
-use RalphJSmit\Filament\Upload\FilamentUpload;
+// use RalphJSmit\Filament\Upload\FilamentUpload;
 use Filafly\Themes\Brisk\BriskTheme;
 use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
 use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
@@ -118,7 +118,7 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationLabel(__('global.log_viewer')),
                 FilamentMailLogPlugin::make(),
                 FilamentErrorMailerPlugin::make(),
-                FilamentUpload::make(),
+                // FilamentUpload::make(),
             ])
 
             ->middleware([

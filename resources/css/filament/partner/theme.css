@@ -4,4 +4,3 @@
 @source '../../../../resources/views/filament/partner/**/*';
 @source '../../../../resources/views/livewire/**/*';
 @source '../../../../app/Livewire/**/*';
-@source '../../../../vendor/ralphjsmit/laravel-filament-upload/resources/**/*.blade.php';
