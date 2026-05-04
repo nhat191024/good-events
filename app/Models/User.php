@@ -56,6 +56,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $phone_verified_at
  * @property bool $can_accept_shows
  * @property string|null $google_id
+ * @property bool $is_delete_account
  * @property string|null $fcm_token
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
@@ -160,6 +161,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'password',
         'can_accept_shows',
         'google_id',
+        'is_delete_account',
         'fcm_token',
     ];
 
@@ -195,6 +197,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'can_accept_shows' => 'boolean',
+            'is_delete_account' => 'boolean',
         ];
     }
 
