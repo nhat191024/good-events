@@ -184,6 +184,10 @@ class LoginController extends Controller
             ], 401);
         }
 
+        $request->validate([
+            'password' => ['required', 'string', 'current_password'],
+        ]);
+
         $user->tokens()->delete();
         $user->update([
             'is_delete_account' => true,
