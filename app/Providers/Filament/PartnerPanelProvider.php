@@ -43,7 +43,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 use App\Settings\AppSettings;
 
-use RalphJSmit\Filament\Upload\FilamentUpload;
+// use RalphJSmit\Filament\Upload\FilamentUpload;
 use Filafly\Themes\Brisk\BriskTheme;
 use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
 
@@ -115,7 +115,7 @@ class PartnerPanelProvider extends PanelProvider
 
             ->plugins([
                 BriskTheme::make(),
-                FilamentUpload::make(),
+                // FilamentUpload::make(),
             ])
 
             ->middleware([

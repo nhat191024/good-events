@@ -42,7 +42,6 @@
         "payos/payos": "^1.0",
         "predis/predis": "^3.2",
         "pusher/pusher-php-server": "^7.2",
-        "ralphjsmit/laravel-filament-upload": "^1.1",
         "ralphjsmit/laravel-seo": "^1.7",
         "spatie/image-optimizer": "^1.8",
         "spatie/laravel-activitylog": "^4.10",
@@ -76,12 +75,6 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0"
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://satis.ralphjsmit.com"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "App\\": "app/",

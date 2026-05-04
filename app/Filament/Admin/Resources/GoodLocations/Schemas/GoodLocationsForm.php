@@ -10,6 +10,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -25,7 +26,7 @@ use Dotswan\MapPicker\Fields\Map;
 
 use Cohensive\OEmbed\Facades\OEmbed;
 
-use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
+// use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
 class GoodLocationsForm
 {
@@ -151,15 +152,26 @@ class GoodLocationsForm
                     ->icon('heroicon-o-photo')
                     ->collapsible()
                     ->schema([
-                        AdvancedFileUpload::make('images')
+                        // AdvancedFileUpload::make('images')
+                        //     ->label(__('admin/blog.fields.thumbnail'))
+                        //     ->helperText(__('admin/blog.helpers.thumbnail'))
+                        //     ->spatieMediaLibrary()
+                        //     ->collection('thumbnail')
+                        //     ->required()
+
+                        //     ->disk('local')
+                        //     ->temporaryFileUploadDisk('local')
+
+                        //     ->image()
+                        //     ->maxSize(1024 * 10),
+
+                        SpatieMediaLibraryFileUpload::make('images')
                             ->label(__('admin/blog.fields.thumbnail'))
                             ->helperText(__('admin/blog.helpers.thumbnail'))
-                            ->spatieMediaLibrary()
                             ->collection('thumbnail')
                             ->required()
 
                             ->disk('local')
-                            ->temporaryFileUploadDisk('local')
 
                             ->image()
                             ->maxSize(1024 * 10),

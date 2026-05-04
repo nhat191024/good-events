@@ -9,6 +9,7 @@ use App\Models\FileProduct;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -20,7 +21,7 @@ use Filament\Schemas\Components\Section;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
-use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
+// use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
 class ManageFileProductDesigns extends Page implements HasForms
 {
@@ -53,21 +54,38 @@ class ManageFileProductDesigns extends Page implements HasForms
                 Section::make('Quản lý file thiết kế')
                     ->description('Upload và quản lý các file design cho sản phẩm này')
                     ->schema([
-                        AdvancedFileUpload::make('designs')
-                            ->label('File Thiết Kế')
-                            ->uploadingMessage('Đang tải file thiết kế lên...')
+                        // AdvancedFileUpload::make('designs')
+                        //     ->label('File Thiết Kế')
+                        //     ->uploadingMessage('Đang tải file thiết kế lên...')
 
-                            ->temporaryFileUploadDisk('s3')
-                            ->temporaryFileUploadDirectory('tmp')
+                        //     ->temporaryFileUploadDisk('s3')
+                        //     ->temporaryFileUploadDirectory('tmp')
+                        //     ->disk('s3')
+                        //     ->directory($this->record->id)
+
+                        //     ->preserveFilenames()
+
+                        //     ->fetchFileInformation(false)
+
+                        //     ->maxSize(1024 * 1024 * 1000) // 1000MB
+                        //     ->helperText('Có thể upload tối đa 1 file nén. Dung lượng tối đa 1Gb. Hỗ trợ các định dạng file zip.')
+                        //     ->acceptedFileTypes([
+                        //         'application/zip',
+                        //         'application/x-zip-compressed',
+                        //         'multipart/x-zip',
+                        //         'application/x-rar-compressed',
+                        //         'application/vnd.rar',
+                        //     ])
+                        //     ->columnSpanFull(),
+
+                        SpatieMediaLibraryFileUpload::make('designs')
+                            ->label('File Thiết Kế')
+                            ->helperText('Upload file thiết kế cho sản phẩm. Có thể upload tối đa 1 file nén. Dung lượng tối đa 1Gb. Hỗ trợ các định dạng file zip.')
+                            ->collection('designs')
                             ->disk('s3')
                             ->directory($this->record->id)
-
                             ->preserveFilenames()
-
-                            ->fetchFileInformation(false)
-
                             ->maxSize(1024 * 1024 * 1000) // 1000MB
-                            ->helperText('Có thể upload tối đa 1 file nén. Dung lượng tối đa 1Gb. Hỗ trợ các định dạng file zip.')
                             ->acceptedFileTypes([
                                 'application/zip',
                                 'application/x-zip-compressed',

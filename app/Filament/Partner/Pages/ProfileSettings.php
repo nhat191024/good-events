@@ -22,6 +22,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 use Filament\Actions\Action;
 
@@ -30,7 +31,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
-use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
+// use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 
 use Cohensive\OEmbed\Facades\OEmbed;
 
@@ -98,12 +99,19 @@ class ProfileSettings extends Page implements HasForms
                 Section::make(__('profile.user_info'))
                     ->description(__('profile.user_info_description'))
                     ->schema([
-                        AdvancedFileUpload::make('avatar')
+                        // AdvancedFileUpload::make('avatar')
+                        //     ->label(__('profile.label.avatar'))
+
+                        //     ->temporaryFileUploadDisk('local')
+                        //     ->disk('public')
+
+                        //     ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
+                        //     ->nullable(),
+
+                        SpatieMediaLibraryFileUpload::make('avatar')
                             ->label(__('profile.label.avatar'))
-
-                            ->temporaryFileUploadDisk('local')
+                            ->helperText(__('profile.helper.avatar'))
                             ->disk('public')
-
                             ->acceptedFileTypes(['image/jpeg', 'image/jpg', 'image/png', 'image/webp'])
                             ->nullable(),
 
