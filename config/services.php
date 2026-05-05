@@ -48,7 +48,19 @@ return [
     'apple' => [
         'service_id'    => env('APPLE_SERVICE_ID'),
         'ios_bundle_id' => env('APPLE_IOS_BUNDLE_ID'),
-        'redirect'      => env('APPLE_REDIRECT_URI'),
+        'redirect'      => (function () {
+            $redirect = env('APPLE_REDIRECT_URI');
+
+            if (! is_string($redirect) || $redirect === '') {
+                return $redirect;
+            }
+
+            if (str_starts_with($redirect, 'http://') || str_starts_with($redirect, 'https://')) {
+                return $redirect;
+            }
+
+            return rtrim(env('APP_URL', 'http://localhost'), '/') . '/' . ltrim($redirect, '/');
+        })(),
     ],
 
     'payos' => [
