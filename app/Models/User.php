@@ -56,7 +56,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $phone_verified_at
  * @property bool $can_accept_shows
  * @property string|null $google_id
- * @property bool $is_delete_account
+ * @property string|null $apple_id
  * @property string|null $fcm_token
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
@@ -128,6 +128,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFcmToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGoogleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAppleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
@@ -161,7 +162,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'password',
         'can_accept_shows',
         'google_id',
-        'is_delete_account',
+        'apple_id',
         'fcm_token',
     ];
 

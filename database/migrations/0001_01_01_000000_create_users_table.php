@@ -24,8 +24,7 @@ return new class extends Migration
             $table->timestamp('phone_verified_at')->nullable();
             $table->boolean('can_accept_shows')->default(true);
             $table->string('google_id')->nullable();
-            $table->string('fcm_token')->nullable();
-            $table->boolean('is_delete_account')->default(false);
+            $table->string('apple_id')->nullable();
             $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
