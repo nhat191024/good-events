@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use App\Services\PhoneLoginService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
@@ -55,6 +56,14 @@ class LoginRequest extends FormRequest
             }
 
             $credentials['email'] = $resolvedEmail;
+        }
+
+        $user = User::withTrashed()->where('email', $credentials['email'])->first();
+        if ($user?->is_delete_account) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
         }
 
         if (! Auth::attempt($credentials, $this->boolean('remember'))) {

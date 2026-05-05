@@ -28,15 +28,15 @@ class PartnerBillResource extends BaseResource
             'category_name' => $this->whenLoaded('category', function () {
                 return $this->category->name;
             }),
-            'parent_category_name' => $this->whenLoaded('category', function () {
-                return $this->category->parent->name;
-            }),
+            // 'parent_category_name' => $this->whenLoaded('category', function () {
+            //     return $this->category->parent->name;
+            // }),
             'category_image' => $this->whenLoaded('category', function () {
                 return $this->category->getFirstMediaUrl('images', 'thumb');
             }),
-            
+
             'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn () => $this->event->name),
-            
+
             'applicant_count' => $this->whenLoaded('details', fn () => PartnerBillDetailResource::collection($this->details)->count()),
         ];
     }

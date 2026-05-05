@@ -28,6 +28,7 @@ class ProfileResource extends JsonResource
             'phone' => $this->phone,
             'email' => $this->email,
             'bio' => $this->bio,
+            'video_url' => $partnerProfile?->video_url,
             'created_at' => optional($this->created_at)->toIso8601String(),
 
             'location' => $partnerProfile?->location_id

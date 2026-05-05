@@ -114,7 +114,7 @@ class PartnerBillNotificationService
                 if ($partner->fcm_token) {
                     $title = __('notification.bill_confirmed.title');
                     $body = __('notification.bill_confirmed.subject', ['code' => $partnerBill->code]);
-                    $this->fcmService->sendToUser($partner, $title, $body);
+                    $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_CONFIRMED']);
                 }
 
                 Notification::make()
@@ -314,7 +314,7 @@ class PartnerBillNotificationService
                     ])
                     ->sendToDatabase($client);
 
-                $this->fcmService->sendToUser($client, $title, $body);
+                $this->fcmService->sendToUser($client, $title, $body, ['code' => 'NEW_BILL_DETAIL']);
             }
         } catch (\Exception $e) {
             Log::error('Failed to send new partner accepted notification', [

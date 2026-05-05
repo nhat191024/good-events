@@ -19,4 +19,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/check-token', [LoginController::class, 'checkToken']);
     Route::get('/register/partner/from-client', [ClientToPartnerController::class, 'form']);
     Route::post('/register/partner/from-client', [ClientToPartnerController::class, 'store']);
+    Route::delete('/account/delete', [LoginController::class, 'deleteAccount']);
 });

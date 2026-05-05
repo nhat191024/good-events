@@ -32,6 +32,7 @@
 import { Head, usePage } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 import { computed } from 'vue';
+import { inject } from "vue";
 
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
@@ -67,6 +68,7 @@ const getSectionTransition = (index: number) => ({
 });
 
 const page = usePage();
+const route = inject('route') as any;
 
 // Pull server settings passed by the controller
 const settings = computed(() => page.props.app_settings as {

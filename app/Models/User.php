@@ -198,6 +198,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'can_accept_shows' => 'boolean',
+            'is_delete_account' => 'boolean',
         ];
     }
 

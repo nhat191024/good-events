@@ -1,12 +1,12 @@
 meta {
-  name: dashboard
+  name: check token
   type: http
-  seq: 1
+  seq: 4
 }
 
 get {
-  url: {{url}}partner/dashboard
-  body: none
+  url: {{local_url}}check-token
+  body: multipartForm
   auth: bearer
 }
 

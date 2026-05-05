@@ -72,7 +72,7 @@ class LoginController extends Controller
         }
 
         $user = $this->resolveUserByEmail($googleUser->getEmail());
-        if (!$user) {
+        if (!$user || $user->is_delete_account) {
             return response()->json([
                 'message' => 'Account not found.',
             ], 404);
@@ -212,7 +212,10 @@ class LoginController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $request->user()?->currentAccessToken()?->delete();
+        $user = $request->user();
+        $user?->currentAccessToken()?->delete();
+        $user->fcm_token = null;
+        $user->save();
 
         return response()->json([
             'success' => true,
@@ -228,10 +231,49 @@ class LoginController extends Controller
      */
     public function checkToken(): JsonResponse
     {
-        $is_legit = auth()->check() && auth()->user()->partnerProfile?->is_legit;
+        $user = auth()->user();
+        $valid = $user && ! $user->is_delete_account;
+        $is_legit = $valid && $user->partnerProfile?->is_legit;
+
         return response()->json([
-            'valid' => true,
+            'valid' => $valid,
             'is_legit' => $is_legit,
+        ]);
+    }
+
+    /**
+     * DELETE /api/account/delete
+     *
+     * Delete account endpoint
+     *
+     * Response: { success: bool }
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function deleteAccount(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized.',
+            ], 401);
+        }
+
+        $request->validate([
+            'password' => ['required', 'string', 'current_password'],
+        ]);
+
+        $user->tokens()->delete();
+        $user->update([
+            'is_delete_account' => true,
+            'fcm_token' => null,
+        ]);
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
         ]);
     }
 
@@ -258,8 +300,8 @@ class LoginController extends Controller
             ->value('model_type');
 
         return match ($modelType) {
-            Customer::class => Customer::find($user->id),
-            Partner::class => Partner::find($user->id),
+            Customer::class => Customer::withTrashed()->find($user->id),
+            Partner::class => Partner::withTrashed()->find($user->id),
             default => $user,
         };
     }

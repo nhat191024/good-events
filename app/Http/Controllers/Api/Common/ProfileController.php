@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
+use Cohensive\OEmbed\Facades\OEmbed;
+
 class ProfileController extends Controller
 {
     /**
@@ -104,7 +106,42 @@ class ProfileController extends Controller
                 'user_id' => $user->id,
             ]);
 
-            $partnerFillable = array_intersect_key($validated, array_flip(['partner_name', 'identity_card_number', 'location_id']));
+            $videoUrl = $validated['video_url'] ?? null;
+
+            if ($videoUrl) {
+                try {
+                    if (str_contains($videoUrl, '/shorts/')) {
+                        $videoUrl = strtok($videoUrl, '?');
+                        $videoUrl = str_replace('/shorts/', '/watch?v=', $videoUrl);
+                    }
+
+                    if (!str_contains($videoUrl, 'www.') && str_contains($videoUrl, 'youtube.com')) {
+                        $videoUrl = str_replace('youtube.com', 'www.youtube.com', $videoUrl);
+                    }
+
+                    $embed = OEmbed::get($videoUrl);
+                    if ($embed) {
+                        $videoUrl = $embed->html([
+                            'width' => 640,
+                            'height' => 360,
+                        ]);
+                    } else {
+                        $videoUrl = null;
+                    }
+                } catch (\Exception $e) {
+                    $videoUrl = null;
+                }
+            }
+
+            $partnerFillable = array_filter(
+                array_intersect_key($validated, array_flip(['partner_name', 'identity_card_number', 'location_id'])),
+                fn($value) => $value !== null
+            );
+
+            if ($videoUrl !== null || array_key_exists('video_url', $validated)) {
+                $partnerFillable['video_url'] = $videoUrl;
+            }
+
             $partnerProfile->fill($partnerFillable);
 
             foreach ($partnerImageFields as $field) {

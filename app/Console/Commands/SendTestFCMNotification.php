@@ -60,7 +60,7 @@ class SendTestFCMNotification extends Command
         $this->line("  Title     : {$title}");
         $this->line("  Body      : {$body}");
 
-        $success = $this->fcmService->sendToUser($user, $title, $body);
+        $success = $this->fcmService->sendToUser($user, $title, $body, ['CODE' => 'TEST_NOTIFICATION']);
 
         if ($success) {
             $this->info('Notification sent successfully.');
