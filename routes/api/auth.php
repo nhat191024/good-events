@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/login/google', [LoginController::class, 'loginGoogle']);
+Route::post('/auth/apple', [LoginController::class, 'loginApple']);
+Route::match(['get', 'post'], '/auth/apple/callback', [LoginController::class, 'appleCallback']);
 Route::post('/forgot', [LoginController::class, 'forgot']);
 
 Route::post('/register', [RegisterController::class, 'register']);

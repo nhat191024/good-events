@@ -9,6 +9,7 @@ use App\Models\User;
 
 use App\Services\PasswordResetMailService;
 use App\Services\PhoneLoginService;
+use App\Services\AppleTokenVerifier;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
@@ -17,6 +18,7 @@ use App\Http\Resources\Api\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
@@ -86,6 +88,81 @@ class LoginController extends Controller
             'role' => $this->resolvePrimaryRole($user),
             'user' => new UserResource($user),
         ]);
+    }
+
+    /**
+     * POST /api/auth/apple
+     *
+     * Body: identity_token, authorization_code, email?, given_name?, family_name?
+     * Response: { token, token_type, role, user } (401/404 on failure)
+     *
+     * @param Request $request
+     * @param AppleTokenVerifier $appleTokenVerifier
+     * @return JsonResponse
+     */
+    public function loginApple(Request $request, AppleTokenVerifier $appleTokenVerifier): JsonResponse
+    {
+        $validated = $request->validate([
+            'identity_token' => 'required|string',
+            'authorization_code' => 'required|string',
+            'email' => 'nullable|email',
+            'given_name' => 'nullable|string',
+            'family_name' => 'nullable|string',
+        ]);
+
+        try {
+            $appleUser = $appleTokenVerifier->verify($validated['identity_token']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Invalid Apple token.',
+            ], 401);
+        }
+
+        $user = $this->resolveUserByAppleId($appleUser['sub']);
+
+        if (!$user) {
+            $email = $appleUser['email'] ?? $validated['email'] ?? null;
+            $user = $email ? $this->resolveUserByEmail($email) : null;
+        }
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Account not found.',
+            ], 404);
+        }
+
+        if ($user->apple_id && $user->apple_id !== $appleUser['sub']) {
+            return response()->json([
+                'message' => 'Account is linked to a different Apple account.',
+            ], 409);
+        }
+
+        $user->update(['apple_id' => $appleUser['sub']]);
+
+        $token = $user->createToken('mobile')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'token_type' => 'Bearer',
+            'role' => $this->resolvePrimaryRole($user),
+            'user' => new UserResource($user),
+        ]);
+    }
+
+    /**
+     * GET|POST /api/auth/apple/callback
+     *
+     * Return Apple web auth result to Android callback activity.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function appleCallback(Request $request)
+    {
+        $query = http_build_query($request->all());
+        $callbackUrl = 'signinwithapple://callback' . ($query ? '?' . $query : '');
+
+        return Redirect::away($callbackUrl);
     }
 
     /**
@@ -160,7 +237,17 @@ class LoginController extends Controller
 
     private function resolveUserByEmail(string $email): ?User
     {
-        $user = User::where('email', $email)->first();
+        return $this->resolveUserByColumn('email', $email);
+    }
+
+    private function resolveUserByAppleId(string $appleId): ?User
+    {
+        return $this->resolveUserByColumn('apple_id', $appleId);
+    }
+
+    private function resolveUserByColumn(string $column, string $value): ?User
+    {
+        $user = User::where($column, $value)->first();
 
         if (!$user) {
             return null;
