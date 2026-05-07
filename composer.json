@@ -25,6 +25,7 @@
         "filament/spatie-laravel-settings-plugin": "^4.0",
         "filament/spatie-laravel-tags-plugin": "^4.0",
         "gboquizosanchez/filament-log-viewer": "^2.2",
+        "owenvoke/blade-fontawesome": "^2.0",
         "hugomyb/filament-error-mailer": "^4.0",
         "inertiajs/inertia-laravel": "^2.0",
         "jacobtims/filament-logger": "^1.0",
@@ -145,7 +146,9 @@
             "ralphjsmit/packages": true
         },
         "audit": {
-            "ignore": ["PKSA-zh4j-by9m-7mz8"]
+            "ignore": [
+                "PKSA-smrh-yx37-92ws"
+            ]
         }
     },
     "minimum-stability": "dev",
