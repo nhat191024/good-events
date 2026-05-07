@@ -19,6 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
@@ -113,6 +114,19 @@ class LoginController extends Controller
         try {
             $appleUser = $appleTokenVerifier->verify($validated['identity_token']);
         } catch (\Throwable $e) {
+            Log::warning('Apple login token verification failed', [
+                'error_class' => $e::class,
+                'error_message' => $e->getMessage(),
+                'configured_audiences' => array_values(array_filter([
+                    config('services.apple.service_id'),
+                    config('services.apple.ios_bundle_id'),
+                ])),
+                'token' => $this->decodeAppleTokenForLog($validated['identity_token']),
+                'request_email' => $validated['email'] ?? null,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
             return response()->json([
                 'message' => 'Invalid Apple token.',
             ], 401);
@@ -275,6 +289,68 @@ class LoginController extends Controller
         return response()->json([
             'success' => true,
         ]);
+    }
+
+    /**
+     * Decode Apple JWT header and safe payload fields without trusting the token.
+     * This is diagnostic-only; verification still happens in AppleTokenVerifier.
+     *
+     * @return array<string, mixed>
+     */
+    private function decodeAppleTokenForLog(string $identityToken): array
+    {
+        $segments = explode('.', $identityToken);
+
+        if (count($segments) < 2) {
+            return ['error' => 'Wrong number of JWT segments'];
+        }
+
+        $payload = $this->decodeJwtSegmentForLog($segments[1]);
+
+        if (isset($payload['sub']) && is_string($payload['sub'])) {
+            $payload['sub'] = $this->maskForLog($payload['sub']);
+        }
+
+        return [
+            'header' => $this->decodeJwtSegmentForLog($segments[0]),
+            'payload' => array_intersect_key($payload, array_flip([
+                'iss',
+                'aud',
+                'exp',
+                'iat',
+                'sub',
+                'email',
+                'email_verified',
+                'is_private_email',
+            ])),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeJwtSegmentForLog(string $segment): array
+    {
+        $base64 = strtr($segment, '-_', '+/');
+        $base64 .= str_repeat('=', (4 - strlen($base64) % 4) % 4);
+        $json = base64_decode($base64, true);
+
+        if ($json === false) {
+            return ['error' => 'Invalid base64url segment'];
+        }
+
+        $decoded = json_decode($json, true);
+
+        return is_array($decoded) ? $decoded : ['error' => 'Invalid JSON segment'];
+    }
+
+    private function maskForLog(string $value): string
+    {
+        if (strlen($value) <= 8) {
+            return '***';
+        }
+
+        return substr($value, 0, 4) . '...' . substr($value, -4);
     }
 
     private function resolveUserByEmail(string $email): ?User
