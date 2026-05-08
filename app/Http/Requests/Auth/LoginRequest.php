@@ -59,7 +59,7 @@ class LoginRequest extends FormRequest
         }
 
         $user = User::withTrashed()->where('email', $credentials['email'])->first();
-        if ($user?->is_delete_account) {
+        if ($user?->is_delete_account || $user?->trashed()) {
             RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
@@ -107,7 +107,7 @@ class LoginRequest extends FormRequest
     {
         return $this->string('email')
             ->lower()
-            ->append('|'.$this->ip())
+            ->append('|' . $this->ip())
             ->transliterate()
             ->value();
     }
