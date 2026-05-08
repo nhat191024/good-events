@@ -19,7 +19,9 @@ use Database\Factories\UserFactory;
  * @property string|null $phone_verified_at
  * @property bool $can_accept_shows
  * @property string|null $google_id
+ * @property string|null $apple_id
  * @property string|null $fcm_token
+ * @property bool $is_delete_account
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -80,6 +82,7 @@ use Database\Factories\UserFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer permission($permissions, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer role($roles, $guard = null, $without = false)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereAppleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereAvatar($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereCanAcceptShows($value)
@@ -91,6 +94,7 @@ use Database\Factories\UserFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereFcmToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereGoogleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereIsDeleteAccount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Customer wherePhone($value)

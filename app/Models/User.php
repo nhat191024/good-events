@@ -58,6 +58,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $google_id
  * @property string|null $apple_id
  * @property string|null $fcm_token
+ * @property bool $is_delete_account
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -118,6 +119,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User permission($permissions, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User role($roles, $guard = null, $without = false)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAppleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatar($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCanAcceptShows($value)
@@ -128,8 +130,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFcmToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGoogleId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAppleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereIsDeleteAccount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePhone($value)
@@ -164,6 +166,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'google_id',
         'apple_id',
         'fcm_token',
+        'is_delete_account',
     ];
 
     /**

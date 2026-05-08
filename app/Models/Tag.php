@@ -13,6 +13,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $order_column
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read array $translatable_columns_from
  * @property-read mixed $translations
  * @method static Builder<static>|Tag containing(string $name, $locale = null)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tag newModelQuery()
