@@ -25,6 +25,7 @@ return new class extends Migration
             $table->boolean('can_accept_shows')->default(true);
             $table->string('google_id')->nullable();
             $table->string('apple_id')->nullable();
+            $table->boolean('is_delete_account')->default(false);
             $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
