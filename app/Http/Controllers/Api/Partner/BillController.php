@@ -122,21 +122,21 @@ class BillController extends Controller
 
         $user = Auth::user();
         if (!$user) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+            return response()->json(['message' => 'Unauthenticated.', 'code' => 'UNAUTHENTICATED'], 401);
         }
 
         if (!$user->can_accept_shows) {
-            return response()->json(['message' => 'Not allowed to accept orders.'], 403);
+            return response()->json(['message' => 'Not allowed to accept orders.', 'code' => 'NOT_ALLOWED_TO_ACCEPT_ORDERS'], 403);
         }
 
         $balance = $user->balanceInt;
         $minimumBalance = app(PartnerSettings::class)->minimum_balance;
         if ($balance < $minimumBalance) {
-            return response()->json(['message' => 'Insufficient balance.'], 422);
+            return response()->json(['message' => 'Insufficient balance.', 'code' => 'INSUFFICIENT_BALANCE'], 422);
         }
 
         if ($bill->status !== PartnerBillStatus::PENDING) {
-            return response()->json(['message' => 'Order is not pending.'], 422);
+            return response()->json(['message' => 'Order is not pending.', 'code' => 'ORDER_NOT_PENDING'], 422);
         }
 
         PartnerBillDetail::create([
@@ -352,7 +352,7 @@ class BillController extends Controller
         if ($bill->status === PartnerBillStatus::IN_JOB || $bill->status === PartnerBillStatus::COMPLETED) {
             return response()->json(['message' => 'Order must be pending to cancel.'], 422);
         }
-        
+
         if ($bill->status == PartnerBillStatus::PENDING) {
             $billDetail = PartnerBillDetail::where('partner_bill_id', $bill->id)
                 ->where('partner_id', auth()->id())
