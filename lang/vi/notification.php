@@ -59,4 +59,9 @@ return [
         'title' => 'Bạn vừa nhận được đánh giá mới',
         'body' => 'Đơn sự kiện mã :code vừa nhận được đánh giá từ khách hàng.',
     ],
+
+    'new_message' => [
+        'body' => 'Đã gửi cho bạn một tin nhắn mới.',
+        'body_count' => 'Bạn có :count tin nhắn mới',
+    ],
 ];

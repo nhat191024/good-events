@@ -59,4 +59,9 @@ return [
         'title' => 'You just received a new review',
         'body' => 'Event order code :code just received a review from the client.',
     ],
+
+    'new_message' => [
+        'body' => 'You have received a new message',
+        'body_count' => 'You have :count new messages',
+    ],
 ];
