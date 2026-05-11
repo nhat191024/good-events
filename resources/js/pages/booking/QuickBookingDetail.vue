@@ -50,9 +50,9 @@ const provinceList = [{ name: 'Chọn tỉnh thành', children: provinceListProp
 
 const LS_KEY = `quick-booking:partner-form:ls`
 const MIN_LEAD_MINUTES = 15
-const MIN_EVENT_DURATION_MINUTES = 30
+const MIN_EVENT_DURATION_MINUTES = 5
 
-const initial: PartnerBillForm = JSON.parse(localStorage.getItem(LS_KEY) || 'null') ?? {
+const emptyInitial: PartnerBillForm = {
     order_date: null,
     start_time: '',
     end_time: '',
@@ -63,15 +63,6 @@ const initial: PartnerBillForm = JSON.parse(localStorage.getItem(LS_KEY) || 'nul
     category_id: null,
     location_detail: '',
     note: '',
-}
-
-if (JSON.parse(localStorage.getItem(LS_KEY) || 'null')) {
-    // set null or empty for the unrecoverable fields
-    initial.order_date = null
-    initial.event_id = null
-    initial.custom_event = null
-    initial.province_id = null
-    initial.ward_id = null
 }
 
 const location = reactive({
@@ -125,8 +116,12 @@ const form = useForm<PartnerBillForm>(initial)
 const isCustomEvent = ref(Boolean(initial.custom_event))
 
 watch(() => form.data(), (val) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+
     try {
-        localStorage.setItem(LS_KEY, JSON.stringify(val))
+        window.localStorage.setItem(LS_KEY, JSON.stringify(val))
     } catch (e) {
         console.error('cannot write ls', e)
     }
@@ -310,7 +305,10 @@ async function onGoBack() {
 }
 
 function clearStorage() {
-    localStorage.removeItem(LS_KEY)
+    if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(LS_KEY)
+    }
+
     form.reset('order_date', 'start_time', 'end_time', 'province_id', 'ward_id', 'event_id', 'category_id', 'location_detail', 'note')
     isCustomEvent.value = false
 }
