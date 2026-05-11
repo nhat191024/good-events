@@ -22,6 +22,7 @@ class RealtimePartnerBillResource extends JsonResource
             'created_at' => optional($this->created_at)->diffForHumans(),
             'client_name' => $this->client->name,
             'category_name' => $this->category->name,
+            'category_image' => $this->category->getFirstMediaUrl('images', 'thumb'),
             'event_name' => $this->event->name ?? $this->custom_event ?? 'N/A',
             'date' => optional($this->date)->toDateString(),
             'start_time' => optional($this->start_time)->format('H:i'),
