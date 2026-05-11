@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
+use App\Enum\CacheKey;
+
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
 
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
+use App\Models\PartnerService;
 
 use App\Http\Controllers\Api\Concerns\PaginatesApi;
 use App\Http\Controllers\Controller;
@@ -17,6 +20,7 @@ use App\Http\Resources\Api\Partner\RealtimePartnerBillCollection;
 use App\Settings\PartnerSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class BillController extends Controller
 {
@@ -44,11 +48,13 @@ class BillController extends Controller
             ]);
         }
 
-        $partnerServices = $user->partnerServices()
-            ->select('id', 'category_id', 'status')
-            ->where('status', 'approved')
-            ->with('category:id,name')
-            ->get();
+        $partnerServices =  Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_api_user_{$user->id}", function () use ($user) {
+            return PartnerService::where('user_id', $user->id)
+                ->where('status', 'approved')
+                ->select('id', 'category_id', 'status')
+                ->with('category:id,name')
+                ->get();
+        });
 
         $categoryIds = $partnerServices->pluck('category_id')->unique()->toArray();
         $categoriesMap = $partnerServices

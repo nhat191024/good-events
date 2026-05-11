@@ -2,10 +2,13 @@
 
 namespace App\Filament\Partner\Pages;
 
+use App\Enum\CacheKey;
+
 use App\Models\User;
 use App\Models\Customer;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
+use App\Models\PartnerService;
 
 use App\Enum\PartnerBillStatus;
 use App\Enum\PartnerBillDetailStatus;
@@ -16,6 +19,7 @@ use UnitEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,12 +52,13 @@ class RealtimePartnerBill extends Page
             return null;
         }
 
-        //TODO: cache this forever and only refresh when partner add or update a service
-        $partnerServices = $user->partnerServices()
-            ->where('status', 'approved')
-            ->pluck('category_id')
-            ->unique()
-            ->toArray();
+        $partnerServices =  Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_user_{$user->id}", function () use ($user) {
+            return PartnerService::where('user_id', $user->id)
+                ->where('status', 'approved')
+                ->pluck('category_id')
+                ->unique()
+                ->toArray();
+        });
 
         if (empty($partnerServices)) {
             return null;
