@@ -91,14 +91,17 @@ class PartnerService extends Model implements HasMedia
 
         static::saved(function ($model) {
             Cache::tags([CacheKey::PARTNER_SERVICES->value])->flush();
+            Cache::forget(CacheKey::USER_CATEGORY_EXISTS->value . "{$model->user_id}_{$model->category_id}");
         });
 
         static::deleted(function ($model) {
             Cache::tags([CacheKey::PARTNER_SERVICES->value])->flush();
+            Cache::forget(CacheKey::USER_CATEGORY_EXISTS->value . "{$model->user_id}_{$model->category_id}");
         });
 
         static::restored(function ($model) {
             Cache::tags([CacheKey::PARTNER_SERVICES->value])->flush();
+            Cache::forget(CacheKey::USER_CATEGORY_EXISTS->value . "{$model->user_id}_{$model->category_id}");
         });
     }
 
