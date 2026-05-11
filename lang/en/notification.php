@@ -54,4 +54,9 @@ return [
         'title' => 'Partner has arrived at the event location',
         'subject' => 'Partner for order :code has arrived at the event location!',
     ],
+
+    'new_review_received' => [
+        'title' => 'You just received a new review',
+        'body' => 'Event order code :code just received a review from the client.',
+    ],
 ];

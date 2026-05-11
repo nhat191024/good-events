@@ -54,4 +54,9 @@ return [
         'title' => 'Đối tác đã đến địa điểm sự kiện',
         'subject' => 'Đối tác đơn :code đã đến địa điểm sự kiện!',
     ],
+
+    'new_review_received' => [
+        'title' => 'Bạn vừa nhận được đánh giá mới',
+        'body' => 'Đơn sự kiện mã :code vừa nhận được đánh giá từ khách hàng.',
+    ],
 ];

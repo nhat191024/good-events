@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Api\Client;
 
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
-use App\Http\Controllers\Api\Concerns\PaginatesApi;
+
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Concerns\PaginatesApi;
 use App\Http\Requests\Client\OrderHistory\CancelOrderRequest;
 use App\Http\Requests\Client\OrderHistory\ConfirmPartnerRequest;
 use App\Http\Resources\Api\PartnerBillDetailResource;
@@ -14,16 +15,24 @@ use App\Http\Resources\Api\PartnerBillResource;
 use App\Http\Resources\Api\PartnerProfileResource;
 use App\Http\Resources\Api\PartnerServiceResource;
 use App\Http\Resources\Api\UserResource;
+
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 use App\Models\Statistical;
 use App\Models\User;
+use App\Models\Partner;
 use App\Models\Voucher;
+
 use App\Services\PartnerWidgetCacheService;
-use Codebyray\ReviewRateable\Models\Review;
+use App\Services\FCMService;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+
+use Filament\Notifications\Notification;
+
+use Codebyray\ReviewRateable\Models\Review;
 
 class OrderController extends Controller
 {
@@ -31,6 +40,12 @@ class OrderController extends Controller
 
     private const DEFAULT_PER_PAGE = 20;
     private const MAX_PER_PAGE = 50;
+    private FCMService $fcmService;
+
+    public function __construct()
+    {
+        $this->fcmService = app(FCMService::class);
+    }
 
     /**
      * GET /api/orders
@@ -49,7 +64,7 @@ class OrderController extends Controller
 
         $bills = PartnerBill::query()
             ->with([
-                'category' => fn ($q) => $q->withTrashed(),
+                'category' => fn($q) => $q->withTrashed(),
                 'category.media',
                 'event',
                 'details',
@@ -88,9 +103,9 @@ class OrderController extends Controller
         $bills = PartnerBill::query()
             ->where('client_id', $request->user()->id)
             ->with([
-                'category' => fn ($q) => $q->withTrashed(),
+                'category' => fn($q) => $q->withTrashed(),
                 'category.media',
-                'category.parent' => fn ($q) => $q->withTrashed(),
+                'category.parent' => fn($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'partner.statistics',
@@ -125,9 +140,9 @@ class OrderController extends Controller
             ->where('id', $orderId)
             ->where('client_id', $request->user()->id)
             ->with([
-                'category' => fn ($q) => $q->withTrashed(),
+                'category' => fn($q) => $q->withTrashed(),
                 'category.media',
-                'category.parent' => fn ($q) => $q->withTrashed(),
+                'category.parent' => fn($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'details',
@@ -155,9 +170,9 @@ class OrderController extends Controller
             ->where('id', $orderId)
             ->where('client_id', $request->user()->id)
             ->with([
-                'category' => fn ($q) => $q->withTrashed(),
+                'category' => fn($q) => $q->withTrashed(),
                 'category.media',
-                'category.parent' => fn ($q) => $q->withTrashed(),
+                'category.parent' => fn($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'details',
@@ -348,7 +363,8 @@ class OrderController extends Controller
             return response()->json(['success' => true, 'message' => 'Bạn đã đánh giá đơn này rồi.']);
         }
 
-        $partner = User::findOrFail($data['partner_id']);
+        $partner = Partner::findOrFail($data['partner_id']);
+        $order = PartnerBill::findOrFail($data['order_id'])->select(['id', 'code'])->first();
 
         $partner->addReview([
             'review' => $data['comment'],
@@ -357,6 +373,22 @@ class OrderController extends Controller
             'approved' => true,
             'partner_bill_id' => $data['order_id'],
         ], $request->user()->id);
+
+        $notificationTitle = __('notification.new_review_received.title');
+        $notificationBody = __('notification.new_review_received.body', ['code' => $order->code]);
+
+        $this->fcmService->sendToUser(
+            $partner,
+            $notificationTitle,
+            $notificationBody,
+            ['code' => 'NEW_REVIEW_RECEIVED']
+        );
+
+        Notification::make()
+            ->title($notificationTitle)
+            ->body($notificationBody)
+            ->info()
+            ->sendToDatabase($partner,  true);
 
         $latest = Review::where('reviewable_type', User::class)
             ->where('reviewable_id', $partner->id)

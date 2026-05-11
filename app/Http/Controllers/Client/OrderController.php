@@ -24,8 +24,13 @@ use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 use App\Models\Statistical;
 use App\Models\User;
+use App\Models\Partner;
+
 use App\Services\PartnerProfilePayload;
 use App\Services\PartnerWidgetCacheService;
+use App\Services\FCMService;
+
+use Filament\Notifications\Notification;
 
 use Codebyray\ReviewRateable\Models\Review;
 
@@ -34,6 +39,12 @@ use Inertia\Inertia;
 class OrderController extends Controller
 {
     public const RECORD_PER_PAGE = 20;
+    private FCMService $fcmService;
+
+    public function __construct()
+    {
+        $this->fcmService = app(FCMService::class);
+    }
 
     public function index(Request $request)
     {
@@ -102,7 +113,7 @@ class OrderController extends Controller
 
     public function getPartnerProfile(User $user)
     {
-        $user->loadMissing('partnerProfile','reviews');
+        $user->loadMissing('partnerProfile', 'reviews');
 
         // only expose partner profiles that actually exist
         if (! $user->partnerProfile) {
@@ -158,7 +169,7 @@ class OrderController extends Controller
             ])
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
-                // dd(PartnerBillResource::collection($bills)->resolve());
+        // dd(PartnerBillResource::collection($bills)->resolve());
         return PartnerBillResource::collection($bills);
     }
 
@@ -254,8 +265,8 @@ class OrderController extends Controller
             'comment' => 'nullable|string',
         ]);
 
-        $partner = User::findOrFail($data['partner_id']);
-        // $bill = PartnerBill::findOrFail($data['order_id']);
+        $partner = Partner::findOrFail($data['partner_id']);
+        $bill = PartnerBill::findOrFail($data['order_id'])->select(['id', 'code'])->first();
 
         $partner->addReview([
             'review' => $data['comment'],
@@ -264,6 +275,22 @@ class OrderController extends Controller
             'approved' => true,
             'partner_bill_id' => $data['order_id'],
         ], $request->user()->id);
+
+        $notificationTitle = __('notification.new_review_received.title');
+        $notificationBody = __('notification.new_review_received.body', ['code' => $bill->code]);
+
+        $this->fcmService->sendToUser(
+            $partner,
+            $notificationTitle,
+            $notificationBody,
+            ['code' => 'NEW_REVIEW_RECEIVED']
+        );
+
+        Notification::make()
+            ->title($notificationTitle)
+            ->body($notificationBody)
+            ->info()
+            ->sendToDatabase($partner,  true);
 
         $latest = Review::where('reviewable_type', User::class)
             ->where('reviewable_id', $partner->id)
