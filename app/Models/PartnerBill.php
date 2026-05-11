@@ -175,6 +175,7 @@ class PartnerBill extends Model implements HasMedia
                     PartnerBillStatus::CANCELLED => static::handleCancelledStatus($partnerBill),
                     PartnerBillStatus::CONFIRMED => static::handleConfirmedStatus($partnerBill),
                     PartnerBillStatus::PENDING => static::handlePendingStatus($partnerBill),
+                    PartnerBillStatus::IN_JOB => static::handleInJobStatus($partnerBill),
                     PartnerBillStatus::EXPIRED => static::handleExpiredStatus($partnerBill),
                     default => null,
                 };
@@ -414,6 +415,15 @@ class PartnerBill extends Model implements HasMedia
 
         $notificationService = new PartnerBillNotificationService();
         $notificationService->sendOrderConfirmedNotification($partnerBill);
+    }
+
+    /**
+     * Handle in job bill status
+     */
+    protected static function handleInJobStatus(PartnerBill $partnerBill): void
+    {
+        $notificationService = new PartnerBillNotificationService();
+        $notificationService->sendOrderInJobNotification($partnerBill);
     }
 
     /**

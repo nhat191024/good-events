@@ -39,4 +39,19 @@ return [
         'client_subject' => 'Reminder! Event ',
         'partner_subject' => 'Reminder! Event for order :code is coming up, please take a confirmation photo if you have arrived at the venue!',
     ],
+
+    'bill_completed_reminder_partner' => [
+        'title' => 'Event Order Completion Reminder',
+        'subject' => 'Event order code :code has been completed, please click to complete the order!',
+    ],
+
+    'bill_completed_reminder_client' => [
+        'title' => 'Event Order Completion Reminder',
+        'subject' => 'Your event order code :code has been completed, please click to review the order!',
+    ],
+
+    'bill_in_job_reminder' => [
+        'title' => 'Partner has arrived at the event location',
+        'subject' => 'Partner for order :code has arrived at the event location!',
+    ],
 ];

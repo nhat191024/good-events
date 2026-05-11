@@ -264,19 +264,29 @@ class PartnerBillNotificationService
             $client = Customer::find($partnerBill->client_id);
 
             if ($partner) {
+                $partnerNotificationTitle = __('notification.bill_completed_reminder_partner.title');
+                $partnerNotificationBody = __('notification.bill_completed_reminder_partner.subject', ['code' => $partnerBill->code]);
+
                 Notification::make()
-                    ->title(__('notification.order_completed_title'))
-                    ->body(__('notification.partner_order_completed_body', ['code' => $partnerBill->code]))
+                    ->title($partnerNotificationTitle)
+                    ->body($partnerNotificationBody)
                     ->success()
                     ->sendToDatabase($partner);
+
+                $this->fcmService->sendToUser($partner, $partnerNotificationTitle, $partnerNotificationBody, ['code' => 'BILL_COMPLETED_REMINDER']);
             }
 
             if ($client) {
+                $clientNotificationTitle = __('notification.bill_completed_reminder_client.title');
+                $clientNotificationBody = __('notification.bill_completed_reminder_client.subject', ['code' => $partnerBill->code]);
+
                 Notification::make()
-                    ->title(__('notification.order_completed_title'))
-                    ->body(__('notification.order_completed_body', ['code' => $partnerBill->code]))
+                    ->title($clientNotificationTitle)
+                    ->body($clientNotificationBody)
                     ->success()
                     ->sendToDatabase($client);
+
+                $this->fcmService->sendToUser($client, $clientNotificationTitle, $clientNotificationBody, ['code' => 'BILL_COMPLETED_REMINDER']);
             }
         } catch (\Exception $e) {
             Log::error('Failed to send bill completed reminder', [
@@ -320,6 +330,32 @@ class PartnerBillNotificationService
             Log::error('Failed to send new partner accepted notification', [
                 'partner_bill_id' => $partnerBill->id,
                 'new_partner_id' => $partner->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function sendOrderInJobNotification(PartnerBill $partnerBill): void
+    {
+        try {
+            /** @var Partner|null $partner */
+            $partner = Partner::find($partnerBill->partner_id);
+
+            if ($partner) {
+                $title = __('notification.bill_in_job_reminder.title');
+                $body = __('notification.bill_in_job_reminder.subject', ['code' => $partnerBill->code]);
+
+                Notification::make()
+                    ->title($title)
+                    ->body($body)
+                    ->info()
+                    ->sendToDatabase($partner);
+
+                $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_IN_JOB']);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send bill in job notification', [
+                'partner_bill_id' => $partnerBill->id,
                 'error' => $e->getMessage()
             ]);
         }

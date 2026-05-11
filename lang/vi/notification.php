@@ -39,4 +39,19 @@ return [
         'client_subject' => 'Nhắc nhở! Sự kiện ',
         'partner_subject' => 'Nhắc nhở! Sự kiện thuộc đơn :code sắp diễn ra, hãy chụp ảnh xác nhận nếu bạn đã đến nơi!',
     ],
+
+    'bill_completed_reminder_partner' => [
+        'title' => 'Nhắc nhở hoàn tất đơn sự kiện',
+        'subject' => 'Đơn sự kiện mã :code đã hoàn tất, hãy bấm hoàn thành đơn!',
+    ],
+
+    'bill_completed_reminder_client' => [
+        'title' => 'Nhắc nhở hoàn tất đơn sự kiện',
+        'subject' => 'Đơn sự kiện mã :code của bạn đã hoàn tất, hãy bấm để đánh giá đơn!',
+    ],
+
+    'bill_in_job_reminder' => [
+        'title' => 'Đối tác đã đến địa điểm sự kiện',
+        'subject' => 'Đối tác đơn :code đã đến địa điểm sự kiện!',
+    ],
 ];
