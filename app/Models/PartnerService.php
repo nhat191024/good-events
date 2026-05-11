@@ -26,12 +26,12 @@ use Spatie\Activitylog\LogOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \App\Models\PartnerCategory $category
+ * @property-read \App\Models\PartnerCategory|null $category
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerMedia> $serviceMedia
  * @property-read int|null $service_media_count
- * @property-read \App\Models\User $user
+ * @property-read \App\Models\User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerService onlyTrashed()

@@ -11,7 +11,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
-use App\Services\PartnerBillMailService;
+use App\Services\PartnerBillNotificationService;
 
 use App\Enum\PartnerBillStatus;
 
@@ -32,7 +32,7 @@ class PartnerBillSecondJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(PartnerBillMailService $mailService): void
+    public function handle(PartnerBillNotificationService $mailService): void
     {
         $this->partnerBill->refresh();
 
@@ -47,51 +47,24 @@ class PartnerBillSecondJob implements ShouldQueue
     /**
      * Expire the partner bill and notify the client.
      */
-    private function expirePartnerBill(PartnerBill $partnerBill, PartnerBillMailService $mailService): void
+    private function expirePartnerBill(PartnerBill $partnerBill, PartnerBillNotificationService $notificationService): void
     {
         $partnerBill->status = PartnerBillStatus::EXPIRED;
         $partnerBill->saveQuietly();
 
-        //send email
-        $mailService->sendOrderExpiredNotification($partnerBill);
-
-        $client = User::find($partnerBill->client_id);
-        Notification::make()
-            ->title(__('notification.client_order_expired_title', ['code' => $partnerBill->code]))
-            ->body(__('notification.client_order_expired_body', ['code' => $partnerBill->code]))
-            ->danger()
-            ->actions([
-                Action::make('open')
-                    ->label('Xem đơn')
-                    ->url(route('client-orders.dashboard', ['order' => $partnerBill->id])),
-            ])
-            ->sendToDatabase($client);
+        $notificationService->sendOrderExpiredNotification($partnerBill);
     }
 
     /**
      * Send reminder to partner about upcoming event.
      */
-    private function sendPartnerReminder(PartnerBill $partnerBill, PartnerBillMailService $mailService)
+    private function sendPartnerReminder(PartnerBill $partnerBill, PartnerBillNotificationService $notificationService)
     {
         $eventDateTime = $partnerBill->date->copy()
-            ->setTimeFrom($partnerBill->start_time);
+        ->setTimeFrom($partnerBill->start_time);
 
         if ($eventDateTime->isFuture() && $eventDateTime->diffInHours(now()) <= 2) {
-            $partner = User::find($partnerBill->partner_id);
-
-            //send notification
-            Notification::make()
-                ->title(__('notification.partner_show_reminder_title', ['code' => $partnerBill->code]))
-                ->body(__('notification.partner_show_reminder_body', ['code' => $partnerBill->code, 'start_time' => $eventDateTime]))
-                ->warning()
-                ->actions([
-                    Action::make('open')
-                        ->label('Mở chat')
-                        ->url(route('chat.index', ['chat' => $partnerBill->thread_id])),
-                ])
-                ->sendToDatabase($partner);
-
-            $mailService->sendUpcomingEventReminder($partnerBill);
+            $notificationService->sendUpcomingEventReminder($partnerBill);
 
             $eventDuration = $partnerBill->start_time->diffInHours($partnerBill->end_time);
             $timeAfterEvent = $eventDateTime->copy()->addHours($eventDuration + 6);

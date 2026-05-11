@@ -32,8 +32,7 @@ class PaymentService
         bool $isAppRequest,
         ?string $returnUrl = null,
         ?string $cancelUrl = null,
-    )
-    {
+    ) {
         // This would integrate with your payment gateway
         // For now, we'll simulate payment processing
 
@@ -45,7 +44,7 @@ class PaymentService
             case 'qr_transfer':
                 return $this->processQRTransferPayment(
                     $data['billId'],
-                    $data['billId'],
+                    $data['billCode'],
                     $data['amount'],
                     $data['buyerName'] ?? null,
                     $data['buyerEmail'] ?? null,
@@ -115,14 +114,14 @@ class PaymentService
         $url = $returnUrl;
         if (!$url) {
             $url = $isAppRequest
-                ? env('APP_PAYMENT_RESULT_DEEPLINK_URL')
+                ? config('services.payos.app_deep_link')
                 : route('payment.result');
         }
 
         $cancelTarget = $cancelUrl;
         if (!$cancelTarget) {
             $cancelTarget = $isAppRequest
-                ? env('APP_PAYMENT_RESULT_DEEPLINK_URL')
+                ? config('services.payos.app_deep_link')
                 : route('payment.result');
         }
 

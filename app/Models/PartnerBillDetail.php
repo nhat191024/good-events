@@ -3,13 +3,8 @@
 namespace App\Models;
 
 use App\Models\User;
-
 use App\Enum\PartnerBillDetailStatus;
-use App\Events\PartnerBillDetailCreated;
-use App\Events\PartnerBillDetailStatusChanged;
-
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
+use App\Services\PartnerBillNotificationService;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read User $partner
+ * @property-read \App\Models\Partner|null $partner
  * @property-read \App\Models\PartnerBill $partnerBill
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBillDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBillDetail newQuery()
@@ -63,7 +58,8 @@ class PartnerBillDetail extends Model
         });
 
         static::created(function ($partnerBillDetail) {
-            static::handleBillDetailCreated($partnerBillDetail);
+            $notificationService = app(PartnerBillNotificationService::class);
+            $notificationService->sendNewPartnerAcceptedNotification($partnerBillDetail);
         });
 
         static::updated(function ($partnerBillDetail) {
@@ -75,26 +71,8 @@ class PartnerBillDetail extends Model
         });
     }
 
-    protected static function handleBillDetailCreated(PartnerBillDetail $partnerBillDetail): void
+    protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void
     {
-        // this is the client-side notification, check lang/vi/notification.php and find for key 'partner_accepted_title' for more info
-        $partner = User::find($partnerBillDetail->partner_id)->name ?? 'Đối tác';
-        Notification::make()
-            ->title(__('notification.partner_accepted_title'))
-            ->body(__('notification.partner_accepted_body', [
-                'partner_name' => $partner,
-                'code' => $partnerBillDetail->partnerBill->code,
-            ]))
-            ->success()
-            ->actions([
-                Action::make('open')
-                    ->label('Xem đơn')
-                    ->url(route('client-orders.dashboard', ['order' => $partnerBillDetail->partner_bill_id])),
-            ])
-            ->sendToDatabase(User::find($partnerBillDetail->partnerBill->client_id));
-    }
-
-    protected static function handleClosedStatus(PartnerBillDetail $partnerBillDetail): void {
         // client does not need to know about their own partner-confirmation, they problably know it already
     }
 
@@ -116,6 +94,6 @@ class PartnerBillDetail extends Model
 
     public function partner()
     {
-        return $this->belongsTo(User::class, 'partner_id');
+        return $this->belongsTo(Partner::class, 'partner_id');
     }
 }

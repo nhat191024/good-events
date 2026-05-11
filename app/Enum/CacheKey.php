@@ -12,6 +12,9 @@ enum CacheKey: string
     case PARTNER_CATEGORIES = 'partner_categories';
     case PARTNER_CATEGORIES_TREE = 'partner_categories_tree';
     case PARTNER_CATEGORIES_ALL = 'partner_categories_all';
+    case PARTNER_CATEGORY_WITH_PARENT = 'partner_category_with_parent';
+
+        //Partner Services
     case PARTNER_SERVICES = 'partner_services';
 
         //FileProduct Discover Page
@@ -27,4 +30,17 @@ enum CacheKey: string
 
         //RentProduct Detail Page
     case RENT_CATEGORY_DETAIL = 'rent_category_detail';
+
+    case USER_CATEGORY_EXISTS = 'user_category_exists_';
+
+    case THREAD_PARTICIPANT = 'thread_participant_';
+
+        //Location
+    case LOCATION_WARDS = 'location_wards_';
+    case LOCATION_PROVINCES = 'location_provinces';
+
+        //Partner Analytics
+    case PARTNER_STATS = 'partner_stats_';
+    case PARTNER_REVENUE_CHART = 'partner_revenue_chart_';
+    case PARTNER_TOP_SERVICES = 'partner_top_services_';
 }

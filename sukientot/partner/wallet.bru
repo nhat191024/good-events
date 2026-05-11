@@ -1,0 +1,20 @@
+meta {
+  name: wallet
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{url}}partner/wallet/transactions
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

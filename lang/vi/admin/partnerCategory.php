@@ -43,4 +43,8 @@ return [
         'create' => 'Thêm danh mục sự kiện',
         'create_partner_category' => 'Thêm danh mục đối tác',
     ],
+
+    'messages' => [
+        'delete' => 'Bạn có chắc chắn muốn ẩn danh mục này không? Hành động này sẽ ẩn toàn bộ dịch vụ đối tác thuộc danh mục, đồng thời hủy đơn và xóa chat thuộc danh mục.',
+    ],
 ];

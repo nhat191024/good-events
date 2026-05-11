@@ -1,0 +1,20 @@
+meta {
+  name: location
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{url}}partner/calendar/events
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

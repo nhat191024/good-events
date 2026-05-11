@@ -59,7 +59,7 @@ class ListWallets extends ListRecords
         $transaction = $user->deposit($amount, ['reason' => 'Nạp tiền vào ví qua QR', 'transaction_codes' => $id, 'old_balance' => $oldBalance, 'new_balance' => $oldBalance + $amount], false);
 
         $timestamp = time();
-        $billId = $transaction->id . $timestamp;
+        $billId = intval($transaction->id . '1010' . substr((string) $timestamp, -3));
 
         $data = [
             'billId' => $billId,

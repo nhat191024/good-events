@@ -13,9 +13,7 @@ class HealthController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'timestamp' => now()->toISOString(),
-            'service' => 'good-events',
-        ]);
+        ], 200);
     }
 
     /**

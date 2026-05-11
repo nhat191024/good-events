@@ -53,8 +53,12 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $phone
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property string|null $phone_verified_at
  * @property bool $can_accept_shows
  * @property string|null $google_id
+ * @property string|null $apple_id
+ * @property string|null $fcm_token
+ * @property bool $is_delete_account
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -63,11 +67,14 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read int|null $activities_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Review> $authoredReviews
  * @property-read int|null $authored_reviews_count
+ * @property-read string|null $avatar_image_tag
  * @property-read string|null $avatar_url
  * @property-read non-empty-string $balance
  * @property-read int $balance_int
  * @property-read string|null $partner_profile_name
  * @property-read \Bavix\Wallet\Models\Wallet $wallet
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read int|null $media_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Message> $messages
  * @property-read int|null $messages_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
@@ -112,6 +119,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User permission($permissions, $without = false)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User role($roles, $guard = null, $without = false)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAppleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatar($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCanAcceptShows($value)
@@ -120,11 +128,14 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFcmToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGoogleId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereIsDeleteAccount($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePhoneVerifiedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
@@ -153,6 +164,9 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'password',
         'can_accept_shows',
         'google_id',
+        'apple_id',
+        'fcm_token',
+        'is_delete_account',
     ];
 
     /**
@@ -187,6 +201,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'can_accept_shows' => 'boolean',
+            'is_delete_account' => 'boolean',
         ];
     }
 
@@ -276,7 +291,11 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             return $this->avatar;
         }
 
-        return asset('storage/' . ltrim($this->avatar, '/'));
+        // return asset('storage/' . ltrim($this->avatar, '/'));
+
+        $url = env('APP_ENV') === 'production' ? asset(ltrim($this->avatar, '/')) : asset('storage/' . ltrim($this->avatar, '/'));
+
+        return $url;
     }
 
     /**

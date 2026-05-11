@@ -1,0 +1,20 @@
+meta {
+  name: dashboard
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{url}}partner/dashboard
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

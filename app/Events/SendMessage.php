@@ -25,15 +25,27 @@ class SendMessage implements ShouldBroadcastNow
     }
 
     /**
+     * The event's broadcast name.
+     */
+    public function broadcastAs(): string
+    {
+        return 'SendMessage';
+    }
+
+    /**
      * Get the channels the event should broadcast on.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel('thread.' . $this->message['thread_id']),
-        ];
+        $channels = [new PrivateChannel('thread.' . $this->message['thread_id'])];
+
+        foreach ($this->message['other_participant_ids'] ?? [] as $participantId) {
+            $channels[] = new PrivateChannel('user-messages.' . $participantId);
+        }
+
+        return $channels;
     }
 
     /**
@@ -58,7 +70,7 @@ class SendMessage implements ShouldBroadcastNow
             ],
             'user' => [
                 'id' => $this->message['user_id'],
-                'name' => $this->message['user']['name'] ?? 'Người dùng đã xóa',
+                'name' => $this->message['user']['name'] ?? 'Ghost',
             ],
         ];
 

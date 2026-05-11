@@ -65,37 +65,6 @@ const emptyInitial: PartnerBillForm = {
     note: '',
 }
 
-function readStoredInitial(): Partial<PartnerBillForm> | null {
-    if (typeof window === 'undefined') {
-        return null
-    }
-
-    try {
-        const stored = window.localStorage.getItem(LS_KEY)
-        const parsed = stored ? JSON.parse(stored) : null
-
-        return parsed && typeof parsed === 'object' ? parsed : null
-    } catch (e) {
-        console.error('cannot read ls', e)
-        return null
-    }
-}
-
-const storedInitial = readStoredInitial()
-const initial: PartnerBillForm = {
-    ...emptyInitial,
-    ...storedInitial,
-}
-
-if (storedInitial) {
-    // set null or empty for the unrecoverable fields
-    initial.order_date = null
-    initial.event_id = null
-    initial.custom_event = null
-    initial.province_id = null
-    initial.ward_id = null
-}
-
 const location = reactive({
     provinceId: initial.province_id as string | null,
 })

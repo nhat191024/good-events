@@ -1,0 +1,20 @@
+meta {
+  name: index
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{local_url}}notifications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

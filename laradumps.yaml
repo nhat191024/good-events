@@ -4,7 +4,7 @@ app:
     secondary_host: host.docker.internal
     port: 9191
     workdir: /var/www/html/
-    project_path: 'F:\Code\Working_project\sukientot\'
+    project_path: 'F:\Working_project\GoodEvent\'
     wsl_config: wsl+Ubuntu/
 config:
     sleep: 0
@@ -24,6 +24,7 @@ observers:
     scheduled_commands: false
     gate: false
     cache: false
+    brain: false
 xdebug:
     client_host: 0.0.0.0
     client_port: 9003

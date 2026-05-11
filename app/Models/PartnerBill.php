@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Enum\PartnerBillStatus;
+use App\Enum\PartnerBillDetailStatus;
 use App\Enum\StatisticType;
+use App\Enum\CacheKey;
 
 use App\Services\PartnerWidgetCacheService;
-use App\Services\PartnerBillMailService;
+use App\Services\PartnerBillNotificationService;
 
 use App\Settings\PartnerSettings;
 
@@ -14,7 +16,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -194,10 +196,11 @@ class PartnerBill extends Model implements HasMedia
     {
         // $superAdmin = User::whereName('Super Admin')->first();
         $admin = User::whereName('Admin')->first();
-        $mailService = new PartnerBillMailService();
+        $mailService = new PartnerBillNotificationService();
         $mailService->sendOrderReceivedNotification($partnerBill);
 
         $clientId = $partnerBill->client_id;
+        $clientName = $partnerBill->client ? $partnerBill->client->name : 'Khách hàng';
 
         $stats = Statistical::whereUserId($clientId)
             ->whereMetricsName(StatisticType::ORDERS_PLACED->value)
@@ -212,7 +215,7 @@ class PartnerBill extends Model implements HasMedia
         //create thread for communication
         $partnerCategoryName = $partnerBill->category ? $partnerBill->category->name : 'General';
         $thread = Thread::create([
-            'subject' => "$partnerBill->code - $partnerCategoryName"
+            'subject' => "$clientName - $partnerCategoryName"
         ]);
 
         try {
@@ -273,7 +276,7 @@ class PartnerBill extends Model implements HasMedia
         $clientId = $partnerBill->client_id;
         $finalTotal = $partnerBill->final_total;
 
-        // Fetch all relevant statistics in one query for partner
+        /** @var Statistical|null $partnerStats */
         $partnerStats = Statistical::where('user_id', $partnerId)
             ->whereIn('metrics_name', [
                 StatisticType::REVENUE_GENERATED->value,
@@ -284,16 +287,19 @@ class PartnerBill extends Model implements HasMedia
             ->keyBy('metrics_name');
 
         // Update partner statistics
+        /** @var Statistical|null $stat */
         if ($stat = $partnerStats->get(StatisticType::REVENUE_GENERATED->value)) {
             $stat->metrics_value = (float)$stat->metrics_value + (float)$finalTotal;
             $stat->save();
         }
 
+        /** @var Statistical|null $stat */
         if ($stat = $partnerStats->get(StatisticType::NUMBER_CUSTOMER->value)) {
             $stat->metrics_value = (int)$stat->metrics_value + 1;
             $stat->save();
         }
 
+        /** @var Statistical|null $stat */
         if ($stat = $partnerStats->get(StatisticType::COMPLETED_ORDERS->value)) {
             $stat->metrics_value = (int)$stat->metrics_value + 1;
             $stat->save();
@@ -309,11 +315,13 @@ class PartnerBill extends Model implements HasMedia
             ->keyBy('metrics_name');
 
         // Update client statistics
+        /** @var Statistical|null $stat */
         if ($stat = $clientStats->get(StatisticType::TOTAL_SPENT->value)) {
             $stat->metrics_value = (float)$stat->metrics_value + (float)$finalTotal;
             $stat->save();
         }
 
+        /** @var Statistical|null $stat */
         if ($stat = $clientStats->get(StatisticType::COMPLETED_ORDERS->value)) {
             $stat->metrics_value = (int)$stat->metrics_value + 1;
             $stat->save();
@@ -393,42 +401,19 @@ class PartnerBill extends Model implements HasMedia
      */
     protected static function handleConfirmedStatus(PartnerBill $partnerBill): void
     {
+        Cache::forget(CacheKey::THREAD_PARTICIPANT->value . "{$partnerBill->thread_id}");
         Participant::create([
             'thread_id' => $partnerBill->thread_id,
             'user_id' => $partnerBill->partner_id,
             'last_read' => null
         ]);
 
-        $mailService = new PartnerBillMailService();
-        $mailService->sendOrderConfirmedNotification($partnerBill);
+        PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
+            ->where('status', '!=', PartnerBillDetailStatus::CLOSED)
+            ->update(['status' => PartnerBillDetailStatus::CANCELLED]);
 
-        $partner = Partner::findOrFail($partnerBill->partner_id);
-
-        if (!$partner) {
-            Log::warning('Partner bill confirmed but partner record missing', [
-                'partner_bill_id' => $partnerBill->id,
-                'partner_id' => $partnerBill->partner_id,
-            ]);
-
-            return;
-        }
-
-        $client = User::find($partnerBill->client_id);
-        $clientName = $client?->name ?? 'Khách hàng';
-
-        Notification::make()
-            ->title(__('notification.client_accepted_title'))
-            ->body(__('notification.client_accepted_body', [
-                'code' => $partnerBill->code,
-                'client_name' => $clientName,
-            ]))
-            ->warning()
-            ->actions([
-                Action::make('open')
-                    ->label('Mở chat')
-                    ->url(route('filament.partner.pages.chat', ['chat' => $partnerBill->thread_id])),
-            ])
-            ->sendToDatabase($partner,  true);
+        $notificationService = new PartnerBillNotificationService();
+        $notificationService->sendOrderConfirmedNotification($partnerBill);
     }
 
     /**
@@ -440,18 +425,6 @@ class PartnerBill extends Model implements HasMedia
         if ($thread) {
             $thread->delete();
         }
-
-        //send notification
-        Notification::make()
-            ->title(__('notification.partner_bill_expired_title', ['code' => $partnerBill->code]))
-            ->body(__('notification.partner_bill_expired_body', ['code' => $partnerBill->code]))
-            ->danger()
-            ->actions([
-                Action::make('open')
-                    ->label('Xem đơn')
-                    ->url(route('filament.partner.resources.partner-bill-histories.index', ['order' => $partnerBill->id])),
-            ])
-            ->sendToDatabase(Partner::findOrFail($partnerBill->client_id), true);
     }
 
     //model helpers method

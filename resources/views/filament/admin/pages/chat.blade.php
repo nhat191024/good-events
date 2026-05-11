@@ -309,7 +309,7 @@
                     }
 
                     const channel = window.Echo.private(`thread.${threadId}`)
-                        .listen('SendMessage', (payload) => {
+                        .listen('.SendMessage', (payload) => {
                             payload = Array.isArray(payload) ? payload : [payload];
                             Livewire.dispatch('chat:message-received', payload);
                         });

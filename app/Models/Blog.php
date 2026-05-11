@@ -37,11 +37,12 @@ use Spatie\Activitylog\LogOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \App\Models\User $author
- * @property-read \App\Models\Category $category
+ * @property-read \App\Models\User|null $author
+ * @property-read \App\Models\Category|null $category
  * @property-read \App\Models\Location|null $location
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read int|null $media_count
+ * @property-read \RalphJSmit\Laravel\SEO\Models\SEO $seo
  * @property \Illuminate\Database\Eloquent\Collection<int, \Spatie\Tags\Tag> $tags
  * @property-read int|null $tags_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Blog newModelQuery()

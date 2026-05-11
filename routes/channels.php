@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Broadcast;
 use Cmgmyr\Messenger\Models\Participant;
+use App\Enum\CacheKey;
 
 // Only register channels if we have valid Pusher credentials
 if (
@@ -23,11 +24,22 @@ if (
     });
 
     Broadcast::channel('category.{categoryId}', function ($user, $categoryId) {
-        return $user->partnerServices()->where('id', $categoryId)->exists();
+        $key = CacheKey::USER_CATEGORY_EXISTS->value . "{$user->id}_{$categoryId}";
+        return cache()->remember($key, now()->addMinutes(10), function () use ($user, $categoryId) {
+            return $user->partnerServices()->where('category_id', $categoryId)->exists();
+        });
     });
 
     Broadcast::channel('thread.{threadId}', function ($user, $threadId) {
-        $participants = Participant::where('thread_id', $threadId)->where('user_id', $user->id)->first();
-        return $participants ? true : false;
+        $key = CacheKey::THREAD_PARTICIPANT->value . "{$threadId}";
+        $participantIds = cache()->remember($key, now()->addWeek(), function () use ($threadId) {
+            return Participant::where('thread_id', $threadId)->pluck('user_id')->all();
+        });
+
+        return in_array($user->id, $participantIds);
+    });
+
+    Broadcast::channel('user-messages.{userId}', function ($user, $userId) {
+        return (int) $user->id === (int) $userId;
     });
 }

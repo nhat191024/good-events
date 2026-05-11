@@ -1,0 +1,419 @@
+<?php
+
+namespace App\Http\Controllers\Api\Partner;
+
+use App\Enum\PartnerBillDetailStatus;
+use App\Enum\PartnerBillStatus;
+
+use App\Models\PartnerBill;
+use App\Models\PartnerBillDetail;
+
+use App\Http\Controllers\Api\Concerns\PaginatesApi;
+use App\Http\Controllers\Controller;
+
+use App\Http\Resources\Api\Partner\PartnerBillResource;
+use App\Http\Resources\Api\Partner\RealtimePartnerBillCollection;
+
+use App\Settings\PartnerSettings;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class BillController extends Controller
+{
+    use PaginatesApi;
+
+    private const int DEFAULT_PER_PAGE = 5;
+    private const int MAX_PER_PAGE = 50;
+
+    /**
+     * GET /api/partner/bills/realtime
+     *
+     * Query: search, date_filter, category_id
+     * Response: { partner_bills, available_categories, last_updated }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function realtime(Request $request)
+    {
+        $user = $request->user();
+        if (!$user || !$user->partnerServices()->exists()) {
+            return response()->json([
+                'partner_bills' => [],
+                'available_categories' => [],
+            ]);
+        }
+
+        $partnerServices = $user->partnerServices()
+            ->select('id', 'category_id', 'status')
+            ->where('status', 'approved')
+            ->with('category:id,name')
+            ->get();
+
+        $categoryIds = $partnerServices->pluck('category_id')->unique()->toArray();
+        $categoriesMap = $partnerServices
+            ->filter(fn($service) => $service->category !== null)
+            ->pluck('category', 'category.id')
+            ->unique('id');
+
+        $availableCategories = $categoriesMap
+            ->map(fn($category) => [
+                'id' => $category->id,
+                'name' => $category->name,
+            ])
+            ->values()
+            ->toArray();
+
+        $query = PartnerBill::whereIn('category_id', $categoryIds)
+            ->with([
+                'client:id,name,email,avatar,created_at',
+                'client.partnerProfile:id,user_id,partner_name',
+                'event:id,name',
+                'category' => fn($q) => $q->withTrashed(),
+            ])
+            ->where('status', PartnerBillStatus::PENDING)
+            ->whereDoesntHave('details', function ($query) use ($user) {
+                $query->where('partner_id', $user->id);
+            });
+
+        $this->applyFilters($query, $request, true);
+
+        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
+        $page = max(1, (int) $request->query('page', 1));
+
+        $paginator = $query->latest()->paginate($perPage, ['*'], 'page', $page);
+
+        $paginator->getCollection()->each(function ($bill) use ($categoriesMap) {
+            if (isset($categoriesMap[$bill->category_id])) {
+                $bill->setRelation('category', $categoriesMap[$bill->category_id]);
+            }
+        });
+
+        return response()->json([
+            'partner_bills' => [
+                'data' => RealtimePartnerBillCollection::make($paginator->items())->resolve(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                    'last_page' => $paginator->lastPage(),
+                ],
+            ],
+            'available_categories' => $availableCategories,
+            'last_updated' => now()->format('H:i:s'),
+        ]);
+    }
+
+    /**
+     * POST /api/partner/bills/{bill}/accept
+     *
+     * Body: price
+     * Response: { success: true } or { message }
+     *
+     * @param Request $request
+     * @param PartnerBill $bill
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function accept(Request $request, PartnerBill $bill)
+    {
+        $request->validate([
+            'price' => ['required', 'numeric', 'min:1'],
+        ]);
+
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated.', 'code' => 'UNAUTHENTICATED'], 401);
+        }
+
+        if (!$user->can_accept_shows) {
+            return response()->json(['message' => 'Not allowed to accept orders.', 'code' => 'NOT_ALLOWED_TO_ACCEPT_ORDERS'], 403);
+        }
+
+        $balance = $user->balanceInt;
+        $minimumBalance = app(PartnerSettings::class)->minimum_balance;
+        if ($balance < $minimumBalance) {
+            return response()->json(['message' => 'Insufficient balance.', 'code' => 'INSUFFICIENT_BALANCE'], 422);
+        }
+
+        if ($bill->status !== PartnerBillStatus::PENDING) {
+            return response()->json(['message' => 'Order is not pending.', 'code' => 'ORDER_NOT_PENDING'], 422);
+        }
+
+        PartnerBillDetail::create([
+            'partner_bill_id' => $bill->id,
+            'partner_id' => $user->id,
+            'total' => $request->input('price'),
+            'status' => PartnerBillDetailStatus::NEW,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * GET /api/partner/bills/history
+     *
+     * Query: search, date_filter, sort, page, per_page
+     * Response: { bills: PartnerBillResource[] (paginated) }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function history(Request $request)
+    {
+        $query = PartnerBill::query()
+            ->whereHas('details', function ($q) {
+                $q->where('partner_id', auth()->id());
+            })
+            ->whereIn('status', [
+                PartnerBillStatus::COMPLETED,
+                PartnerBillStatus::EXPIRED,
+                PartnerBillStatus::CANCELLED,
+            ])
+            ->with([
+                'client',
+                'category' => fn($q) => $q->withTrashed(),
+                'event',
+                'details' => function ($q) {
+                    $q->where('partner_id', auth()->id());
+                },
+            ]);
+
+        $this->applyFilters($query, $request, false);
+
+        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
+        $page = max(1, (int) $request->query('page', 1));
+
+        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json(
+            $this->paginatedData($paginator, PartnerBillResource::class)
+        );
+    }
+
+    /**
+     * GET /api/partner/bills/{status}
+     *
+     * Param: status = pending | confirmed
+     * Query: search, date_filter, sort, page, per_page
+     * Response: { bills: PartnerBillResource[] (paginated) }
+     *
+     * @param Request $request
+     * @param string $status
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function list(Request $request, string $status)
+    {
+        $query = PartnerBill::query();
+
+        if ($status === 'pending') {
+            $query->where('status', PartnerBillStatus::PENDING)
+                ->whereHas('details', function ($query) {
+                    $query->where('partner_id', auth()->id())
+                        ->whereStatus(PartnerBillDetailStatus::NEW);
+                })
+                ->with([
+                    'client',
+                    'category' => fn($q) => $q->withTrashed(),
+                    'event',
+                    'details' => function ($query) {
+                        $query->where('partner_id', auth()->id())
+                            ->whereStatus(PartnerBillDetailStatus::NEW);
+                    },
+                ]);
+        } else {
+            $query->whereIn('status', [
+                PartnerBillStatus::CONFIRMED,
+                PartnerBillStatus::IN_JOB,
+            ])
+                ->whereHas('details', function ($query) {
+                    $query->where('partner_id', auth()->id())
+                        ->whereStatus(PartnerBillDetailStatus::CLOSED);
+                })
+                ->with([
+                    'client',
+                    'category' => fn($q) => $q->withTrashed(),
+                    'event',
+                    'details' => function ($query) {
+                        $query->where('partner_id', auth()->id());
+                    },
+                ]);
+        }
+
+        $this->applyFilters($query, $request, false);
+
+        $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
+        $page = max(1, (int) $request->query('page', 1));
+
+        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json(
+            $this->paginatedData($paginator, PartnerBillResource::class),
+        );
+    }
+
+    /**
+     * GET /api/partner/bills/{bill}
+     *
+     * Response: { bill: PartnerBillResource }
+     *
+     * @param Request $request
+     * @param PartnerBill $bill
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, PartnerBill $bill)
+    {
+        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $bill->load(['client', 'category' => fn($q) => $q->withTrashed(), 'event', 'details' => function ($q) {
+            $q->where('partner_id', auth()->id());
+        }]);
+
+        return response()->json([
+            'bill' => new PartnerBillResource($bill),
+        ]);
+    }
+
+    /**
+     * POST /api/partner/bills/{bill}/mark-in-job (multipart/form-data)
+     *
+     * Body: arrival_photo (image)
+     * Response: { success: true }
+     *
+     * @param Request $request
+     * @param PartnerBill $bill
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markInJob(Request $request, PartnerBill $bill)
+    {
+        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        if ($bill->status !== PartnerBillStatus::CONFIRMED) {
+            return response()->json(['message' => 'Order must be confirmed.', 'status' => $bill->status], 422);
+        }
+
+        $request->validate([
+            'arrival_photo' => 'required|image|max:5120|mimes:jpeg,png,jpg,webp',
+        ]);
+
+        if ($request->hasFile('arrival_photo')) {
+            $file = $request->file('arrival_photo');
+            $bill->addMedia($file->getRealPath())
+                ->usingName('Arrival Photo - ' . $bill->code)
+                ->usingFileName($file->getClientOriginalName())
+                ->toMediaCollection('arrival_photo');
+        }
+
+        $bill->status = PartnerBillStatus::IN_JOB;
+        $bill->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * POST /api/partner/bills/{bill}/complete
+     *
+     * Response: { success: true }
+     *
+     * @param Request $request
+     * @param PartnerBill $bill
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function complete(Request $request, PartnerBill $bill)
+    {
+        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        if ($bill->status !== PartnerBillStatus::IN_JOB) {
+            return response()->json(['message' => 'Order must be in job.'], 422);
+        }
+
+        $user = auth()->user();
+        $balance = $user->balanceInt;
+        $feePercentage = app(PartnerSettings::class)->fee_percentage;
+        $withdrawAmount = floor($bill->total * ($feePercentage / 100));
+
+        if ($balance < $withdrawAmount) {
+            return response()->json(['message' => 'Insufficient balance.'], 422);
+        }
+
+        $bill->status = PartnerBillStatus::COMPLETED;
+        $bill->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function cancel(Request $request, PartnerBill $bill)
+    {
+        if ($bill->status === PartnerBillStatus::IN_JOB || $bill->status === PartnerBillStatus::COMPLETED) {
+            return response()->json(['message' => 'Order must be pending to cancel.'], 422);
+        }
+
+        if ($bill->status == PartnerBillStatus::PENDING) {
+            $billDetail = PartnerBillDetail::where('partner_bill_id', $bill->id)
+                ->where('partner_id', auth()->id())
+                ->first();
+            $billDetail->delete();
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['message' => 'Order might be already accepted or completed.'], 422);
+    }
+
+    private function resolvePerPage(Request $request, int $default): int
+    {
+        $perPage = (int) $request->query('per_page', $default);
+        $perPage = max(1, $perPage);
+
+        return min(self::MAX_PER_PAGE, $perPage);
+    }
+
+    private function applyFilters($query, Request $request, bool $includesCategoryFilter): void
+    {
+        $search = trim((string) $request->query('search', ''));
+        $dateFilter = $request->query('date_filter', 'all');
+        $sortBy = $request->query('sort', 'date_asc');
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', '%' . $search . '%')
+                    ->orWhere('address', 'like', '%' . $search . '%')
+                    ->orWhere('phone', 'like', '%' . $search . '%')
+                    ->orWhereHas('client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('event', function ($eventQuery) use ($search) {
+                        $eventQuery->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if ($dateFilter !== 'all') {
+            match ($dateFilter) {
+                'today' => $query->whereDate('date', today()),
+                'tomorrow' => $query->whereDate('date', today()->addDay()),
+                'this_week' => $query->whereBetween('date', [now()->startOfWeek(), now()->endOfWeek()]),
+                'next_week' => $query->whereBetween('date', [now()->addWeek()->startOfWeek(), now()->addWeek()->endOfWeek()]),
+                'this_month' => $query->whereMonth('date', now()->month)->whereYear('date', now()->year),
+                default => null,
+            };
+        }
+
+        if ($includesCategoryFilter && $request->filled('category_id') && $request->query('category_id') !== 'all') {
+            $query->where('category_id', $request->query('category_id'));
+        }
+
+        if (!$includesCategoryFilter) {
+            match ($sortBy) {
+                'oldest' => $query->orderBy('updated_at', 'asc'),
+                'date_desc' => $query->orderBy('date', 'desc')->orderBy('start_time', 'desc'),
+                'newest' => $query->orderByDesc('updated_at'),
+                default => $query->orderBy('date', 'asc')->orderBy('start_time', 'asc'),
+            };
+        }
+    }
+}

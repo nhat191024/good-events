@@ -26,8 +26,8 @@ use App\Enum\PaymentMethod;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \App\Models\User $client
- * @property-read \App\Models\FileProduct $fileProduct
+ * @property-read \App\Models\User|null $client
+ * @property-read \App\Models\FileProduct|null $fileProduct
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill query()

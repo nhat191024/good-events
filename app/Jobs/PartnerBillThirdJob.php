@@ -2,24 +2,19 @@
 
 namespace App\Jobs;
 
+use App\Enum\PartnerBillStatus;
 use App\Models\PartnerBill;
-use App\Models\User;
-
-use Cmgmyr\Messenger\Models\Message;
+use App\Services\PartnerBillNotificationService;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-
-use App\Enum\PartnerBillStatus;
-
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
 
 class PartnerBillThirdJob implements ShouldQueue
 {
     use Queueable;
 
     private PartnerBill $partnerBill;
+    private PartnerBillNotificationService $partnerBillNotificationService;
 
     /**
      * Create a new job instance.
@@ -27,6 +22,7 @@ class PartnerBillThirdJob implements ShouldQueue
     public function __construct(PartnerBill $partnerBill)
     {
         $this->partnerBill = $partnerBill;
+        $this->partnerBillNotificationService = app(PartnerBillNotificationService::class);
     }
 
     /**
@@ -51,14 +47,6 @@ class PartnerBillThirdJob implements ShouldQueue
         $partnerBill->status = PartnerBillStatus::COMPLETED;
         $partnerBill->save();
 
-        Notification::make()
-            ->title(__('partner/bill.order_completed_success'))
-            ->success()
-            ->actions([
-                Action::make('open')
-                    ->label('Mở chat')
-                    ->url(route('chat.index', ['chat' => $partnerBill->thread_id])),
-            ])
-            ->sendToDatabase(User::find($partnerBill->partner_id));
+        $this->partnerBillNotificationService->sendBillCompletedReminder($partnerBill);
     }
 }
