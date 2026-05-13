@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserIsVerified;
+use App\Http\Middleware\Api\EnsureUserIsVerified as ApiEnsureUserIsVerified;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
@@ -45,6 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'verified.any' => EnsureUserIsVerified::class,
+            'api.verified' => ApiEnsureUserIsVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
