@@ -75,9 +75,17 @@ class ManageFileProductDesigns extends Page implements HasForms
                                 'application/x-rar-compressed',
                                 'application/vnd.rar',
                             ])
-                            ->downloadAction(
-                                fn(string $path) => Storage::disk('s3')->temporaryUrl($path, now()->addMinutes(5))
-                            )
+                            ->downloadAction(function (Action $action) {
+                                return $action->action(function (AdvancedFileUpload $component, array $arguments) {
+                                    $file = $component->isMultiple()
+                                        ? $component->getState()[$arguments['id']]
+                                        : $component->getState();
+
+                                    $url = Storage::disk('s3')->temporaryUrl($file['path'], now()->addMinutes(5));
+
+                                    return redirect($url);
+                                });
+                            })
                             ->columnSpanFull(),
                     ]),
             ])
