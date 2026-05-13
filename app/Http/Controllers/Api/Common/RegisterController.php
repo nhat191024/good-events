@@ -9,7 +9,6 @@ use App\Models\Customer;
 use App\Models\Location;
 use App\Models\Partner;
 use App\Models\PartnerProfile;
-use App\Services\EmailVerificationMailService;
 use App\Settings\PartnerSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -110,8 +109,6 @@ class RegisterController extends Controller
             'identity_card_number' => $validated['identity_card_number'],
             'location_id' => $ward->id,
         ]);
-
-        app(EmailVerificationMailService::class)->sendVerificationLink($user);
 
         $user->loadMissing('partnerProfile');
         $token = $user->createToken('mobile')->plainTextToken;
