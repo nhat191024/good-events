@@ -47,8 +47,6 @@ class RegisterController extends Controller
 
         $user->assignRole(Role::CLIENT);
 
-        app(EmailVerificationMailService::class)->sendVerificationLink($user);
-
         $user->loadMissing('partnerProfile');
         $token = $user->createToken('mobile')->plainTextToken;
 
