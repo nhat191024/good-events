@@ -21,6 +21,9 @@ Route::middleware(['auth:sanctum', 'api.verified'])->group(function () {
     Route::get('/register/partner/from-client', [ClientToPartnerController::class, 'form']);
     Route::post('/register/partner/from-client', [ClientToPartnerController::class, 'store']);
     Route::delete('/account/delete', [LoginController::class, 'deleteAccount']);
+});
+
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/verify/send-otp', [VerifyController::class, 'sendOtp']);
     Route::post('/verify/otp', [VerifyController::class, 'verifyOtp']);
 });
