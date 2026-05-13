@@ -57,9 +57,11 @@ class ZaloService
             //try again if error = -124 (invalid access token), after refreshing token
             if (isset($result['error']) && $result['error'] === -124) {
                 $this->getNewAccessToken();
+                Log::info('Access token refreshed. Retrying Zalo message to ' . $phone . ' with template ' . $templateId);
                 return $this->sendMessage($phone, $mode, $templateId, $templateData);
             }
 
+            Log::info('Zalo message sent to ' . $phone . ' with template ' . $templateId . '. Response: ' . json_encode($result));
             return $result;
         } catch (\Exception $e) {
             Log::error('Exception while sending Zalo message error code (' . ($result['error'] ?? 'N/A') . ') -  error message: ' . $e->getMessage());
