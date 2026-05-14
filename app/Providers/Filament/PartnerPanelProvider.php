@@ -28,6 +28,7 @@ use Filament\Actions\Action;
 
 use App\Models\Partner;
 use App\Http\Middleware\CheckPartnerAccess;
+use App\Http\Middleware\EnsureUserIsVerified;
 use App\Livewire\Component\ChatNotificationIndicator;
 
 use Illuminate\Support\Facades\Auth;
@@ -63,7 +64,6 @@ class PartnerPanelProvider extends PanelProvider
             ->path('partner')
             ->authGuard('web')
             ->authPasswordBroker('users')
-            ->emailVerification()
             ->passwordReset()
 
             ->brandName('Sự Kiện tốt - Đối tác')
@@ -131,6 +131,7 @@ class PartnerPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnsureUserIsVerified::class,
                 CheckPartnerAccess::class,
             ]);
     }
