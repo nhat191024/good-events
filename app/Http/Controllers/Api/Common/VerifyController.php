@@ -22,7 +22,7 @@ class VerifyController extends Controller
         $method = $request->input('method');
 
         if ($method === 'phone') {
-            app(OtpService::class)->sendOtp($request->user()->phone);
+            $request->user()->sendPhoneVerificationNotification();
         } else {
             app(EmailVerificationMailService::class)->sendVerificationLink($request->user());
         }
