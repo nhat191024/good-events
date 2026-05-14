@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Exceptions\OtpCooldownException;
+use App\Exceptions\OtpMaxAttemptsException;
 use App\Settings\AppSettings;
 use App\Enum\CacheKey;
 
@@ -39,11 +41,11 @@ class OtpService
         if (RateLimiter::tooManyAttempts($attemptsKey, $this->maxAttempts)) {
             $seconds = RateLimiter::availableIn($attemptsKey);
             $hours = ceil($seconds / 3600);
-            throw new \Exception(__('OTP Max Attempts', ['hours' => $hours]), 429);
+            throw new OtpMaxAttemptsException(__('OTP Max Attempts', ['hours' => $hours]));
         }
 
         if ($remainingSeconds = $this->getRecentOtpRemainingSeconds($phone)) {
-            throw new \Exception(__('Resend OTP wait', ['seconds' => $remainingSeconds]), 429);
+            throw new OtpCooldownException(__('Resend OTP wait', ['seconds' => $remainingSeconds]));
         }
 
         $otp = $this->generateOtp($phone);

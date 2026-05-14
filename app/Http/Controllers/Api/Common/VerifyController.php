@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Common;
 
+use App\Exceptions\OtpCooldownException;
+use App\Exceptions\OtpMaxAttemptsException;
 use App\Services\OtpService;
 use App\Services\EmailVerificationMailService;
 
@@ -21,10 +23,16 @@ class VerifyController extends Controller
 
         $method = $request->input('method');
 
-        if ($method === 'phone') {
-            $request->user()->sendPhoneVerificationNotification();
-        } else {
-            app(EmailVerificationMailService::class)->sendVerificationLink($request->user());
+        try {
+            if ($method === 'phone') {
+                $request->user()->sendPhoneVerificationNotification();
+            } else {
+                app(EmailVerificationMailService::class)->sendVerificationLink($request->user());
+            }
+        } catch (OtpMaxAttemptsException $e) {
+            return response()->json(['code' => 'MAX_ATTEMPTS', 'message' => $e->getMessage()], 429);
+        } catch (OtpCooldownException $e) {
+            return response()->json(['code' => 'OTP_COOLDOWN', 'message' => $e->getMessage()], 429);
         }
 
         return response()->json(['message' => __('OTP Sent')], 200);
@@ -48,6 +56,6 @@ class VerifyController extends Controller
             return response()->json(['message' => __('Phone Verified')], 200);
         }
 
-        return response()->json(['message' => __('Invalid OTP')], 422);
+        return response()->json(['code' => 'INVALID_OTP', 'message' => __('Invalid OTP')], 422);
     }
 }
