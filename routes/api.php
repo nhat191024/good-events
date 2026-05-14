@@ -20,7 +20,7 @@ require __DIR__ . '/api/profile.php';
 require __DIR__ . '/api/setting.php';
 
 // Authenticated client routes
-Route::middleware(['auth:sanctum', 'api.verified'])->group(function () {
+Route::middleware(['auth:sanctum',])->group(function () {
     require __DIR__ . '/api/client/home.php';
     require __DIR__ . '/api/quick-booking.php';
     require __DIR__ . '/api/orders.php';
@@ -33,7 +33,7 @@ Route::middleware(['auth:sanctum', 'api.verified'])->group(function () {
 });
 
 // Authenticated partner routes
-Route::middleware(['auth:sanctum', 'api.verified'])->prefix('partner')->group(function () {
+Route::middleware(['auth:sanctum'])->prefix('partner')->group(function () {
     require __DIR__ . '/api/partner/dashboard.php';
     require __DIR__ . '/api/partner/analytics.php';
     require __DIR__ . '/api/partner/bills.php';
@@ -45,4 +45,4 @@ Route::middleware(['auth:sanctum', 'api.verified'])->prefix('partner')->group(fu
 
 // Broadcasting auth endpoint for Sanctum API token authentication
 // Registers POST /api/broadcasting/auth
-Broadcast::routes(['middleware' => ['auth:sanctum', 'api.verified']]);
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
