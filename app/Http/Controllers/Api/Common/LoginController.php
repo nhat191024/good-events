@@ -39,9 +39,14 @@ class LoginController extends Controller
 
         $user = $request->user();
 
+
         if (!$user->hasVerifiedEmail() || !$user->hasVerifiedPhone()) {
+            $token = $user->createToken('mobile')->plainTextToken;
             return response()->json([
                 'code' => 'UNVERIFIED',
+                'token' => $token,
+                'role' => $this->resolvePrimaryRole($user),
+                'user' => new UserResource($user),
             ], 403);
         }
 
@@ -87,8 +92,12 @@ class LoginController extends Controller
         }
 
         if (!$user->hasVerifiedEmail() || !$user->hasVerifiedPhone()) {
+            $token = $user->createToken('mobile')->plainTextToken;
             return response()->json([
                 'code' => 'UNVERIFIED',
+                'token' => $token,
+                'role' => $this->resolvePrimaryRole($user),
+                'user' => new UserResource($user),
             ], 403);
         }
 
@@ -165,8 +174,12 @@ class LoginController extends Controller
         }
 
         if (!$user->hasVerifiedEmail() || !$user->hasVerifiedPhone()) {
+            $token = $user->createToken('mobile')->plainTextToken;
             return response()->json([
                 'code' => 'UNVERIFIED',
+                'token' => $token,
+                'role' => $this->resolvePrimaryRole($user),
+                'user' => new UserResource($user),
             ], 403);
         }
 
