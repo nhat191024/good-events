@@ -38,6 +38,13 @@ class LoginController extends Controller
         $request->authenticate();
 
         $user = $request->user();
+
+        if (!$user->hasVerifiedEmail() || !$user->hasVerifiedPhone()) {
+            return response()->json([
+                'code' => 'UNVERIFIED',
+            ], 403);
+        }
+
         $token = $user->createToken('mobile')->plainTextToken;
 
         return response()->json([
@@ -77,6 +84,12 @@ class LoginController extends Controller
             return response()->json([
                 'message' => 'Account not found.',
             ], 404);
+        }
+
+        if (!$user->hasVerifiedEmail() || !$user->hasVerifiedPhone()) {
+            return response()->json([
+                'code' => 'UNVERIFIED',
+            ], 403);
         }
 
         $user->update(['google_id' => $googleUser->getId()]);
@@ -149,6 +162,12 @@ class LoginController extends Controller
             return response()->json([
                 'message' => 'Account is linked to a different Apple account.',
             ], 409);
+        }
+
+        if (!$user->hasVerifiedEmail() || !$user->hasVerifiedPhone()) {
+            return response()->json([
+                'code' => 'UNVERIFIED',
+            ], 403);
         }
 
         $user->update(['apple_id' => $appleUser['sub']]);
