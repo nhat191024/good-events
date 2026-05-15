@@ -38,9 +38,11 @@ class VerifyController extends Controller
                 app(EmailVerificationMailService::class)->sendVerificationLink($request->user());
             }
         } catch (OtpMaxAttemptsException $e) {
-            return response()->json(['code' => 'MAX_ATTEMPTS', 'message' => $e->getMessage()], 429);
+            $e = (int) $e->getMessage();
+            return response()->json(['code' => 'MAX_ATTEMPTS', 'hours' => $e], 429);
         } catch (OtpCooldownException $e) {
-            return response()->json(['code' => 'OTP_COOLDOWN', 'message' => $e->getMessage()], 429);
+            $e = (int) $e->getMessage();
+            return response()->json(['code' => 'OTP_COOLDOWN', 'seconds' => $e], 429);
         }
 
         return response()->json(['message' => __('OTP Sent')], 200);
