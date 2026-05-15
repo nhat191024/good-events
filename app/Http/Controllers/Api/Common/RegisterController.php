@@ -13,7 +13,7 @@ use App\Settings\PartnerSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
 {
@@ -32,7 +32,15 @@ class RegisterController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:users,email',
             'phone' => 'required|string|max:20|unique:users,phone',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ], [
+            'password.min' => 'MIN_LENGTH_NOT_MET',
+            'password.letters' => 'MISSING_LETTERS',
+            'password.mixed' => 'MISSING_MIXED_CASE',
+            'password.numbers' => 'MISSING_NUMBERS',
+            'password.symbols' => 'MISSING_SYMBOLS',
+            'password.uncompromised' => 'PASSWORD_COMPROMISED',
+            'password.confirmed' => 'PASSWORD_CONFIRMATION_MISMATCH',
         ]);
 
         $user = Customer::create([
@@ -74,10 +82,17 @@ class RegisterController extends Controller
             'phone' => 'required|string|max:20|unique:users,phone',
             'identity_card_number' => 'required|string|max:50|unique:partner_profiles,identity_card_number',
             'ward_id' => 'required|integer|exists:locations,id',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Password::defaults()],
         ], [
             'ward_id.required' => 'Please select a ward.',
             'ward_id.exists' => 'Invalid ward.',
+            'password.min' => 'MIN_LENGTH_NOT_MET',
+            'password.letters' => 'MISSING_LETTERS',
+            'password.mixed' => 'MISSING_MIXED_CASE',
+            'password.numbers' => 'MISSING_NUMBERS',
+            'password.symbols' => 'MISSING_SYMBOLS',
+            'password.uncompromised' => 'PASSWORD_COMPROMISED',
+            'password.confirmed' => 'PASSWORD_CONFIRMATION_MISMATCH',
         ]);
 
         $ward = Location::findOrFail($validated['ward_id']);

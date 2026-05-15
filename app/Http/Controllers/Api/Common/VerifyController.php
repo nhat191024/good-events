@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
 
 class VerifyController extends Controller
 {
@@ -162,7 +162,15 @@ class VerifyController extends Controller
     {
         $request->validate([
             'reset_token' => ['required', 'string'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ], [
+            'password.min' => 'MIN_LENGTH_NOT_MET',
+            'password.letters' => 'MISSING_LETTERS',
+            'password.mixed' => 'MISSING_MIXED_CASE',
+            'password.numbers' => 'MISSING_NUMBERS',
+            'password.symbols' => 'MISSING_SYMBOLS',
+            'password.uncompromised' => 'PASSWORD_COMPROMISED',
+            'password.confirmed' => 'PASSWORD_CONFIRMATION_MISMATCH',
         ]);
 
         $cacheKey = CacheKey::PASSWORD_RESET_TOKEN->value . hash('sha256', $request->input('reset_token'));

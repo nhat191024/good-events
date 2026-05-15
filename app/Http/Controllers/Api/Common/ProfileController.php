@@ -209,6 +209,14 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
             'password' => ['required', Password::defaults(), 'confirmed'],
+        ], [
+            'password.min' => 'MIN_LENGTH_NOT_MET',
+            'password.letters' => 'MISSING_LETTERS',
+            'password.mixed' => 'MISSING_MIXED_CASE',
+            'password.numbers' => 'MISSING_NUMBERS',
+            'password.symbols' => 'MISSING_SYMBOLS',
+            'password.uncompromised' => 'PASSWORD_COMPROMISED',
+            'password.confirmed' => 'PASSWORD_CONFIRMATION_MISMATCH',
         ]);
 
         $request->user()?->update([
