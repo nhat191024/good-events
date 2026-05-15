@@ -217,10 +217,9 @@ class LoginController extends Controller
      * Response: { success: bool }
      *
      * @param Request $request
-     * @param PasswordResetMailService $passwordResetMailService
      * @return JsonResponse
      */
-    public function forgot(Request $request, PasswordResetMailService $passwordResetMailService, PhoneLoginService $phoneLoginService): JsonResponse
+    public function forgot(Request $request, PhoneLoginService $phoneLoginService): JsonResponse
     {
         $validated = $request->validate([
             'email' => ['required', 'string'],
@@ -236,14 +235,13 @@ class LoginController extends Controller
 
         if (!$user) {
             return response()->json([
+                'success' => false,
                 'message' => 'No account found with that email or phone number.',
             ]);
         }
 
-        $sent = $passwordResetMailService->sendResetLinkByEmail($input);
-
         return response()->json([
-            'success' => $sent,
+            'success' => true,
         ]);
     }
 
