@@ -41,11 +41,11 @@ class OtpService
         if (RateLimiter::tooManyAttempts($attemptsKey, $this->maxAttempts)) {
             $seconds = RateLimiter::availableIn($attemptsKey);
             $hours = ceil($seconds / 3600);
-            throw new OtpMaxAttemptsException(__('OTP Max Attempts', ['hours' => $hours]));
+            throw new OtpMaxAttemptsException($hours);
         }
 
         if ($remainingSeconds = $this->getRecentOtpRemainingSeconds($phone)) {
-            throw new OtpCooldownException(__('Resend OTP wait', ['seconds' => $remainingSeconds]));
+            throw new OtpCooldownException($remainingSeconds);
         }
 
         $otp = $this->generateOtp($phone);
