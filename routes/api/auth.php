@@ -10,7 +10,12 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::post('/login/google', [LoginController::class, 'loginGoogle']);
 Route::post('/auth/apple', [LoginController::class, 'loginApple']);
 Route::match(['get', 'post'], '/auth/apple/callback', [LoginController::class, 'appleCallback']);
-Route::post('/forgot', [LoginController::class, 'forgot']);
+
+Route::prefix('forgot')->group(function () {
+    Route::post('/send', [VerifyController::class, 'sendForgotOtp']);
+    Route::post('/verify-otp', [VerifyController::class, 'verifyForgotOtp']);
+    Route::post('/reset-password', [VerifyController::class, 'resetPassword']);
+});
 
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/register/partner', [RegisterController::class, 'registerPartner']);

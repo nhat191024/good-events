@@ -211,41 +211,6 @@ class LoginController extends Controller
     }
 
     /**
-     * POST /api/forgot
-     *
-     * Body: email
-     * Response: { success: bool }
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function forgot(Request $request, PhoneLoginService $phoneLoginService): JsonResponse
-    {
-        $validated = $request->validate([
-            'email' => ['required', 'string'],
-        ]);
-
-        $input = $validated['email'];
-
-        if ($phoneLoginService->isPhoneNumber($input)) {
-            $input = $phoneLoginService->findEmailByPhone($input) ?? $input;
-        }
-
-        $user = User::where('email', $input)->first();
-
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No account found with that email or phone number.',
-            ]);
-        }
-
-        return response()->json([
-            'success' => true,
-        ]);
-    }
-
-    /**
      * GET /api/logout
      *
      * Response: { success: true }
