@@ -22,13 +22,14 @@ class PhoneLoginService
     }
 
     /**
-     * normalize a phone number by removing a leading '0' or country code '84'.
+     * Normalize a phone number to the format 0XXXXXXXXX.
+     * Strips country code (+84 / 84) and ensures a leading '0'.
      *
      * examples:
-     *   0912345678  -> 912345678
-     *   84912345678 -> 912345678
-     *   +84912345678 -> 912345678
-     *   912345678   -> 912345678 (unchanged)
+     *   0912345678   -> 0912345678 (unchanged)
+     *   84912345678  -> 0912345678
+     *   +84912345678 -> 0912345678
+     *   912345678    -> 0912345678
      */
     public function normalizePhone(string $phone): string
     {
@@ -38,8 +39,10 @@ class PhoneLoginService
 
         if (str_starts_with($phone, '84')) {
             $phone = substr($phone, 2);
-        } elseif (str_starts_with($phone, '0')) {
-            $phone = substr($phone, 1);
+        }
+
+        if (! str_starts_with($phone, '0')) {
+            $phone = '0' . $phone;
         }
 
         return $phone;
@@ -54,15 +57,7 @@ class PhoneLoginService
     {
         $normalized = $this->normalizePhone($phone);
 
-        // The DB may store the phone in any of these formats, so check all variants
-        $variants = [
-            $normalized,           // 987654329
-            '0' . $normalized,     // 0987654329
-            '84' . $normalized,    // 84987654329
-            '+84' . $normalized,   // +84987654329
-        ];
-
-        $user = User::whereIn('phone', $variants)->first();
+        $user = User::where('phone', $normalized)->first();
 
         return $user?->email;
     }
