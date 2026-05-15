@@ -10,13 +10,13 @@ class EnsureUserIsVerified
 {
     /**
      * Redirect to verification method selection if the user has not verified
-     * either their email or phone number.
+     * their email or phone number.
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        if (! $user->hasVerifiedEmail() && ! $user->hasVerifiedPhone()) {
+        if (! $user->hasVerifiedEmail() || ! $user->hasVerifiedPhone()) {
             return redirect()->route('verification.method');
         }
 
