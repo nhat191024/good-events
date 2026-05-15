@@ -6,6 +6,8 @@ use Inertia\Inertia;
 
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 
+use App\Models\User;
+
 use App\Settings\AppSettings;
 use App\Enum\FilamentNavigationGroup;
 
@@ -47,13 +49,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-        if ($this->app->environment('local') && class_exists(\Laravel\Telescope\TelescopeServiceProvider::class)) {
-            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
-            $this->app->register(TelescopeServiceProvider::class);
-        }
-    }
+    public function register(): void {}
 
     /**
      * Bootstrap any application services.
@@ -99,6 +95,10 @@ class AppServiceProvider extends ServiceProvider
         // Gate::before(function ($user, $ability) {
         //     return $user->hasRole(Role::SUPER_ADMIN->value) ? true : null;
         // });
+
+        Gate::define('viewPulse', function (User $user) {
+            return $user->hasRole('super_admin');
+        });
 
         Filament::registerNavigationGroups([
             'system'   => NavigationGroup::make(fn() => FilamentNavigationGroup::SYSTEM->getLabel()),
