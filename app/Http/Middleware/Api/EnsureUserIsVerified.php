@@ -15,7 +15,7 @@ class EnsureUserIsVerified
     {
         $user = $request->user();
 
-        if (! $user->hasVerifiedEmail() || ! $user->hasVerifiedPhone()) {
+        if (! $user->hasVerifiedEmail() && ! $user->hasVerifiedPhone()) {
             return response()->json([
                 'code' => 'UNVERIFIED',
                 'message' => __('Your account is not verified. Please verify your email or phone number.'),

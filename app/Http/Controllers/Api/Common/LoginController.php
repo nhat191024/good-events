@@ -39,8 +39,7 @@ class LoginController extends Controller
 
         $user = $request->user();
 
-
-        if (!$user->hasVerifiedEmail() || !$user->hasVerifiedPhone()) {
+        if (!$user->hasVerifiedEmail() && !$user->hasVerifiedPhone()) {
             $token = $user->createToken('mobile')->plainTextToken;
             return response()->json([
                 'code' => 'UNVERIFIED',
@@ -91,7 +90,7 @@ class LoginController extends Controller
             ], 404);
         }
 
-        if (!$user->hasVerifiedEmail() || !$user->hasVerifiedPhone()) {
+        if (!$user->hasVerifiedEmail() && !$user->hasVerifiedPhone()) {
             $token = $user->createToken('mobile')->plainTextToken;
             return response()->json([
                 'code' => 'UNVERIFIED',
@@ -173,7 +172,7 @@ class LoginController extends Controller
             ], 409);
         }
 
-        if (!$user->hasVerifiedEmail() || !$user->hasVerifiedPhone()) {
+        if (!$user->hasVerifiedEmail() && !$user->hasVerifiedPhone()) {
             $token = $user->createToken('mobile')->plainTextToken;
             return response()->json([
                 'code' => 'UNVERIFIED',
