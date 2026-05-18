@@ -107,11 +107,11 @@ class PartnerService extends Model implements HasMedia
 
     public static function getByUserCached($userId)
     {
-        return Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_user_{$userId}", function () use ($userId) {
+        return collect(Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_user_{$userId}", function () use ($userId) {
             return static::where('user_id', $userId)
                 ->with('serviceMedia')
                 ->get();
-        });
+        }));
     }
 
     /**
