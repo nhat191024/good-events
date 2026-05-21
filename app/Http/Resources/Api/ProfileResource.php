@@ -22,7 +22,7 @@ class ProfileResource extends JsonResource
         return [
             'id' => $this->id,
             'is_legit' => $partnerProfile?->is_legit,
-            'avatar_url' => $this->avatar_url,
+            'avatar_url' => $this->getFirstMediaUrl('avatar') ?: $this->avatar_url,
             'name' => $this->name,
             'partner_name' => $partnerProfile?->partner_name,
             'phone' => $this->phone,
