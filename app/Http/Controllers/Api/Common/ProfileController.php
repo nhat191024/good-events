@@ -7,6 +7,8 @@ use App\Enum\PartnerBillStatus;
 use App\Enum\StatisticType;
 
 use App\Models\User;
+use App\Models\Partner;
+use App\Models\Customer;
 
 use App\Http\Controllers\Controller;
 
@@ -82,18 +84,6 @@ class ProfileController extends Controller
             $user->bio = $bio === '' ? null : $bio;
         }
 
-        if ($request->hasFile('avatar')) {
-            $avatar = $request->file('avatar');
-            $filename = Str::ulid() . '.' . $avatar->getClientOriginalExtension();
-            $path = $avatar->storeAs('uploads/avatars', $filename, 'public');
-
-            if ($user->getOriginal('avatar') && !Str::startsWith($user->getOriginal('avatar'), ['http://', 'https://'])) {
-                Storage::disk('public')->delete($user->getOriginal('avatar'));
-            }
-
-            $user->avatar = $path;
-        }
-
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
@@ -160,6 +150,28 @@ class ProfileController extends Controller
             }
 
             $partnerProfile->save();
+
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+
+                $partner = Partner::find($user->id);
+                $partner->clearMediaCollection('avatar');
+                $partner
+                    ->addMediaFromRequest('avatar')
+                    ->usingFileName(Str::ulid() . '.' . $avatar->getClientOriginalExtension())
+                    ->toMediaCollection('avatar');
+
+                $user = Partner::find($user->id);
+            }
+        } elseif ($user->hasRole(Role::CLIENT) && $request->hasFile('avatar')) {
+            $avatar = $request->file('avatar');
+            $client = Customer::find($user->id);
+
+            $client->clearMediaCollection('avatar');
+            $client
+                ->addMediaFromRequest('avatar')
+                ->usingFileName(Str::ulid() . '.' . $avatar->getClientOriginalExtension())
+                ->toMediaCollection('avatar');
         }
 
         $user->loadMissing('partnerProfile');

@@ -48,11 +48,6 @@ class ProfileController extends Controller
         if ($request->hasFile('avatar')) {
             $avatar = $request->file('avatar');
 
-            $currentAvatar = $user->getOriginal('avatar');
-            if ($currentAvatar && !Str::startsWith($currentAvatar, ['http://', 'https://'])) {
-                Storage::disk('public')->delete($currentAvatar);
-            }
-
             $user->clearMediaCollection('avatar');
 
             $user
