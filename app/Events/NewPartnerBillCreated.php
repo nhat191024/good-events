@@ -56,6 +56,7 @@ class NewPartnerBillCreated implements ShouldBroadcastNow
             'created_at' => optional($this->bill->created_at)->diffForHumans(),
             'client_name' => $this->bill->client->name,
             'category_name' => $this->bill->category->name,
+            'category_image' => $this->bill->category->getFirstMediaUrl('images', 'thumb'),
             'event_name' => $this->bill->event->name ?? $this->bill->custom_event,
             'date' => optional($this->bill->date)->toDateString(),
             'start_time' => optional($this->bill->start_time)->format('H:i'),
