@@ -73,7 +73,7 @@ class PartnerBillNotificationService
                     $body = __('notification.bill_received.subject', ['code' => $partnerBill->code]);
 
                     //TODO: add data payload with order details link
-                    $this->fcmService->sendToUser($partner, $title, $body);
+                    $this->fcmService->sendToUser($partner, $title, $body,  ['code' => 'BILL_RECEIVED']);
                 }
             }
         } catch (\Exception $e) {
