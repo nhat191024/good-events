@@ -68,7 +68,6 @@ class PartnerServiceController extends Controller
         $partnerServices = PartnerService::query()
             ->where('id', $serviceId)
             ->with(['category', 'serviceMedia'])
-            ->withExists('serviceMedia')
             ->get();
 
         return new PartnerServiceCollection($partnerServices);
@@ -136,8 +135,8 @@ class PartnerServiceController extends Controller
 
             $uploaded[] = [
                 'id' => $media->id,
-                'url' => $media->getTemporaryUrl(now()->addMinutes(5)),
-                'thumb' => $media->getTemporaryUrl(now()->addMinutes(5), 'thumb'),
+                'url' => $media->getUrl(),
+                'thumb' => $media->getUrl('thumb'),
                 'file_name' => $media->file_name,
                 'size' => $media->size,
             ];
@@ -192,8 +191,8 @@ class PartnerServiceController extends Controller
 
         $images = $partnerService->getMedia('service_images')->map(fn(Media $media) => [
             'id' => $media->id,
-            'url' => $media->getTemporaryUrl(now()->addMinutes(5)),
-            'thumb' => $media->getTemporaryUrl(now()->addMinutes(5), 'thumb'),
+            'url' => $media->getUrl(),
+            'thumb' => $media->getUrl('thumb'),
             'file_name' => $media->file_name,
             'size' => $media->size,
             'created_at' => $media->created_at?->toDateTimeString(),
