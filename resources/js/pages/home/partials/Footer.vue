@@ -18,7 +18,7 @@ const socialLinks = computed(() => {
         { label: 'YouTube', href: s.social_youtube, icon: 'youtube' },
         { label: 'TikTok', href: s.social_tiktok, icon: 'tiktok' },
     ];
-    return links.filter((l) => !!l.href);
+    return links.filter((l) => !!l.href) as { label: string; href: string; icon: string }[];
 });
 
 const primaryLinks = [
@@ -29,10 +29,11 @@ const primaryLinks = [
     { label: 'Phiên bản phát hành', href: '#' },
 ];
 
-const policyLinks = [
+const policyLinks: { label: string; routeName?: string; href?: string }[] = [
     { label: 'Điều khoản và Điều kiện', routeName: 'static.terms' },
     { label: 'Chính sách bảo mật', routeName: 'static.privacy' },
     { label: 'Chính sách vận chuyển và phương thức thanh toán', routeName: 'static.shipping' },
+    { label: 'Chính sách và Quy định Đối tác', routeName: 'static.partner-policies' },
     { label: 'Liên hệ', routeName: 'contact.index' },
     // { label: 'White Paper', href: '/VT-White-Paper.pdf' },
     { label: 'Tuyển dụng', routeName: 'contact.index' },
