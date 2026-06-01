@@ -23,4 +23,8 @@ export interface StaticPagePayload {
         note?: string | null;
     };
     sections: StaticSection[];
+    switchLink?: {
+        label: string;
+        routeName: string;
+    };
 }

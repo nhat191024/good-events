@@ -19,6 +19,16 @@
                 <p v-else-if="page.hero?.note" class="mt-4 max-w-7xl text-lg text-blue-50 md:text-xl">
                     {{ page.hero.note }}
                 </p>
+
+                <div v-if="page.switchLink" class="mt-6 flex flex-wrap gap-3">
+                    <Link
+                        :href="route(page.switchLink.routeName)"
+                        class="inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20 border border-white/20"
+                    >
+                        {{ page.switchLink.label }}
+                        <span aria-hidden="true">→</span>
+                    </Link>
+                </div>
             </div>
         </div>
 
@@ -41,8 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { Head, Link } from '@inertiajs/vue3';
+import { onBeforeUnmount, onMounted, ref, inject } from 'vue';
 
 import ClientHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue';
 
@@ -54,9 +64,11 @@ const props = defineProps<{
     page: StaticPagePayload;
 }>();
 
+const route = inject('route') as any;
+
 const activeSection = ref<string>(props.page.sections[0]?.id ?? '');
 const sectionRefs = new Map<string, HTMLElement>();
-const refHandlers = new Map<string, (el: HTMLElement | null) => void>();
+const refHandlers = new Map<string, (el: any) => void>();
 let observer: IntersectionObserver | null = null;
 
 const createObserver = () =>

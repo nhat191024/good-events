@@ -16,4 +16,5 @@ Route::get('/shipping-policy-and-payment-methods', [StaticPageController::class,
 Route::get('/terms-and-condition', [StaticPageController::class, 'termsAndConditions'])->name('static.terms');
 Route::get('/faq', [StaticPageController::class, 'faq'])->name('static.faq');
 Route::get('/chinh-sach-va-quy-dinh', [StaticPageController::class, 'partnerPolicies'])->name('static.partner-policies');
+Route::get('/chinh-sach-va-quy-dinh/khach-hang', [StaticPageController::class, 'clientPolicies'])->name('static.client-policies');
 Route::get('/tai-app', [StaticPageController::class, 'downloadApp'])->name('static.download-app');
