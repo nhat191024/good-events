@@ -34,6 +34,7 @@ const policyLinks: { label: string; routeName?: string; href?: string }[] = [
     { label: 'Chính sách bảo mật', routeName: 'static.privacy' },
     { label: 'Chính sách vận chuyển và phương thức thanh toán', routeName: 'static.shipping' },
     { label: 'Chính sách và Quy định Đối tác', routeName: 'static.partner-policies' },
+    { label: 'Chính sách và Quy định Khách hàng', routeName: 'static.client-policies' },
     { label: 'Liên hệ', routeName: 'contact.index' },
     // { label: 'White Paper', href: '/VT-White-Paper.pdf' },
     { label: 'Tuyển dụng', routeName: 'contact.index' },

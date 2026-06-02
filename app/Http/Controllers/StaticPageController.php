@@ -115,6 +115,37 @@ class StaticPageController extends Controller
                     $content,
                     '/^\d+\.\s+[^\n]+/m'
                 ),
+                'switchLink' => [
+                    'label' => 'Xem chính sách cho Khách hàng',
+                    'routeName' => 'static.client-policies',
+                ],
+            ],
+        ]);
+    }
+
+    public function clientPolicies(): Response
+    {
+        $content = $this->getDocumentContent('chinh-sach-va-quy-dinh-khach-hang.php');
+
+        return Inertia::render('static/StaticDocument', [
+            'page' => [
+                'slug' => 'chinh-sach-va-quy-dinh-khach-hang',
+                'title' => 'Chính sách và quy định dành cho khách hàng',
+                'intro' => $this->cleanIntro(
+                    $this->extractIntro($content, '/^\d+\.\s+[^\n]+/m')
+                ),
+                'hero' => [
+                    'kicker' => 'Chính sách khách hàng',
+                    'note' => 'Quy định và chính sách sử dụng dịch vụ trên nền tảng Sự Kiện Tốt',
+                ],
+                'sections' => $this->parseSections(
+                    $content,
+                    '/^\d+\.\s+[^\n]+/m'
+                ),
+                'switchLink' => [
+                    'label' => 'Xem chính sách cho Đối tác',
+                    'routeName' => 'static.partner-policies',
+                ],
             ],
         ]);
     }
