@@ -50,18 +50,25 @@ class PartnerProfilePayload
             }
         }
 
-        $ratingStat = optional($stats->get('rating'))->metrics_value;
-        $totalReviewsStat = optional($stats->get('total_reviews'))->metrics_value;
+        // Stats may be stored under different key names depending on the job that produced them
+        $ratingStat = optional($stats->get('rating'))->metrics_value
+            ?? optional($stats->get('average_stars'))->metrics_value;
+        $totalReviewsStat = optional($stats->get('total_reviews'))->metrics_value
+            ?? optional($stats->get('total_ratings'))->metrics_value;
 
         if ($ratingStat === null || $totalReviewsStat === null) {
-            $allReviews = $user->reviews()->with('ratings')->get();
+            // Reviews are stored with reviewable_type = App\Models\User, so we must
+            // query via the base User model — not the Partner subclass.
+            $userModel = User::find($user->id);
+            $allReviews = $userModel->reviews()->with('ratings')->get();
             $dynamicTotalReviews = $allReviews->count();
-            
+
             $avgRatingFromReviews = $allReviews
-                ->map(fn($review) => optional($review->ratings->firstWhere('key', 'rating'))->value ?? optional($review->ratings->firstWhere('key', 'overall'))->value)
+                ->map(fn($review) => optional($review->ratings->firstWhere('key', 'rating'))->value
+                    ?? optional($review->ratings->firstWhere('key', 'overall'))->value)
                 ->filter()
                 ->avg();
-            
+
             $dynamicRating = $avgRatingFromReviews ? round((float) $avgRatingFromReviews, 1) : 5.0;
         }
 
@@ -154,14 +161,17 @@ class PartnerProfilePayload
                 })
                 ->values(),
             'reviews' => (function () use ($user) {
-                $reviews = $user->reviews()
+                // Reviews are stored with reviewable_type = App\Models\User, so we must
+                // query via the base User model — not the Partner subclass.
+                $userModel = User::find($user->id);
+                $reviews = $userModel->reviews()
                     ->with(['ratings'])
                     ->latest('created_at')
                     ->take(3)
                     ->get();
 
                 $authorIds = $reviews->pluck('user_id')->filter()->unique();
-                $authors = Partner::whereIn('id', $authorIds)->pluck('name', 'id');
+                $authors = User::whereIn('id', $authorIds)->pluck('name', 'id');
 
                 return $reviews->map(function ($r) use ($authors) {
                     $rating = optional($r->ratings->firstWhere('key', 'rating'))->value
