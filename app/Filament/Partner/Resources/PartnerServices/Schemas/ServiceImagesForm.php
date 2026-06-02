@@ -14,6 +14,7 @@ class ServiceImagesForm
                 SpatieMediaLibraryFileUpload::make('service_images')
                     ->label(__('partner/service.label.service_images'))
                     ->collection('service_images')
+                    ->disk('public')
                     ->image()
                     ->multiple()
                     ->maxFiles(10)

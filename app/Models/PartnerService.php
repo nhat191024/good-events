@@ -121,6 +121,7 @@ class PartnerService extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('service_images')
+            ->useDisk('public')
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp']);
     }
 
