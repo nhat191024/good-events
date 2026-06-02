@@ -135,8 +135,8 @@ class PartnerServiceController extends Controller
 
             $uploaded[] = [
                 'id' => $media->id,
-                'url' => $media->getUrl(),
-                'thumb' => $media->getUrl('thumb'),
+                'url' => url($media->getUrl()),
+                'thumb' => url($media->getUrl('thumb')),
                 'file_name' => $media->file_name,
                 'size' => $media->size,
             ];
@@ -191,8 +191,8 @@ class PartnerServiceController extends Controller
 
         $images = $partnerService->getMedia('service_images')->map(fn(Media $media) => [
             'id' => $media->id,
-            'url' => $media->getUrl(),
-            'thumb' => $media->getUrl('thumb'),
+            'url' => url($media->getUrl()),
+            'thumb' => url($media->getUrl('thumb')),
             'file_name' => $media->file_name,
             'size' => $media->size,
             'created_at' => $media->created_at?->toDateTimeString(),
