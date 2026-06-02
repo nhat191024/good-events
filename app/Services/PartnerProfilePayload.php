@@ -50,6 +50,31 @@ class PartnerProfilePayload
             }
         }
 
+        // Stats may be stored under different key names depending on the job that produced them
+        $ratingStat = optional($stats->get('rating'))->metrics_value
+            ?? optional($stats->get('average_stars'))->metrics_value;
+        $totalReviewsStat = optional($stats->get('total_reviews'))->metrics_value
+            ?? optional($stats->get('total_ratings'))->metrics_value;
+
+        if ($ratingStat === null || $totalReviewsStat === null) {
+            // Reviews are stored with reviewable_type = App\Models\User, so we must
+            // query via the base User model — not the Partner subclass.
+            $userModel = User::find($user->id);
+            $allReviews = $userModel->reviews()->with('ratings')->get();
+            $dynamicTotalReviews = $allReviews->count();
+
+            $avgRatingFromReviews = $allReviews
+                ->map(fn($review) => optional($review->ratings->firstWhere('key', 'rating'))->value
+                    ?? optional($review->ratings->firstWhere('key', 'overall'))->value)
+                ->filter()
+                ->avg();
+
+            $dynamicRating = $avgRatingFromReviews ? round((float) $avgRatingFromReviews, 1) : 5.0;
+        }
+
+        $finalRating = (float) ($ratingStat ?? $dynamicRating ?? 5.0);
+        $finalTotalReviews = (int) ($totalReviewsStat ?? $dynamicTotalReviews ?? 0);
+
         return [
             'user' => [
                 'id' => $user->id,
@@ -59,8 +84,8 @@ class PartnerProfilePayload
                 'location' => $user->location,
                 'joined_year' => optional($user->created_at)->format('Y'),
                 'is_pro' => true,
-                'rating' => (float) (optional($stats->get('rating'))->metrics_value ?? 5),
-                'total_reviews' => (int) (optional($stats->get('total_reviews'))->metrics_value ?? 0),
+                'rating' => $finalRating,
+                'total_reviews' => $finalTotalReviews,
                 'total_customers' => (int) (optional($stats->get('number_customer'))->metrics_value ?? null),
                 'bio' => $user->bio,
                 'email_verified_at' => optional($user->email_verified_at)->toIso8601String(),
@@ -136,14 +161,17 @@ class PartnerProfilePayload
                 })
                 ->values(),
             'reviews' => (function () use ($user) {
-                $reviews = $user->reviews()
+                // Reviews are stored with reviewable_type = App\Models\User, so we must
+                // query via the base User model — not the Partner subclass.
+                $userModel = User::find($user->id);
+                $reviews = $userModel->reviews()
                     ->with(['ratings'])
                     ->latest('created_at')
                     ->take(3)
                     ->get();
 
                 $authorIds = $reviews->pluck('user_id')->filter()->unique();
-                $authors = Partner::whereIn('id', $authorIds)->pluck('name', 'id');
+                $authors = User::whereIn('id', $authorIds)->pluck('name', 'id');
 
                 return $reviews->map(function ($r) use ($authors) {
                     $rating = optional($r->ratings->firstWhere('key', 'rating'))->value

@@ -21,7 +21,7 @@ class ProfileController extends Controller
         $payload = $isPartner
             ? PartnerProfilePayload::for($user)
             : $this->clientPayload($user);
-        
+
         return Inertia::render('profile/Profile', [
             'profile_type' => $isPartner ? 'partner' : 'client',
             'payload' => $payload,
@@ -32,7 +32,7 @@ class ProfileController extends Controller
     {
         $user->loadMissing(['partnerProfile', 'media']);
 
-        if (! $user->hasRole(Role::PARTNER)) {
+        if (!$user->hasRole(Role::PARTNER)) {
             abort(404);
         }
 
@@ -44,12 +44,15 @@ class ProfileController extends Controller
         $user = Customer::with('media')->find($inputUser->id);
         $stats = $user->statistics()->get()->keyBy('metrics_name');
 
-        $ordersPlaced = (int)(optional($stats->get('orders_placed'))->metrics_value ?? $user->partnerBillsAsClient()->count());
-        $completedOrders = (int)(optional($stats->get('completed_orders'))->metrics_value ?? $user->partnerBillsAsClient()->where('status', 'completed')->count());
-        $cancelPct = (string)(optional($stats->get('cancelled_orders_percentage'))->metrics_value
-            ?? $this->calcCancelPct($user));
+        // avoid N+1 queries
+        $allBills = $user->partnerBillsAsClient()->get(['id', 'status', 'final_total']);
 
-        $totalSpent = (float)(optional($stats->get('total_spent'))->metrics_value ?? $user->partnerBillsAsClient()->sum('final_total'));
+        $ordersPlaced = (int) (optional($stats->get('orders_placed'))->metrics_value ?? $allBills->count());
+        $completedOrders = (int) (optional($stats->get('completed_orders'))->metrics_value ?? $allBills->where('status', 'completed')->count());
+        $cancelPct = (string) (optional($stats->get('cancelled_orders_percentage'))->metrics_value
+            ?? $this->calcCancelPct($allBills));
+
+        $totalSpent = (float) (optional($stats->get('total_spent'))->metrics_value ?? $allBills->sum('final_total'));
         $avgRatingRaw = optional($stats->get('avg_rating'))->metrics_value ?? optional($stats->get('rating'))->metrics_value ?? null;
         $avgRating = is_numeric($avgRatingRaw) ? round((float) $avgRatingRaw, 1) : null;
 
@@ -72,9 +75,12 @@ class ProfileController extends Controller
             ->get();
 
         $recentReviews = $user->authoredReviews()
-            ->with(['ratings', 'reviewable' => function ($morph) {
-                $morph->select('id', 'name');
-            }])
+            ->with([
+                'ratings',
+                'reviewable' => function ($morph) {
+                    $morph->select('id', 'name');
+                }
+            ])
             ->take(5)
             ->get();
 
@@ -123,11 +129,12 @@ class ProfileController extends Controller
         ];
     }
 
-    private function calcCancelPct(User $user): string
+    private function calcCancelPct(\Illuminate\Support\Collection $bills): string
     {
-        $total = $user->partnerBillsAsClient()->count();
-        if ($total === 0) return '0%';
-        $cancel = $user->partnerBillsAsClient()->where('status', 'cancelled')->count();
+        $total = $bills->count();
+        if ($total === 0)
+            return '0%';
+        $cancel = $bills->where('status', 'cancelled')->count();
         return round($cancel * 100 / $total) . '%';
     }
 }
