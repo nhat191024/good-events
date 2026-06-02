@@ -47,8 +47,7 @@ const redirectToProvider = (provider: string) => {
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="email">Email hoặc SĐT</Label>
-                    <Input id="email" type="email" name="email" required autofocus :tabindex="1" autocomplete="email"
-                        placeholder="email@example.com, 097654321" />
+                    <Input id="email"  name="email" required autofocus :tabindex="1"  placeholder="email@example.com, 097654321" />
                     <InputError :message="errors.email" />
                 </div>
 
