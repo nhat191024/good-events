@@ -5,14 +5,16 @@ meta {
 }
 
 post {
-  url: {{url}}login
+  url: {{local_url}}login
   body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
-  email: partner@example.com
-  password: password
+  email: nguyenvanhongy14@gmail.com
+  password: 12345678
+  ~email: partner@example.com
+  ~password: password
   ~email: sukientot9095@gmail.com
   ~password: 12345678
 }
