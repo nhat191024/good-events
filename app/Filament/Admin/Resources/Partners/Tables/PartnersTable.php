@@ -199,19 +199,19 @@ class PartnersTable
                             Action::make('approve')
                                 ->label(__('global.approve'))
                                 ->color('success')
-                                ->visible(fn() => ! $record->partnerProfile->is_legit)
+                                ->visible(fn() => $record->partnerProfile && ! $record->partnerProfile->is_legit)
                                 ->requiresConfirmation()
                                 ->action(function () use ($record) {
-                                    $record->partnerProfile->update(['is_legit' => true]);
+                                    $record->partnerProfile?->update(['is_legit' => true]);
                                     Notification::make()->success()->title('Đã phê duyệt')->send();
                                 }),
                             Action::make('unapprove')
                                 ->label('Hủy phê duyệt')
                                 ->color('danger')
-                                ->visible(fn() => $record->partnerProfile->is_legit)
+                                ->visible(fn() => $record->partnerProfile && $record->partnerProfile->is_legit)
                                 ->requiresConfirmation()
                                 ->action(function () use ($record) {
-                                    $record->partnerProfile->update(['is_legit' => false]);
+                                    $record->partnerProfile?->update(['is_legit' => false]);
                                     Notification::make()->success()->title('Đã hủy phê duyệt')->send();
                                 }),
                             Action::make('close')
