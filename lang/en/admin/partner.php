@@ -35,6 +35,8 @@ return [
     'actions.ban_accept_hide' => 'Unban Accepting Shows',
     'actions.view_personal_information' => 'View Personal Information',
 
+    'tooltips.manage_services_disabled' => 'Cannot manage services for deleted partners.',
+
     'modals.deposit_heading' => 'Deposit to Partner Wallet',
 
     'messages.admin_deposit' => 'Deposit from administrator',

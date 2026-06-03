@@ -141,6 +141,8 @@ class PartnersTable
                     Action::make('manage_services')
                         ->label('Quản lý dịch vụ')
                         ->icon('heroicon-o-rectangle-stack')
+                        ->disabled(fn(Partner $record) => $record->deleted_at !== null)
+                        ->tooltip(fn($record): ?string => $record->deleted_at ? __('admin/partner.tooltips.manage_services_disabled') : null)
                         ->url(fn(Partner $record): string => PartnerResource::getUrl('services', ['record' => $record])),
                     Impersonate::make()
                         ->redirectTo(route('filament.partner.pages.dashboard')),

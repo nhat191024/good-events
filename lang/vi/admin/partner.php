@@ -35,6 +35,8 @@ return [
     'actions.ban_accept_hide' => 'Bỏ cấm nhận show',
     'actions.view_personal_information' => 'Xem thông tin cá nhân',
 
+    'tooltips.manage_services_disabled' => 'Không thể quản lý dịch vụ cho đối tác đã bị xóa.',
+
     'modals.deposit_heading' => 'Nạp tiền vào ví đối tác',
 
     'messages.admin_deposit' => 'Nạp tiền từ quản trị viên',
