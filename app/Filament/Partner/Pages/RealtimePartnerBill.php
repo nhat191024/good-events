@@ -52,11 +52,12 @@ class RealtimePartnerBill extends Page
             return null;
         }
 
-        $partnerServices =  Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_user_{$user->id}", function () use ($user) {
+        $partnerServices = Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_category_ids_user_{$user->id}", function () use ($user) {
             return PartnerService::where('user_id', $user->id)
                 ->where('status', 'approved')
                 ->pluck('category_id')
                 ->unique()
+                ->values()
                 ->toArray();
         });
 
@@ -64,7 +65,9 @@ class RealtimePartnerBill extends Page
             return null;
         }
 
-        $count = PartnerBill::whereIn('category_id', $partnerServices)
+        $categoryIds = collect($partnerServices)->flatten()->unique()->values()->toArray();
+
+        $count = PartnerBill::whereIn('category_id', $categoryIds)
             ->where('status', PartnerBillStatus::PENDING)
             ->whereDoesntHave('details', function ($query) use ($user) {
                 $query->where('partner_id', $user->id);
