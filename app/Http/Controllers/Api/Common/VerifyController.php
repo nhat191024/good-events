@@ -33,6 +33,10 @@ class VerifyController extends Controller
         $method = $request->input('method');
 
         try {
+            if ($request->user()->is_delete_account()) {
+                return response()->json(['code' => 'USER_NOT_FOUND'], 404);
+            }
+
             if ($method === 'phone') {
                 $request->user()->sendPhoneVerificationNotification();
             } else {
