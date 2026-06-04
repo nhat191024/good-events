@@ -275,6 +275,8 @@ class LoginController extends Controller
 
         $user->tokens()->delete();
         $user->update([
+            'email' => 'ghost_' . $user->id . '@example.com',
+            'phone' => '0000000000',
             'is_delete_account' => true,
             'fcm_token' => null,
         ]);
