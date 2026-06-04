@@ -77,6 +77,12 @@ class PasswordResetLinkController extends Controller
             ? User::where('phone', $phoneService->normalizePhone($credential))->first()
             : User::where('email', $credential)->first();
 
+        if ($user && $user->is_delete_account) {
+            throw ValidationException::withMessages([
+                'credential' => 'Không tìm thấy tài khoản với thông tin này.',
+            ]);
+        }
+
         if (!$user) {
             throw ValidationException::withMessages([
                 'credential' => 'Không tìm thấy tài khoản với thông tin này.',
