@@ -7,8 +7,6 @@ use App\Models\Customer;
 use App\Models\Partner;
 use App\Models\User;
 
-use App\Services\PasswordResetMailService;
-use App\Services\PhoneLoginService;
 use App\Services\AppleTokenVerifier;
 
 use App\Http\Controllers\Controller;
