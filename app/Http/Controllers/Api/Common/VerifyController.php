@@ -99,6 +99,8 @@ class VerifyController extends Controller
 
         if (!$user) {
             return response()->json(['code' => 'USER_NOT_FOUND'], 404);
+        } else if($user->is_delete_account) {
+            return response()->json(['code' => 'USER_NOT_FOUND'], 404);
         }
 
         try {
