@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\OtpCooldownException;
+use App\Exceptions\OtpMaxAttemptsException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,8 +25,17 @@ class PhoneVerificationPromptController extends Controller
 
         // Auto-send OTP on first visit (no status in session yet)
         if (! $request->session()->has('status')) {
-            $user->sendPhoneVerificationNotification();
-            $request->session()->put('status', 'otp-sent');
+            try {
+                $user->sendPhoneVerificationNotification();
+                $request->session()->put('status', 'otp-sent');
+            } catch (OtpCooldownException $e) {
+                // OTP was already sent recently; let the user proceed to verify
+                $request->session()->put('status', 'otp-sent');
+            } catch (OtpMaxAttemptsException $e) {
+                $hours = (int) $e->getMessage();
+                $request->session()->put('status', 'otp-sent');
+                $request->session()->flash('error', "Bạn đã gửi quá nhiều lần. Vui lòng thử lại sau {$hours} giờ.");
+            }
         }
 
         return Inertia::render('auth/VerifyPhone', ['status' => $request->session()->get('status')]);
