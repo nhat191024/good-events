@@ -33,7 +33,7 @@ class VerifyController extends Controller
         $method = $request->input('method');
 
         try {
-            if ($request->user()->is_delete_account()) {
+            if ($request->user()->is_delete_account) {
                 return response()->json(['code' => 'USER_NOT_FOUND'], 404);
             }
 
