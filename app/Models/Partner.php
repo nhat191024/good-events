@@ -122,8 +122,4 @@ class Partner extends User
         return UserFactory::new();
     }
 
-    public function getMorphClass()
-    {
-        return User::class;
-    }
 }
