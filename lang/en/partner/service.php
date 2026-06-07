@@ -48,6 +48,8 @@ return [
 
     'action' => [
         'manage_images' => 'Manage Images',
+        'restore_heading' => 'Restore Service',
+        'restore_description' => 'This service will be set back to pending status and must be re-approved by an admin before it becomes visible. Are you sure you want to continue?',
     ],
 
     'modal' => [

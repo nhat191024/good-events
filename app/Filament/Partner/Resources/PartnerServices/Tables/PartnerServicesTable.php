@@ -115,12 +115,20 @@ class PartnerServicesTable
 
                         return $data;
                     }),
-                ForceDeleteAction::make()
-                    ->label(__('global.delete')),
+                // ForceDeleteAction::make()
+                //     ->label(__('global.delete')),
                 RestoreAction::make()
                     ->tooltip(fn($record): ?string => !$record->category_exists ? __('partner/service.tooltip.cannot_show_partner_category_has_disabled') : null)
                     ->disabled(fn($record): bool => (bool) !$record->category_exists)
-                    ->label(__('global.show')),
+                    ->label(__('global.show'))
+                    ->requiresConfirmation()
+                    ->modalHeading(__('partner/service.action.restore_heading'))
+                    ->modalDescription(__('partner/service.action.restore_description'))
+                    ->modalSubmitActionLabel(__('global.confirm'))
+                    ->using(function ($record): void {
+                        $record->restore();
+                        $record->update(['status' => PartnerServiceStatus::PENDING]);
+                    }),
             ])
             ->toolbarActions([
                 // BulkActionGroup::make([

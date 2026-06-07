@@ -47,6 +47,8 @@ return [
 
     'action' => [
         'manage_images' => 'Quản lý hình ảnh',
+        'restore_heading' => 'Hiển thị lại dịch vụ',
+        'restore_description' => 'Dịch vụ này sẽ được chuyển về trạng thái chờ duyệt và cần được admin phê duyệt lại trước khi hiển thị. Bạn có chắc chắn muốn tiếp tục?',
     ],
 
     'modal' => [
