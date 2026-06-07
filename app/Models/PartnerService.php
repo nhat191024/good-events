@@ -109,7 +109,6 @@ class PartnerService extends Model implements HasMedia
     {
         return collect(Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_user_{$userId}", function () use ($userId) {
             return static::where('user_id', $userId)
-                ->withTrashed()
                 ->with('serviceMedia')
                 ->get();
         }));
