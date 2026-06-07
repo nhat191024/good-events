@@ -111,15 +111,23 @@ class ManagePartnerServices extends Page implements HasForms
                         continue;
                     }
 
-                    $service = PartnerService::updateOrCreate(
-                        [
+                    $service = PartnerService::withTrashed()
+                        ->where('user_id', $this->record->id)
+                        ->where('category_id', $categoryId)
+                        ->first();
+
+                    if ($service) {
+                        if ($service->trashed()) {
+                            $service->restore();
+                        }
+                        $service->update(['status' => PartnerServiceStatus::APPROVED]);
+                    } else {
+                        $service = PartnerService::create([
                             'user_id' => $this->record->id,
                             'category_id' => $categoryId,
-                        ],
-                        [
                             'status' => PartnerServiceStatus::APPROVED,
-                        ]
-                    );
+                        ]);
+                    }
 
                     // Handle Media
                     PartnerMedia::updateOrCreate(
