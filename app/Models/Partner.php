@@ -121,5 +121,4 @@ class Partner extends User
     {
         return UserFactory::new();
     }
-
 }
