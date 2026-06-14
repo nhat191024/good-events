@@ -23,7 +23,7 @@ class UploadServiceImagesRequest extends FormRequest
     {
         return [
             'images' => ['required', 'array', 'min:1', 'max:10'],
-            'images.*' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
+            'images.*' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:20480'],
         ];
     }
 
