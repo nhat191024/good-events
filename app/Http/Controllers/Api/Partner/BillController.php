@@ -302,7 +302,7 @@ class BillController extends Controller
         }
 
         $request->validate([
-            'arrival_photo' => 'required|image|max:5120|mimes:jpeg,png,jpg,webp',
+            'arrival_photo' => 'required|image|max:20480|mimes:jpeg,png,jpg,webp',
         ]);
 
         if ($request->hasFile('arrival_photo')) {
