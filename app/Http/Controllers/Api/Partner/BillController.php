@@ -167,9 +167,7 @@ class BillController extends Controller
     public function history(Request $request)
     {
         $query = PartnerBill::query()
-            ->whereHas('details', function ($q) {
-                $q->where('partner_id', auth()->id());
-            })
+            ->wherePartnerId(auth()->id())
             ->whereIn('status', [
                 PartnerBillStatus::COMPLETED,
                 PartnerBillStatus::EXPIRED,
