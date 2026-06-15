@@ -366,6 +366,10 @@ class PartnerBill extends Model implements HasMedia
             ->get()
             ->groupBy('user_id');
 
+        // Update bill details status to cancelled
+        PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
+            ->update(['status' => PartnerBillDetailStatus::CANCELLED]);
+
         // Update cancelled orders percentage statistic for both partner and client
         foreach ([$partnerId, $clientId] as $userId) {
             $userStats = $allStats->get($userId);
