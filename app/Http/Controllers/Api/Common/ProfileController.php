@@ -357,7 +357,6 @@ class ProfileController extends Controller
         $reviews = $user->reviews()
             ->with(['ratings'])
             ->latest('created_at')
-            ->take(3)
             ->get();
 
         $authorIds = $reviews->pluck('user_id')->filter()->unique();
