@@ -71,6 +71,7 @@ class ProfileSettings extends Page implements HasForms
 
         $avatar = $user->getFirstMedia('avatar') ? ('uploads/' . $user->getFirstMedia('avatar')->id . '/' . $user->getFirstMedia('avatar')->file_name) : null;
 
+
         $this->data = [
             'name' => $user->name,
             'email' => $user->email,
@@ -82,9 +83,9 @@ class ProfileSettings extends Page implements HasForms
             'location_id' => $partnerProfile?->location_id,
             'city_id' => $cityId,
             'identity_card_number' => $partnerProfile?->identity_card_number,
-            'selfie_image' => $partnerProfile?->selfie_image,
-            'front_identity_card_image' => $partnerProfile?->front_identity_card_image,
-            'back_identity_card_image' => $partnerProfile?->back_identity_card_image,
+            'selfie_image' => $this->withStoragePrefix($partnerProfile?->selfie_image),
+            'front_identity_card_image' => $this->withStoragePrefix($partnerProfile?->front_identity_card_image),
+            'back_identity_card_image' => $this->withStoragePrefix($partnerProfile?->back_identity_card_image),
             'video_url' => $partnerProfile?->video_url,
         ];
 
@@ -331,7 +332,7 @@ class ProfileSettings extends Page implements HasForms
 
             foreach (['selfie_image', 'front_identity_card_image', 'back_identity_card_image'] as $imageField) {
                 if (!empty($data[$imageField])) {
-                    $partnerData[$imageField] = $data[$imageField];
+                    $partnerData[$imageField] = $this->withoutStoragePrefix($data[$imageField]);
                 }
             }
 
@@ -389,5 +390,27 @@ class ProfileSettings extends Page implements HasForms
                 ->danger()
                 ->send();
         }
+    }
+
+    private function withStoragePrefix(?string $path): ?string
+    {
+        if (blank($path)) {
+            return null;
+        }
+
+        $path = ltrim($path, '/');
+
+        return str_starts_with($path, 'storage/') ? $path : 'storage/' . $path;
+    }
+
+    private function withoutStoragePrefix(?string $path): ?string
+    {
+        if (blank($path)) {
+            return null;
+        }
+
+        $path = ltrim($path, '/');
+
+        return str_starts_with($path, 'storage/') ? substr($path, strlen('storage/')) : $path;
     }
 }
