@@ -138,7 +138,7 @@ class ProfileController extends Controller
                 if ($request->hasFile($field)) {
                     $file = $request->file($field);
                     $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('uploads/partner', $filename, 'public');
+                    $path = $file->storeAs('uploads/partner', $filename, 'private');
 
                     $oldPath = $partnerProfile->getOriginal($field);
                     if ($oldPath && !Str::startsWith($oldPath, ['http://', 'https://'])) {
