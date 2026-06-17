@@ -30,6 +30,8 @@ use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
 use Illuminate\Support\Facades\Log;
 
+use Codebyray\ReviewRateable\Models\Review;
+
 /**
  * @property int $id
  * @property string $code
@@ -491,5 +493,10 @@ class PartnerBill extends Model implements HasMedia
     public function voucher()
     {
         return $this->belongsTo(Voucher::class, 'voucher_id');
+    }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class, 'partner_bill_id');
     }
 }
