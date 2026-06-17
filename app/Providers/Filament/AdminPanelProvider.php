@@ -78,6 +78,10 @@ class AdminPanelProvider extends PanelProvider
 
             ->viteTheme('resources/css/filament/admin/theme.css')
 
+            ->databaseNotifications()
+            ->lazyLoadedDatabaseNotifications(true)
+            ->databaseNotificationsPolling('300s')
+
             ->pages([
                 Dashboard::class,
             ])
