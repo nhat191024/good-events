@@ -76,22 +76,28 @@ class Statistical extends Model
      */
     public static function calculatePartnerRatingMetrics(int $partnerId): array
     {
-        $ratingQuery = DB::table('ratings')
-            ->join('reviews', 'reviews.id', '=', 'ratings.review_id')
-            ->where('reviews.reviewable_type', User::class)
+        $ratingsPerReview = DB::table('ratings')
+            ->select('review_id')
+            ->selectRaw("MAX(CASE WHEN `key` = 'rating' THEN `value` END) as rating_value")
+            ->selectRaw("MAX(CASE WHEN `key` = 'overall' THEN `value` END) as overall_value")
+            ->where('key', 'rating')
+            ->groupBy('review_id');
+
+        $summary = DB::query()
+            ->fromSub($ratingsPerReview, 'review_ratings')
+            ->join('reviews', 'reviews.id', '=', 'review_ratings.review_id')
+            ->where('reviews.reviewable_type',  Partner::class)
             ->where('reviews.reviewable_id', $partnerId)
             ->where('reviews.approved', true)
-            ->where('ratings.key', 'rating');
+            ->selectRaw('COUNT(*) as total_ratings')
+            ->selectRaw('AVG(COALESCE(review_ratings.rating_value, review_ratings.overall_value)) as average_stars')
+            ->selectRaw('SUM(CASE WHEN COALESCE(review_ratings.rating_value, review_ratings.overall_value) >= 4 THEN 1 ELSE 0 END) as satisfied_ratings')
+            ->first();
 
-        $totalRatings = (int) (clone $ratingQuery)->count();
-        $averageStars = $totalRatings > 0
-            ? (float) ((clone $ratingQuery)->avg('ratings.value') ?? 0)
-            : 0;
-
-        $satisfiedRatings = (int) (clone $ratingQuery)->where('ratings.value', '>=', 4)->count();
-        $satisfactionRate = $totalRatings > 0
-            ? ($satisfiedRatings / $totalRatings) * 100
-            : 0;
+        $totalRatings = (int) ($summary->total_ratings ?? 0);
+        $averageStars = (float) ($summary->average_stars ?? 0);
+        $satisfiedRatings = (int) ($summary->satisfied_ratings ?? 0);
+        $satisfactionRate = $totalRatings > 0 ? ($satisfiedRatings / $totalRatings) * 100 : 0;
 
         return [
             StatisticType::AVERAGE_STARS->value => round($averageStars, 2),
