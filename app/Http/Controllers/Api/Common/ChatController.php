@@ -34,7 +34,9 @@ class ChatController extends Controller
      */
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $userId = $user?->id;
+        $userRole = $user->roles->pluck('name')->first();
 
         if ($userId === null) {
             return response()->json([
@@ -47,22 +49,36 @@ class ChatController extends Controller
         $searchTerm = $request->input('search', '');
         $page = max(1, (int) $request->input('page', 1));
 
+        $with = [
+            'latestMessage.user' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'participants',
+            'participants.user' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'bill' => function ($query) {
+                $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'date', 'start_time', 'address');
+            },
+            'bill.event' => function ($query) {
+                $query->select('id', 'name');
+            },
+        ];
+
+        if ($userRole === 'partner') {
+            $with['bill.client'] = function ($query) {
+                $query->select('id', 'name');
+            };
+        }
+
+        if ($userRole === 'client') {
+            $with['bill.partner'] = function ($query) {
+                $query->select('id', 'name');
+            };
+        }
+
         $query = Thread::forUserOrderByNotReadMessages($userId)
-            ->with([
-                'latestMessage.user' => function ($query) {
-                    $query->select('id', 'name');
-                },
-                'participants',
-                'participants.user' => function ($query) {
-                    $query->select('id', 'name');
-                },
-                'bill' => function ($query) {
-                    $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'date', 'start_time', 'address');
-                },
-                'bill.event' => function ($query) {
-                    $query->select('id', 'name');
-                },
-            ])
+            ->with($with)
             ->orderBy('threads.updated_at', 'desc');
 
         if (!empty(trim($searchTerm))) {
@@ -88,7 +104,7 @@ class ChatController extends Controller
             $threads = $threads->take(self::THREADS_PER_PAGE);
         }
 
-        $mappedThreads = $threads->map(function ($thread) use ($userId) {
+        $mappedThreads = $threads->map(function ($thread) use ($userId, $userRole) {
             $isUnread = false;
             $participant = $thread->participants->firstWhere('user_id', $userId);
 
@@ -96,9 +112,12 @@ class ChatController extends Controller
                 $isUnread = $participant->last_read !== null && $thread->updated_at->gt($participant->last_read);
             }
 
+            $subjectUser = $userRole === 'client' ? $thread->bill?->partner?->name : $thread->bill?->client?->name;
+            $subject = "{$subjectUser} - " . ($thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event);
+
             return [
                 'id' => $thread->id,
-                'subject' => $thread->subject,
+                'subject' => $subject,
                 'is_unread' => $isUnread,
                 'code' => $thread->bill->code,
                 'participants' => $thread->participants->map(function ($participant) {
