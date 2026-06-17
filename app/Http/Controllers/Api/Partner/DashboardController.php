@@ -30,6 +30,8 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        $walletBalance = (int) $user->balanceInt;
+
         $revenue = Statistical::where('user_id', $user->id)->where('metrics_name', StatisticType::REVENUE_GENERATED->value)
             ->latest()
             ->first();
@@ -44,6 +46,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'has_notification' => $user->unreadNotifications()->count() > 0,
+            'wallet_balance' => $walletBalance,
             'revenue' => (int) $revenue?->metrics_value ?? 0,
             'show_data' => $showData,
             'recent_reviews_count' => $recentReviewsCount,
