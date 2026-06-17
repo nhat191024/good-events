@@ -10,6 +10,9 @@ use Spatie\Activitylog\LogOptions;
 
 use BeyondCode\Vouchers\Traits\HasVouchers;
 
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+
 /**
  * @property int $id
  * @property int $user_id
@@ -94,6 +97,32 @@ class PartnerProfile extends Model
             ->logOnlyDirty();
     }
 
+    //model boot method
+    protected static function booted(): void
+    {
+        parent::boot();
+
+        static::updating(function ($user) {
+            if ($user->isDirty('front_identity_card_image') || $user->isDirty('back_identity_card_image')) {
+
+                $admin = User::find(2);
+                $partnerSearchQuery = http_build_query([
+                    'search' => $user->partner_name,
+                ]);
+
+                Notification::make()
+                    ->title('Hồ sơ đốc tác cần duyệt')
+                    ->body('1 Đốc tác đã cập nhập CCCD và cần được duyệt')
+                    ->info()
+                    ->actions([
+                        Action::make('open')
+                            ->label('Xem chi tiết')
+                            ->url(route('filament.admin.resources.partners.index') . '?' . $partnerSearchQuery),
+                    ])
+                    ->sendToDatabase($admin,  true);
+            }
+        });
+    }
 
     //model relationship
     public function user()
