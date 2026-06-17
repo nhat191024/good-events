@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Auth;
 
 use Cohensive\OEmbed\Facades\OEmbed;
 
@@ -138,7 +139,7 @@ class ProfileController extends Controller
                 if ($request->hasFile($field)) {
                     $file = $request->file($field);
                     $filename = Str::ulid() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('uploads/partner', $filename, 'private');
+                    $path = $file->storeAs('uploads/partner/' . Auth::id() . '/', $filename, 'private');
 
                     $oldPath = $partnerProfile->getOriginal($field);
                     if ($oldPath && !Str::startsWith($oldPath, ['http://', 'https://'])) {
