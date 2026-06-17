@@ -69,13 +69,14 @@ class PartnerBillHistoryResource extends BaseResource
                 return [
                     'id' => $partner->id,
                     'name' => $partner->name,
+                    'avatar_url' => $partner->getFirstMediaUrl('avatar') ?: $partner->avatar_url,
                     'statistics' => $this->when(
                         $partner->relationLoaded('statistics') && $partner->statistics,
-                        fn () => $this->formatStatistics($partner)
+                        fn() => $this->formatStatistics($partner)
                     ),
                     'partner_profile' => $this->when(
                         $partner->relationLoaded('partnerProfile') && $partner->partnerProfile,
-                        fn () => [
+                        fn() => [
                             'id' => $partner->partnerProfile->id,
                             'partner_name' => $partner->partnerProfile->partner_name,
                         ]
@@ -97,7 +98,7 @@ class PartnerBillHistoryResource extends BaseResource
                 StatisticType::AVERAGE_STARS->value,
                 StatisticType::TOTAL_RATINGS->value,
             ])
-            ->mapWithKeys(fn ($stat) => [
+            ->mapWithKeys(fn($stat) => [
                 $stat->metrics_name => $stat->metrics_value,
             ]);
 
