@@ -313,6 +313,7 @@ class ProfileController extends Controller
 
     private function partnerPayload(User $user): array
     {
+        $user = Partner::find($user->id);
         $stats = $user->statistics()->get()->keyBy('metrics_name');
 
         $ordersPlacedStat = optional($stats->get('orders_placed'))->metrics_value;
