@@ -103,13 +103,19 @@ class OrderController extends Controller
         $bills = PartnerBill::query()
             ->where('client_id', $request->user()->id)
             ->with([
+                'media',
                 'category' => fn($q) => $q->withTrashed(),
                 'category.media',
                 'category.parent' => fn($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
+                'partner.media',
                 'partner.statistics',
                 'partner.partnerProfile',
+                'review' => fn($query) => $query
+                    ->where('reviewable_type', User::class)
+                    ->where('user_id', $request->user()->id)
+                    ->with('ratings'),
             ])
             ->whereIn('status', [
                 PartnerBillStatus::COMPLETED,
@@ -140,6 +146,7 @@ class OrderController extends Controller
             ->where('id', $orderId)
             ->where('client_id', $request->user()->id)
             ->with([
+                'media',
                 'category' => fn($q) => $q->withTrashed(),
                 'category.media',
                 'category.parent' => fn($q) => $q->withTrashed(),
@@ -170,14 +177,20 @@ class OrderController extends Controller
             ->where('id', $orderId)
             ->where('client_id', $request->user()->id)
             ->with([
+                'media',
                 'category' => fn($q) => $q->withTrashed(),
                 'category.media',
                 'category.parent' => fn($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'details',
+                'partner.media',
                 'partner.statistics',
                 'partner.partnerProfile',
+                'review' => fn($query) => $query
+                    ->where('reviewable_type', User::class)
+                    ->where('user_id', $request->user()->id)
+                    ->with('ratings'),
             ])
             ->first();
 

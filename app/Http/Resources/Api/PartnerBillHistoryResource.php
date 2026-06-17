@@ -4,9 +4,7 @@ namespace App\Http\Resources\Api;
 
 use App\Enum\StatisticType;
 use App\Models\Statistical;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 /** @mixin \App\Models\PartnerBill */
 class PartnerBillHistoryResource extends BaseResource
@@ -15,26 +13,15 @@ class PartnerBillHistoryResource extends BaseResource
     {
         $review = null;
 
-        if ($request->user()) {
-            $reviewRow = DB::table('reviews')
-                ->where('reviewable_type', User::class)
-                ->where('reviewable_id', $this->partner_id)
-                ->where('user_id', $request->user()->id)
-                ->where('partner_bill_id', $this->id)
-                ->first();
+        if ($this->relationLoaded('review') && $this->review) {
+            $ratingValue = $this->review->ratings->firstWhere('key', 'rating')?->value
+                ?? $this->review->ratings->firstWhere('key', 'overall')?->value;
 
-            if ($reviewRow) {
-                $ratingValue = DB::table('ratings')
-                    ->where('review_id', $reviewRow->id)
-                    ->where('key', 'rating')
-                    ->value('value');
-
-                $review = [
-                    'rating' => $ratingValue ? (int) $ratingValue : 0,
-                    'comment' => $reviewRow->review ?? '',
-                    'recommend' => (bool) ($reviewRow->recommend ?? false),
-                ];
-            }
+            $review = [
+                'rating' => $ratingValue ? (int) $ratingValue : 0,
+                'comment' => $this->review->review ?? '',
+                'recommend' => (bool) ($this->review->recommend ?? false),
+            ];
         }
 
         $status = $this->status;
