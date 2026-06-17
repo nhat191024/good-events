@@ -22,6 +22,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
+use Carbon\Carbon;
+
 class BillController extends Controller
 {
     use PaginatesApi;
@@ -180,7 +182,8 @@ class BillController extends Controller
                 'details' => function ($q) {
                     $q->where('partner_id', auth()->id());
                 },
-            ]);
+            ])
+            ->withExists('review');
 
         $this->applyFilters($query, $request, false);
 
@@ -266,7 +269,7 @@ class BillController extends Controller
      */
     public function show(Request $request, PartnerBill $bill)
     {
-        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+        if (!$this->canAccessBill($bill)) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -276,6 +279,46 @@ class BillController extends Controller
 
         return response()->json([
             'bill' => new PartnerBillResource($bill),
+        ]);
+    }
+
+    /**
+     * GET /api/partner/bills/{bill}/review
+     *
+     * Response: { review: object|null }
+     *
+     * @param Request $request
+     * @param PartnerBill $bill
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function review(Request $request, PartnerBill $bill)
+    {
+        if (!$this->canAccessBill($bill)) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $review = $bill->review()
+            ->with('ratings')
+            ->first();
+
+        if (!$review) {
+            return response()->json([
+                'review' => null,
+            ]);
+        }
+
+        $ratings = $review->ratings->mapWithKeys(fn($rating) => [
+            $rating->key => (int) $rating->value,
+        ]);
+
+        return response()->json([
+            'review' => [
+                'id' => $review->id,
+                'rating' => $ratings->get('rating') ?? $ratings->get('overall'),
+                'comment' => $review->review,
+                'recommend' => (bool) $review->recommend,
+                'created_at' => Carbon::parse($review->created_at)->format('H:i:s d-m-Y'),
+            ],
         ]);
     }
 
@@ -374,6 +417,18 @@ class BillController extends Controller
         $perPage = max(1, $perPage);
 
         return min(self::MAX_PER_PAGE, $perPage);
+    }
+
+    private function canAccessBill(PartnerBill $bill): bool
+    {
+        $partnerId = auth()->id();
+
+        if (!$partnerId) {
+            return false;
+        }
+
+        return (int) $bill->partner_id === (int) $partnerId
+            || $bill->details()->where('partner_id', $partnerId)->exists();
     }
 
     private function applyFilters($query, Request $request, bool $includesCategoryFilter): void

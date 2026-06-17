@@ -8,6 +8,7 @@ Route::get('/bills/history', [BillController::class, 'history']);
 Route::post('/bills/{bill}/accept', [BillController::class, 'accept'])->whereNumber('bill');
 
 Route::get('/bills/{status}', [BillController::class, 'list'])->whereIn('status', ['pending', 'confirmed']);
+Route::get('/bills/{bill}/review', [BillController::class, 'review'])->whereNumber('bill');
 Route::get('/bills/{bill}', [BillController::class, 'show'])->whereNumber('bill');
 Route::post('/bills/{bill}/mark-in-job', [BillController::class, 'markInJob'])->whereNumber('bill');
 Route::post('/bills/{bill}/complete', [BillController::class, 'complete'])->whereNumber('bill');

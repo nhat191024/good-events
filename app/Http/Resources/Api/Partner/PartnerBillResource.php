@@ -29,6 +29,7 @@ class PartnerBillResource extends JsonResource
             'note' => $this->note,
             'status' => $statusValue,
             'thread_id' => $this->thread_id,
+            'review_exists' => $this->whenHas('review_exists', fn ($exists) => (bool) $exists),
         ];
     }
 }
