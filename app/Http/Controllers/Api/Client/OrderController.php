@@ -363,7 +363,7 @@ class OrderController extends Controller
             return response()->json(['success' => true, 'message' => 'Bạn đã đánh giá đơn này rồi.']);
         }
 
-        $partner = User::findOrFail($data['partner_id']);
+        $partner = Partner::findOrFail($data['partner_id']);
         $order = PartnerBill::findOrFail($data['order_id'])->select(['id', 'code'])->first();
 
         $partner->addReview([
