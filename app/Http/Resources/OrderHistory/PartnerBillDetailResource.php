@@ -3,7 +3,6 @@
 namespace App\Http\Resources\OrderHistory;
 
 use App\Enum\StatisticType;
-use App\Models\Partner;
 use App\Models\Statistical;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,8 +17,8 @@ class PartnerBillDetailResource extends JsonResource {
             "created_at"=> $this->created_at,
             "updated_at"=> $this->updated_at,
             "partner" => $this->whenLoaded('partner', function() {
-                $partId = $this->partner->id;
-                $part = Partner::with(['statistics', 'partnerProfile'])->find($partId);
+                $part = $this->partner;
+
                 return [
                     'id' => $part->id,
                     'name' => $part->name,

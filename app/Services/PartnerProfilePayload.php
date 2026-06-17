@@ -14,8 +14,14 @@ class PartnerProfilePayload
     public static function for(User $inputUser): array
     {
         $user = Partner::where('id', $inputUser->id)
-            ->with(['partnerProfile', 'media'])
+            ->with('media')
             ->firstOrFail();
+
+        if ($inputUser->relationLoaded('partnerProfile')) {
+            $user->setRelation('partnerProfile', $inputUser->getRelation('partnerProfile'));
+        } else {
+            $user->loadMissing('partnerProfile');
+        }
 
         $stats = $user->statistics()->get()->keyBy('metrics_name');
 

@@ -113,7 +113,7 @@ class OrderController extends Controller
 
     public function getPartnerProfile(User $user)
     {
-        $user->loadMissing('partnerProfile', 'reviews');
+        $user->loadMissing('partnerProfile');
 
         // only expose partner profiles that actually exist
         if (! $user->partnerProfile) {
@@ -132,11 +132,16 @@ class OrderController extends Controller
         $bills = PartnerBill::query()
             ->where('client_id', $request->user()->id)
             ->with([
+                'media',
                 'category.media',
                 'category.parent.media',
                 'event',
                 'partner.statistics',
                 'partner.partnerProfile',
+                'review' => fn($query) => $query
+                    ->where('reviewable_type', Partner::class)
+                    ->where('user_id', $request->user()->id)
+                    ->with('ratings'),
             ])
             ->whereIn('status', [
                 PartnerBillStatus::COMPLETED,
