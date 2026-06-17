@@ -2,14 +2,12 @@
 
 namespace App\Filament\Partner\Resources\PartnerBillHistories\Tables;
 
+use App\Models\PartnerBill;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 
-use Filament\Actions\ViewAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 
 use App\Enum\PartnerBillStatus;
 
@@ -88,7 +86,30 @@ class PartnerBillHistoriesTable
                     ->options(PartnerBillStatus::asSelectArray()),
             ])
             ->recordActions([
-                //
+                Action::make('viewReview')
+                    ->label('Xem đánh giá')
+                    ->icon('heroicon-o-star')
+                    ->color('warning')
+                    ->visible(fn (PartnerBill $record): bool => (bool) $record->review_exists)
+                    ->modalHeading(fn (PartnerBill $record): string => "Đánh giá đơn {$record->code}")
+                    ->modalWidth('lg')
+                    ->modalContent(function (PartnerBill $record) {
+                        $review = $record->review()
+                            ->with('ratings')
+                            ->first();
+
+                        $ratings = $review?->ratings->mapWithKeys(fn ($rating) => [
+                            $rating->key => (int) $rating->value,
+                        ]) ?? collect();
+
+                        return view('filament.partner.modals.bill-review', [
+                            'review' => $review,
+                            'rating' => $ratings->get('rating') ?? $ratings->get('overall'),
+                            'ratings' => $ratings,
+                        ]);
+                    })
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Đóng'),
             ])
             ->toolbarActions([
                 //

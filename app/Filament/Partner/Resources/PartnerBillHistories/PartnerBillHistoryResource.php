@@ -47,6 +47,7 @@ class PartnerBillHistoryResource extends Resource
         return parent::getEloquentQuery()
             ->where('partner_id', auth()->id())
             ->with(['client', 'category', 'event'])
+            ->withExists('review')
             ->orderByDesc('updated_at');
     }
 
