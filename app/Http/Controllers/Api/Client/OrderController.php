@@ -364,15 +364,18 @@ class OrderController extends Controller
         }
 
         $partner = Partner::findOrFail($data['partner_id']);
-        $order = PartnerBill::findOrFail($data['order_id'])->select(['id', 'code'])->first();
+        $order = PartnerBill::query()
+            ->select(['id', 'code'])
+            ->findOrFail($data['order_id']);
 
-        $partner->addReview([
+        $review = $partner->addReview([
             'review' => $data['comment'],
             'ratings' => ['rating' => $data['rating']],
             'recommend' => true,
             'approved' => true,
-            'partner_bill_id' => $data['order_id'],
         ], $request->user()->id);
+        $review->partner_bill_id = $data['order_id'];
+        $review->save();
 
         $notificationTitle = __('notification.new_review_received.title');
         $notificationBody = __('notification.new_review_received.body', ['code' => $order->code]);
@@ -389,17 +392,6 @@ class OrderController extends Controller
             ->body($notificationBody)
             ->info()
             ->sendToDatabase($partner,  true);
-
-        $latest = Review::where('reviewable_type', User::class)
-            ->where('reviewable_id', $partner->id)
-            ->where('user_id', $request->user()->id)
-            ->latest('id')
-            ->first();
-
-        if ($latest) {
-            $latest->partner_bill_id = $data['order_id'];
-            $latest->save();
-        }
 
         Statistical::syncPartnerRatingMetrics($partner->id);
         PartnerWidgetCacheService::clearPartnerCaches($partner->id);
