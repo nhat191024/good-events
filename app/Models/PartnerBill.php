@@ -477,7 +477,7 @@ class PartnerBill extends Model implements HasMedia
 
     public function partner()
     {
-        return $this->belongsTo(User::class, 'partner_id');
+        return $this->belongsTo(Partner::class, 'partner_id');
     }
 
     public function category()
