@@ -56,7 +56,7 @@ class PartnerBillHistoryResource extends BaseResource
                 return [
                     'id' => $partner->id,
                     'name' => $partner->name,
-                    'avatar_url' => $partner->getFirstMediaUrl('avatar', 'avatar_webp') ?: $partner->avatar_url,
+                    'avatar_url' => $partner->getFirstMediaUrl('avatar', 'avatar_webp') ? $partner->getFirstMediaUrl('avatar', 'avatar_webp') : $partner->avatar_url,
                     'statistics' => $this->when(
                         $partner->relationLoaded('statistics') && $partner->statistics,
                         fn() => $this->formatStatistics($partner)
