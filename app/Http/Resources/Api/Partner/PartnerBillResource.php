@@ -17,7 +17,7 @@ class PartnerBillResource extends JsonResource
             'id' => $this->id,
             'code' => $this->code,
             'category' => $this->category->name,
-            'client_name' => $this->client->name,
+            'client_name' => $this->client->name ?? 'Ghost User',
             'date' => optional($this->date)->toDateString(),
             'start_time' => optional($this->start_time)->format('H:i'),
             'end_time' => optional($this->end_time)->format('H:i'),
