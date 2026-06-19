@@ -18,8 +18,7 @@ class PartnerServiceController extends Controller
     /**
      * GET /partner/service/index
      *
-     * @param Request $request
-     * @return \App\Http\Resources\Api\Partner\PartnerServiceCollection
+     * @return PartnerServiceCollection
      */
     public function index()
     {
@@ -61,7 +60,7 @@ class PartnerServiceController extends Controller
      * GET /partner/service/{serviceId}
      *
      * @param int $serviceId
-     * @return \App\Http\Resources\Api\Partner\PartnerServiceCollection
+     * @return PartnerServiceCollection
      */
     public function show($serviceId)
     {
