@@ -28,7 +28,7 @@ class ProfileUpdateRequest extends FormRequest
             ],
             'country_code' => ['nullable', 'string', 'max:10'],
             'phone' => ['nullable', 'string', 'max:25'],
-            'bio' => ['nullable', 'string', 'max:255'],
+            'bio' => ['nullable', 'string', 'max:10000'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', File::image()->max(10 * 1024)],
         ];
 
