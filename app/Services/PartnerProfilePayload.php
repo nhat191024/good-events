@@ -7,7 +7,6 @@ use App\Enum\PartnerBillStatus;
 use App\Models\Partner;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 class PartnerProfilePayload
 {
@@ -134,19 +133,6 @@ class PartnerProfilePayload
                                 'loading' => 'lazy',
                                 'alt' => $s->category?->name,
                             ])->toHtml();
-
-                            if (method_exists($m, 'getTemporaryUrl')) {
-                                try {
-                                    $url = $m->getTemporaryUrl(now()->addMinutes(10));
-                                } catch (\Throwable $e) {
-                                    Log::warning('PartnerProfilePayload: failed to build temporary URL', [
-                                        'service_id' => $s->id,
-                                        'media_id' => $m->id,
-                                        'error' => $e->getMessage(),
-                                    ]);
-                                    $url = $m->getFullUrl();
-                                }
-                            }
 
                             return [
                                 'id' => $m->id,
