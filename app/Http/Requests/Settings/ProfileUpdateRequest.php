@@ -29,7 +29,7 @@ class ProfileUpdateRequest extends FormRequest
             'country_code' => ['nullable', 'string', 'max:10'],
             'phone' => ['nullable', 'string', 'max:25'],
             'bio' => ['nullable', 'string', 'max:255'],
-            'avatar' => ['nullable', File::image()->max(5 * 1024)],
+            'avatar' => ['nullable', File::image()->max(10 * 1024)],
         ];
 
         if ($this->user()->hasRole(\App\Enum\Role::PARTNER)) {
