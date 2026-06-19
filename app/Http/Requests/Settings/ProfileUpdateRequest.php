@@ -38,9 +38,9 @@ class ProfileUpdateRequest extends FormRequest
                 'video_url' => ['nullable', 'string', 'max:2048'],
                 'identity_card_number' => ['nullable', 'string', 'max:50'],
                 'location_id' => ['nullable', 'integer', 'exists:locations,id'],
-                'selfie_image' => ['nullable', File::image()->max(5 * 1024)],
-                'front_identity_card_image' => ['nullable', File::image()->max(5 * 1024)],
-                'back_identity_card_image' => ['nullable', File::image()->max(5 * 1024)],
+                'selfie_image' => ['nullable', File::image()->max(10 * 1024)],
+                'front_identity_card_image' => ['nullable', File::image()->max(10 * 1024)],
+                'back_identity_card_image' => ['nullable', File::image()->max(10 * 1024)],
             ]);
         }
 
