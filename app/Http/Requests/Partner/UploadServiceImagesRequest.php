@@ -37,7 +37,7 @@ class UploadServiceImagesRequest extends FormRequest
             'images.*.required' => 'File ảnh không được trống.',
             'images.*.image' => 'File phải là ảnh.',
             'images.*.mimes' => 'Ảnh phải có định dạng jpeg, png, jpg, gif hoặc webp.',
-            'images.*.max' => 'Kích thước mỗi ảnh tối đa 5MB.',
+            'images.*.max' => 'Kích thước mỗi ảnh tối đa 20MB.',
         ];
     }
 }
