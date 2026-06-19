@@ -37,6 +37,7 @@ class ChatController extends Controller
         $user = Auth::user();
         $userId = $user?->id;
         $userRole = $user->roles->pluck('name')->first();
+        $sideRequest = $request->input('side', null);
 
         if ($userId === null) {
             return response()->json([
@@ -65,13 +66,14 @@ class ChatController extends Controller
             },
         ];
 
-        if ($userRole === 'partner') {
+        // check side request to determine first, use role if side request is null
+        if ($sideRequest === 'partner' || ($sideRequest === null && $userRole === 'partner')) {
             $with['bill.client'] = function ($query) {
                 $query->select('id', 'name');
             };
         }
 
-        if ($userRole === 'client') {
+        if ($sideRequest === 'client' || ($sideRequest === null && $userRole === 'client')) {
             $with['bill.partner'] = function ($query) {
                 $query->select('id', 'name');
             };
@@ -104,7 +106,7 @@ class ChatController extends Controller
             $threads = $threads->take(self::THREADS_PER_PAGE);
         }
 
-        $mappedThreads = $threads->map(function ($thread) use ($userId, $userRole) {
+        $mappedThreads = $threads->map(function ($thread) use ($sideRequest, $userId, $userRole) {
             $isUnread = false;
             $participant = $thread->participants->firstWhere('user_id', $userId);
 
@@ -112,7 +114,14 @@ class ChatController extends Controller
                 $isUnread = $participant->last_read !== null && $thread->updated_at->gt($participant->last_read);
             }
 
-            $subjectUser = $userRole === 'client' ? $thread->bill?->partner?->name : $thread->bill?->client?->name;
+            $subjectUser = null;
+
+            if ($sideRequest === 'partner' || ($sideRequest === null && $userRole === 'partner')) {
+                $subjectUser = $thread->bill?->client?->name;
+            } elseif ($sideRequest === 'client' || ($sideRequest === null && $userRole === 'client')) {
+                $subjectUser = $thread->bill?->partner?->name;
+            }
+
             $subject = "{$subjectUser} - " . ($thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event);
 
             return [
