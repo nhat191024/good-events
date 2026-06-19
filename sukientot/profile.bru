@@ -1,25 +1,17 @@
 meta {
-  name: chat list
+  name: profile
   type: http
-  seq: 2
+  seq: 5
 }
 
 get {
-  url: {{local_url}}chat/
+  url: {{url}}profile/4
   body: multipartForm
   auth: bearer
 }
 
-params:query {
-  ~search: PB202603144334
-}
-
 auth:bearer {
   token: {{token}}
-}
-
-body:multipart-form {
-  search: PB202603121463
 }
 
 settings {
