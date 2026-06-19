@@ -29,7 +29,7 @@ class ProfileUpdateRequest extends FormRequest
             'country_code' => ['nullable', 'string', 'max:10'],
             'phone' => ['nullable', 'string', 'max:25'],
             'bio' => ['nullable', 'string', 'max:255'],
-            'avatar' => ['nullable', File::image()->max(10 * 1024)],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', File::image()->max(10 * 1024)],
         ];
 
         if ($this->user()->hasRole(\App\Enum\Role::PARTNER)) {
@@ -38,9 +38,9 @@ class ProfileUpdateRequest extends FormRequest
                 'video_url' => ['nullable', 'string', 'max:2048'],
                 'identity_card_number' => ['nullable', 'string', 'max:50'],
                 'location_id' => ['nullable', 'integer', 'exists:locations,id'],
-                'selfie_image' => ['nullable', File::image()->max(10 * 1024)],
-                'front_identity_card_image' => ['nullable', File::image()->max(10 * 1024)],
-                'back_identity_card_image' => ['nullable', File::image()->max(10 * 1024)],
+                'selfie_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', File::image()->max(10 * 1024)],
+                'front_identity_card_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', File::image()->max(10 * 1024)],
+                'back_identity_card_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', File::image()->max(10 * 1024)],
             ]);
         }
 
