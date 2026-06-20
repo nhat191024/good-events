@@ -35,6 +35,7 @@ use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
 use Cohensive\OEmbed\Facades\OEmbed;
 
 use Illuminate\Support\Facades\Log;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ProfileSettings extends Page implements HasForms
 {
@@ -69,7 +70,7 @@ class ProfileSettings extends Page implements HasForms
             $cityId = $this->cachedLocation?->parent_id;
         }
 
-        $avatar = $user->getFirstMedia('avatar') ? ('uploads/' . $user->getFirstMedia('avatar')->id . '/' . $user->getFirstMedia('avatar')->file_name) : null;
+        $avatar = $this->getMediaPath($user->getFirstMedia('avatar'));
 
 
         $this->data = [
@@ -83,9 +84,9 @@ class ProfileSettings extends Page implements HasForms
             'location_id' => $partnerProfile?->location_id,
             'city_id' => $cityId,
             'identity_card_number' => $partnerProfile?->identity_card_number,
-            'selfie_image' => $this->withStoragePrefix($partnerProfile?->selfie_image),
-            'front_identity_card_image' => $this->withStoragePrefix($partnerProfile?->front_identity_card_image),
-            'back_identity_card_image' => $this->withStoragePrefix($partnerProfile?->back_identity_card_image),
+            'selfie_image' => $this->withoutStoragePrefix($partnerProfile?->selfie_image),
+            'front_identity_card_image' => $this->withoutStoragePrefix($partnerProfile?->front_identity_card_image),
+            'back_identity_card_image' => $this->withoutStoragePrefix($partnerProfile?->back_identity_card_image),
             'video_url' => $partnerProfile?->video_url,
         ];
 
@@ -341,7 +342,7 @@ class ProfileSettings extends Page implements HasForms
             $avatarState = $data['avatar'] ?? null;
             if ($avatarState) {
                 $currentMedia = $user->getFirstMedia('avatar');
-                $currentPath = $currentMedia ? ($currentMedia->id . '/' . $currentMedia->file_name) : null;
+                $currentPath = $this->getMediaPath($currentMedia);
 
                 if ($avatarState !== $currentPath && !str_starts_with($avatarState, 'http')) {
                     $validPath = null;
@@ -371,9 +372,7 @@ class ProfileSettings extends Page implements HasForms
             }
 
             $newMedia = $user->refresh()->getFirstMedia('avatar');
-            $this->data['avatar'] = $newMedia
-                ? ('uploads/' . $newMedia->id . '/' . $newMedia->file_name)
-                : null;
+            $this->data['avatar'] = $this->getMediaPath($newMedia);
 
             Notification::make()
                 ->title(__('profile.notifications.update_success_title'))
@@ -392,15 +391,9 @@ class ProfileSettings extends Page implements HasForms
         }
     }
 
-    private function withStoragePrefix(?string $path): ?string
+    private function getMediaPath(?Media $media): ?string
     {
-        if (blank($path)) {
-            return null;
-        }
-
-        $path = ltrim($path, '/');
-
-        return str_starts_with($path, 'storage/') ? $path : 'storage/' . $path;
+        return $media ? "uploads/{$media->id}/{$media->file_name}" : null;
     }
 
     private function withoutStoragePrefix(?string $path): ?string
