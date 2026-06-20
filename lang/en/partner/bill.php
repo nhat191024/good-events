@@ -5,7 +5,7 @@ return [
     'bill_confirmed' => 'Confirmed shows',
     'bill_history' => 'Show History',
 
-    'new_bill' => 'Take shows',
+    'new_bill' => 'Quote',
     'new_bill_description' => 'View new shows in real-time',
     'last_updated' => 'Last updated',
     'refresh' => 'Refresh',

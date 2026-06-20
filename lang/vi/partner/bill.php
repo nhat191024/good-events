@@ -5,7 +5,7 @@ return [
     'bill_confirmed' => 'Show đã xác nhận',
     'bill_history' => 'Lịch sử show',
 
-    'new_bill' => 'Nhận show',
+    'new_bill' => 'Báo giá',
     'new_bill_description' => 'Xem các show mới trong thời gian thực',
     'last_updated' => 'Cập nhật lần cuối',
     'refresh' => 'Làm mới',
