@@ -435,7 +435,7 @@ addTutorialRoutes([
                     </div>
                     <Button type="submit" :variant="'secondary'" :size="'lg'"
                         :class="'w-3/4 md:w-1/2 font-extrabold text-white'">
-                        Đặt show ngay
+                        Tìm nhân sự
                     </Button>
                 </FormGroupLayout>
             </form>
