@@ -1,9 +1,9 @@
 {
     "agents": [
-        "copilot"
+        "codex"
     ],
     "editors": [
-        "vscode"
+        "codex"
     ],
     "guidelines": [
         "filament/filament",
