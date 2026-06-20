@@ -365,7 +365,7 @@ class ProfileSettings extends Page implements HasForms
             if ($partnerProfile) {
                 $partnerProfile->update($partnerData);
             } else {
-                $partnerProfile = PartnerProfile::create([
+                PartnerProfile::create([
                     'user_id' => $user->id,
                     ...$partnerData
                 ]);
@@ -373,11 +373,6 @@ class ProfileSettings extends Page implements HasForms
 
             $newMedia = $user->refresh()->getFirstMedia('avatar');
             $this->data['avatar'] = $this->getMediaPath($newMedia);
-
-            $partnerProfile->refresh();
-            foreach (['selfie_image', 'front_identity_card_image', 'back_identity_card_image'] as $imageField) {
-                $this->data[$imageField] = $this->withoutStoragePrefix($partnerProfile->{$imageField});
-            }
 
             Notification::make()
                 ->title(__('profile.notifications.update_success_title'))
