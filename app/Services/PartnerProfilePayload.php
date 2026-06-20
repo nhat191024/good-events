@@ -62,9 +62,7 @@ class PartnerProfilePayload
             ?? optional($stats->get('total_ratings'))->metrics_value;
 
         if ($ratingStat === null || $totalReviewsStat === null) {
-            // Reviews are stored with reviewable_type = App\Models\User, so we must
-            // query via the base User model — not the Partner subclass.
-            $userModel = User::find($user->id);
+            $userModel = Partner::find($user->id);
             $allReviews = $userModel->reviews()->with('ratings')->get();
             $dynamicTotalReviews = $allReviews->count();
 
@@ -153,9 +151,7 @@ class PartnerProfilePayload
                 })
                 ->values(),
             'reviews' => (function () use ($user) {
-                // Reviews are stored with reviewable_type = App\Models\User, so we must
-                // query via the base User model — not the Partner subclass.
-                $userModel = User::find($user->id);
+                $userModel = Partner::find($user->id);
                 $reviews = $userModel->reviews()
                     ->with(['ratings'])
                     ->latest('created_at')
