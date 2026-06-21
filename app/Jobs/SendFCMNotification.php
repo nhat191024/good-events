@@ -26,6 +26,7 @@ class SendFCMNotification implements ShouldQueue
         private readonly string $title,
         private readonly string $body,
         private readonly array $data = [],
+        private readonly string $priority = '5',
     ) {
         $this->onQueue('notifications');
     }
@@ -36,7 +37,20 @@ class SendFCMNotification implements ShouldQueue
             $this->targetType => $this->target,
             'notification' => Notification::create($this->title, $this->body),
             'data' => $this->data,
-        ]);
+        ])
+            ->withApnsConfig([
+                'headers' => [
+                    'apns-priority' => $this->priority,
+                ],
+                'payload' => [
+                    'aps' => [
+                        'sound' => 'default',
+                    ],
+                ],
+            ])
+            ->withAndroidConfig([
+                'priority' => $this->priority === '10' ? 'high' : 'normal',
+            ]);
 
         try {
             $messaging->send($message);
