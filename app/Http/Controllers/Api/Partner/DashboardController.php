@@ -30,6 +30,8 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        $avatarUrl = $user->getFirstMediaUrl('avatar', 'avatar_webp') ?: $user->avatar_url;
+
         $walletBalance = (int) $user->balanceInt;
 
         $revenue = Statistical::where('user_id', $user->id)->where('metrics_name', StatisticType::REVENUE_GENERATED->value)
@@ -45,6 +47,7 @@ class DashboardController extends Controller
         $quarterlyRevenue = $this->getQuarterlyRevenue($user->id);
 
         return response()->json([
+            'avatar_url' => $avatarUrl,
             'has_notification' => $user->unreadNotifications()->count() > 0,
             'wallet_balance' => $walletBalance,
             'revenue' => (int) $revenue?->metrics_value ?? 0,
