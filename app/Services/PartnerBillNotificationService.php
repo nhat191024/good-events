@@ -114,7 +114,7 @@ class PartnerBillNotificationService
                 if ($partner->fcm_token) {
                     $title = __('notification.bill_confirmed.title');
                     $body = __('notification.bill_confirmed.subject', ['code' => $partnerBill->code]);
-                    $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_CONFIRMED']);
+                    $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_CONFIRMED'], '10');
                 }
 
                 Notification::make()
