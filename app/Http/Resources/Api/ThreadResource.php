@@ -20,7 +20,11 @@ class ThreadResource extends BaseResource
                 return [
                     'id' => $message->id,
                     'user_id' => $message->user_id,
+                    'type' => $message->type,
                     'body' => $message->body,
+                    'attachments' => $message->attachments,
+                    'location' => $message->location,
+                    'preview_text' => $message->preview_text,
                     'created_at' => optional($message->created_at)->toIso8601String(),
                 ];
             }),
