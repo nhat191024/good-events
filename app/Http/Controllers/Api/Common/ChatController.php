@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers\Api\Common;
 
-use App\Enum\CacheKey;
-
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreChatMessageRequest;
 
 use App\Models\Thread;
+use App\Models\Message;
 
 use App\Jobs\SendMessage;
+use App\Support\ChatMessagePayload;
 
-use Cmgmyr\Messenger\Models\Message;
 use Cmgmyr\Messenger\Models\Participant;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\QueryException;
 
 class ChatController extends Controller
@@ -51,6 +50,7 @@ class ChatController extends Controller
         $page = max(1, (int) $request->input('page', 1));
 
         $with = [
+            'latestMessage.media',
             'latestMessage.user' => function ($query) {
                 $query->select('id', 'name');
             },
@@ -136,6 +136,10 @@ class ChatController extends Controller
                 })->values(),
                 'latest_message' => $thread->latestMessage ? [
                     'body' => $thread->latestMessage->body,
+                    'type' => $thread->latestMessage->type,
+                    'attachments' => $thread->latestMessage->attachments,
+                    'location' => $thread->latestMessage->location,
+                    'preview_text' => $thread->latestMessage->preview_text,
                     'sender_name' => $thread->latestMessage->user->name,
                     'created_at' => $thread->latestMessage->created_at?->diffForHumans(),
                 ] : null,
@@ -187,7 +191,7 @@ class ChatController extends Controller
         $messages = $thread->messages()
             ->with(['user' => function ($query) {
                 $query->select('id', 'name');
-            }])
+            }, 'media'])
             ->orderBy('created_at', 'asc')
             ->skip($offset)
             ->take(self::MESSAGES_PER_PAGE)
@@ -197,14 +201,7 @@ class ChatController extends Controller
 
         $mappedMessages = $messages->map(fn($msg) => [
             'sender_id' => $msg->user_id,
-            'message' => [
-                'id' => $msg->id,
-                'thread_id' => $msg->thread_id,
-                'user_id' => $msg->user_id,
-                'body' => $msg->body,
-                'created_at' => $msg->created_at?->toIso8601String(),
-                'updated_at' => $msg->updated_at?->toIso8601String(),
-            ],
+            'message' => ChatMessagePayload::message($msg),
             'user' => [
                 'id' => $msg->user_id,
                 'name' => $msg->user->name ?? 'Ghost',
@@ -227,20 +224,15 @@ class ChatController extends Controller
      * @param int $threadId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function sendMessage(Request $request, int $threadId)
+    public function sendMessage(StoreChatMessageRequest $request, int $threadId)
     {
-        $request->validate([
-            'body' => 'required|string|max:5000',
-        ]);
-
         $userId = Auth::id();
-        $messageBody = $request->input('body');
 
         try {
             $participant = Participant::where([
                 'thread_id' => $threadId,
                 'user_id' => $userId,
-            ]);
+            ])->first();
 
             if (!$participant) {
                 return response()->json([
@@ -250,38 +242,25 @@ class ChatController extends Controller
             }
 
             $participant->last_read = now();
+            $participant->save();
 
-            $message = Message::create([
-                'thread_id' => $threadId,
-                'user_id' => $userId,
-                'body' => $messageBody,
-            ]);
+            $message = Message::create($request->messageAttributes($threadId, $userId));
 
-            $formattedMessage = [
-                'id' => $message->id,
-                'thread_id' => $message->thread_id,
-                'user_id' => $message->user_id,
-                'body' => $message->body,
-                'created_at' => $message->created_at,
-                'updated_at' => $message->updated_at,
-                'user' => [
-                    'id' => $userId,
-                    'name' => Auth::user() ? Auth::user()->name : 'Ghost',
-                ],
-                'other_participant_ids' => array_values(array_diff(
-                    Cache::remember(
-                        CacheKey::THREAD_PARTICIPANT->value . "{$threadId}",
-                        now()->addWeek(),
-                        fn() => Participant::where('thread_id', $threadId)->pluck('user_id')->all()
-                    ),
-                    [$userId]
-                )),
-            ];
+            foreach ($request->file('images', []) as $image) {
+                $message
+                    ->addMedia($image)
+                    ->toMediaCollection(Message::MEDIA_COLLECTION_CHAT_IMAGES);
+            }
+
+            $message->load('user', 'media');
+
+            $formattedMessage = ChatMessagePayload::forDispatch($message, Auth::user());
 
             SendMessage::dispatch($formattedMessage);
 
             return response()->json([
                 'success' => true,
+                'message' => ChatMessagePayload::response($message, Auth::user()),
             ]);
         } catch (QueryException $exception) {
             report($exception);
