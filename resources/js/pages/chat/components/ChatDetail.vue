@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ArrowLeft, Send, Flag, ImagePlus, MapPin, MessageCircleQuestionIcon } from 'lucide-vue-next';
+import { ArrowLeft, Send, Flag, ImagePlus, MapPin, MessageCircleQuestionIcon, X } from 'lucide-vue-next';
 import { Link } from '@inertiajs/vue3';
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
 import ReportModal from '@/components/ReportModal.vue';
@@ -30,6 +30,9 @@ const isSending = ref(false);
 const isReportModalOpen = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const locationError = ref('');
+const selectedImageFiles = ref<File[]>([]);
+const selectedImagePreviews = ref<string[]>([]);
+const MAX_SELECTED_IMAGES = 5;
 
 let activeChannelThreadId: number | null = null;
 let activeChannel: any = null;
@@ -58,9 +61,18 @@ const currentUserId = computed(() => {
     return (page.props.auth as any)?.user?.id || null;
 });
 
+const hasSelectedImages = computed(() => selectedImageFiles.value.length > 0);
+
+const canSend = computed(() => {
+    return !isSending.value && (newMessage.value.trim().length > 0 || hasSelectedImages.value);
+});
+
 watch(
     () => props.threadId,
     async (newId) => {
+        clearSelectedImages();
+        locationError.value = '';
+
         if (newId) {
             await loadThread(newId);
         }
@@ -133,6 +145,11 @@ async function loadMoreMessages() {
 }
 
 async function sendMessage() {
+    if (hasSelectedImages.value) {
+        await sendImageMessage();
+        return;
+    }
+
     if (!newMessage.value.trim() || isSending.value || !props.threadId) return;
 
     isSending.value = true;
@@ -161,7 +178,7 @@ async function sendMessage() {
 }
 
 function openImagePicker() {
-    if (isSending.value) return;
+    if (isSending.value || selectedImageFiles.value.length >= MAX_SELECTED_IMAGES) return;
 
     fileInput.value?.click();
 }
@@ -170,14 +187,59 @@ async function onImageSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files ?? []);
 
-    if (files.length === 0 || isSending.value || !props.threadId) {
+    if (files.length === 0 || isSending.value) {
+        return;
+    }
+
+    const remainingSlots = MAX_SELECTED_IMAGES - selectedImageFiles.value.length;
+    const filesToAdd = files.slice(0, remainingSlots);
+
+    if (filesToAdd.length === 0) {
+        locationError.value = `Bạn chỉ có thể gửi tối đa ${MAX_SELECTED_IMAGES} ảnh trong một tin nhắn.`;
+        input.value = '';
+        return;
+    }
+
+    selectedImageFiles.value.push(...filesToAdd);
+    selectedImagePreviews.value.push(...filesToAdd.map((file) => URL.createObjectURL(file)));
+    locationError.value = '';
+
+    if (files.length > filesToAdd.length) {
+        locationError.value = `Chỉ thêm ${filesToAdd.length} ảnh. Tối đa ${MAX_SELECTED_IMAGES} ảnh trong một tin nhắn.`;
+    }
+
+    input.value = '';
+}
+
+function removeSelectedImage(index: number) {
+    URL.revokeObjectURL(selectedImagePreviews.value[index]);
+    selectedImageFiles.value.splice(index, 1);
+    selectedImagePreviews.value.splice(index, 1);
+
+    if (fileInput.value && selectedImageFiles.value.length === 0) {
+        fileInput.value.value = '';
+    }
+}
+
+function clearSelectedImages(clearInput = true) {
+    selectedImagePreviews.value.forEach((preview) => URL.revokeObjectURL(preview));
+    selectedImageFiles.value = [];
+    selectedImagePreviews.value = [];
+
+    if (clearInput && fileInput.value) {
+        fileInput.value.value = '';
+    }
+}
+
+async function sendImageMessage() {
+    if (!hasSelectedImages.value || isSending.value || !props.threadId) {
         return;
     }
 
     isSending.value = true;
     locationError.value = '';
     const caption = newMessage.value;
-    newMessage.value = '';
+    const files = [...selectedImageFiles.value];
 
     try {
         const formData = new FormData();
@@ -187,7 +249,7 @@ async function onImageSelected(event: Event) {
             formData.append('body', caption);
         }
 
-        files.slice(0, 5).forEach((file) => {
+        files.forEach((file) => {
             formData.append('images[]', file);
         });
 
@@ -197,6 +259,8 @@ async function onImageSelected(event: Event) {
 
         if (response.data.success) {
             messages.value.push(response.data.message);
+            newMessage.value = '';
+            clearSelectedImages();
 
             await nextTick();
             scrollToBottom();
@@ -206,7 +270,6 @@ async function onImageSelected(event: Event) {
         newMessage.value = caption;
     } finally {
         isSending.value = false;
-        input.value = '';
     }
 }
 
@@ -386,6 +449,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     leaveActiveChannel();
+    clearSelectedImages();
 });
 </script>
 
@@ -480,6 +544,43 @@ onUnmounted(() => {
             <p v-if="locationError" class="mb-2 text-sm text-red-600">
                 {{ locationError }}
             </p>
+
+            <div v-if="hasSelectedImages" class="mb-3 rounded-lg bg-gray-50 p-3">
+                <div class="mb-2 flex items-center justify-between gap-3">
+                    <span class="text-sm font-medium text-gray-700">
+                        {{ selectedImageFiles.length }} ảnh đã chọn
+                    </span>
+                    <button
+                        class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
+                        type="button"
+                        title="Bỏ ảnh"
+                        aria-label="clear selected images"
+                        @click="clearSelectedImages()"
+                    >
+                        <X class="h-4 w-4" />
+                    </button>
+                </div>
+
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                    <div
+                        v-for="(preview, index) in selectedImagePreviews"
+                        :key="preview"
+                        class="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-gray-200"
+                    >
+                        <img :src="preview" alt="Ảnh đã chọn" class="h-full w-full object-cover" />
+                        <button
+                            class="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white transition-colors hover:bg-black/80"
+                            type="button"
+                            title="Bỏ ảnh này"
+                            aria-label="remove selected image"
+                            @click="removeSelectedImage(index)"
+                        >
+                            <X class="h-3 w-3" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex items-end gap-2">
                 <input
                     ref="fileInput"
@@ -492,7 +593,7 @@ onUnmounted(() => {
 
                 <button
                     class="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="isSending"
+                    :disabled="isSending || selectedImageFiles.length >= MAX_SELECTED_IMAGES"
                     type="button"
                     title="Gửi ảnh"
                     aria-label="send image"
@@ -521,7 +622,7 @@ onUnmounted(() => {
 
                 <button
                     class="rounded-full bg-red-500 p-2 text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="!newMessage.trim() || isSending" @click="sendMessage" aria-label="send">
+                    :disabled="!canSend" @click="sendMessage" aria-label="send">
                     <Send class="h-4 w-4" />
                 </button>
             </div>
