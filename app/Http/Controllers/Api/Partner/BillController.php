@@ -379,6 +379,18 @@ class BillController extends Controller
             return response()->json(['message' => 'Order must be in job.'], 422);
         }
 
+        $request->validate([
+            'completion_photo' => 'required|image|max:20480|mimes:jpeg,png,jpg,webp',
+        ]);
+
+        if ($request->hasFile('completion_photo')) {
+            $file = $request->file('completion_photo');
+            $bill->addMedia($file->getRealPath())
+                ->usingName('Completion Photo - ' . $bill->code)
+                ->usingFileName($file->getClientOriginalName())
+                ->toMediaCollection('completion_photo');
+        }
+
         $user = auth()->user();
         $balance = $user->balanceInt;
         $feePercentage = app(PartnerSettings::class)->fee_percentage;
