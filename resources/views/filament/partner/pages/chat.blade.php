@@ -198,19 +198,23 @@
                                         {{ $message['user']['name'] ?? 'Người dùng đã xóa' }}
                                     </p>
                                 @endif
-                                <div class="{{ $message['user_id'] === auth()->id() ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
-                                    @if (($message['type'] ?? 'text') === 'image')
-                                        <div class="grid max-w-xs grid-cols-2 gap-2">
+                                @if (($message['type'] ?? 'text') === 'image')
+                                    <div class="space-y-2">
+                                        <div class="{{ count($message['attachments'] ?? []) > 1 ? 'grid grid-cols-2' : 'inline-grid grid-cols-1' }} gap-2">
                                             @foreach (($message['attachments'] ?? []) as $attachment)
                                                 <a href="{{ $attachment['url'] }}" target="_blank" rel="noopener noreferrer">
-                                                    <img class="aspect-square rounded-md object-cover" src="{{ $attachment['url'] }}" alt="{{ $attachment['name'] ?? 'Ảnh chat' }}" />
+                                                    <img class="h-36 w-36 rounded-xl object-cover shadow-sm sm:h-44 sm:w-44" src="{{ $attachment['url'] }}" alt="{{ $attachment['name'] ?? 'Ảnh chat' }}" />
                                                 </a>
                                             @endforeach
                                         </div>
                                         @if (!empty($message['body']))
-                                            <p class="mt-2 break-words text-sm">{{ $message['body'] }}</p>
+                                            <div class="{{ $message['user_id'] === auth()->id() ? 'bg-primary-600 text-white rounded-br-md' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md' }} max-w-xs rounded-lg px-4 py-2">
+                                                <p class="break-words text-sm">{{ $message['body'] }}</p>
+                                            </div>
                                         @endif
-                                    @elseif (($message['type'] ?? 'text') === 'location' && !empty($message['location']))
+                                    </div>
+                                @elseif (($message['type'] ?? 'text') === 'location' && !empty($message['location']))
+                                    <div class="{{ $message['user_id'] === auth()->id() ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
                                         @php
                                             $location = $message['location'];
                                             $mapsUrl = 'https://www.google.com/maps?q=' . $location['latitude'] . ',' . $location['longitude'];
@@ -221,10 +225,12 @@
                                         @if (!empty($location['address']))
                                             <p class="mt-1 break-words text-xs opacity-80">{{ $location['address'] }}</p>
                                         @endif
-                                    @else
+                                    </div>
+                                @else
+                                    <div class="{{ $message['user_id'] === auth()->id() ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
                                         <p class="break-words text-sm">{{ $message['body'] }}</p>
-                                    @endif
-                                </div>
+                                    </div>
+                                @endif
                                 <p class="{{ $message['user_id'] === auth()->id() ? 'text-right' : '' }} mt-1 text-xs text-gray-500 dark:text-gray-500">
                                     {{ $message['created_at']->format('H:i - d/m/Y') }}
                                 </p>
@@ -275,19 +281,33 @@
                 }">
                     <p class="mb-2 text-sm text-red-600 dark:text-red-400" x-show="locationError" x-text="locationError"></p>
 
-                    @if (count($messageImages) > 0)
+                    @if (count($pendingMessageImages) > 0)
                         <div class="mb-2 flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                            <span>{{ count($messageImages) }} ảnh đã chọn</span>
+                            <span>{{ count($pendingMessageImages) }} ảnh đã chọn</span>
                             <button class="text-primary-700 hover:underline dark:text-primary-400" type="button" wire:click="sendImageMessage" wire:loading.attr="disabled" wire:target="messageImages,sendImageMessage">
                                 Gửi ảnh
                             </button>
+                            <button class="text-gray-500 hover:text-red-600 hover:underline dark:text-gray-400 dark:hover:text-red-400" type="button" wire:click="clearPendingMessageImages">
+                                Bỏ ảnh
+                            </button>
+                        </div>
+
+                        <div class="mb-2 flex gap-2 overflow-x-auto pb-1">
+                            @foreach ($pendingMessageImages as $index => $image)
+                                <div class="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800">
+                                    <img class="h-full w-full object-cover" src="{{ $image->temporaryUrl() }}" alt="Ảnh đã chọn" />
+                                    <button class="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white transition hover:bg-black/80" type="button" wire:click="removePendingMessageImage({{ $index }})">
+                                        <x-filament::icon class="h-3 w-3" icon="heroicon-m-x-mark" />
+                                    </button>
+                                </div>
+                            @endforeach
                         </div>
                     @endif
 
-                    @error('messageImages')
+                    @error('pendingMessageImages')
                         <p class="mb-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
-                    @error('messageImages.*')
+                    @error('pendingMessageImages.*')
                         <p class="mb-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
 
@@ -296,7 +316,7 @@
 
                         <div class="flex gap-2">
                             <button class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800" type="button"
-                                onclick="document.getElementById('partner-chat-images')?.click()" wire:loading.attr="disabled" wire:target="messageImages">
+                                onclick="document.getElementById('partner-chat-images')?.click()" @disabled(count($pendingMessageImages) >= 5) wire:loading.attr="disabled" wire:target="messageImages">
                                 <x-filament::icon class="h-4 w-4" icon="heroicon-m-photo" />
                             </button>
                             <button class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800" type="button"

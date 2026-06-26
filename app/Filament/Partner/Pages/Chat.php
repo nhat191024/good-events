@@ -26,6 +26,8 @@ class Chat extends Page
 {
     use WithFileUploads;
 
+    private const int MAX_MESSAGE_IMAGES = 5;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
     protected string $view = 'filament.partner.pages.chat';
@@ -62,6 +64,8 @@ class Chat extends Page
     public string $messageBody = '';
 
     public array $messageImages = [];
+
+    public array $pendingMessageImages = [];
 
 
     //show thread list on mobile
@@ -101,6 +105,40 @@ class Chat extends Page
         // Dispatch event to update thread subscriptions
         $threadIds = collect($this->threads)->pluck('id')->toArray();
         $this->dispatch('filament-partner-chat:threads-updated', threadIds: $threadIds);
+    }
+
+    public function updatedMessageImages(): void
+    {
+        $remainingSlots = self::MAX_MESSAGE_IMAGES - count($this->pendingMessageImages);
+
+        if ($remainingSlots <= 0) {
+            $this->messageImages = [];
+
+            return;
+        }
+
+        $this->pendingMessageImages = array_merge(
+            $this->pendingMessageImages,
+            array_slice($this->messageImages, 0, $remainingSlots),
+        );
+
+        $this->messageImages = [];
+    }
+
+    public function removePendingMessageImage(int $index): void
+    {
+        if (! array_key_exists($index, $this->pendingMessageImages)) {
+            return;
+        }
+
+        unset($this->pendingMessageImages[$index]);
+        $this->pendingMessageImages = array_values($this->pendingMessageImages);
+    }
+
+    public function clearPendingMessageImages(): void
+    {
+        $this->messageImages = [];
+        $this->pendingMessageImages = [];
     }
 
     /**
@@ -374,14 +412,14 @@ class Chat extends Page
 
     public function sendImageMessage(): void
     {
-        if (!$this->selectedThreadId || $this->messageImages === []) {
+        if (!$this->selectedThreadId || $this->pendingMessageImages === []) {
             return;
         }
 
         $this->validate([
             'messageBody' => ['nullable', 'string', 'max:5000'],
-            'messageImages' => ['required', 'array', 'max:5'],
-            'messageImages.*' => ['image', 'max:5120'],
+            'pendingMessageImages' => ['required', 'array', 'max:' . self::MAX_MESSAGE_IMAGES],
+            'pendingMessageImages.*' => ['image', 'max:5120'],
         ]);
 
         $userId = Auth::id();
@@ -395,7 +433,7 @@ class Chat extends Page
                 'body' => filled(trim($this->messageBody)) ? trim($this->messageBody) : null,
             ]);
 
-            foreach ($this->messageImages as $image) {
+            foreach ($this->pendingMessageImages as $image) {
                 $message
                     ->addMedia($image->getRealPath())
                     ->usingName(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME))
@@ -410,7 +448,7 @@ class Chat extends Page
 
         $this->pushAndBroadcastMessage($message);
         $this->messageBody = '';
-        $this->messageImages = [];
+        $this->clearPendingMessageImages();
     }
 
     public function sendLocationMessage(float $latitude, float $longitude): void
