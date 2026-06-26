@@ -57,7 +57,7 @@
                                 @endif
                                 @if ($thread->latest_message)
                                     <p class="{{ $thread->is_unread ? 'font-extrabold text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-500' }} mt-1 truncate text-xs">
-                                        {{ Str::limit($thread->latest_message->body, 50) }}
+                                        {{ Str::limit($thread->latest_message->preview_text ?? $thread->latest_message->body, 50) }}
                                     </p>
                                 @endif
                             </div>
@@ -199,7 +199,31 @@
                                     </p>
                                 @endif
                                 <div class="{{ $message['user_id'] === auth()->id() ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' }} rounded-lg px-4 py-2">
-                                    <p class="break-words text-sm">{{ $message['body'] }}</p>
+                                    @if (($message['type'] ?? 'text') === 'image')
+                                        <div class="grid max-w-xs grid-cols-2 gap-2">
+                                            @foreach (($message['attachments'] ?? []) as $attachment)
+                                                <a href="{{ $attachment['url'] }}" target="_blank" rel="noopener noreferrer">
+                                                    <img class="aspect-square rounded-md object-cover" src="{{ $attachment['url'] }}" alt="{{ $attachment['name'] ?? 'Ảnh chat' }}" />
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                        @if (!empty($message['body']))
+                                            <p class="mt-2 break-words text-sm">{{ $message['body'] }}</p>
+                                        @endif
+                                    @elseif (($message['type'] ?? 'text') === 'location' && !empty($message['location']))
+                                        @php
+                                            $location = $message['location'];
+                                            $mapsUrl = 'https://www.google.com/maps?q=' . $location['latitude'] . ',' . $location['longitude'];
+                                        @endphp
+                                        <a class="block break-words text-sm underline" href="{{ $mapsUrl }}" target="_blank" rel="noopener noreferrer">
+                                            {{ $location['label'] ?? $location['address'] ?? 'Vị trí được chia sẻ' }}
+                                        </a>
+                                        @if (!empty($location['address']))
+                                            <p class="mt-1 break-words text-xs opacity-80">{{ $location['address'] }}</p>
+                                        @endif
+                                    @else
+                                        <p class="break-words text-sm">{{ $message['body'] }}</p>
+                                    @endif
                                 </div>
                                 <p class="{{ $message['user_id'] === auth()->id() ? 'text-right' : '' }} mt-1 text-xs text-gray-500 dark:text-gray-500">
                                     {{ $message['created_at']->format('H:i - d/m/Y') }}
@@ -214,8 +238,73 @@
                 </div>
 
                 <!-- Message Input -->
-                <div class="border-t border-gray-200 p-4 dark:border-gray-700">
+                <div class="border-t border-gray-200 p-4 dark:border-gray-700" x-data="{
+                    locationError: '',
+                    sendingLocation: false,
+                    sendLocation() {
+                        this.locationError = '';
+
+                        if (!navigator.geolocation) {
+                            this.locationError = 'Trình duyệt không hỗ trợ chia sẻ vị trí.';
+                            return;
+                        }
+
+                        this.sendingLocation = true;
+
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                this.$wire.sendLocationMessage(position.coords.latitude, position.coords.longitude)
+                                    .catch(() => {
+                                        this.locationError = 'Không thể gửi vị trí. Vui lòng thử lại.';
+                                    })
+                                    .finally(() => {
+                                        this.sendingLocation = false;
+                                    });
+                            },
+                            () => {
+                                this.locationError = 'Không thể lấy vị trí. Vui lòng kiểm tra quyền truy cập vị trí.';
+                                this.sendingLocation = false;
+                            },
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 60000,
+                            },
+                        );
+                    },
+                }">
+                    <p class="mb-2 text-sm text-red-600 dark:text-red-400" x-show="locationError" x-text="locationError"></p>
+
+                    @if (count($messageImages) > 0)
+                        <div class="mb-2 flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                            <span>{{ count($messageImages) }} ảnh đã chọn</span>
+                            <button class="text-primary-700 hover:underline dark:text-primary-400" type="button" wire:click="sendImageMessage" wire:loading.attr="disabled" wire:target="messageImages,sendImageMessage">
+                                Gửi ảnh
+                            </button>
+                        </div>
+                    @endif
+
+                    @error('messageImages')
+                        <p class="mb-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                    @error('messageImages.*')
+                        <p class="mb-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+
                     <form class="flex flex-col gap-2 sm:flex-row" wire:submit="sendMessage">
+                        <input id="partner-chat-images" class="hidden" type="file" accept="image/*" multiple wire:model="messageImages" />
+
+                        <div class="flex gap-2">
+                            <button class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800" type="button"
+                                onclick="document.getElementById('partner-chat-images')?.click()" wire:loading.attr="disabled" wire:target="messageImages">
+                                <x-filament::icon class="h-4 w-4" icon="heroicon-m-photo" />
+                            </button>
+                            <button class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800" type="button"
+                                x-bind:disabled="sendingLocation" x-on:click="sendLocation">
+                                <x-filament::icon class="h-4 w-4" icon="heroicon-m-map-pin" />
+                            </button>
+                        </div>
+
                         <input class="focus:border-primary-500 focus:ring-primary-500 flex-1 rounded-lg border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" type="text" wire:model="messageBody" placeholder="{{ __('chat.message_placeholder') }}" />
                         <button class="bg-primary-800 hover:bg-primary-700 inline-flex items-center justify-center rounded-lg px-6 py-2 text-sm font-medium text-white transition" type="submit">
                             Gửi

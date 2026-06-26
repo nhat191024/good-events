@@ -4,30 +4,30 @@ namespace App\Filament\Admin\Pages;
 
 use BackedEnum;
 
-use App\Enum\CacheKey;
-
 use App\Jobs\SendMessage;
 
+use App\Models\Message;
 use App\Models\Thread;
 
+use App\Support\ChatMessagePayload;
 use Carbon\Carbon;
-use Cmgmyr\Messenger\Models\Message;
 use Cmgmyr\Messenger\Models\Participant;
 
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Notifications\Notification;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Validator;
 use Livewire\Attributes\On;
+use Livewire\WithFileUploads;
 
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class Chat extends Page
 {
-    use HasPageShield;
+    use HasPageShield, WithFileUploads;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
@@ -98,6 +98,8 @@ class Chat extends Page
 
     //user input message
     public string $messageBody = '';
+
+    public array $messageImages = [];
 
 
     //show thread list on mobile
@@ -224,7 +226,7 @@ class Chat extends Page
 
         $query->with(
             [
-                'latestMessage',
+                'latestMessage.media',
                 'participants',
                 'participants.user' => function ($query) {
                     $query->select('id', 'name');
@@ -289,6 +291,10 @@ class Chat extends Page
                 ]),
                 'latest_message' => $thread->latestMessage ? (object) [
                     'body' => $thread->latestMessage->body,
+                    'type' => $thread->latestMessage->type,
+                    'attachments' => $thread->latestMessage->attachments,
+                    'location' => $thread->latestMessage->location,
+                    'preview_text' => $thread->latestMessage->preview_text,
                     'created_at' => $thread->latestMessage->created_at->toIso8601String(),
                 ] : null,
                 'bill' => $thread->bill ? (object) [
@@ -408,7 +414,7 @@ class Chat extends Page
         $messages = $thread->messages()
             ->with(['user' => function ($query) {
                 $query->select('id', 'name');
-            }])
+            }, 'media'])
             ->orderBy('created_at', 'asc')
             ->skip($offset)
             ->take($this->messagesPerPage)
@@ -421,7 +427,11 @@ class Chat extends Page
             'id' => $msg->id,
             'thread_id' => $msg->thread_id,
             'user_id' => $msg->user_id,
+            'type' => $msg->type,
             'body' => $msg->body,
+            'attachments' => $msg->attachments,
+            'location' => $msg->location,
+            'preview_text' => $msg->preview_text,
             'created_at' => $msg->created_at,
             'updated_at' => $msg->updated_at,
             'user' => [
@@ -457,6 +467,7 @@ class Chat extends Page
             $message = Message::create([
                 'thread_id' => $threadId,
                 'user_id' => $userId,
+                'type' => Message::TYPE_TEXT,
                 'body' => $this->messageBody,
             ]);
         } catch (QueryException $exception) {
@@ -465,41 +476,109 @@ class Chat extends Page
             return;
         }
 
-        $message = [
-            'id' => $message->id,
-            'thread_id' => $message->thread_id,
-            'user_id' => $message->user_id,
-            'body' => $message->body,
-            'created_at' => $message->created_at,
-            'updated_at' => $message->updated_at,
-            'user' => [
-                'id' => $userId,
-                'name' => Auth::user() ? Auth::user()->name : 'Ghost',
-            ],
-            'other_participant_ids' => array_values(array_diff(
-                Cache::remember(
-                    CacheKey::THREAD_PARTICIPANT->value . "{$threadId}",
-                    now()->addWeek(),
-                    fn() => Participant::where('thread_id', $threadId)->pluck('user_id')->all()
-                ),
-                [$userId]
-            )),
-        ];
+        $this->pushAndBroadcastMessage($message);
 
-        $this->messages = collect($this->messages)->push($message)->toArray();
+        $this->messageBody = '';
+    }
+
+    public function sendImageMessage(): void
+    {
+        if (!$this->selectedThreadId || $this->messageImages === []) {
+            return;
+        }
+
+        $this->validate([
+            'messageBody' => ['nullable', 'string', 'max:5000'],
+            'messageImages' => ['required', 'array', 'max:5'],
+            'messageImages.*' => ['image', 'max:5120'],
+        ]);
+
+        $userId = Auth::id();
+        $threadId = $this->selectedThreadId;
+
+        try {
+            $message = Message::create([
+                'thread_id' => $threadId,
+                'user_id' => $userId,
+                'type' => Message::TYPE_IMAGE,
+                'body' => filled(trim($this->messageBody)) ? trim($this->messageBody) : null,
+            ]);
+
+            foreach ($this->messageImages as $image) {
+                $message
+                    ->addMedia($image->getRealPath())
+                    ->usingName(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME))
+                    ->usingFileName($image->getClientOriginalName())
+                    ->toMediaCollection(Message::MEDIA_COLLECTION_CHAT_IMAGES);
+            }
+        } catch (QueryException $exception) {
+            report($exception);
+
+            return;
+        }
+
+        $this->pushAndBroadcastMessage($message);
+        $this->messageBody = '';
+        $this->messageImages = [];
+    }
+
+    public function sendLocationMessage(float $latitude, float $longitude): void
+    {
+        if (!$this->selectedThreadId) {
+            return;
+        }
+
+        $validator = Validator::make([
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'body' => $this->messageBody,
+        ], [
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'body' => ['nullable', 'string', 'max:5000'],
+        ]);
+
+        if ($validator->fails()) {
+            return;
+        }
+
+        try {
+            $message = Message::create([
+                'thread_id' => $this->selectedThreadId,
+                'user_id' => Auth::id(),
+                'type' => Message::TYPE_LOCATION,
+                'body' => filled(trim($this->messageBody)) ? trim($this->messageBody) : null,
+                'location_latitude' => $latitude,
+                'location_longitude' => $longitude,
+                'location_label' => 'Vị trí hiện tại',
+            ]);
+        } catch (QueryException $exception) {
+            report($exception);
+
+            return;
+        }
+
+        $this->pushAndBroadcastMessage($message);
+        $this->messageBody = '';
+    }
+
+    private function pushAndBroadcastMessage(Message $message): void
+    {
+        $message->load('user', 'media');
+
+        $payload = ChatMessagePayload::forDispatch($message, Auth::user());
+
+        $this->messages = collect($this->messages)->push($payload)->toArray();
         $this->cachedMessages = $this->messages;
 
         $participant = Participant::firstOrCreate([
-            'thread_id' => $threadId,
-            'user_id' => $userId,
+            'thread_id' => $message->thread_id,
+            'user_id' => $message->user_id,
         ]);
         $participant->last_read = now();
         $participant->save();
 
-        // Clear message input
-        $this->messageBody = '';
-
-        SendMessage::dispatch($message);
+        SendMessage::dispatch($payload);
     }
 
 
@@ -535,7 +614,11 @@ class Chat extends Page
                 'id' => $messageData['id'],
                 'thread_id' => $messageData['thread_id'],
                 'user_id' => $messageData['user_id'],
-                'body' => $messageData['body'],
+                'type' => $messageData['type'] ?? Message::TYPE_TEXT,
+                'body' => $messageData['body'] ?? null,
+                'attachments' => $messageData['attachments'] ?? [],
+                'location' => $messageData['location'] ?? null,
+                'preview_text' => $messageData['preview_text'] ?? (string) ($messageData['body'] ?? ''),
                 'created_at' => Carbon::parse($messageData['created_at']),
                 'updated_at' => Carbon::parse($messageData['updated_at']),
                 'user' => [
@@ -579,7 +662,11 @@ class Chat extends Page
         $createdAt = Carbon::parse($messageData['created_at']);
 
         $thread->latest_message = (object) [
-            'body' => $messageData['body'],
+            'body' => $messageData['body'] ?? null,
+            'type' => $messageData['type'] ?? Message::TYPE_TEXT,
+            'attachments' => $messageData['attachments'] ?? [],
+            'location' => $messageData['location'] ?? null,
+            'preview_text' => $messageData['preview_text'] ?? (string) ($messageData['body'] ?? ''),
             'created_at' => $createdAt->toIso8601String(),
         ];
         $thread->updated_at = $createdAt;
