@@ -137,8 +137,8 @@ class ChatController extends Controller
                 'latest_message' => $thread->latestMessage ? [
                     'body' => $thread->latestMessage->body,
                     'type' => $thread->latestMessage->type,
-                    'attachments' => $thread->latestMessage->attachments,
-                    'location' => $thread->latestMessage->location,
+                    'attachments' => null,
+                    'location' => null,
                     'preview_text' => $thread->latestMessage->preview_text,
                     'sender_name' => $thread->latestMessage->user->name,
                     'created_at' => $thread->latestMessage->created_at?->diffForHumans(),
