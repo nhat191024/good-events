@@ -13,6 +13,8 @@
 
     const isMe = computed(() => props.message.user_id === currentUserId.value)
 
+    const isImageMessage = computed(() => props.message.type === 'image')
+
     const timeText = computed(() => {
         const date = new Date(props.message.created_at)
         return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
@@ -35,11 +37,19 @@
             </div>
 
             <div :class="[
-                'px-4 py-2 rounded-2xl text-sm leading-relaxed shadow-sm',
-                isMe ? 'bg-red-500 text-white rounded-br-md' : 'bg-gray-200 text-gray-900 rounded-bl-md',
+                'text-sm leading-relaxed',
+                isImageMessage
+                    ? 'space-y-2'
+                    : 'rounded-2xl px-4 py-2 shadow-sm',
+                !isImageMessage && (isMe ? 'bg-red-500 text-white rounded-br-md' : 'bg-gray-200 text-gray-900 rounded-bl-md'),
             ]">
                 <template v-if="message.type === 'image'">
-                    <div class="grid max-w-xs grid-cols-2 gap-2">
+                    <div
+                        :class="[
+                            'inline-grid gap-2 align-top',
+                            message.attachments.length > 1 ? 'grid-cols-2' : 'grid-cols-1',
+                        ]"
+                    >
                         <a
                             v-for="attachment in message.attachments"
                             :key="attachment.id"
@@ -50,11 +60,17 @@
                             <img
                                 :alt="attachment.name || 'Ảnh chat'"
                                 :src="attachment.url"
-                                class="aspect-square w-full rounded-lg object-cover"
+                                class="h-36 w-36 rounded-xl object-cover shadow-sm sm:h-44 sm:w-44"
                             />
                         </a>
                     </div>
-                    <p v-if="message.body" class="mt-2 break-words">
+                    <p
+                        v-if="message.body"
+                        :class="[
+                            'max-w-xs break-words rounded-2xl px-4 py-2 shadow-sm',
+                            isMe ? 'bg-red-500 text-white rounded-br-md' : 'bg-gray-200 text-gray-900 rounded-bl-md',
+                        ]"
+                    >
                         {{ message.body }}
                     </p>
                 </template>
