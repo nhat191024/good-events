@@ -9,7 +9,11 @@ export interface Participant {
 }
 
 export interface LatestMessage {
-    body: string
+    body: string | null
+    type: MessageType
+    attachments: MessageAttachment[]
+    location: MessageLocation | null
+    preview_text: string
     created_at: string
 }
 
@@ -28,10 +32,32 @@ export interface Message {
     id: number
     thread_id: number
     user_id: number
-    body: string
+    type: MessageType
+    body: string | null
+    attachments: MessageAttachment[]
+    location: MessageLocation | null
+    preview_text: string
     created_at: string
     updated_at: string
     user: User
+}
+
+export type MessageType = 'text' | 'image' | 'location'
+
+export interface MessageAttachment {
+    id: number
+    name: string
+    file_name: string
+    mime_type: string | null
+    size: number
+    url: string
+}
+
+export interface MessageLocation {
+    latitude: number
+    longitude: number
+    label: string | null
+    address: string | null
 }
 
 export interface Bill {
@@ -58,7 +84,11 @@ export interface BroadcastMessagePayload {
         id: number
         thread_id: number
         user_id: number
-        body: string
+        type: MessageType
+        body: string | null
+        attachments: MessageAttachment[]
+        location: MessageLocation | null
+        preview_text: string
         created_at: string
         updated_at: string
     }

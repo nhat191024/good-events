@@ -77,11 +77,9 @@ export function useThreadsSubscription(options: UseThreadsSubscriptionOptions) {
 
     function handleBroadcastMessage(payload: BroadcastMessagePayload) {
         const threadId = payload.message.thread_id
-        const messageBody = payload.message.body
-        const createdAt = payload.message.created_at
 
         // Update thread in list
-        updateThreadInList(threadId, messageBody, createdAt)
+        updateThreadInList(payload)
 
         // Call custom handler if provided
         if (onMessageReceived) {
@@ -89,14 +87,20 @@ export function useThreadsSubscription(options: UseThreadsSubscriptionOptions) {
         }
     }
 
-    function updateThreadInList(threadId: number, messageBody: string, createdAt: string) {
+    function updateThreadInList(payload: BroadcastMessagePayload) {
+        const threadId = payload.message.thread_id
+        const createdAt = payload.message.created_at
         const threadIndex = threads.value.findIndex(t => t.id === threadId)
         if (threadIndex === -1) return
 
         const threadToUpdate = { ...threads.value[threadIndex] }
 
         threadToUpdate.latest_message = {
-            body: messageBody,
+            body: payload.message.body,
+            type: payload.message.type,
+            attachments: payload.message.attachments,
+            location: payload.message.location,
+            preview_text: payload.message.preview_text,
             created_at: createdAt,
         }
         threadToUpdate.updated_at = createdAt

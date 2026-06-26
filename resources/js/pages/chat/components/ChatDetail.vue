@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ArrowLeft, Send, Flag, MessageCircleQuestionIcon } from 'lucide-vue-next';
+import { ArrowLeft, Send, Flag, ImagePlus, MapPin, MessageCircleQuestionIcon } from 'lucide-vue-next';
 import { Link } from '@inertiajs/vue3';
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
 import ReportModal from '@/components/ReportModal.vue';
@@ -28,6 +28,8 @@ const hasMoreMessages = ref(false);
 const messagesCurrentPage = ref(1);
 const isSending = ref(false);
 const isReportModalOpen = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
+const locationError = ref('');
 
 let activeChannelThreadId: number | null = null;
 let activeChannel: any = null;
@@ -139,6 +141,7 @@ async function sendMessage() {
 
     try {
         const response = await axios.post(`/chat/threads/${props.threadId}/messages`, {
+            type: 'text',
             body: messageBody,
         });
 
@@ -155,6 +158,108 @@ async function sendMessage() {
     } finally {
         isSending.value = false;
     }
+}
+
+function openImagePicker() {
+    if (isSending.value) return;
+
+    fileInput.value?.click();
+}
+
+async function onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+
+    if (files.length === 0 || isSending.value || !props.threadId) {
+        return;
+    }
+
+    isSending.value = true;
+    locationError.value = '';
+    const caption = newMessage.value;
+    newMessage.value = '';
+
+    try {
+        const formData = new FormData();
+        formData.append('type', 'image');
+
+        if (caption.trim()) {
+            formData.append('body', caption);
+        }
+
+        files.slice(0, 5).forEach((file) => {
+            formData.append('images[]', file);
+        });
+
+        const response = await axios.post(`/chat/threads/${props.threadId}/messages`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.success) {
+            messages.value.push(response.data.message);
+
+            await nextTick();
+            scrollToBottom();
+        }
+    } catch (error) {
+        console.error('Error sending image:', error);
+        newMessage.value = caption;
+    } finally {
+        isSending.value = false;
+        input.value = '';
+    }
+}
+
+async function sendCurrentLocation() {
+    if (isSending.value || !props.threadId) return;
+
+    locationError.value = '';
+
+    if (!navigator.geolocation) {
+        locationError.value = 'Trình duyệt không hỗ trợ chia sẻ vị trí.';
+        return;
+    }
+
+    isSending.value = true;
+
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            try {
+                const response = await axios.post(`/chat/threads/${props.threadId}/messages`, {
+                    type: 'location',
+                    body: newMessage.value.trim() || undefined,
+                    location: {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        label: 'Vị trí hiện tại',
+                    },
+                });
+
+                if (response.data.success) {
+                    messages.value.push(response.data.message);
+                    newMessage.value = '';
+
+                    await nextTick();
+                    scrollToBottom();
+                }
+            } catch (error) {
+                console.error('Error sending location:', error);
+                locationError.value = 'Không thể gửi vị trí. Vui lòng thử lại.';
+            } finally {
+                isSending.value = false;
+            }
+        },
+        (error) => {
+            console.error('Error getting location:', error);
+            locationError.value = 'Không thể lấy vị trí. Vui lòng kiểm tra quyền truy cập vị trí.';
+            isSending.value = false;
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000,
+        },
+    );
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -226,7 +331,11 @@ function handleBroadcastMessage(payload: BroadcastMessagePayload) {
             id: payload.message.id,
             thread_id: threadId,
             user_id: payload.message.user_id,
+            type: payload.message.type,
             body: payload.message.body,
+            attachments: payload.message.attachments,
+            location: payload.message.location,
+            preview_text: payload.message.preview_text,
             created_at: payload.message.created_at,
             updated_at: payload.message.updated_at,
             user: payload.user,
@@ -368,7 +477,41 @@ onUnmounted(() => {
 
         <!-- input area -->
         <div class="border-t border-gray-200 bg-white p-4">
+            <p v-if="locationError" class="mb-2 text-sm text-red-600">
+                {{ locationError }}
+            </p>
             <div class="flex items-end gap-2">
+                <input
+                    ref="fileInput"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    class="hidden"
+                    @change="onImageSelected"
+                />
+
+                <button
+                    class="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    :disabled="isSending"
+                    type="button"
+                    title="Gửi ảnh"
+                    aria-label="send image"
+                    @click="openImagePicker"
+                >
+                    <ImagePlus class="h-4 w-4" />
+                </button>
+
+                <button
+                    class="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    :disabled="isSending"
+                    type="button"
+                    title="Gửi vị trí"
+                    aria-label="send location"
+                    @click="sendCurrentLocation"
+                >
+                    <MapPin class="h-4 w-4" />
+                </button>
+
                 <div class="flex-1">
                     <input v-model="newMessage" @keydown="onKeydown" placeholder="Nhập tin nhắn..."
                         :disabled="isSending"

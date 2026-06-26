@@ -19,7 +19,7 @@
     const isLoading = ref(false)
     const threadsContainer = ref<HTMLDivElement | null>(null)
 
-    const searchKeys = ['subject', 'other_participants', 'latest_message.body']
+    const searchKeys = ['subject', 'other_participants', 'latest_message.preview_text', 'latest_message.body']
 
     const filteredThreads = computed(() => {
         const query = searchTerm.value.trim()
@@ -168,7 +168,7 @@
                     </p>
 
                     <p v-if="thread.latest_message" class="text-sm text-gray-500 truncate">
-                        {{ thread.latest_message.body }}
+                        {{ thread.latest_message.preview_text || thread.latest_message.body }}
                     </p>
                 </div>
 
