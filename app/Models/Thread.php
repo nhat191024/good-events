@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 use Cmgmyr\Messenger\Models\Thread as BaseThread;
 use Cmgmyr\Messenger\Models\Models;
-use Cmgmyr\Messenger\Models\Message;
+use App\Models\Message;
 
 /**
  * @property int $id
