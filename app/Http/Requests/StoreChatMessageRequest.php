@@ -37,7 +37,7 @@ class StoreChatMessageRequest extends FormRequest
                 Rule::requiredIf($type === Message::TYPE_TEXT),
                 'nullable',
                 'string',
-                'max:5000',
+                'max:20000',
             ],
             'images' => [
                 Rule::requiredIf($type === Message::TYPE_IMAGE),
@@ -47,7 +47,7 @@ class StoreChatMessageRequest extends FormRequest
             'images.*' => [
                 'required',
                 'image',
-                'max:5120',
+                'max:20480',
             ],
             'location.latitude' => [
                 Rule::requiredIf($type === Message::TYPE_LOCATION),
@@ -82,7 +82,7 @@ class StoreChatMessageRequest extends FormRequest
             'images.required' => 'Vui lòng chọn ít nhất một ảnh.',
             'images.max' => 'Bạn chỉ có thể gửi tối đa 5 ảnh trong một tin nhắn.',
             'images.*.image' => 'File gửi lên phải là ảnh.',
-            'images.*.max' => 'Mỗi ảnh không được vượt quá 5MB.',
+            'images.*.max' => 'Mỗi ảnh không được vượt quá 20MB.',
             'location.latitude.required' => 'Vui lòng gửi vĩ độ.',
             'location.latitude.between' => 'Vĩ độ không hợp lệ.',
             'location.longitude.required' => 'Vui lòng gửi kinh độ.',
