@@ -375,6 +375,11 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         return $this->hasMany(PartnerService::class, 'user_id');
     }
 
+    public function partnerServiceAreas()
+    {
+        return $this->hasMany(PartnerServiceArea::class, 'user_id');
+    }
+
     public function partnerBillsAsClient()
     {
         return $this->hasMany(PartnerBill::class, 'client_id');
