@@ -22,6 +22,7 @@ export interface ClientOrder {
     start_time: string
     end_time: string
     total: number | null
+    booking_photo: string | null
     arrival_photo: string | null
     final_total: number | null
     note: string
@@ -54,6 +55,8 @@ export interface ClientOrderHistory {
     total: number | null
     final_total: number | null
     note: string
+    booking_photo: string | null
+    arrival_photo: string | null
     status: OrderStatus
     voucher?: OrderVoucher | null
     created_at: string
