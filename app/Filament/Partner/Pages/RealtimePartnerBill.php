@@ -115,6 +115,12 @@ class RealtimePartnerBill extends Page
 
     public $selectedClient = null;
 
+    public $showBookingPhotoModal = false;
+
+    public $selectedBookingPhotoUrl = null;
+
+    public $selectedBookingPhotoCode = '';
+
     public function mount(): void
     {
         $this->loadPartnerBills();
@@ -165,7 +171,8 @@ class RealtimePartnerBill extends Page
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
             ->with([
                 'client:id,name',
-                'event:id,name'
+                'event:id,name',
+                'media',
             ])
             ->where('status', PartnerBillStatus::PENDING)
             ->whereDoesntHave('details', function ($query) use ($user) {
@@ -220,6 +227,8 @@ class RealtimePartnerBill extends Page
         // Format datetime fields properly for Livewire
         $this->partnerBills = $bills->map(function ($bill) {
             $billArray = $bill->toArray();
+            $bookingPhoto = $bill->getFirstMedia('booking_photo');
+            $billArray['booking_photo_url'] = $bookingPhoto?->getUrl();
 
             // Ensure datetime fields are formatted with correct timezone
             if (isset($billArray['created_at'])) {
@@ -357,6 +366,34 @@ class RealtimePartnerBill extends Page
     {
         $this->showClientModal = false;
         $this->selectedClient = null;
+    }
+
+    public function openBookingPhotoModal(int $billId): void
+    {
+        $bill = PartnerBill::with('media')->find($billId);
+        $user = Auth::user();
+
+        if (! $bill || ! $user || $bill->status !== PartnerBillStatus::PENDING || ! static::canReceiveBill($user, $bill)) {
+            return;
+        }
+
+        $bookingPhoto = $bill->getFirstMedia('booking_photo');
+
+        if (! $bookingPhoto) {
+            session()->flash('info', 'Đơn này chưa có ảnh đặt đơn.');
+            return;
+        }
+
+        $this->selectedBookingPhotoUrl = $bookingPhoto->getUrl();
+        $this->selectedBookingPhotoCode = $bill->code;
+        $this->showBookingPhotoModal = true;
+    }
+
+    public function closeBookingPhotoModal(): void
+    {
+        $this->showBookingPhotoModal = false;
+        $this->selectedBookingPhotoUrl = null;
+        $this->selectedBookingPhotoCode = '';
     }
 
     public function updatedDateFilter(): void

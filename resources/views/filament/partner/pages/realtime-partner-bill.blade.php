@@ -250,7 +250,14 @@
                                 </div>
 
                                 <!-- Action button for mobile -->
-                                <div class="mt-4">
+                                <div class="mt-4 flex flex-col gap-2">
+                                    @if (!empty($bill['booking_photo_url']))
+                                        <button class="inline-flex w-full items-center justify-center rounded-md border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition-colors hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30"
+                                            type="button" wire:click="openBookingPhotoModal({{ $bill['id'] }})">
+                                            <x-heroicon-m-photo class="mr-2 h-4 w-4" />
+                                            Xem ảnh đặt đơn
+                                        </button>
+                                    @endif
                                     <button class="inline-flex w-full items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                         wire:click="openAcceptModal({{ $bill['id'] }})">
                                         <x-heroicon-m-check class="mr-2 h-4 w-4" />
@@ -352,6 +359,13 @@
 
                                     <!-- Actions for desktop -->
                                     <div class="flex gap-2">
+                                        @if (!empty($bill['booking_photo_url']))
+                                            <button class="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm transition-colors hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30"
+                                                type="button" wire:click="openBookingPhotoModal({{ $bill['id'] }})">
+                                                <x-heroicon-m-photo class="mr-1 h-3 w-3" />
+                                                Xem ảnh
+                                            </button>
+                                        @endif
                                         <button class="inline-flex items-center rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" wire:click="openAcceptModal({{ $bill['id'] }})">
                                             <x-heroicon-m-check class="mr-1 h-3 w-3" />
                                             {{ __('partner/bill.accept_order') }}
@@ -432,6 +446,49 @@
                         <button class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-900 dark:text-white dark:ring-gray-800 dark:hover:bg-gray-600" type="button"
                             wire:click="closeAcceptModal">
                             {{ __('partner/bill.cancel') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Booking Photo Modal -->
+    @if ($showBookingPhotoModal && $selectedBookingPhotoUrl)
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="booking-photo-modal-title" role="dialog" aria-modal="true" x-data="{ show: false }" x-init="$nextTick(() => show = true)" x-show="show" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+                <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+
+                <div class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl sm:align-middle dark:bg-gray-800" x-show="show" x-transition:enter="ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" @click.away="$wire.closeBookingPhotoModal()">
+                    <div class="border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-900/50">
+                        <div class="flex items-center justify-between">
+                            <h3 id="booking-photo-modal-title" class="text-lg font-semibold text-gray-900 dark:text-white">
+                                <x-heroicon-m-photo class="mr-2 inline-block h-5 w-5 text-blue-500" />
+                                Ảnh đặt đơn #{{ $selectedBookingPhotoCode }}
+                            </h3>
+                            <button class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:hover:text-gray-300" type="button" wire:click="closeBookingPhotoModal">
+                                <x-heroicon-m-x-mark class="h-6 w-6" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white px-4 py-5 dark:bg-gray-800 sm:p-6">
+                        <div class="flex justify-center rounded-lg bg-gray-50 p-3 dark:bg-gray-900">
+                            <img class="max-h-[70vh] w-full rounded-md object-contain" src="{{ $selectedBookingPhotoUrl }}" alt="Ảnh đặt đơn #{{ $selectedBookingPhotoCode }}">
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse sm:gap-2 dark:bg-gray-900/20">
+                        <a class="inline-flex w-full justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
+                            href="{{ $selectedBookingPhotoUrl }}" target="_blank">
+                            Mở trong tab mới
+                        </a>
+                        <button class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-900 dark:text-white dark:ring-gray-800 dark:hover:bg-gray-600" type="button"
+                            wire:click="closeBookingPhotoModal">
+                            Đóng
                         </button>
                     </div>
                 </div>
