@@ -9,6 +9,26 @@ return [
     'partner' => 'Partner',
     'partner_settings' => 'Settings related to the partner',
 
+    'notifications' => [
+        'navigation_label' => 'App notifications',
+        'title' => 'App notifications',
+        'sections' => [
+            'partner' => 'Partner notifications',
+            'customer' => 'Customer notifications',
+        ],
+        'fields' => [
+            'type' => 'Notification type',
+            'notification_image' => 'Notification image',
+            'title' => 'Title',
+            'content' => 'Content',
+            'image' => 'Image',
+        ],
+        'types' => [
+            'image_only' => 'Image only',
+            'text_and_image' => 'Text and image notification',
+        ],
+    ],
+
     'saved' => 'Settings have been saved successfully!',
 
     'sections' => [
