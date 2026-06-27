@@ -1,12 +1,12 @@
 <template>
   <div>
-    <button v-if="props.arrivalPhoto && props.showThumbnail" @click="is_modal_open = true"
+    <button v-if="photoUrl && props.showThumbnail" @click="is_modal_open = true"
       class="w-full mt-4 p-3 rounded-lg border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center gap-2">
       <ImageWithLoader :src="thumbnailSrc" :alt="props.altText" class="w-12 h-12 rounded"
         img-class="w-12 h-12 rounded object-cover" loading="lazy" />
       <div class="text-left">
-        <p class="text-md font-semibold text-foreground">Ảnh đã đến nơi</p>
-        <p class="text-xs text-muted-foreground">Bấm để xem ảnh</p>
+        <p class="text-md font-semibold text-foreground">{{ props.title }}</p>
+        <p class="text-xs text-muted-foreground">{{ props.description }}</p>
       </div>
     </button>
 
@@ -28,7 +28,7 @@
         <!-- Info Footer -->
         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/100 to-black/50 p-4">
           <p class="text-white text-sm font-medium">{{ props.altText }}</p>
-          <p class="text-white/70 text-xs mt-1">Ảnh bằng chứng đã đến nơi</p>
+          <p class="text-white/70 text-xs mt-1">{{ props.footerDescription }}</p>
         </div>
       </div>
     </div>
@@ -42,16 +42,25 @@ import { ref, computed } from 'vue'
 
 const props = withDefaults(defineProps<{
   arrivalPhoto?: string | null
+  photo?: string | null
   altText?: string
+  title?: string
+  description?: string
+  footerDescription?: string
   showThumbnail?: boolean
 }>(), {
   arrivalPhoto: null,
+  photo: null,
   altText: 'Arrival Photo',
+  title: 'Ảnh đã đến nơi',
+  description: 'Bấm để xem ảnh',
+  footerDescription: 'Ảnh bằng chứng đã đến nơi',
   showThumbnail: true,
 })
 
 const is_modal_open = ref(false)
 
-const thumbnailSrc = computed(() => getImg(props.arrivalPhoto))
-const modalSrc = computed(() => getImg(props.arrivalPhoto))
+const photoUrl = computed(() => props.photo ?? props.arrivalPhoto)
+const thumbnailSrc = computed(() => getImg(photoUrl.value))
+const modalSrc = computed(() => getImg(photoUrl.value))
 </script>
