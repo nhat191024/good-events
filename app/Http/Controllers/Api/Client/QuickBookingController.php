@@ -59,6 +59,7 @@ class QuickBookingController extends Controller
             'location_detail' => 'required|string|max:255',
             'note' => 'nullable|string|max:1000',
             'category_id' => 'required|integer|exists:partner_categories,id',
+            'booking_photo' => 'nullable|image|max:20480|mimes:jpeg,png,jpg,webp',
         ]);
 
         $allCategories = PartnerCategory::getAllCached();
@@ -89,14 +90,16 @@ class QuickBookingController extends Controller
             'phone' => $user->phone,
             'date' => $validated['order_date'],
             'start_time' => $validated['start_time'],
-            'end_time' => $validated['end_time'],
-            'event_id' => $validated['event_id'],
-            'custom_event' => $validated['custom_event'],
+            'end_time' => $validated['end_time'] ?? null,
+            'event_id' => $validated['event_id'] ?? null,
+            'custom_event' => $validated['custom_event'] ?? null,
             'client_id' => $user->id,
             'category_id' => $validated['category_id'],
-            'note' => $validated['note'],
+            'note' => $validated['note'] ?? null,
             'status' => PartnerBillStatus::PENDING,
         ]);
+
+        $this->attachBookingPhoto($request, $newBill);
 
         NewPartnerBillCreated::dispatch($newBill);
 
@@ -136,5 +139,19 @@ class QuickBookingController extends Controller
         }
 
         return $model->getFirstMediaUrl('images', 'thumb');
+    }
+
+    private function attachBookingPhoto(Request $request, PartnerBill $bill): void
+    {
+        if (! $request->hasFile('booking_photo')) {
+            return;
+        }
+
+        $file = $request->file('booking_photo');
+
+        $bill->addMedia($file->getRealPath())
+            ->usingName('Booking Photo - ' . $bill->code)
+            ->usingFileName($file->getClientOriginalName())
+            ->toMediaCollection('booking_photo');
     }
 }

@@ -27,6 +27,7 @@ class PartnerBillResource extends JsonResource
 
             'event' => $this->event->name ?? $this->custom_event ?? 'N/A',
             'note' => $this->note,
+            'booking_photo' => $this->getFirstMedia('booking_photo')?->getUrl(),
             'status' => $statusValue,
             'thread_id' => $this->thread_id,
             'review_exists' => $this->whenHas('review_exists', fn ($exists) => (bool) $exists),
