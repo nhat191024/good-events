@@ -36,6 +36,7 @@ use Codebyray\ReviewRateable\Models\Review;
  * @property int $id
  * @property string $code
  * @property string $address
+ * @property int|null $location_id
  * @property string $phone
  * @property \Illuminate\Support\Carbon|null $date
  * @property \Illuminate\Support\Carbon|null $start_time
@@ -60,6 +61,7 @@ use Codebyray\ReviewRateable\Models\Review;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $details
  * @property-read int|null $details_count
  * @property-read \App\Models\Event|null $event
+ * @property-read \App\Models\Location|null $location
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
  * @property-read \App\Models\User|null $partner
@@ -102,6 +104,7 @@ class PartnerBill extends Model implements HasMedia
     protected $fillable = [
         'code',
         'address',
+        'location_id',
         'phone',
         'date',
         'start_time',
@@ -483,6 +486,11 @@ class PartnerBill extends Model implements HasMedia
     public function category()
     {
         return $this->belongsTo(PartnerCategory::class, 'category_id');
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class, 'location_id');
     }
 
     public function thread()
