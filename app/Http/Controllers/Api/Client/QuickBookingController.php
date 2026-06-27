@@ -85,6 +85,7 @@ class QuickBookingController extends Controller
         $newBill = PartnerBill::create([
             'code' => 'PB' . rand(10000, 999999),
             'address' => $address,
+            'location_id' => $wardItem->id,
             'phone' => $user->phone,
             'date' => $validated['order_date'],
             'start_time' => $validated['start_time'],
