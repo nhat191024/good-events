@@ -17,6 +17,7 @@ enum CacheKey: string
 
         //Partner Services
     case PARTNER_SERVICES = 'partner_services';
+    case PARTNER_SERVICE_AREAS = 'partner_service_areas';
 
         //FileProduct Discover Page
     case FILE_DISCOVER_CATEGORIES_SIDEBAR = 'discover_categories_sidebar';
