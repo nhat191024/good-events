@@ -26,6 +26,7 @@ class PartnerBillResource extends JsonResource
             'total' => $this->total,
             'final_total' => $this->final_total,
             'note' => $this->note,
+            'booking_photo' => $this->getFirstMedia('booking_photo')?->getUrl(),
             'arrival_photo' => $this->getFirstMedia('arrival_photo')?->getUrl(),
             'status' => $this->status,
             'thread_id' => $this->thread_id,

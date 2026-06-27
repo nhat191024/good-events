@@ -71,6 +71,7 @@ class OrderController extends Controller
             ->where('id', $orderId)
             ->where('client_id', $request->user()->id)
             ->with([
+                'media',
                 'category.media',
                 'category.parent.media',
                 'event',
@@ -160,6 +161,7 @@ class OrderController extends Controller
 
         $bills = PartnerBill::query()
             ->with([
+                'media',
                 'category.media',
                 'category.parent.media',
                 'event',
