@@ -2,6 +2,7 @@
 
 namespace App\Filament\Partner\Pages;
 
+use App\Enum\CacheKey;
 use App\Models\PartnerProfile;
 use App\Models\Location;
 
@@ -28,6 +29,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 use RalphJSmit\Filament\Upload\Filament\Forms\Components\AdvancedFileUpload;
@@ -742,6 +744,7 @@ class ProfileSettings extends Page implements HasForms
 
         if (empty($validLocationIds)) {
             $user->partnerServiceAreas()->delete();
+            Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])->flush();
 
             return;
         }
@@ -755,5 +758,7 @@ class ProfileSettings extends Page implements HasForms
                 'location_id' => $locationId,
             ]);
         }
+
+        Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])->flush();
     }
 }
