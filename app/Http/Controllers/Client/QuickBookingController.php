@@ -293,6 +293,7 @@ class QuickBookingController extends Controller
         $newBill = PartnerBill::create([
             'code' => 'PB' . rand(10000, 999999),
             'address' => $address,
+            'location_id' => $wardItem->id,
             'phone' => $phone,
             'date' => $orderDate,
             'start_time' => $startTime,
@@ -304,6 +305,8 @@ class QuickBookingController extends Controller
             'note' => $note,
             'status' => PartnerBillStatus::PENDING,
         ]);
+
+        $this->attachBookingPhoto($request, $newBill);
 
         NewPartnerBillCreated::dispatch($newBill);
 
@@ -326,5 +329,19 @@ class QuickBookingController extends Controller
             'partnerBill' => $newBill,
             'categoryName' => $partnerCategory->name,
         ]);
+    }
+
+    private function attachBookingPhoto(Request $request, PartnerBill $bill): void
+    {
+        if (! $request->hasFile('booking_photo')) {
+            return;
+        }
+
+        $file = $request->file('booking_photo');
+
+        $bill->addMedia($file->getRealPath())
+            ->usingName('Booking Photo - ' . $bill->code)
+            ->usingFileName($file->getClientOriginalName())
+            ->toMediaCollection('booking_photo');
     }
 }
