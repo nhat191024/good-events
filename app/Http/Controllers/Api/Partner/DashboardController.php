@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
+use App\Enum\AppNotificationType;
 use App\Enum\PartnerBillStatus;
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\StatisticType;
@@ -12,8 +13,10 @@ use App\Models\User;
 use App\Models\Statistical;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
+use App\Settings\AppNotificationSettings;
 
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -21,14 +24,12 @@ class DashboardController extends Controller
     /**
      * GET /api/partner/dashboard
      *
-     * Response: { has_notification, statistical_data, popular_services }
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Response: { has_notification, statistical_data, popular_services, app_notification }
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $user = $request->user();
+        $appNotificationSettings = app(AppNotificationSettings::class);
 
         $avatarUrl = $user->getFirstMediaUrl('avatar', 'avatar_webp') ?: $user->avatar_url;
 
@@ -55,7 +56,32 @@ class DashboardController extends Controller
             'recent_reviews_count' => $recentReviewsCount,
             'recent_reviews_avatars' => $recentReviewsAvatars,
             'quarterly_revenue' => $quarterlyRevenue,
+            'app_notification' => $this->formatPartnerNotificationSettings($appNotificationSettings),
         ]);
+    }
+
+    /**
+     * @return array{type: string, notification_image: ?string, title: ?string, content: ?string, image: ?string}
+     */
+    private function formatPartnerNotificationSettings(AppNotificationSettings $settings): array
+    {
+        if ($settings->partner_type === AppNotificationType::ImageOnly->value) {
+            return [
+                'type' => $settings->partner_type,
+                'notification_image' => $settings->partner_notification_image,
+                'title' => null,
+                'content' => null,
+                'image' => null,
+            ];
+        }
+
+        return [
+            'type' => $settings->partner_type,
+            'notification_image' => null,
+            'title' => $settings->partner_title,
+            'content' => $settings->partner_content,
+            'image' => $settings->partner_image,
+        ];
     }
 
     /**
