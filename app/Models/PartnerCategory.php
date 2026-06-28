@@ -165,7 +165,7 @@ class PartnerCategory extends Model implements HasMedia
     public static function getTree()
     {
         return Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->remember(CacheKey::PARTNER_CATEGORIES_TREE->value, now()->addHours(6), function () {
-            return static::with('children')->whereNull('parent_id')->orderBy('order')->get();
+            return static::with(['children' => fn($query) => $query->orderBy('order')])->whereNull('parent_id')->orderBy('order')->get();
         });
     }
 
