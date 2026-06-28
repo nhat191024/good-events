@@ -14,10 +14,7 @@ class PartnerCategoryController extends Controller
      */
     public function index()
     {
-        $categories = PartnerCategory::query()
-            ->whereNull('parent_id')
-            ->with('children')
-            ->get();
+        $categories = PartnerCategory::getTree();
 
         return response()->json($categories->map(function ($category) {
             return [
