@@ -37,6 +37,8 @@ class PartnerBillHistoryResource extends BaseResource
             'total' => $this->total,
             'final_total' => $this->final_total,
             'note' => $this->note,
+            'booking_photo' => $this->mediaUrl('booking_photo'),
+            'booking_photos' => $this->mediaUrls('booking_photo'),
             'arrival_photo' => $this->mediaUrl('arrival_photo'),
             'status' => $statusValue,
             'updated_at' => optional($this->updated_at)->toIso8601String(),

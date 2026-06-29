@@ -29,6 +29,11 @@ class RealtimePartnerBillResource extends JsonResource
             'end_time' => optional($this->end_time)->format('H:i'),
             'address' => $this->address,
             'note' => $this->note,
+            'booking_photo' => $this->getFirstMedia('booking_photo')?->getUrl(),
+            'booking_photos' => $this->getMedia('booking_photo')
+                ->map(fn ($media): string => $media->getUrl())
+                ->values()
+                ->all(),
         ];
     }
 }
