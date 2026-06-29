@@ -11,6 +11,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Pages\SettingsPage;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -60,11 +61,17 @@ class AppNotificationManager extends SettingsPage
     private function notificationFields(string $prefix): array
     {
         return [
+            Toggle::make("{$prefix}_enabled")
+                ->label(__('admin/setting.notifications.fields.enabled'))
+                ->live()
+                ->columnSpanFull(),
+
             Select::make("{$prefix}_type")
                 ->label(__('admin/setting.notifications.fields.type'))
                 ->options(AppNotificationType::options())
                 ->live()
-                ->required()
+                ->required(fn (Get $get): bool => (bool) $get("{$prefix}_enabled"))
+                ->visible(fn (Get $get): bool => (bool) $get("{$prefix}_enabled"))
                 ->columnSpanFull(),
 
             FileUpload::make("{$prefix}_notification_image")
@@ -76,20 +83,20 @@ class AppNotificationManager extends SettingsPage
                 ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
                 ->dehydrated(fn ($state): bool => filled($state))
                 ->dehydrateStateUsing(fn ($state) => filled($state) ? 'storage/'.$state : null)
-                ->required(fn (Get $get): bool => $get("{$prefix}_type") === AppNotificationType::ImageOnly->value)
-                ->visible(fn (Get $get): bool => $get("{$prefix}_type") === AppNotificationType::ImageOnly->value)
+                ->required(fn (Get $get): bool => $this->isEnabledImageOnlyNotification($get, $prefix))
+                ->visible(fn (Get $get): bool => $this->isEnabledImageOnlyNotification($get, $prefix))
                 ->columnSpanFull(),
 
             TextInput::make("{$prefix}_title")
                 ->label(__('admin/setting.notifications.fields.title'))
-                ->required(fn (Get $get): bool => $this->isTextNotification($get("{$prefix}_type")))
-                ->visible(fn (Get $get): bool => $this->isTextNotification($get("{$prefix}_type")))
+                ->required(fn (Get $get): bool => $this->isEnabledTextNotification($get, $prefix))
+                ->visible(fn (Get $get): bool => $this->isEnabledTextNotification($get, $prefix))
                 ->columnSpanFull(),
 
             Textarea::make("{$prefix}_content")
                 ->label(__('admin/setting.notifications.fields.content'))
-                ->required(fn (Get $get): bool => $this->isTextNotification($get("{$prefix}_type")))
-                ->visible(fn (Get $get): bool => $this->isTextNotification($get("{$prefix}_type")))
+                ->required(fn (Get $get): bool => $this->isEnabledTextNotification($get, $prefix))
+                ->visible(fn (Get $get): bool => $this->isEnabledTextNotification($get, $prefix))
                 ->columnSpanFull(),
 
             FileUpload::make("{$prefix}_image")
@@ -101,8 +108,8 @@ class AppNotificationManager extends SettingsPage
                 ->formatStateUsing(fn ($state) => $state ? str_replace('storage/', '', $state) : null)
                 ->dehydrated(fn ($state): bool => filled($state))
                 ->dehydrateStateUsing(fn ($state) => filled($state) ? 'storage/'.$state : null)
-                ->required(fn (Get $get): bool => $get("{$prefix}_type") === AppNotificationType::TextAndImage->value)
-                ->visible(fn (Get $get): bool => $get("{$prefix}_type") === AppNotificationType::TextAndImage->value)
+                ->required(fn (Get $get): bool => $this->isEnabledTextAndImageNotification($get, $prefix))
+                ->visible(fn (Get $get): bool => $this->isEnabledTextAndImageNotification($get, $prefix))
                 ->columnSpanFull(),
         ];
     }
@@ -113,5 +120,22 @@ class AppNotificationManager extends SettingsPage
             AppNotificationType::TextOnly->value,
             AppNotificationType::TextAndImage->value,
         ], true);
+    }
+
+    private function isEnabledTextNotification(Get $get, string $prefix): bool
+    {
+        return (bool) $get("{$prefix}_enabled") && $this->isTextNotification($get("{$prefix}_type"));
+    }
+
+    private function isEnabledImageOnlyNotification(Get $get, string $prefix): bool
+    {
+        return (bool) $get("{$prefix}_enabled")
+            && $get("{$prefix}_type") === AppNotificationType::ImageOnly->value;
+    }
+
+    private function isEnabledTextAndImageNotification(Get $get, string $prefix): bool
+    {
+        return (bool) $get("{$prefix}_enabled")
+            && $get("{$prefix}_type") === AppNotificationType::TextAndImage->value;
     }
 }

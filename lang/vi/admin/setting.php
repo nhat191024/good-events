@@ -17,6 +17,7 @@ return [
             'customer' => 'Thông báo bên khách hàng',
         ],
         'fields' => [
+            'enabled' => 'Bật thông báo',
             'type' => 'Loại thông báo',
             'notification_image' => 'Ảnh thông báo',
             'title' => 'Tiêu đề',

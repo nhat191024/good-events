@@ -67,6 +67,10 @@ class HomeController extends Controller
      */
     private function formatCustomerNotificationSettings(AppNotificationSettings $settings): array|null
     {
+        if (! $settings->customer_enabled) {
+            return null;
+        }
+
         if ($settings->customer_type === AppNotificationType::ImageOnly->value) {
             if (!$settings->customer_notification_image) {
                 return null;

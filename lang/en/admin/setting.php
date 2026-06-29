@@ -17,6 +17,7 @@ return [
             'customer' => 'Customer notifications',
         ],
         'fields' => [
+            'enabled' => 'Enable notification',
             'type' => 'Notification type',
             'notification_image' => 'Notification image',
             'title' => 'Title',

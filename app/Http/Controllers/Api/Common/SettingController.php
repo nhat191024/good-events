@@ -24,6 +24,7 @@ class SettingController extends Controller
             'zalo' => $appSettings->social_zalo,
             'notifications' => [
                 'partner' => $this->formatNotificationSettings(
+                    $appNotificationSettings->partner_enabled,
                     $appNotificationSettings->partner_type,
                     $appNotificationSettings->partner_notification_image,
                     $appNotificationSettings->partner_title,
@@ -31,6 +32,7 @@ class SettingController extends Controller
                     $appNotificationSettings->partner_image,
                 ),
                 'customer' => $this->formatNotificationSettings(
+                    $appNotificationSettings->customer_enabled,
                     $appNotificationSettings->customer_type,
                     $appNotificationSettings->customer_notification_image,
                     $appNotificationSettings->customer_title,
@@ -44,15 +46,20 @@ class SettingController extends Controller
     }
 
     /**
-     * @return array{type: string, notification_image: ?string, title: ?string, content: ?string, image: ?string}
+     * @return array{type: string, notification_image: ?string, title: ?string, content: ?string, image: ?string}|null
      */
     private function formatNotificationSettings(
+        bool $enabled,
         string $type,
         ?string $notificationImage,
         ?string $title,
         ?string $content,
         ?string $image,
-    ): array {
+    ): ?array {
+        if (! $enabled) {
+            return null;
+        }
+
         if ($type === AppNotificationType::ImageOnly->value) {
             return [
                 'type' => $type,

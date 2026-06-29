@@ -65,6 +65,10 @@ class DashboardController extends Controller
      */
     private function formatPartnerNotificationSettings(AppNotificationSettings $settings): array|null
     {
+        if (! $settings->partner_enabled) {
+            return null;
+        }
+
         if ($settings->partner_type === AppNotificationType::ImageOnly->value) {
             if (!$settings->partner_notification_image) {
                 return null;
