@@ -18,6 +18,8 @@ use App\Http\Requests\Client\BookingRequest;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 use Inertia\Inertia;
 
@@ -338,10 +340,20 @@ class QuickBookingController extends Controller
         }
 
         $file = $request->file('booking_photo');
+        $fileName = (string) Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $temporaryPath = $file->storeAs('tmp/booking-photos', $fileName, 'local');
 
-        $bill->addMedia($file->getRealPath())
-            ->usingName('Booking Photo - ' . $bill->code)
-            ->usingFileName($file->getClientOriginalName())
-            ->toMediaCollection('booking_photo');
+        if (! $temporaryPath) {
+            return;
+        }
+
+        try {
+            $bill->addMediaFromDisk($temporaryPath, 'local')
+                ->usingName('Booking Photo - ' . $bill->code)
+                ->usingFileName($file->getClientOriginalName())
+                ->toMediaCollection('booking_photo');
+        } finally {
+            Storage::disk('local')->delete($temporaryPath);
+        }
     }
 }
