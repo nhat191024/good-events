@@ -45,20 +45,23 @@ class ZaloService
             'tracking_id' => uniqid('msg_'),
         ];
 
+        $result = [];
+
         try {
-            $response = Http::withHeaders([
-                'access_token' => $this->zaloToken,
-            ])
-                ->asJson()
-                ->post($this->zaloZNSTemplateApiUrl, $payload);
+            $result = $this->sendTemplateMessageRequest($payload);
 
-            $result = $response->json() ?? [];
-
-            //try again if error = -124 (invalid access token), after refreshing token
             if (isset($result['error']) && $result['error'] === -124) {
-                $this->getNewAccessToken();
-                Log::info('Access token refreshed. Retrying Zalo message to ' . $phone . ' with template ' . $templateId);
-                return $this->sendMessage($phone, $mode, $templateId, $templateData);
+                $tokenResponse = $this->getNewAccessToken();
+
+                if (! isset($tokenResponse['access_token'])) {
+                    Log::warning('Unable to refresh Zalo access token. Message was not retried for ' . $phone . ' with template ' . $templateId);
+
+                    return $result;
+                }
+
+                Log::info('Access token refreshed. Retrying Zalo message once to ' . $phone . ' with template ' . $templateId);
+
+                $result = $this->sendTemplateMessageRequest($payload);
             }
 
             Log::info('Zalo message sent to ' . $phone . ' with template ' . $templateId . '. Response: ' . json_encode($result));
@@ -94,15 +97,33 @@ class ZaloService
 
         if (isset($data['access_token'])) {
             $this->appSettings->app_zalo_token = $data['access_token'];
+            $this->zaloToken = $data['access_token'];
 
-            // Also update refresh token if provided in response
             if (isset($data['refresh_token'])) {
                 $this->appSettings->app_zalo_refresh_token = $data['refresh_token'];
+                $this->refreshToken = $data['refresh_token'];
             }
 
             $this->appSettings->save();
         }
 
         return $data;
+    }
+
+    /**
+     * Send the template message request to Zalo.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    protected function sendTemplateMessageRequest(array $payload): array
+    {
+        $response = Http::withHeaders([
+            'access_token' => $this->zaloToken,
+        ])
+            ->asJson()
+            ->post($this->zaloZNSTemplateApiUrl, $payload);
+
+        return $response->json() ?? [];
     }
 }
