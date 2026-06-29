@@ -117,7 +117,7 @@ class RealtimePartnerBill extends Page
 
     public $showBookingPhotoModal = false;
 
-    public $selectedBookingPhotoUrl = null;
+    public $selectedBookingPhotoUrls = [];
 
     public $selectedBookingPhotoCode = '';
 
@@ -227,8 +227,12 @@ class RealtimePartnerBill extends Page
         // Format datetime fields properly for Livewire
         $this->partnerBills = $bills->map(function ($bill) {
             $billArray = $bill->toArray();
-            $bookingPhoto = $bill->getFirstMedia('booking_photo');
-            $billArray['booking_photo_url'] = $bookingPhoto?->getUrl();
+            $bookingPhotoUrls = $bill->getMedia('booking_photo')
+                ->map(fn ($media): string => $media->getUrl())
+                ->values()
+                ->all();
+            $billArray['booking_photo_url'] = $bookingPhotoUrls[0] ?? null;
+            $billArray['booking_photo_urls'] = $bookingPhotoUrls;
 
             // Ensure datetime fields are formatted with correct timezone
             if (isset($billArray['created_at'])) {
@@ -377,14 +381,17 @@ class RealtimePartnerBill extends Page
             return;
         }
 
-        $bookingPhoto = $bill->getFirstMedia('booking_photo');
+        $bookingPhotoUrls = $bill->getMedia('booking_photo')
+            ->map(fn ($media): string => $media->getUrl())
+            ->values()
+            ->all();
 
-        if (! $bookingPhoto) {
+        if (empty($bookingPhotoUrls)) {
             session()->flash('info', 'Đơn này chưa có ảnh đặt đơn.');
             return;
         }
 
-        $this->selectedBookingPhotoUrl = $bookingPhoto->getUrl();
+        $this->selectedBookingPhotoUrls = $bookingPhotoUrls;
         $this->selectedBookingPhotoCode = $bill->code;
         $this->showBookingPhotoModal = true;
     }
@@ -392,7 +399,7 @@ class RealtimePartnerBill extends Page
     public function closeBookingPhotoModal(): void
     {
         $this->showBookingPhotoModal = false;
-        $this->selectedBookingPhotoUrl = null;
+        $this->selectedBookingPhotoUrls = [];
         $this->selectedBookingPhotoCode = '';
     }
 
