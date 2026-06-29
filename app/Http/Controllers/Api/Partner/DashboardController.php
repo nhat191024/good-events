@@ -61,11 +61,14 @@ class DashboardController extends Controller
     }
 
     /**
-     * @return array{type: string, notification_image: ?string, title: ?string, content: ?string, image: ?string}
+     * @return array{type: string, notification_image: ?string, title: ?string, content: ?string, image: ?string}|null
      */
-    private function formatPartnerNotificationSettings(AppNotificationSettings $settings): array
+    private function formatPartnerNotificationSettings(AppNotificationSettings $settings): array|null
     {
         if ($settings->partner_type === AppNotificationType::ImageOnly->value) {
+            if (!$settings->partner_notification_image) {
+                return null;
+            }
             return [
                 'type' => $settings->partner_type,
                 'notification_image' => $settings->partner_notification_image,
@@ -75,13 +78,17 @@ class DashboardController extends Controller
             ];
         }
 
-        return [
-            'type' => $settings->partner_type,
-            'notification_image' => null,
-            'title' => $settings->partner_title,
-            'content' => $settings->partner_content,
-            'image' => $settings->partner_image,
-        ];
+        if ($settings->partner_type === AppNotificationType::TextAndImage->value) {
+            return [
+                'type' => $settings->partner_type,
+                'notification_image' => null,
+                'title' => $settings->partner_title,
+                'content' => $settings->partner_content,
+                'image' => $settings->partner_image,
+            ];
+        }
+
+        return null;
     }
 
     /**

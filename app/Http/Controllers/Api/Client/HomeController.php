@@ -63,11 +63,14 @@ class HomeController extends Controller
     }
 
     /**
-     * @return array{type: string, notification_image: ?string, title: ?string, content: ?string, image: ?string}
+     * @return array{type: string, notification_image: ?string, title: ?string, content: ?string, image: ?string}|null
      */
-    private function formatCustomerNotificationSettings(AppNotificationSettings $settings): array
+    private function formatCustomerNotificationSettings(AppNotificationSettings $settings): array|null
     {
         if ($settings->customer_type === AppNotificationType::ImageOnly->value) {
+            if (!$settings->customer_notification_image) {
+                return null;
+            }
             return [
                 'type' => $settings->customer_type,
                 'notification_image' => $settings->customer_notification_image,
@@ -77,13 +80,17 @@ class HomeController extends Controller
             ];
         }
 
-        return [
-            'type' => $settings->customer_type,
-            'notification_image' => null,
-            'title' => $settings->customer_title,
-            'content' => $settings->customer_content,
-            'image' => $settings->customer_image,
-        ];
+        if ($settings->customer_type === AppNotificationType::TextAndImage->value) {
+            return [
+                'type' => $settings->customer_type,
+                'notification_image' => null,
+                'title' => $settings->customer_title,
+                'content' => $settings->customer_content,
+                'image' => $settings->customer_image,
+            ];
+        }
+
+        return null;
     }
 
     /**
