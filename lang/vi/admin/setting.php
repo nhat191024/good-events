@@ -25,6 +25,7 @@ return [
         ],
         'types' => [
             'image_only' => 'Chỉ ảnh',
+            'text_only' => 'Chỉ chữ',
             'text_and_image' => 'Thông báo chữ và ảnh',
         ],
     ],

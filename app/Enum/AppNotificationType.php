@@ -5,12 +5,14 @@ namespace App\Enum;
 enum AppNotificationType: string
 {
     case ImageOnly = 'image_only';
+    case TextOnly = 'text_only';
     case TextAndImage = 'text_and_image';
 
     public function label(): string
     {
         return match ($this) {
             self::ImageOnly => __('admin/setting.notifications.types.image_only'),
+            self::TextOnly => __('admin/setting.notifications.types.text_only'),
             self::TextAndImage => __('admin/setting.notifications.types.text_and_image'),
         };
     }

@@ -90,6 +90,16 @@ class HomeController extends Controller
             ];
         }
 
+        if ($settings->customer_type === AppNotificationType::TextOnly->value) {
+            return [
+                'type' => $settings->customer_type,
+                'notification_image' => null,
+                'title' => $settings->customer_title,
+                'content' => $settings->customer_content,
+                'image' => null,
+            ];
+        }
+
         return null;
     }
 

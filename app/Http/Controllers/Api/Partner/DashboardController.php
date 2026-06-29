@@ -88,6 +88,16 @@ class DashboardController extends Controller
             ];
         }
 
+        if ($settings->partner_type === AppNotificationType::TextOnly->value) {
+            return [
+                'type' => $settings->partner_type,
+                'notification_image' => null,
+                'title' => $settings->partner_title,
+                'content' => $settings->partner_content,
+                'image' => null,
+            ];
+        }
+
         return null;
     }
 

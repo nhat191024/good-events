@@ -63,6 +63,16 @@ class SettingController extends Controller
             ];
         }
 
+        if ($type === AppNotificationType::TextOnly->value) {
+            return [
+                'type' => $type,
+                'notification_image' => null,
+                'title' => $title,
+                'content' => $content,
+                'image' => null,
+            ];
+        }
+
         return [
             'type' => $type,
             'notification_image' => null,

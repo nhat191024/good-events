@@ -82,14 +82,14 @@ class AppNotificationManager extends SettingsPage
 
             TextInput::make("{$prefix}_title")
                 ->label(__('admin/setting.notifications.fields.title'))
-                ->required(fn (Get $get): bool => $get("{$prefix}_type") === AppNotificationType::TextAndImage->value)
-                ->visible(fn (Get $get): bool => $get("{$prefix}_type") === AppNotificationType::TextAndImage->value)
+                ->required(fn (Get $get): bool => $this->isTextNotification($get("{$prefix}_type")))
+                ->visible(fn (Get $get): bool => $this->isTextNotification($get("{$prefix}_type")))
                 ->columnSpanFull(),
 
             Textarea::make("{$prefix}_content")
                 ->label(__('admin/setting.notifications.fields.content'))
-                ->required(fn (Get $get): bool => $get("{$prefix}_type") === AppNotificationType::TextAndImage->value)
-                ->visible(fn (Get $get): bool => $get("{$prefix}_type") === AppNotificationType::TextAndImage->value)
+                ->required(fn (Get $get): bool => $this->isTextNotification($get("{$prefix}_type")))
+                ->visible(fn (Get $get): bool => $this->isTextNotification($get("{$prefix}_type")))
                 ->columnSpanFull(),
 
             FileUpload::make("{$prefix}_image")
@@ -105,5 +105,13 @@ class AppNotificationManager extends SettingsPage
                 ->visible(fn (Get $get): bool => $get("{$prefix}_type") === AppNotificationType::TextAndImage->value)
                 ->columnSpanFull(),
         ];
+    }
+
+    private function isTextNotification(?string $type): bool
+    {
+        return in_array($type, [
+            AppNotificationType::TextOnly->value,
+            AppNotificationType::TextAndImage->value,
+        ], true);
     }
 }

@@ -25,6 +25,7 @@ return [
         ],
         'types' => [
             'image_only' => 'Image only',
+            'text_only' => 'Text only',
             'text_and_image' => 'Text and image notification',
         ],
     ],
