@@ -17,6 +17,7 @@ use App\Services\QuickBookingService;
 use App\Http\Requests\Client\BookingRequest;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -335,11 +336,41 @@ class QuickBookingController extends Controller
 
     private function attachBookingPhoto(Request $request, PartnerBill $bill): void
     {
-        if (! $request->hasFile('booking_photo')) {
-            return;
+        foreach ($this->bookingPhotoFiles($request) as $index => $file) {
+            $this->attachBookingPhotoFile($file, $bill, $index + 1);
+        }
+    }
+
+    /**
+     * @return array<int, UploadedFile>
+     */
+    private function bookingPhotoFiles(Request $request): array
+    {
+        $files = [];
+        $bookingPhotos = $request->file('booking_photos');
+
+        if (is_array($bookingPhotos)) {
+            $files = array_merge($files, $bookingPhotos);
+        } elseif ($bookingPhotos instanceof UploadedFile) {
+            $files[] = $bookingPhotos;
         }
 
-        $file = $request->file('booking_photo');
+        if ($request->hasFile('booking_photo')) {
+            $legacyPhoto = $request->file('booking_photo');
+
+            if ($legacyPhoto instanceof UploadedFile) {
+                $files[] = $legacyPhoto;
+            }
+        }
+
+        return array_slice(array_values(array_filter(
+            $files,
+            fn ($file): bool => $file instanceof UploadedFile
+        )), 0, 5);
+    }
+
+    private function attachBookingPhotoFile(UploadedFile $file, PartnerBill $bill, int $index): void
+    {
         $fileName = (string) Str::uuid() . '.' . $file->getClientOriginalExtension();
         $temporaryPath = $file->storeAs('tmp/booking-photos', $fileName, 'local');
 
@@ -349,7 +380,7 @@ class QuickBookingController extends Controller
 
         try {
             $bill->addMediaFromDisk($temporaryPath, 'local')
-                ->usingName('Booking Photo - ' . $bill->code)
+                ->usingName('Booking Photo ' . $index . ' - ' . $bill->code)
                 ->usingFileName($file->getClientOriginalName())
                 ->toMediaCollection('booking_photo');
         } finally {

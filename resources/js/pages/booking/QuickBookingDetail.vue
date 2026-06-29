@@ -37,7 +37,7 @@ type PartnerBillForm = {
     category_id: number | null
     location_detail: string | number | undefined
     note: string
-    booking_photo: File | null
+    booking_photos: File[]
 }
 
 // parent
@@ -63,7 +63,7 @@ const emptyInitial: PartnerBillForm = {
     category_id: null,
     location_detail: '',
     note: '',
-    booking_photo: null,
+    booking_photos: [],
 }
 
 function readStoredInitial(): Partial<PartnerBillForm> | null {
@@ -95,6 +95,7 @@ if (storedInitial) {
     initial.custom_event = null
     initial.province_id = null
     initial.ward_id = null
+    initial.booking_photos = []
 }
 
 const location = reactive({
@@ -146,7 +147,8 @@ const subtitle = `Bạn đang tìm '${partnerCategory.name}' - '${partnerChildre
 
 const form = useForm<PartnerBillForm>(initial)
 const isCustomEvent = ref(Boolean(initial.custom_event))
-const bookingPhotoPreviewUrl = ref<string | null>(null)
+const bookingPhotoInput = ref<HTMLInputElement | null>(null)
+const bookingPhotoPreviewUrls = ref<{ file: File; url: string }[]>([])
 const customEventModel = computed({
     get: () => form.custom_event ?? '',
     set: (value: string | number) => {
@@ -160,7 +162,7 @@ watch(() => form.data(), (val) => {
     }
 
     try {
-        const { booking_photo: _bookingPhoto, ...storedVal } = val
+        const { booking_photos: _bookingPhotos, ...storedVal } = val
         window.localStorage.setItem(LS_KEY, JSON.stringify(storedVal))
     } catch (e) {
         console.error('cannot write ls', e)
@@ -181,49 +183,78 @@ watch(() => form.event_id, (val) => {
     }
 })
 
-function clearBookingPhoto() {
-    if (bookingPhotoPreviewUrl.value) {
-        URL.revokeObjectURL(bookingPhotoPreviewUrl.value)
+function clearBookingPhotos(resetInput = true) {
+    bookingPhotoPreviewUrls.value.forEach(({ url }) => URL.revokeObjectURL(url))
+    bookingPhotoPreviewUrls.value = []
+    form.booking_photos = []
+
+    if (resetInput && bookingPhotoInput.value) {
+        bookingPhotoInput.value.value = ''
+    }
+}
+
+function removeBookingPhoto(index: number) {
+    const preview = bookingPhotoPreviewUrls.value[index]
+
+    if (preview) {
+        URL.revokeObjectURL(preview.url)
     }
 
-    bookingPhotoPreviewUrl.value = null
-    form.booking_photo = null
+    bookingPhotoPreviewUrls.value.splice(index, 1)
+    form.booking_photos.splice(index, 1)
+
+    if (bookingPhotoInput.value) {
+        bookingPhotoInput.value.value = ''
+    }
 }
 
 function handleBookingPhotoChange(event: globalThis.Event) {
     const input = event.target as HTMLInputElement
-    const file = input.files?.[0] ?? null
+    const files = Array.from(input.files ?? [])
 
-    clearBookingPhoto()
-    form.clearErrors('booking_photo')
+    form.clearErrors('booking_photos')
 
-    if (!file) {
+    if (files.length === 0) {
         return
     }
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
     const maxSize = 20 * 1024 * 1024
+    const nextFiles = [...form.booking_photos, ...files]
 
-    if (!allowedTypes.includes(file.type)) {
-        form.setError('booking_photo', 'Ảnh mô tả phải có định dạng jpeg, png, jpg hoặc webp.')
+    if (nextFiles.length > 5) {
+        form.setError('booking_photos', 'Bạn chỉ có thể tải lên tối đa 5 ảnh mô tả.')
         input.value = ''
         return
     }
 
-    if (file.size > maxSize) {
-        form.setError('booking_photo', 'Ảnh mô tả không được vượt quá 20MB.')
+    const invalidTypeFile = files.find(file => !allowedTypes.includes(file.type))
+    if (invalidTypeFile) {
+        form.setError('booking_photos', 'Ảnh mô tả phải có định dạng jpeg, png, jpg hoặc webp.')
         input.value = ''
         return
     }
 
-    form.booking_photo = file
-    bookingPhotoPreviewUrl.value = URL.createObjectURL(file)
+    const oversizedFile = files.find(file => file.size > maxSize)
+    if (oversizedFile) {
+        form.setError('booking_photos', 'Mỗi ảnh mô tả không được vượt quá 20MB.')
+        input.value = ''
+        return
+    }
+
+    form.booking_photos = nextFiles
+    bookingPhotoPreviewUrls.value = [
+        ...bookingPhotoPreviewUrls.value,
+        ...files.map(file => ({
+            file,
+            url: URL.createObjectURL(file),
+        })),
+    ]
+    input.value = ''
 }
 
 onBeforeUnmount(() => {
-    if (bookingPhotoPreviewUrl.value) {
-        URL.revokeObjectURL(bookingPhotoPreviewUrl.value)
-    }
+    clearBookingPhotos()
 })
 
 const buildDateTime = (date: Date, minutes: number) => {
@@ -360,7 +391,7 @@ async function submit() {
         location_detail: form.location_detail,
         note: form.note,
         category_id: partnerChildrenCategory.id,
-        booking_photo: form.booking_photo
+        booking_photos: form.booking_photos
     }))
         .post(route('quick-booking.save-info'), {
             forceFormData: true,
@@ -396,8 +427,8 @@ function clearStorage() {
         window.localStorage.removeItem(LS_KEY)
     }
 
-    clearBookingPhoto()
-    form.reset('order_date', 'start_time', 'end_time', 'province_id', 'ward_id', 'event_id', 'category_id', 'location_detail', 'note', 'booking_photo')
+    clearBookingPhotos()
+    form.reset('order_date', 'start_time', 'end_time', 'province_id', 'ward_id', 'event_id', 'category_id', 'location_detail', 'note', 'booking_photos')
     isCustomEvent.value = false
 }
 
@@ -458,23 +489,33 @@ addTutorialRoutes([
                 </FormGroupLayout>
 
                 <FormGroupLayout>
-                    <FormItemLayout :for-id="'booking-photo'" :label="'Ảnh mô tả yêu cầu (Tùy chọn)'"
-                        :error="form.errors.booking_photo">
+                    <FormItemLayout :for-id="'booking-photo'" :label="'Ảnh mô tả yêu cầu (Tối đa 5 ảnh)'"
+                        :error="form.errors.booking_photos">
                         <div class="flex w-full flex-col gap-3">
-                            <input :id="'booking-photo'" type="file" accept="image/jpeg,image/png,image/jpg,image/webp"
+                            <input :id="'booking-photo'" ref="bookingPhotoInput" type="file"
+                                accept="image/jpeg,image/png,image/jpg,image/webp" multiple
                                 class="block w-full rounded border border-gray-200 bg-white px-3 py-2 text-sm text-black file:mr-4 file:rounded file:border-0 file:bg-gray-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-gray-700"
                                 @change="handleBookingPhotoChange" />
-                            <div v-if="bookingPhotoPreviewUrl"
-                                class="flex flex-col gap-3 rounded border border-gray-200 bg-white p-3 sm:flex-row sm:items-center">
-                                <img :src="bookingPhotoPreviewUrl" alt="Ảnh mô tả yêu cầu"
-                                    class="h-28 w-full rounded object-cover sm:w-40" />
-                                <div class="flex flex-col gap-2">
-                                    <p class="text-sm font-semibold text-black">{{ form.booking_photo?.name }}</p>
-                                    <Button type="button" :variant="'outlineWhite'" :size="'sm'"
-                                        :class="'w-fit cursor-pointer'" @click="clearBookingPhoto">
-                                        Xóa ảnh
-                                    </Button>
+                            <div v-if="bookingPhotoPreviewUrls.length > 0" class="grid w-full gap-3 sm:grid-cols-2">
+                                <div v-for="(preview, index) in bookingPhotoPreviewUrls" :key="preview.url"
+                                    class="flex flex-col gap-3 rounded border border-gray-200 bg-white p-3 sm:flex-row sm:items-center">
+                                    <img :src="preview.url" :alt="`Ảnh mô tả yêu cầu ${index + 1}`"
+                                        class="h-28 w-full rounded object-cover sm:w-32" />
+                                    <div class="flex min-w-0 flex-col gap-2">
+                                        <p class="truncate text-sm font-semibold text-black">{{ preview.file.name }}</p>
+                                        <p class="text-xs text-gray-500">Ảnh {{ index + 1 }}/{{ bookingPhotoPreviewUrls.length }}</p>
+                                        <Button type="button" :variant="'outlineWhite'" :size="'sm'"
+                                            :class="'w-fit cursor-pointer'" @click="removeBookingPhoto(index)">
+                                            Xóa ảnh
+                                        </Button>
+                                    </div>
                                 </div>
+                            </div>
+                            <div v-if="bookingPhotoPreviewUrls.length > 0" class="flex">
+                                <Button type="button" :variant="'outlineWhite'" :size="'sm'"
+                                    :class="'w-fit cursor-pointer'" @click="clearBookingPhotos">
+                                    Xóa tất cả ảnh
+                                </Button>
                             </div>
                         </div>
                     </FormItemLayout>

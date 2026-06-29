@@ -61,12 +61,19 @@ const classIfBookedPartnerFound = computed(() => {
 });
 
 const shouldShowArrivalPhoto = computed(() => Boolean(props.order?.arrival_photo))
-const shouldShowBookingPhoto = computed(() => Boolean(props.order?.booking_photo))
+const bookingPhotos = computed(() => {
+    if (props.order?.booking_photos?.length) {
+        return props.order.booking_photos
+    }
 
-const bookingPhotoAlt = computed(() => {
-    if (!props.order?.code) return 'Ảnh mô tả yêu cầu'
-    return `Ảnh mô tả yêu cầu khi đặt đơn ${props.order.code}`
+    return props.order?.booking_photo ? [props.order.booking_photo] : []
 })
+const shouldShowBookingPhoto = computed(() => bookingPhotos.value.length > 0)
+
+function bookingPhotoAlt(index: number) {
+    if (!props.order?.code) return `Ảnh mô tả yêu cầu ${index + 1}`
+    return `Ảnh mô tả yêu cầu ${index + 1} khi đặt đơn ${props.order.code}`
+}
 
 const arrivalPhotoAlt = computed(() => {
     if (!props.order?.code) return 'Arrival Photo'
@@ -144,10 +151,13 @@ watch(() => props.order?.id, () => {
                         <!-- </div> -->
                     </div>
                 </div>
-                <ArrivalPhotoModal v-if="shouldShowBookingPhoto" class="mt-4" :photo="order?.booking_photo"
-                    :alt-text="bookingPhotoAlt" title="Ảnh yêu cầu khi đặt đơn"
-                    description="Bấm để xem ảnh"
-                    footer-description="Ảnh mô tả yêu cầu từ lúc đặt đơn" />
+                <div v-if="shouldShowBookingPhoto" class="mt-4 grid gap-3 sm:grid-cols-2">
+                    <ArrivalPhotoModal v-for="(photo, index) in bookingPhotos" :key="photo" :photo="photo"
+                        :alt-text="bookingPhotoAlt(index)"
+                        :title="bookingPhotos.length > 1 ? `Ảnh yêu cầu ${index + 1}` : 'Ảnh yêu cầu khi đặt đơn'"
+                        description="Bấm để xem ảnh"
+                        footer-description="Ảnh mô tả yêu cầu từ lúc đặt đơn" />
+                </div>
                 <ArrivalPhotoModal v-if="shouldShowArrivalPhoto" class="mt-4" :arrival-photo="order?.arrival_photo"
                     :alt-text="arrivalPhotoAlt" />
                 <BookingSummaryCard v-model="voucher_code" v-model:applyVoucher="applyVoucher"
