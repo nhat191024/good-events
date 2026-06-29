@@ -54,16 +54,16 @@ class OtpService
             'otp' => $otp,
         ];
 
+        $this->markOtpRequestTime($phone);
+
+        RateLimiter::hit($attemptsKey, $this->lockoutTime * 60);
+
         $response = $this->zaloService->sendMessage(
             $mode === 'development' ? $this->appSettings->app_zalo_admin_phone : $phone,
             $mode,
             $this->otpTemplateId,
             $templateData
         );
-
-        $this->markOtpRequestTime($phone);
-
-        RateLimiter::hit($attemptsKey, $this->lockoutTime * 60);
 
         return $response;
     }
