@@ -39,6 +39,7 @@ class PartnerBillHistoryResource extends BaseResource
             'note' => $this->note,
             'booking_photos' => $this->mediaUrls('booking_photos'),
             'arrival_photo' => $this->mediaUrl('arrival_photo'),
+            'completion_photo' => $this->mediaUrl('completion_photo'),
             'status' => $statusValue,
             'updated_at' => optional($this->updated_at)->toIso8601String(),
             'category_name' => $this->whenLoaded('category', function () {
