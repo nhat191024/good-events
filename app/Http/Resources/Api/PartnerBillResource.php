@@ -24,8 +24,7 @@ class PartnerBillResource extends BaseResource
             'note' => $this->note,
             'status' => $statusValue,
             'thread_id' => $this->thread_id,
-            'booking_photo' => $this->mediaUrl('booking_photo'),
-            'booking_photos' => $this->mediaUrls('booking_photo'),
+            'booking_photos' => $this->mediaUrls('booking_photos'),
             'arrival_photo' => $this->mediaUrl('arrival_photo'),
             'category_name' => $this->whenLoaded('category', function () {
                 return $this->category->name;

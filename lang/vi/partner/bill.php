@@ -130,8 +130,8 @@ return [
     'no_arrival_photo' => 'Chưa có ảnh xác nhận',
 
     // Booking photo translations
-    'booking_photo' => 'Ảnh đặt đơn',
-    'booking_photo_description' => 'Ảnh khách hàng gửi khi đặt show để mô tả yêu cầu.',
+    'booking_photos' => 'Ảnh đặt đơn',
+    'booking_photos_description' => 'Ảnh khách hàng gửi khi đặt show để mô tả yêu cầu.',
     'open_original_photo' => 'Mở ảnh gốc',
 
     // Completion photo translations (for complete order)

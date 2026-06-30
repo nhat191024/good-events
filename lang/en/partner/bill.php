@@ -131,8 +131,8 @@ return [
     'no_arrival_photo' => 'No arrival photo',
 
     // Booking photo translations
-    'booking_photo' => 'Booking Photo',
-    'booking_photo_description' => 'Photo submitted by the client when placing the show request.',
+    'booking_photos' => 'Booking Photos',
+    'booking_photos_description' => 'Photos submitted by the client when placing the show request.',
     'open_original_photo' => 'Open original',
 
     // Completion photo translations (for complete order)

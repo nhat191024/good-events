@@ -227,12 +227,11 @@ class RealtimePartnerBill extends Page
         // Format datetime fields properly for Livewire
         $this->partnerBills = $bills->map(function ($bill) {
             $billArray = $bill->toArray();
-            $bookingPhotoUrls = $bill->getMedia('booking_photo')
+            $bookingPhotoUrls = $bill->getMedia('booking_photos')
                 ->map(fn ($media): string => $media->getUrl())
                 ->values()
                 ->all();
-            $billArray['booking_photo_url'] = $bookingPhotoUrls[0] ?? null;
-            $billArray['booking_photo_urls'] = $bookingPhotoUrls;
+            $billArray['booking_photos'] = $bookingPhotoUrls;
 
             // Ensure datetime fields are formatted with correct timezone
             if (isset($billArray['created_at'])) {
@@ -381,7 +380,7 @@ class RealtimePartnerBill extends Page
             return;
         }
 
-        $bookingPhotoUrls = $bill->getMedia('booking_photo')
+        $bookingPhotoUrls = $bill->getMedia('booking_photos')
             ->map(fn ($media): string => $media->getUrl())
             ->values()
             ->all();

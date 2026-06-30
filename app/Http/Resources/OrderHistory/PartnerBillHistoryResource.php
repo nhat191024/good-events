@@ -34,8 +34,7 @@ class PartnerBillHistoryResource extends JsonResource
             "total" => $this->total,
             "final_total" => $this->final_total,
             "note" => $this->note,
-            'booking_photo' => $this->getFirstMedia('booking_photo')?->getUrl(),
-            'booking_photos' => $this->getMedia('booking_photo')
+            'booking_photos' => $this->getMedia('booking_photos')
                 ->map(fn ($media): string => $media->getUrl())
                 ->values()
                 ->all(),

@@ -251,7 +251,7 @@
 
                                 <!-- Action button for mobile -->
                                 <div class="mt-4 flex flex-col gap-2">
-                                    @if (!empty($bill['booking_photo_urls']))
+                                    @if (!empty($bill['booking_photos']))
                                         <button class="inline-flex w-full items-center justify-center rounded-md border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition-colors hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30"
                                             type="button" wire:click="openBookingPhotoModal({{ $bill['id'] }})">
                                             <x-heroicon-m-photo class="mr-2 h-4 w-4" />
@@ -359,7 +359,7 @@
 
                                     <!-- Actions for desktop -->
                                     <div class="flex gap-2">
-                                        @if (!empty($bill['booking_photo_urls']))
+                                        @if (!empty($bill['booking_photos']))
                                             <button class="inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm transition-colors hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/30"
                                                 type="button" wire:click="openBookingPhotoModal({{ $bill['id'] }})">
                                                 <x-heroicon-m-photo class="mr-1 h-3 w-3" />

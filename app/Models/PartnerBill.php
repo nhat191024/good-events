@@ -151,7 +151,7 @@ class PartnerBill extends Model implements HasMedia
      */
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('booking_photo')
+        $this->addMediaCollection('booking_photos')
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
 
         $this->addMediaCollection('arrival_photo')

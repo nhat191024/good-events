@@ -46,26 +46,12 @@ class QuickBookingController extends Controller
      * custom_event, location_detail, note, category_id
      * Response: { success: true, bill }
      *
-     * @param Request $request
+     * @param BookingRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function saveBookingInfo(BookingRequest $request)
     {
-        $validated = $request->validate([
-            'order_date' => 'required|date',
-            'start_time' => 'required',
-            'end_time' => 'nullable',
-            'province_id' => 'required|integer|exists:locations,id',
-            'ward_id' => 'required|integer|exists:locations,id',
-            'event_id' => 'nullable|integer|exists:events,id',
-            'custom_event' => 'nullable|string|max:255',
-            'location_detail' => 'required|string|max:255',
-            'note' => 'nullable|string|max:1000',
-            'category_id' => 'required|integer|exists:partner_categories,id',
-            'booking_photo' => 'nullable|image|max:20480|mimes:jpeg,png,jpg,webp',
-            'booking_photos' => 'nullable|array|max:5',
-            'booking_photos.*' => 'image|max:20480|mimes:jpeg,png,jpg,webp',
-        ]);
+        $validated = $request->validated();
 
         $allCategories = PartnerCategory::getAllCached();
         if ($allCategories->where('id', '=', $validated['category_id'])->where('parent_id', '=', null)->isNotEmpty()) {
@@ -146,7 +132,7 @@ class QuickBookingController extends Controller
         return $model->getFirstMediaUrl('images', 'thumb');
     }
 
-    private function attachBookingPhoto(Request $request, PartnerBill $bill): void
+    private function attachBookingPhoto(BookingRequest $request, PartnerBill $bill): void
     {
         foreach ($this->bookingPhotoFiles($request) as $index => $file) {
             $this->attachBookingPhotoFile($file, $bill, $index + 1);
@@ -156,7 +142,7 @@ class QuickBookingController extends Controller
     /**
      * @return array<int, UploadedFile>
      */
-    private function bookingPhotoFiles(Request $request): array
+    private function bookingPhotoFiles(BookingRequest $request): array
     {
         $files = [];
         $bookingPhotos = $request->file('booking_photos');
@@ -165,14 +151,6 @@ class QuickBookingController extends Controller
             $files = array_merge($files, $bookingPhotos);
         } elseif ($bookingPhotos instanceof UploadedFile) {
             $files[] = $bookingPhotos;
-        }
-
-        if ($request->hasFile('booking_photo')) {
-            $legacyPhoto = $request->file('booking_photo');
-
-            if ($legacyPhoto instanceof UploadedFile) {
-                $files[] = $legacyPhoto;
-            }
         }
 
         return array_slice(array_values(array_filter(
@@ -194,7 +172,7 @@ class QuickBookingController extends Controller
             $bill->addMediaFromDisk($temporaryPath, 'local')
                 ->usingName('Booking Photo ' . $index . ' - ' . $bill->code)
                 ->usingFileName($file->getClientOriginalName())
-                ->toMediaCollection('booking_photo');
+                ->toMediaCollection('booking_photos');
         } finally {
             Storage::disk('local')->delete($temporaryPath);
         }

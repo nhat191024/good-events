@@ -27,8 +27,7 @@ class PartnerBillResource extends JsonResource
 
             'event' => $this->event->name ?? $this->custom_event ?? 'N/A',
             'note' => $this->note,
-            'booking_photo' => $this->getFirstMedia('booking_photo')?->getUrl(),
-            'booking_photos' => $this->getMedia('booking_photo')
+            'booking_photos' => $this->getMedia('booking_photos')
                 ->map(fn ($media): string => $media->getUrl())
                 ->values()
                 ->all(),

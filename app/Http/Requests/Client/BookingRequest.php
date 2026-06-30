@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Client;
 
-use App\Models\User;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
@@ -27,7 +26,6 @@ class BookingRequest extends FormRequest
             'ward_id' => ['required', 'exists:locations,id'],
             'location_detail' => ['required', 'string', 'min:5'],
             'note' => ['nullable', 'string'],
-            'booking_photo' => ['nullable', 'image', 'max:20480', 'mimes:jpeg,png,jpg,webp'],
             'booking_photos' => ['nullable', 'array', 'max:5'],
             'booking_photos.*' => ['image', 'max:20480', 'mimes:jpeg,png,jpg,webp'],
         ];
@@ -54,9 +52,6 @@ class BookingRequest extends FormRequest
             'location_detail.string' => 'Địa chỉ chi tiết phải là chuỗi ký tự.',
             'location_detail.min' => 'Địa chỉ chi tiết phải có ít nhất 5 ký tự.',
             'note.string' => 'Ghi chú phải là chuỗi ký tự.',
-            'booking_photo.image' => 'Ảnh mô tả phải là hình ảnh.',
-            'booking_photo.max' => 'Ảnh mô tả không được vượt quá 20MB.',
-            'booking_photo.mimes' => 'Ảnh mô tả phải có định dạng jpeg, png, jpg hoặc webp.',
             'booking_photos.array' => 'Danh sách ảnh mô tả không đúng định dạng.',
             'booking_photos.max' => 'Bạn chỉ có thể tải lên tối đa 5 ảnh mô tả.',
             'booking_photos.*.image' => 'Mỗi ảnh mô tả phải là hình ảnh.',
@@ -78,10 +73,6 @@ class BookingRequest extends FormRequest
             $customEvent = $this->input('custom_event');
             $bookingPhotos = $this->allFiles()['booking_photos'] ?? [];
             $bookingPhotoCount = is_countable($bookingPhotos) ? count($bookingPhotos) : 0;
-
-            if ($this->hasFile('booking_photo')) {
-                $bookingPhotoCount++;
-            }
 
             if ($bookingPhotoCount > 5) {
                 $validator->errors()->add('booking_photos', 'Bạn chỉ có thể tải lên tối đa 5 ảnh mô tả.');

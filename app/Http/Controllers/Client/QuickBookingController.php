@@ -355,14 +355,6 @@ class QuickBookingController extends Controller
             $files[] = $bookingPhotos;
         }
 
-        if ($request->hasFile('booking_photo')) {
-            $legacyPhoto = $request->file('booking_photo');
-
-            if ($legacyPhoto instanceof UploadedFile) {
-                $files[] = $legacyPhoto;
-            }
-        }
-
         return array_slice(array_values(array_filter(
             $files,
             fn ($file): bool => $file instanceof UploadedFile
@@ -382,7 +374,7 @@ class QuickBookingController extends Controller
             $bill->addMediaFromDisk($temporaryPath, 'local')
                 ->usingName('Booking Photo ' . $index . ' - ' . $bill->code)
                 ->usingFileName($file->getClientOriginalName())
-                ->toMediaCollection('booking_photo');
+                ->toMediaCollection('booking_photos');
         } finally {
             Storage::disk('local')->delete($temporaryPath);
         }

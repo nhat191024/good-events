@@ -66,7 +66,7 @@ const bookingPhotos = computed(() => {
         return props.order.booking_photos
     }
 
-    return props.order?.booking_photo ? [props.order.booking_photo] : []
+    return []
 })
 const shouldShowBookingPhoto = computed(() => bookingPhotos.value.length > 0)
 
