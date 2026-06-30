@@ -8,8 +8,8 @@ use App\Enum\NavigationGroup;
 use App\Settings\AppNotificationSettings;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Pages\SettingsPage;
@@ -93,7 +93,7 @@ class AppNotificationManager extends SettingsPage
                 ->visible(fn (Get $get): bool => $this->isEnabledTextNotification($get, $prefix))
                 ->columnSpanFull(),
 
-            Textarea::make("{$prefix}_content")
+            RichEditor::make("{$prefix}_content")
                 ->label(__('admin/setting.notifications.fields.content'))
                 ->required(fn (Get $get): bool => $this->isEnabledTextNotification($get, $prefix))
                 ->visible(fn (Get $get): bool => $this->isEnabledTextNotification($get, $prefix))
