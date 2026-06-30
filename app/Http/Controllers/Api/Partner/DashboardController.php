@@ -75,7 +75,7 @@ class DashboardController extends Controller
             }
             return [
                 'type' => $settings->partner_type,
-                'notification_image' => $settings->partner_notification_image,
+                'notification_image' => secure_asset($settings->partner_notification_image),
                 'title' => null,
                 'content' => null,
                 'image' => null,
@@ -88,7 +88,7 @@ class DashboardController extends Controller
                 'notification_image' => null,
                 'title' => $settings->partner_title,
                 'content' => $settings->partner_content,
-                'image' => $settings->partner_image,
+                'image' => secure_asset($settings->partner_notification_image),
             ];
         }
 

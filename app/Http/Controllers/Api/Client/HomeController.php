@@ -77,7 +77,7 @@ class HomeController extends Controller
             }
             return [
                 'type' => $settings->customer_type,
-                'notification_image' => $settings->customer_notification_image,
+                'notification_image' => secure_asset($settings->customer_notification_image),
                 'title' => null,
                 'content' => null,
                 'image' => null,
@@ -90,7 +90,7 @@ class HomeController extends Controller
                 'notification_image' => null,
                 'title' => $settings->customer_title,
                 'content' => $settings->customer_content,
-                'image' => $settings->customer_image,
+                'image' => secure_asset($settings->customer_image),
             ];
         }
 
