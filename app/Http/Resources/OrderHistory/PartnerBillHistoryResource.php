@@ -39,6 +39,7 @@ class PartnerBillHistoryResource extends JsonResource
                 ->values()
                 ->all(),
             'arrival_photo' => $this->getFirstMedia('arrival_photo')?->getUrl(),
+            'completion_photo' => $this->getFirstMedia('completion_photo')?->getUrl(),
             "status" => $this->status,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,

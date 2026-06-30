@@ -61,6 +61,9 @@ const classIfBookedPartnerFound = computed(() => {
 });
 
 const shouldShowArrivalPhoto = computed(() => Boolean(props.order?.arrival_photo))
+const shouldShowCompletionPhoto = computed(() => (
+    props.order?.status === OrderStatus.COMPLETED && Boolean(props.order?.completion_photo)
+))
 const bookingPhotos = computed(() => {
     if (props.order?.booking_photos?.length) {
         return props.order.booking_photos
@@ -78,6 +81,11 @@ function bookingPhotoAlt(index: number) {
 const arrivalPhotoAlt = computed(() => {
     if (!props.order?.code) return 'Arrival Photo'
     return `Ảnh xác nhận đối tác đã đến cho đơn ${props.order.code}`
+})
+
+const completionPhotoAlt = computed(() => {
+    if (!props.order?.code) return 'Completion Photo'
+    return `Ảnh xác nhận hoàn thành cho đơn ${props.order.code}`
 })
 
 function emitConfirmChoosePartnerWithVoucher(partner?: Partner | null | undefined, total?: number | null | undefined) {
@@ -160,6 +168,11 @@ watch(() => props.order?.id, () => {
                 </div>
                 <ArrivalPhotoModal v-if="shouldShowArrivalPhoto" class="mt-4" :arrival-photo="order?.arrival_photo"
                     :alt-text="arrivalPhotoAlt" />
+                <ArrivalPhotoModal v-if="shouldShowCompletionPhoto" class="mt-4" :photo="order?.completion_photo"
+                    :alt-text="completionPhotoAlt"
+                    title="Ảnh hoàn thành"
+                    description="Bấm để xem ảnh"
+                    footer-description="Ảnh xác nhận đơn đã hoàn thành" />
                 <BookingSummaryCard v-model="voucher_code" v-model:applyVoucher="applyVoucher"
                     @view-partner-profile="emit('view-partner-profile', $event)" :mode="props.mode"
                     :booked-partner="bookedPartner" :order="props.order" class="mt-6"
