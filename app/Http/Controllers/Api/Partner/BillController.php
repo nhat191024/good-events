@@ -67,11 +67,11 @@ class BillController extends Controller
 
         $locationIds = $this->resolvePartnerServiceAreaIds($user);
 
+        //TODO: will be removed in the future
         $availableCategories = $categoriesMap
             ->map(fn($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
-                'channel_names' => $this->broadcastChannelNames((int) $category->id, $locationIds),
             ])
             ->values()
             ->toArray();
@@ -96,7 +96,6 @@ class BillController extends Controller
                 ],
                 'available_categories' => $availableCategories,
                 'broadcast_channels' => $broadcastChannels,
-                'service_area_location_ids' => $locationIds,
                 'last_updated' => now()->format('H:i:s'),
             ]);
         }
@@ -142,7 +141,6 @@ class BillController extends Controller
             ],
             'available_categories' => $availableCategories,
             'broadcast_channels' => $broadcastChannels,
-            'service_area_location_ids' => $locationIds,
             'last_updated' => now()->format('H:i:s'),
         ]);
     }
