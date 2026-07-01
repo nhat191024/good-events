@@ -334,6 +334,8 @@ class OrderController extends Controller
             $voucher = Voucher::where('code', $voucherCode)->first();
             if ($voucher) {
                 $discount = $voucher->getDiscountAmount($partnerBillDetail->total);
+                $voucher->data['times_used'] = $voucher->timesUsed() + 1;
+                $voucher->save();
             }
 
             $bill->total = $partnerBillDetail->total;
@@ -456,6 +458,11 @@ class OrderController extends Controller
             $message = 'Voucher usage limit reached.';
         }
 
+        if ($status) {
+            $partnerBill->voucher_id = $voucher->id;
+            $partnerBill->save();
+        }
+
         return response()->json([
             'status' => $status,
             'message' => $message,
@@ -543,6 +550,32 @@ class OrderController extends Controller
             'status' => true,
             'message' => 'Voucher is valid.',
             'discount' => $discount,
+        ]);
+    }
+
+    /**
+     * Remove the voucher from the order
+     */
+    public function removeVoucher(Request $request)
+    {
+        $data = $request->validate([
+            'order_id' => 'required|integer|exists:partner_bills,id',
+        ]);
+
+        $partnerBill = PartnerBill::find($data['order_id']);
+        if (!$partnerBill) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Order not found.',
+            ], 404);
+        }
+
+        $partnerBill->voucher_id = null;
+        $partnerBill->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Voucher removed successfully.',
         ]);
     }
 
