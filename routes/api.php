@@ -42,6 +42,7 @@ Route::middleware(['auth:sanctum'])->prefix('partner')->group(function () {
     require __DIR__ . '/api/partner/service-areas.php';
     require __DIR__ . '/api/partner/category.php';
     require __DIR__ . '/api/partner/wallet.php';
+    require __DIR__ . '/api/partner/reviews.php';
 });
 
 // Broadcasting auth endpoint for Sanctum API token authentication
