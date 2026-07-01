@@ -167,7 +167,8 @@ class OrderController extends Controller
                 'event',
                 'details',
                 'partner.statistics',
-                'partner.partnerProfile'
+                'partner.partnerProfile',
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])->where('client_id', $request->user()->id)
             ->whereIn('status', [
                 PartnerBillStatus::PENDING,
