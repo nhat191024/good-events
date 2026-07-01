@@ -219,7 +219,6 @@ class OrderController extends Controller
                 'partner:id,name,avatar',
                 'partner.statistics',
                 'partner.partnerProfile',
-                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->select(['id', 'partner_bill_id', 'partner_id', 'total', 'status', 'updated_at'])
             ->orderByDesc('id')

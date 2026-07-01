@@ -21,10 +21,6 @@ class PartnerBillDetailResource extends BaseResource
             'created_at' => optional($this->created_at)->toIso8601String(),
             'updated_at' => optional($this->updated_at)->toIso8601String(),
             'partner' => $this->whenLoaded('partner', fn() => new UserResource($this->partner)),
-            'voucher' => $this->whenLoaded('voucher', fn() => [
-                'id' => $this->voucher->id,
-                'code' => $this->voucher->code,
-            ]),
         ];
     }
 }
