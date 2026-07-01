@@ -54,6 +54,7 @@ class PartnerBillResource extends Resource
                 'category',
             ])
             ->orderBy('updated_at', 'desc')
+            ->withExists('review')
             ->with('media');
     }
 

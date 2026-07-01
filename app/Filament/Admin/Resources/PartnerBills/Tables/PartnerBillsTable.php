@@ -137,6 +137,32 @@ class PartnerBillsTable
                             ->send();
                     }),
                 ActionGroup::make([
+                    Action::make('viewReview')
+                        ->label(__('admin/partnerBill.actions.view_review'))
+                        ->icon('heroicon-o-star')
+                        ->color('warning')
+                        ->visible(fn(PartnerBill $record): bool => (bool) $record->review_exists)
+                        ->modalHeading(fn(PartnerBill $record): string => __('admin/partnerBill.actions.view_review_heading', [
+                            'code' => $record->code,
+                        ]))
+                        ->modalWidth('lg')
+                        ->modalContent(function (PartnerBill $record) {
+                            $review = $record->review()
+                                ->with('ratings')
+                                ->first();
+
+                            $ratings = $review?->ratings->mapWithKeys(fn($rating) => [
+                                $rating->key => (int) $rating->value,
+                            ]) ?? collect();
+
+                            return view('filament.partner.modals.bill-review', [
+                                'review' => $review,
+                                'rating' => $ratings->get('rating') ?? $ratings->get('overall'),
+                                'ratings' => $ratings,
+                            ]);
+                        })
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel(__('admin/partnerBill.actions.close')),
                     Action::make('viewArrivalPhoto')
                         ->label(__('admin/partnerBill.fields.arrival_photo'))
                         ->icon('heroicon-o-photo')
