@@ -339,7 +339,7 @@ class PartnerBillNotificationService
     {
         try {
             /** @var Customer|null $customer */
-            $customer = Customer::find($partnerBill->partner_id);
+            $customer = Customer::find($partnerBill->client_id);
 
             if ($customer) {
                 $title = __('notification.bill_in_job_reminder.title');
