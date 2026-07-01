@@ -228,11 +228,21 @@ class PartnerBillNotificationService
                 Mail::to($partnerBill->client->email)
                     ->queue(new PartnerBillExpired($partnerBill, $clientLocale));
 
+                $title = __(
+                    'notification.client_order_expired_title',
+                    ['code' => $partnerBill->code]
+                );
+
+                $body = __(
+                    'notification.client_order_expired_body',
+                    ['code' => $partnerBill->code]
+                );
+
                 /** @var Customer|null $client */
                 $client = Customer::find($partnerBill->client_id);
                 Notification::make()
-                    ->title(__('notification.client_order_expired_title', ['code' => $partnerBill->code]))
-                    ->body(__('notification.client_order_expired_body', ['code' => $partnerBill->code]))
+                    ->title($title)
+                    ->body($body)
                     ->danger()
                     ->actions([
                         Action::make('open')
@@ -240,6 +250,8 @@ class PartnerBillNotificationService
                             ->url(route('client-orders.dashboard', ['order' => $partnerBill->id])),
                     ])
                     ->sendToDatabase($client);
+
+                $this->fcmService->sendToUser($client, $title, $body, ['code' => 'BILL_EXPIRED']);
 
                 Log::info('Order expired notification sent successfully', [
                     'partner_bill_id' => $partnerBill->id,
