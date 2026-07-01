@@ -36,9 +36,16 @@ class PartnerBillResource extends BaseResource
                 return $this->category->getFirstMediaUrl('images', 'thumb');
             }),
 
-            'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn () => $this->event->name),
+            'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn() => $this->event->name),
 
-            'applicant_count' => $this->whenLoaded('details', fn () => PartnerBillDetailResource::collection($this->details)->count()),
+            'applicant_count' => $this->whenLoaded('details', fn() => PartnerBillDetailResource::collection($this->details)->count()),
+
+            'voucher' => $this->whenLoaded('voucher', function () {
+                return [
+                    'id' => $this->voucher->id,
+                    'code' => $this->voucher->code,
+                ];
+            }),
         ];
     }
 }

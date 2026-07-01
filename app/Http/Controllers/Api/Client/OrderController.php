@@ -71,6 +71,7 @@ class OrderController extends Controller
                 'partner.statistics',
                 'partner.partnerProfile',
                 'media',
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->where('client_id', $request->user()->id)
             ->whereIn('status', [
@@ -116,6 +117,7 @@ class OrderController extends Controller
                     ->where('reviewable_type', Partner::class)
                     ->where('user_id', $request->user()->id)
                     ->with('ratings'),
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->whereIn('status', [
                 PartnerBillStatus::COMPLETED,
@@ -155,6 +157,7 @@ class OrderController extends Controller
                 'details',
                 'partner.statistics',
                 'partner.partnerProfile',
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->first();
 
@@ -191,6 +194,7 @@ class OrderController extends Controller
                     ->where('reviewable_type', Partner::class)
                     ->where('user_id', $request->user()->id)
                     ->with('ratings'),
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->first();
 
@@ -215,6 +219,7 @@ class OrderController extends Controller
                 'partner:id,name,avatar',
                 'partner.statistics',
                 'partner.partnerProfile',
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->select(['id', 'partner_bill_id', 'partner_id', 'total', 'status', 'updated_at'])
             ->orderByDesc('id')
@@ -334,8 +339,6 @@ class OrderController extends Controller
             $voucher = Voucher::where('code', $voucherCode)->first();
             if ($voucher) {
                 $discount = $voucher->getDiscountAmount($partnerBillDetail->total);
-                $voucher->data['times_used'] = $voucher->timesUsed() + 1;
-                $voucher->save();
             }
 
             $bill->total = $partnerBillDetail->total;

@@ -72,10 +72,10 @@ class PartnerBillHistoryResource extends BaseResource
                     ),
                 ];
             }),
-            // 'voucher' => $this->whenLoaded('voucher', fn () => [
-            //     'id' => $this->voucher?->id,
-            //     'code' => $this->voucher?->code,
-            // ]),
+            'voucher' => $this->whenLoaded('voucher', fn () => [
+                'id' => $this->voucher?->id,
+                'code' => $this->voucher?->code,
+            ]),
             'review' => $review,
         ];
     }
