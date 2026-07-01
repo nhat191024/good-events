@@ -338,10 +338,10 @@ class PartnerBillNotificationService
     public function sendOrderInJobNotification(PartnerBill $partnerBill): void
     {
         try {
-            /** @var Partner|null $partner */
-            $partner = Partner::find($partnerBill->partner_id);
+            /** @var Customer|null $customer */
+            $customer = Customer::find($partnerBill->partner_id);
 
-            if ($partner) {
+            if ($customer) {
                 $title = __('notification.bill_in_job_reminder.title');
                 $body = __('notification.bill_in_job_reminder.subject', ['code' => $partnerBill->code]);
 
@@ -349,9 +349,9 @@ class PartnerBillNotificationService
                     ->title($title)
                     ->body($body)
                     ->info()
-                    ->sendToDatabase($partner);
+                    ->sendToDatabase($customer);
 
-                $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_IN_JOB']);
+                $this->fcmService->sendToUser($customer, $title, $body, ['code' => 'BILL_IN_JOB']);
             }
         } catch (\Exception $e) {
             Log::error('Failed to send bill in job notification', [
