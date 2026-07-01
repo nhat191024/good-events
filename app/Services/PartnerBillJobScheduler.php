@@ -6,7 +6,7 @@ use App\Jobs\PartnerBillFirstJob;
 use App\Jobs\PartnerBillSecondJob;
 use App\Jobs\PartnerBillThirdJob;
 use App\Models\PartnerBill;
-use Illuminate\Support\Carbon;
+use Carbon\CarbonInterface;
 
 class PartnerBillJobScheduler
 {
@@ -61,7 +61,7 @@ class PartnerBillJobScheduler
         PartnerBillThirdJob::dispatch($partnerBill);
     }
 
-    public function eventStartsAt(PartnerBill $partnerBill): ?Carbon
+    public function eventStartsAt(PartnerBill $partnerBill): ?CarbonInterface
     {
         if (! $partnerBill->date || ! $partnerBill->start_time) {
             return null;
@@ -70,7 +70,7 @@ class PartnerBillJobScheduler
         return $partnerBill->date->copy()->setTimeFrom($partnerBill->start_time);
     }
 
-    public function eventEndsAt(PartnerBill $partnerBill): ?Carbon
+    public function eventEndsAt(PartnerBill $partnerBill): ?CarbonInterface
     {
         $eventStartsAt = $this->eventStartsAt($partnerBill);
 
@@ -85,23 +85,23 @@ class PartnerBillJobScheduler
         $eventEndsAt = $partnerBill->date->copy()->setTimeFrom($partnerBill->end_time);
 
         if ($eventEndsAt->lessThanOrEqualTo($eventStartsAt)) {
-            $eventEndsAt->addDay();
+            $eventEndsAt = $eventEndsAt->addDay();
         }
 
         return $eventEndsAt;
     }
 
-    public function upcomingReminderAt(PartnerBill $partnerBill): ?Carbon
+    public function upcomingReminderAt(PartnerBill $partnerBill): ?CarbonInterface
     {
         return $this->eventStartsAt($partnerBill)?->copy()->subHours(2);
     }
 
-    public function expirationCheckAt(PartnerBill $partnerBill): ?Carbon
+    public function expirationCheckAt(PartnerBill $partnerBill): ?CarbonInterface
     {
         return $partnerBill->created_at?->copy()->addHours(48);
     }
 
-    public function completionReminderAt(PartnerBill $partnerBill): ?Carbon
+    public function completionReminderAt(PartnerBill $partnerBill): ?CarbonInterface
     {
         return $this->eventEndsAt($partnerBill)?->copy()->addMinutes(20);
     }

@@ -30,10 +30,43 @@ class PartnerBillFirstJob implements ShouldQueue
         $this->partnerBill->refresh();
 
         match ($this->partnerBill->status) {
+            PartnerBillStatus::PENDING => $this->expireBillWithoutPartnerDetails($this->partnerBill, $notificationService, $scheduler),
             PartnerBillStatus::CONFIRMED => $this->handleConfirmedBill($this->partnerBill, $notificationService, $scheduler),
             PartnerBillStatus::IN_JOB => $scheduler->scheduleCompletionReminder($this->partnerBill),
             default => null,
         };
+    }
+
+    /**
+     * Expire a pending bill close to the event time if no partner has accepted it.
+     */
+    private function expireBillWithoutPartnerDetails(
+        PartnerBill $partnerBill,
+        PartnerBillNotificationService $notificationService,
+        PartnerBillJobScheduler $scheduler,
+    ): void
+    {
+        if ($partnerBill->details()->exists()) {
+            return;
+        }
+
+        $reminderTime = $scheduler->upcomingReminderAt($partnerBill);
+        $eventStartsAt = $scheduler->eventStartsAt($partnerBill);
+
+        if (! $reminderTime || ! $eventStartsAt) {
+            return;
+        }
+
+        if ($partnerBill->created_at && $partnerBill->created_at->greaterThan($reminderTime) && $eventStartsAt->isFuture()) {
+            self::dispatch($partnerBill)->delay($eventStartsAt);
+
+            return;
+        }
+
+        $partnerBill->status = PartnerBillStatus::EXPIRED;
+        $partnerBill->save();
+
+        $notificationService->sendOrderExpiredNotification($partnerBill);
     }
 
     /**
