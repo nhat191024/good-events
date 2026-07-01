@@ -1,13 +1,18 @@
 meta {
-  name: detail
+  name: reviews
   type: http
-  seq: 2
+  seq: 11
 }
 
 get {
-  url: {{local_url}}orders/219/details
+  url: {{local_url}}partner/reviews?page=1&per_page=10
   body: none
   auth: bearer
+}
+
+params:query {
+  page: 1
+  per_page: 10
 }
 
 auth:bearer {
