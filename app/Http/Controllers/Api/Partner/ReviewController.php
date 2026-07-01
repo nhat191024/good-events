@@ -44,7 +44,7 @@ class ReviewController extends Controller
             ->with([
                 'category' => fn($query) => $query->withTrashed(),
                 'event',
-                'client:id,name,avatar_url',
+                'client:id,name,avatar',
             ])
             ->get()
             ->keyBy('id');
