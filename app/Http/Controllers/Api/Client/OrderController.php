@@ -113,7 +113,7 @@ class OrderController extends Controller
                 'partner.statistics',
                 'partner.partnerProfile',
                 'review' => fn($query) => $query
-                    ->where('reviewable_type', User::class)
+                    ->where('reviewable_type', Partner::class)
                     ->where('user_id', $request->user()->id)
                     ->with('ratings'),
             ])
@@ -188,7 +188,7 @@ class OrderController extends Controller
                 'partner.statistics',
                 'partner.partnerProfile',
                 'review' => fn($query) => $query
-                    ->where('reviewable_type', User::class)
+                    ->where('reviewable_type', Partner::class)
                     ->where('user_id', $request->user()->id)
                     ->with('ratings'),
             ])
