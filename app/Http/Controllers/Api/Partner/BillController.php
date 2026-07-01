@@ -65,15 +65,23 @@ class BillController extends Controller
             ->pluck('category', 'category.id')
             ->unique('id');
 
+        $locationIds = $this->resolvePartnerServiceAreaIds($user);
+
         $availableCategories = $categoriesMap
             ->map(fn($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
+                'channel_names' => $this->broadcastChannelNames((int) $category->id, $locationIds),
             ])
             ->values()
             ->toArray();
 
-        $locationIds = $this->resolvePartnerServiceAreaIds($user);
+        $broadcastChannels = collect($availableCategories)
+            ->pluck('channel_names')
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
 
         if (empty($categoryIds)) {
             return response()->json([
@@ -87,6 +95,8 @@ class BillController extends Controller
                     ],
                 ],
                 'available_categories' => $availableCategories,
+                'broadcast_channels' => $broadcastChannels,
+                'service_area_location_ids' => $locationIds,
                 'last_updated' => now()->format('H:i:s'),
             ]);
         }
@@ -131,6 +141,8 @@ class BillController extends Controller
                 ],
             ],
             'available_categories' => $availableCategories,
+            'broadcast_channels' => $broadcastChannels,
+            'service_area_location_ids' => $locationIds,
             'last_updated' => now()->format('H:i:s'),
         ]);
     }
@@ -480,6 +492,22 @@ class BillController extends Controller
                     ->values()
                     ->all();
             });
+    }
+
+    /**
+     * @param list<int> $locationIds
+     * @return list<string>
+     */
+    private function broadcastChannelNames(int $categoryId, array $locationIds): array
+    {
+        if (empty($locationIds)) {
+            return ["private-category.{$categoryId}"];
+        }
+
+        return collect($locationIds)
+            ->map(fn($locationId): string => "private-category.{$categoryId}.location.{$locationId}")
+            ->values()
+            ->all();
     }
 
     private function canReceiveBill(User $user, PartnerBill $bill): bool
