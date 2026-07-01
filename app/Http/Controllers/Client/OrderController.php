@@ -348,6 +348,11 @@ class OrderController extends Controller
             $message = __('voucher.usage_limit_reached');
         }
 
+        if ($status) {
+            $partnerBill->voucher_id = $voucher->id;
+            $partnerBill->save();
+        }
+
         return response()->json([
             'status' => $status,
             'message' => $message,
