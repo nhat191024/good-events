@@ -14,12 +14,10 @@ class PartnerReviewResource extends JsonResource
 {
     /**
      * @param Collection<int, PartnerBill> $bills
-     * @param Collection<int, User> $reviewers
      */
     public function __construct(
         mixed $resource,
         private readonly Collection $bills,
-        private readonly Collection $reviewers,
     ) {
         parent::__construct($resource);
     }
@@ -27,7 +25,7 @@ class PartnerReviewResource extends JsonResource
     public function toArray(Request $request): array
     {
         $bill = $this->bills->get($this->partner_bill_id);
-        $reviewer = $this->reviewers->get($this->user_id) ?? $bill?->client;
+        $reviewer = $bill?->client;
         $ratings = $this->ratings->mapWithKeys(fn($rating) => [
             $rating->key => (int) $rating->value,
         ]);
@@ -44,6 +42,7 @@ class PartnerReviewResource extends JsonResource
             'user' => [
                 'id' => $reviewer?->id,
                 'name' => $reviewer?->name,
+                'avatar_url' => $reviewer?->getFirstMediaUrl('avatar', 'avatar_webp') ? $reviewer->getFirstMediaUrl('avatar', 'avatar_webp') : $reviewer?->avatar_url,
             ],
             'review' => [
                 'id' => $this->id,

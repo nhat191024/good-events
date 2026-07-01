@@ -44,14 +44,8 @@ class ReviewController extends Controller
             ->with([
                 'category' => fn($query) => $query->withTrashed(),
                 'event',
-                'client:id,name',
+                'client:id,name,avatar_url',
             ])
-            ->get()
-            ->keyBy('id');
-
-        $reviewers = User::query()
-            ->whereIn('id', $reviews->pluck('user_id')->filter()->unique())
-            ->select(['id', 'name'])
             ->get()
             ->keyBy('id');
 
@@ -64,7 +58,7 @@ class ReviewController extends Controller
         return response()->json([
             'reviews' => [
                 'data' => $paginator->getCollection()
-                    ->map(fn(Review $review): array => (new PartnerReviewResource($review, $bills, $reviewers))->resolve())
+                    ->map(fn(Review $review): array => (new PartnerReviewResource($review, $bills))->resolve())
                     ->all(),
                 'meta' => [
                     'current_page' => $paginator->currentPage(),
