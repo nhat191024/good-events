@@ -42,7 +42,6 @@ class PartnerReviewResource extends JsonResource
             'user' => [
                 'id' => $reviewer?->id,
                 'name' => $reviewer?->name,
-                'avatar_url' => $reviewer?->getFirstMediaUrl('avatar', 'avatar_webp') ? $reviewer->getFirstMediaUrl('avatar', 'avatar_webp') : $reviewer?->avatar,
             ],
             'review' => [
                 'id' => $this->id,
