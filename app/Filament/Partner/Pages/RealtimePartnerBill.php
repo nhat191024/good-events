@@ -91,6 +91,8 @@ class RealtimePartnerBill extends Page
 
     public $availableCategories = [];
 
+    public array $broadcastChannels = [];
+
     public $lastUpdated;
 
     public $dateFilter = 'all';
@@ -134,6 +136,7 @@ class RealtimePartnerBill extends Page
             $this->partnerBills = [];
             $this->categoryIds = [];
             $this->availableCategories = [];
+            $this->broadcastChannels = [];
 
             return;
         }
@@ -151,18 +154,27 @@ class RealtimePartnerBill extends Page
             ->pluck('category', 'category.id')
             ->unique('id');
 
+        $locationIds = static::resolvePartnerServiceAreaIds($user);
+
         $this->availableCategories = $categoriesMap
             ->map(fn($category) => [
                 'id' => $category->id,
-                'name' => $category->name
+                'name' => $category->name,
+                'channel_names' => static::broadcastChannelNames((int) $category->id, $locationIds),
             ])
             ->values()
             ->toArray();
 
-        $locationIds = static::resolvePartnerServiceAreaIds($user);
+        $this->broadcastChannels = collect($this->availableCategories)
+            ->pluck('channel_names')
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
 
         if (empty($this->categoryIds)) {
             $this->partnerBills = [];
+            $this->broadcastChannels = [];
             $this->lastUpdated = now()->format('H:i:s');
 
             return;
@@ -430,6 +442,22 @@ class RealtimePartnerBill extends Page
                     ->values()
                     ->all();
             });
+    }
+
+    /**
+     * @param list<int> $locationIds
+     * @return list<string>
+     */
+    private static function broadcastChannelNames(int $categoryId, array $locationIds): array
+    {
+        if (empty($locationIds)) {
+            return ["category.{$categoryId}"];
+        }
+
+        return collect($locationIds)
+            ->map(fn($locationId): string => "category.{$categoryId}.location.{$locationId}")
+            ->values()
+            ->all();
     }
 
     private static function canReceiveBill($user, PartnerBill $bill): bool

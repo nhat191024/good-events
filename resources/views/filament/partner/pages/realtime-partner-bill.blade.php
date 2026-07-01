@@ -679,4 +679,39 @@
             </div>
         </div>
     @endif
+
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            const subscriptions = new Set();
+            const channelNames = @js($broadcastChannels);
+
+            const registerRealtimeBillChannels = () => {
+                if (!window.Echo) {
+                    setTimeout(registerRealtimeBillChannels, 500);
+                    return;
+                }
+
+                channelNames.forEach((channelName) => {
+                    if (subscriptions.has(channelName)) {
+                        return;
+                    }
+
+                    window.Echo.private(channelName)
+                        .listen('.NewPartnerBillCreated', () => {
+                            Livewire.dispatch('refreshBills');
+                        });
+
+                    subscriptions.add(channelName);
+                });
+            };
+
+            registerRealtimeBillChannels();
+
+            window.addEventListener('beforeunload', () => {
+                subscriptions.forEach((channelName) => {
+                    window.Echo?.leave(channelName);
+                });
+            });
+        });
+    </script>
 </x-filament-panels::page>
