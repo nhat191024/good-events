@@ -347,6 +347,12 @@ class PartnerBill extends Model implements HasMedia
             'new_balance' => $new_balance,
         ]);
         $transaction->save();
+
+        $voucher = $partnerBill->voucher;
+        if ($voucher) {
+            $voucher->data['times_used'] = $voucher->timesUsed() + 1;
+            $voucher->save();
+        }
     }
 
     /**
