@@ -60,7 +60,18 @@ class PartnerBillNotificationService
             $eligiblePartners = User::whereHas('partnerServices', function ($query) use ($partnerBill) {
                 $query->where('category_id', $partnerBill->category_id)
                     ->where('status', 'approved');
-            })->whereNotNull('email')->get();
+            })
+                ->where(function ($query) use ($partnerBill) {
+                    $query->whereDoesntHave('partnerServiceAreas');
+
+                    if ($partnerBill->location_id) {
+                        $query->orWhereHas('partnerServiceAreas', function ($serviceAreaQuery) use ($partnerBill) {
+                            $serviceAreaQuery->where('location_id', $partnerBill->location_id);
+                        });
+                    }
+                })
+                ->whereNotNull('email')
+                ->get();
 
             /** @var User|null $partner */
             foreach ($eligiblePartners as $partner) {
