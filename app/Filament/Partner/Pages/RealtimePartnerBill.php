@@ -66,13 +66,19 @@ class RealtimePartnerBill extends Page
         }
 
         $categoryIds = collect($partnerServices)->flatten()->unique()->values()->toArray();
+        $locationIds = static::resolvePartnerServiceAreaIds($user);
 
         $count = PartnerBill::whereIn('category_id', $categoryIds)
             ->where('status', PartnerBillStatus::PENDING)
             ->whereDoesntHave('details', function ($query) use ($user) {
                 $query->where('partner_id', $user->id);
-            })
-            ->count();
+            });
+
+        if (!empty($locationIds)) {
+            $count->whereIn('location_id', $locationIds);
+        }
+
+        $count = $count->count();
 
         return $count > 0 ? (string) $count : null;
     }
@@ -84,6 +90,8 @@ class RealtimePartnerBill extends Page
     public $categoryIds = [];
 
     public $availableCategories = [];
+
+    public array $broadcastChannels = [];
 
     public $lastUpdated;
 
@@ -109,6 +117,12 @@ class RealtimePartnerBill extends Page
 
     public $selectedClient = null;
 
+    public $showBookingPhotoModal = false;
+
+    public $selectedBookingPhotoUrls = [];
+
+    public $selectedBookingPhotoCode = '';
+
     public function mount(): void
     {
         $this->loadPartnerBills();
@@ -122,6 +136,7 @@ class RealtimePartnerBill extends Page
             $this->partnerBills = [];
             $this->categoryIds = [];
             $this->availableCategories = [];
+            $this->broadcastChannels = [];
 
             return;
         }
@@ -139,23 +154,46 @@ class RealtimePartnerBill extends Page
             ->pluck('category', 'category.id')
             ->unique('id');
 
+        $locationIds = static::resolvePartnerServiceAreaIds($user);
+
         $this->availableCategories = $categoriesMap
             ->map(fn($category) => [
                 'id' => $category->id,
-                'name' => $category->name
+                'name' => $category->name,
+                'channel_names' => static::broadcastChannelNames((int) $category->id, $locationIds),
             ])
             ->values()
             ->toArray();
 
+        $this->broadcastChannels = collect($this->availableCategories)
+            ->pluck('channel_names')
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($this->categoryIds)) {
+            $this->partnerBills = [];
+            $this->broadcastChannels = [];
+            $this->lastUpdated = now()->format('H:i:s');
+
+            return;
+        }
+
         $query = PartnerBill::whereIn('category_id', $this->categoryIds)
             ->with([
                 'client:id,name',
-                'event:id,name'
+                'event:id,name',
+                'media',
             ])
             ->where('status', PartnerBillStatus::PENDING)
             ->whereDoesntHave('details', function ($query) use ($user) {
                 $query->where('partner_id', $user->id);
             });
+
+        if (!empty($locationIds)) {
+            $query->whereIn('location_id', $locationIds);
+        }
 
         if ($this->dateFilter !== 'all') {
             switch ($this->dateFilter) {
@@ -201,6 +239,11 @@ class RealtimePartnerBill extends Page
         // Format datetime fields properly for Livewire
         $this->partnerBills = $bills->map(function ($bill) {
             $billArray = $bill->toArray();
+            $bookingPhotoUrls = $bill->getMedia('booking_photos')
+                ->map(fn ($media): string => $media->getUrl())
+                ->values()
+                ->all();
+            $billArray['booking_photos'] = $bookingPhotoUrls;
 
             // Ensure datetime fields are formatted with correct timezone
             if (isset($billArray['created_at'])) {
@@ -247,7 +290,7 @@ class RealtimePartnerBill extends Page
         $this->loadPartnerBills();
     }
 
-    public function openAcceptModal($billId): void
+    public function openAcceptModal(int $billId): void
     {
         $bill = PartnerBill::find($billId);
         $canAccept = Auth::user()->can_accept_shows;
@@ -257,7 +300,7 @@ class RealtimePartnerBill extends Page
             return;
         }
 
-        if ($bill && $bill->status === PartnerBillStatus::PENDING) {
+        if ($bill && $bill->status === PartnerBillStatus::PENDING && static::canReceiveBill(Auth::user(), $bill)) {
             $this->selectedBillId = $billId;
             $this->selectedBillCode = $bill->code;
             $this->priceInput = '';
@@ -299,7 +342,7 @@ class RealtimePartnerBill extends Page
             }
 
             $bill = PartnerBill::find($this->selectedBillId);
-            if ($bill && $bill->status === PartnerBillStatus::PENDING) {
+            if ($bill && $bill->status === PartnerBillStatus::PENDING && static::canReceiveBill($user, $bill)) {
 
                 PartnerBillDetail::create([
                     'partner_bill_id' => $bill->id,
@@ -340,6 +383,37 @@ class RealtimePartnerBill extends Page
         $this->selectedClient = null;
     }
 
+    public function openBookingPhotoModal(int $billId): void
+    {
+        $bill = PartnerBill::with('media')->find($billId);
+        $user = Auth::user();
+
+        if (! $bill || ! $user || $bill->status !== PartnerBillStatus::PENDING || ! static::canReceiveBill($user, $bill)) {
+            return;
+        }
+
+        $bookingPhotoUrls = $bill->getMedia('booking_photos')
+            ->map(fn ($media): string => $media->getUrl())
+            ->values()
+            ->all();
+
+        if (empty($bookingPhotoUrls)) {
+            session()->flash('info', 'Đơn này chưa có ảnh đặt đơn.');
+            return;
+        }
+
+        $this->selectedBookingPhotoUrls = $bookingPhotoUrls;
+        $this->selectedBookingPhotoCode = $bill->code;
+        $this->showBookingPhotoModal = true;
+    }
+
+    public function closeBookingPhotoModal(): void
+    {
+        $this->showBookingPhotoModal = false;
+        $this->selectedBookingPhotoUrls = [];
+        $this->selectedBookingPhotoCode = '';
+    }
+
     public function updatedDateFilter(): void
     {
         logger('Date filter updated: ' . $this->dateFilter);
@@ -356,5 +430,54 @@ class RealtimePartnerBill extends Page
     {
         logger('Search query updated: ' . $this->searchQuery);
         $this->loadPartnerBills();
+    }
+
+    private static function resolvePartnerServiceAreaIds($user): array
+    {
+        return Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])
+            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value . "_{$user->id}", function () use ($user): array {
+                return $user->partnerServiceAreas()
+                    ->pluck('location_id')
+                    ->unique()
+                    ->values()
+                    ->all();
+            });
+    }
+
+    /**
+     * @param list<int> $locationIds
+     * @return list<string>
+     */
+    private static function broadcastChannelNames(int $categoryId, array $locationIds): array
+    {
+        if (empty($locationIds)) {
+            return ["category.{$categoryId}"];
+        }
+
+        return collect($locationIds)
+            ->map(fn($locationId): string => "category.{$categoryId}.location.{$locationId}")
+            ->values()
+            ->all();
+    }
+
+    private static function canReceiveBill($user, PartnerBill $bill): bool
+    {
+        $isApprovedForCategory = $user->partnerServices()
+            ->where('status', 'approved')
+            ->where('category_id', $bill->category_id)
+            ->exists();
+
+        if (!$isApprovedForCategory) {
+            return false;
+        }
+
+        $locationIds = static::resolvePartnerServiceAreaIds($user);
+
+        if (empty($locationIds)) {
+            return true;
+        }
+
+        return $bill->location_id
+            && in_array((int) $bill->location_id, $locationIds, true);
     }
 }

@@ -142,6 +142,42 @@
                     </div>
                 </div>
 
+                @php
+                    $bookingPhotos = $bill->getMedia('booking_photos');
+                @endphp
+
+                @if ($bookingPhotos->isNotEmpty())
+                    {{-- Booking Photos --}}
+                    <div class="rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+                        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                {{ __('partner/bill.booking_photos') }}
+                            </h3>
+                        </div>
+                        <div class="space-y-4 px-6 py-4">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                @foreach ($bookingPhotos as $index => $bookingPhoto)
+                                    <div class="space-y-2">
+                                        <a class="block overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950"
+                                            href="{{ $bookingPhoto->getUrl() }}" target="_blank">
+                                            <img class="h-64 w-full object-contain" src="{{ $bookingPhoto->getUrl() }}"
+                                                alt="{{ __('partner/bill.booking_photos') }} {{ $index + 1 }} #{{ $bill->code }}">
+                                        </a>
+                                        <x-filament::button color="gray" size="xs" tag="a" href="{{ $bookingPhoto->getUrl() }}" target="_blank">
+                                            {{ __('partner/bill.open_original_photo') }}
+                                        </x-filament::button>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    {{ __('partner/bill.booking_photos_description') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Actions --}}
                 <div class="flex justify-end">
                     <x-filament::button color="gray" tag="a" href="{{ redirect()->back()->getTargetUrl() }}">

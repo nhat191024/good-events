@@ -25,6 +25,9 @@ return [
         'cancel_bill' => 'Hủy đơn',
         'cancel_bill_heading' => 'Xác nhận hủy đơn',
         'cancel_bill_description' => 'Bạn có chắc chắn muốn hủy đơn này không? Hành động này không thể hoàn tác.',
+        'view_review' => 'Xem đánh giá',
+        'view_review_heading' => 'Đánh giá đơn :code',
+        'close' => 'Đóng',
     ],
 
     'notifications' => [

@@ -37,7 +37,9 @@ class PartnerBillHistoryResource extends BaseResource
             'total' => $this->total,
             'final_total' => $this->final_total,
             'note' => $this->note,
+            'booking_photos' => $this->mediaUrls('booking_photos'),
             'arrival_photo' => $this->mediaUrl('arrival_photo'),
+            'completion_photo' => $this->mediaUrl('completion_photo'),
             'status' => $statusValue,
             'updated_at' => optional($this->updated_at)->toIso8601String(),
             'category_name' => $this->whenLoaded('category', function () {
@@ -70,10 +72,10 @@ class PartnerBillHistoryResource extends BaseResource
                     ),
                 ];
             }),
-            // 'voucher' => $this->whenLoaded('voucher', fn () => [
-            //     'id' => $this->voucher?->id,
-            //     'code' => $this->voucher?->code,
-            // ]),
+            'voucher' => $this->whenLoaded('voucher', fn () => [
+                'id' => $this->voucher?->id,
+                'code' => $this->voucher?->code,
+            ]),
             'review' => $review,
         ];
     }

@@ -17,7 +17,10 @@ use App\Services\QuickBookingService;
 use App\Http\Requests\Client\BookingRequest;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 use Inertia\Inertia;
 
@@ -293,6 +296,7 @@ class QuickBookingController extends Controller
         $newBill = PartnerBill::create([
             'code' => 'PB' . rand(10000, 999999),
             'address' => $address,
+            'location_id' => $wardItem->id,
             'phone' => $phone,
             'date' => $orderDate,
             'start_time' => $startTime,
@@ -304,6 +308,8 @@ class QuickBookingController extends Controller
             'note' => $note,
             'status' => PartnerBillStatus::PENDING,
         ]);
+
+        $this->attachBookingPhoto($request, $newBill);
 
         NewPartnerBillCreated::dispatch($newBill);
 
@@ -326,5 +332,51 @@ class QuickBookingController extends Controller
             'partnerBill' => $newBill,
             'categoryName' => $partnerCategory->name,
         ]);
+    }
+
+    private function attachBookingPhoto(Request $request, PartnerBill $bill): void
+    {
+        foreach ($this->bookingPhotoFiles($request) as $index => $file) {
+            $this->attachBookingPhotoFile($file, $bill, $index + 1);
+        }
+    }
+
+    /**
+     * @return array<int, UploadedFile>
+     */
+    private function bookingPhotoFiles(Request $request): array
+    {
+        $files = [];
+        $bookingPhotos = $request->file('booking_photos');
+
+        if (is_array($bookingPhotos)) {
+            $files = array_merge($files, $bookingPhotos);
+        } elseif ($bookingPhotos instanceof UploadedFile) {
+            $files[] = $bookingPhotos;
+        }
+
+        return array_slice(array_values(array_filter(
+            $files,
+            fn ($file): bool => $file instanceof UploadedFile
+        )), 0, 5);
+    }
+
+    private function attachBookingPhotoFile(UploadedFile $file, PartnerBill $bill, int $index): void
+    {
+        $fileName = (string) Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $temporaryPath = $file->storeAs('tmp/booking-photos', $fileName, 'local');
+
+        if (! $temporaryPath) {
+            return;
+        }
+
+        try {
+            $bill->addMediaFromDisk($temporaryPath, 'local')
+                ->usingName('Booking Photo ' . $index . ' - ' . $bill->code)
+                ->usingFileName($file->getClientOriginalName())
+                ->toMediaCollection('booking_photos');
+        } finally {
+            Storage::disk('local')->delete($temporaryPath);
+        }
     }
 }

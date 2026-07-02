@@ -71,6 +71,7 @@ class OrderController extends Controller
                 'partner.statistics',
                 'partner.partnerProfile',
                 'media',
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->where('client_id', $request->user()->id)
             ->whereIn('status', [
@@ -113,9 +114,10 @@ class OrderController extends Controller
                 'partner.statistics',
                 'partner.partnerProfile',
                 'review' => fn($query) => $query
-                    ->where('reviewable_type', User::class)
+                    ->where('reviewable_type', Partner::class)
                     ->where('user_id', $request->user()->id)
                     ->with('ratings'),
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->whereIn('status', [
                 PartnerBillStatus::COMPLETED,
@@ -155,6 +157,7 @@ class OrderController extends Controller
                 'details',
                 'partner.statistics',
                 'partner.partnerProfile',
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->first();
 
@@ -188,9 +191,10 @@ class OrderController extends Controller
                 'partner.statistics',
                 'partner.partnerProfile',
                 'review' => fn($query) => $query
-                    ->where('reviewable_type', User::class)
+                    ->where('reviewable_type', Partner::class)
                     ->where('user_id', $request->user()->id)
                     ->with('ratings'),
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])
             ->first();
 
@@ -456,6 +460,11 @@ class OrderController extends Controller
             $message = 'Voucher usage limit reached.';
         }
 
+        if ($status) {
+            $partnerBill->voucher_id = $voucher->id;
+            $partnerBill->save();
+        }
+
         return response()->json([
             'status' => $status,
             'message' => $message,
@@ -543,6 +552,32 @@ class OrderController extends Controller
             'status' => true,
             'message' => 'Voucher is valid.',
             'discount' => $discount,
+        ]);
+    }
+
+    /**
+     * Remove the voucher from the order
+     */
+    public function removeVoucher(Request $request)
+    {
+        $data = $request->validate([
+            'order_id' => 'required|integer|exists:partner_bills,id',
+        ]);
+
+        $partnerBill = PartnerBill::find($data['order_id']);
+        if (!$partnerBill) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Order not found.',
+            ], 404);
+        }
+
+        $partnerBill->voucher_id = null;
+        $partnerBill->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Voucher removed successfully.',
         ]);
     }
 

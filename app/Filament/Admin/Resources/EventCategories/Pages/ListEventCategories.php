@@ -25,8 +25,9 @@ class ListEventCategories extends ListRecords
     {
         parent::reorderTable($order);
 
-        Cache::forget(CacheKey::PARTNER_CATEGORIES->value);
-        Cache::forget(CacheKey::PARTNER_CATEGORIES_TREE->value);
-        Cache::forget(CacheKey::PARTNER_CATEGORIES_ALL->value);
+        Cache::tags([
+            CacheKey::PARTNER_CATEGORIES->value,
+            CacheKey::PARTNER_CATEGORY_WITH_PARENT->value,
+        ])->flush();
     }
 }

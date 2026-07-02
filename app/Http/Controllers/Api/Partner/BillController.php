@@ -10,6 +10,7 @@ use App\Enum\PartnerBillStatus;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 use App\Models\PartnerService;
+use App\Models\User;
 
 use App\Http\Controllers\Api\Concerns\PaginatesApi;
 use App\Http\Controllers\Controller;
@@ -64,6 +65,9 @@ class BillController extends Controller
             ->pluck('category', 'category.id')
             ->unique('id');
 
+        $locationIds = $this->resolvePartnerServiceAreaIds($user);
+
+        //TODO: will be removed in the future
         $availableCategories = $categoriesMap
             ->map(fn($category) => [
                 'id' => $category->id,
@@ -71,6 +75,30 @@ class BillController extends Controller
             ])
             ->values()
             ->toArray();
+
+        $broadcastChannels = collect($availableCategories)
+            ->pluck('channel_names')
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($categoryIds)) {
+            return response()->json([
+                'partner_bills' => [
+                    'data' => [],
+                    'meta' => [
+                        'current_page' => 1,
+                        'per_page' => $this->resolvePerPage($request, self::DEFAULT_PER_PAGE),
+                        'total' => 0,
+                        'last_page' => 1,
+                    ],
+                ],
+                'available_categories' => $availableCategories,
+                'broadcast_channels' => $broadcastChannels,
+                'last_updated' => now()->format('H:i:s'),
+            ]);
+        }
 
         $query = PartnerBill::whereIn('category_id', $categoryIds)
             ->with([
@@ -83,6 +111,10 @@ class BillController extends Controller
             ->whereDoesntHave('details', function ($query) use ($user) {
                 $query->where('partner_id', $user->id);
             });
+
+        if (!empty($locationIds)) {
+            $query->whereIn('location_id', $locationIds);
+        }
 
         $this->applyFilters($query, $request, true);
 
@@ -108,6 +140,7 @@ class BillController extends Controller
                 ],
             ],
             'available_categories' => $availableCategories,
+            'broadcast_channels' => $broadcastChannels,
             'last_updated' => now()->format('H:i:s'),
         ]);
     }
@@ -145,6 +178,10 @@ class BillController extends Controller
 
         if ($bill->status !== PartnerBillStatus::PENDING) {
             return response()->json(['message' => 'Order is not pending.', 'code' => 'ORDER_NOT_PENDING'], 422);
+        }
+
+        if (!$this->canReceiveBill($user, $bill)) {
+            return response()->json(['message' => 'Order is outside your service areas.', 'code' => 'ORDER_OUTSIDE_SERVICE_AREAS'], 403);
         }
 
         PartnerBillDetail::create([
@@ -441,6 +478,55 @@ class BillController extends Controller
 
         return (int) $bill->partner_id === (int) $partnerId
             || $bill->details()->where('partner_id', $partnerId)->exists();
+    }
+
+    private function resolvePartnerServiceAreaIds($user): array
+    {
+        return Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])
+            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value . "_{$user->id}", function () use ($user): array {
+                return $user->partnerServiceAreas()
+                    ->pluck('location_id')
+                    ->unique()
+                    ->values()
+                    ->all();
+            });
+    }
+
+    /**
+     * @param list<int> $locationIds
+     * @return list<string>
+     */
+    private function broadcastChannelNames(int $categoryId, array $locationIds): array
+    {
+        if (empty($locationIds)) {
+            return ["private-category.{$categoryId}"];
+        }
+
+        return collect($locationIds)
+            ->map(fn($locationId): string => "private-category.{$categoryId}.location.{$locationId}")
+            ->values()
+            ->all();
+    }
+
+    private function canReceiveBill(User $user, PartnerBill $bill): bool
+    {
+        $isApprovedForCategory = $user->partnerServices()
+            ->where('status', 'approved')
+            ->where('category_id', $bill->category_id)
+            ->exists();
+
+        if (!$isApprovedForCategory) {
+            return false;
+        }
+
+        $locationIds = $this->resolvePartnerServiceAreaIds($user);
+
+        if (empty($locationIds)) {
+            return true;
+        }
+
+        return $bill->location_id
+            && in_array((int) $bill->location_id, $locationIds, true);
     }
 
     private function applyFilters($query, Request $request, bool $includesCategoryFilter): void

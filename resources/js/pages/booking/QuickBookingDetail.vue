@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { route } from '@/utils/ziggy';
 import { toISODate } from '../../lib/helper';
-import { PartnerCategory, Event, Ward, Province, WardTypeSelectBox } from '@/types/database';
+import { PartnerCategory, Event as BookingEvent, Ward, Province, WardTypeSelectBox } from '@/types/database';
 import { confirm } from '@/composables/useConfirm'
 import ClientAppHeaderLayout from '@/layouts/app/ClientHeaderLayout.vue'
 import SelectPartnerHeader from '@/pages/booking/layout/Header.vue'
@@ -15,7 +14,7 @@ import { toMinutes } from '@/components/time-picker'
 import SelectBox from '@/components/Select.vue'
 import Input from '@/components/ui/input/Input.vue'
 import Button from '@/components/ui/button/Button.vue'
-import { reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { showLoading, hideLoading } from '@/composables/useLoading'
 import { getImg } from './helper';
 import axios from 'axios';
@@ -38,12 +37,13 @@ type PartnerBillForm = {
     category_id: number | null
     location_detail: string | number | undefined
     note: string
+    booking_photos: File[]
 }
 
 // parent
 const partnerCategory = pageProps.partnerCategory as PartnerCategory
 const partnerChildrenCategory = pageProps.partnerChildrenCategory as PartnerCategory
-const eventListProp = pageProps.eventList as Event[]
+const eventListProp = pageProps.eventList as BookingEvent[]
 const provinceListProp = pageProps.provinces as Province[]
 const eventList = [{ name: 'DS nội dung sự kiện', children: eventListProp.map(event => ({ name: event.name, value: String(event.id) })) }]
 const provinceList = [{ name: 'Chọn tỉnh thành', children: provinceListProp.map(province => ({ name: province.name, value: String(province.id) })) }]
@@ -63,6 +63,7 @@ const emptyInitial: PartnerBillForm = {
     category_id: null,
     location_detail: '',
     note: '',
+    booking_photos: [],
 }
 
 function readStoredInitial(): Partial<PartnerBillForm> | null {
@@ -94,6 +95,7 @@ if (storedInitial) {
     initial.custom_event = null
     initial.province_id = null
     initial.ward_id = null
+    initial.booking_photos = []
 }
 
 const location = reactive({
@@ -145,6 +147,14 @@ const subtitle = `Bạn đang tìm '${partnerCategory.name}' - '${partnerChildre
 
 const form = useForm<PartnerBillForm>(initial)
 const isCustomEvent = ref(Boolean(initial.custom_event))
+const bookingPhotoInput = ref<HTMLInputElement | null>(null)
+const bookingPhotoPreviewUrls = ref<{ file: File; url: string }[]>([])
+const customEventModel = computed({
+    get: () => form.custom_event ?? '',
+    set: (value: string | number) => {
+        form.custom_event = String(value)
+    },
+})
 
 watch(() => form.data(), (val) => {
     if (typeof window === 'undefined') {
@@ -152,7 +162,8 @@ watch(() => form.data(), (val) => {
     }
 
     try {
-        window.localStorage.setItem(LS_KEY, JSON.stringify(val))
+        const { booking_photos: _bookingPhotos, ...storedVal } = val
+        window.localStorage.setItem(LS_KEY, JSON.stringify(storedVal))
     } catch (e) {
         console.error('cannot write ls', e)
     }
@@ -170,6 +181,80 @@ watch(() => form.event_id, (val) => {
         isCustomEvent.value = false
         form.custom_event = null
     }
+})
+
+function clearBookingPhotos(resetInput = true) {
+    bookingPhotoPreviewUrls.value.forEach(({ url }) => URL.revokeObjectURL(url))
+    bookingPhotoPreviewUrls.value = []
+    form.booking_photos = []
+
+    if (resetInput && bookingPhotoInput.value) {
+        bookingPhotoInput.value.value = ''
+    }
+}
+
+function removeBookingPhoto(index: number) {
+    const preview = bookingPhotoPreviewUrls.value[index]
+
+    if (preview) {
+        URL.revokeObjectURL(preview.url)
+    }
+
+    bookingPhotoPreviewUrls.value.splice(index, 1)
+    form.booking_photos.splice(index, 1)
+
+    if (bookingPhotoInput.value) {
+        bookingPhotoInput.value.value = ''
+    }
+}
+
+function handleBookingPhotoChange(event: globalThis.Event) {
+    const input = event.target as HTMLInputElement
+    const files = Array.from(input.files ?? [])
+
+    form.clearErrors('booking_photos')
+
+    if (files.length === 0) {
+        return
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+    const maxSize = 20 * 1024 * 1024
+    const nextFiles = [...form.booking_photos, ...files]
+
+    if (nextFiles.length > 5) {
+        form.setError('booking_photos', 'Bạn chỉ có thể tải lên tối đa 5 ảnh mô tả.')
+        input.value = ''
+        return
+    }
+
+    const invalidTypeFile = files.find(file => !allowedTypes.includes(file.type))
+    if (invalidTypeFile) {
+        form.setError('booking_photos', 'Ảnh mô tả phải có định dạng jpeg, png, jpg hoặc webp.')
+        input.value = ''
+        return
+    }
+
+    const oversizedFile = files.find(file => file.size > maxSize)
+    if (oversizedFile) {
+        form.setError('booking_photos', 'Mỗi ảnh mô tả không được vượt quá 20MB.')
+        input.value = ''
+        return
+    }
+
+    form.booking_photos = nextFiles
+    bookingPhotoPreviewUrls.value = [
+        ...bookingPhotoPreviewUrls.value,
+        ...files.map(file => ({
+            file,
+            url: URL.createObjectURL(file),
+        })),
+    ]
+    input.value = ''
+}
+
+onBeforeUnmount(() => {
+    clearBookingPhotos()
 })
 
 const buildDateTime = (date: Date, minutes: number) => {
@@ -305,9 +390,11 @@ async function submit() {
         custom_event: form.custom_event,
         location_detail: form.location_detail,
         note: form.note,
-        category_id: partnerChildrenCategory.id
+        category_id: partnerChildrenCategory.id,
+        booking_photos: form.booking_photos
     }))
         .post(route('quick-booking.save-info'), {
+            forceFormData: true,
             preserveScroll: true,
             onBefore: () => {
                 showLoading({ title: 'Đang tải', message: 'Đợi xíu nhé' })
@@ -340,7 +427,8 @@ function clearStorage() {
         window.localStorage.removeItem(LS_KEY)
     }
 
-    form.reset('order_date', 'start_time', 'end_time', 'province_id', 'ward_id', 'event_id', 'category_id', 'location_detail', 'note')
+    clearBookingPhotos()
+    form.reset('order_date', 'start_time', 'end_time', 'province_id', 'ward_id', 'event_id', 'category_id', 'location_detail', 'note', 'booking_photos')
     isCustomEvent.value = false
 }
 
@@ -387,7 +475,7 @@ addTutorialRoutes([
                     </FormItemLayout>
                     <FormItemLayout v-if="isCustomEvent" :for-id="'event-custom'" :label="'Nội dung sự kiện (Tùy chọn)'"
                         :error="form.errors.custom_event">
-                        <Input placeholder="VD: Tổ chức thăm lăng bác" :id="'event-custom'" v-model="form.custom_event"
+                        <Input placeholder="VD: Tổ chức thăm lăng bác" :id="'event-custom'" v-model="customEventModel"
                             class="text-black" />
                     </FormItemLayout>
                 </FormGroupLayout>
@@ -397,6 +485,39 @@ addTutorialRoutes([
                         :error="form.errors.note">
                         <Input placeholder="VD: Cần người mặc đồng phục có tông màu vàng" :id="'optional-note'"
                             v-model="form.note" class="text-black" />
+                    </FormItemLayout>
+                </FormGroupLayout>
+
+                <FormGroupLayout>
+                    <FormItemLayout :for-id="'booking-photo'" :label="'Ảnh mô tả yêu cầu (Tối đa 5 ảnh)'"
+                        :error="form.errors.booking_photos">
+                        <div class="flex w-full flex-col gap-3">
+                            <input :id="'booking-photo'" ref="bookingPhotoInput" type="file"
+                                accept="image/jpeg,image/png,image/jpg,image/webp" multiple
+                                class="block w-full rounded border border-gray-200 bg-white px-3 py-2 text-sm text-black file:mr-4 file:rounded file:border-0 file:bg-gray-900 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-gray-700"
+                                @change="handleBookingPhotoChange" />
+                            <div v-if="bookingPhotoPreviewUrls.length > 0" class="grid w-full gap-3 sm:grid-cols-2">
+                                <div v-for="(preview, index) in bookingPhotoPreviewUrls" :key="preview.url"
+                                    class="flex flex-col gap-3 rounded border border-gray-200 bg-white p-3 sm:flex-row sm:items-center">
+                                    <img :src="preview.url" :alt="`Ảnh mô tả yêu cầu ${index + 1}`"
+                                        class="h-28 w-full rounded object-cover sm:w-32" />
+                                    <div class="flex min-w-0 flex-col gap-2">
+                                        <p class="truncate text-sm font-semibold text-black">{{ preview.file.name }}</p>
+                                        <p class="text-xs text-gray-500">Ảnh {{ index + 1 }}/{{ bookingPhotoPreviewUrls.length }}</p>
+                                        <Button type="button" :variant="'outlineWhite'" :size="'sm'"
+                                            :class="'w-fit cursor-pointer'" @click="removeBookingPhoto(index)">
+                                            Xóa ảnh
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="bookingPhotoPreviewUrls.length > 0" class="flex">
+                                <Button type="button" :variant="'outlineWhite'" :size="'sm'"
+                                    :class="'w-fit cursor-pointer'" @click="clearBookingPhotos">
+                                    Xóa tất cả ảnh
+                                </Button>
+                            </div>
+                        </div>
                     </FormItemLayout>
                 </FormGroupLayout>
 

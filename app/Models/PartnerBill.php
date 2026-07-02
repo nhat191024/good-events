@@ -9,6 +9,7 @@ use App\Enum\CacheKey;
 
 use App\Services\PartnerWidgetCacheService;
 use App\Services\PartnerBillNotificationService;
+use App\Services\PartnerBillJobScheduler;
 
 use App\Settings\PartnerSettings;
 
@@ -24,8 +25,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-use App\Jobs\PartnerBillFirstJob;
-
 use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
 use Illuminate\Support\Facades\Log;
@@ -36,6 +35,7 @@ use Codebyray\ReviewRateable\Models\Review;
  * @property int $id
  * @property string $code
  * @property string $address
+ * @property int|null $location_id
  * @property string $phone
  * @property \Illuminate\Support\Carbon|null $date
  * @property \Illuminate\Support\Carbon|null $start_time
@@ -60,6 +60,7 @@ use Codebyray\ReviewRateable\Models\Review;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $details
  * @property-read int|null $details_count
  * @property-read \App\Models\Event|null $event
+ * @property-read \App\Models\Location|null $location
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
  * @property-read \App\Models\User|null $partner
@@ -102,6 +103,7 @@ class PartnerBill extends Model implements HasMedia
     protected $fillable = [
         'code',
         'address',
+        'location_id',
         'phone',
         'date',
         'start_time',
@@ -148,6 +150,9 @@ class PartnerBill extends Model implements HasMedia
      */
     public function registerMediaCollections(): void
     {
+        $this->addMediaCollection('booking_photos')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
+
         $this->addMediaCollection('arrival_photo')
             ->singleFile() // Only allow 1 file
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
@@ -240,14 +245,8 @@ class PartnerBill extends Model implements HasMedia
         $partnerBill->thread_id = $thread->id;
         $partnerBill->saveQuietly();
 
-        if ($partnerBill->date && $partnerBill->start_time) {
-            $eventDateTime = $partnerBill->date->copy()->setTimeFrom($partnerBill->start_time);
-            $reminderTime = $eventDateTime->copy()->subHours(2);
-
-            if ($reminderTime->isFuture()) {
-                PartnerBillFirstJob::dispatch($partnerBill)->delay($reminderTime);
-            }
-        }
+        app(PartnerBillJobScheduler::class)->scheduleFirstCheck($partnerBill);
+        app(PartnerBillJobScheduler::class)->scheduleExpirationCheck($partnerBill);
     }
 
     /**
@@ -348,6 +347,12 @@ class PartnerBill extends Model implements HasMedia
             'new_balance' => $new_balance,
         ]);
         $transaction->save();
+
+        $voucher = $partnerBill->voucher;
+        if ($voucher) {
+            $voucher->data['times_used'] = $voucher->timesUsed() + 1;
+            $voucher->save();
+        }
     }
 
     /**
@@ -421,6 +426,9 @@ class PartnerBill extends Model implements HasMedia
 
         $notificationService = new PartnerBillNotificationService();
         $notificationService->sendOrderConfirmedNotification($partnerBill);
+
+        app(PartnerBillJobScheduler::class)->scheduleFirstCheck($partnerBill);
+        app(PartnerBillJobScheduler::class)->scheduleCompletionReminder($partnerBill);
     }
 
     /**
@@ -430,6 +438,8 @@ class PartnerBill extends Model implements HasMedia
     {
         $notificationService = new PartnerBillNotificationService();
         $notificationService->sendOrderInJobNotification($partnerBill);
+
+        app(PartnerBillJobScheduler::class)->scheduleCompletionReminder($partnerBill);
     }
 
     /**
@@ -483,6 +493,11 @@ class PartnerBill extends Model implements HasMedia
     public function category()
     {
         return $this->belongsTo(PartnerCategory::class, 'category_id');
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class, 'location_id');
     }
 
     public function thread()

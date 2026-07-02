@@ -60,7 +60,18 @@ class PartnerBillNotificationService
             $eligiblePartners = User::whereHas('partnerServices', function ($query) use ($partnerBill) {
                 $query->where('category_id', $partnerBill->category_id)
                     ->where('status', 'approved');
-            })->whereNotNull('email')->get();
+            })
+                ->where(function ($query) use ($partnerBill) {
+                    $query->whereDoesntHave('partnerServiceAreas');
+
+                    if ($partnerBill->location_id) {
+                        $query->orWhereHas('partnerServiceAreas', function ($serviceAreaQuery) use ($partnerBill) {
+                            $serviceAreaQuery->where('location_id', $partnerBill->location_id);
+                        });
+                    }
+                })
+                ->whereNotNull('email')
+                ->get();
 
             /** @var User|null $partner */
             foreach ($eligiblePartners as $partner) {
@@ -228,11 +239,21 @@ class PartnerBillNotificationService
                 Mail::to($partnerBill->client->email)
                     ->queue(new PartnerBillExpired($partnerBill, $clientLocale));
 
+                $title = __(
+                    'notification.client_order_expired_title',
+                    ['code' => $partnerBill->code]
+                );
+
+                $body = __(
+                    'notification.client_order_expired_body',
+                    ['code' => $partnerBill->code]
+                );
+
                 /** @var Customer|null $client */
                 $client = Customer::find($partnerBill->client_id);
                 Notification::make()
-                    ->title(__('notification.client_order_expired_title', ['code' => $partnerBill->code]))
-                    ->body(__('notification.client_order_expired_body', ['code' => $partnerBill->code]))
+                    ->title($title)
+                    ->body($body)
                     ->danger()
                     ->actions([
                         Action::make('open')
@@ -240,6 +261,8 @@ class PartnerBillNotificationService
                             ->url(route('client-orders.dashboard', ['order' => $partnerBill->id])),
                     ])
                     ->sendToDatabase($client);
+
+                $this->fcmService->sendToUser($client, $title, $body, ['code' => 'BILL_EXPIRED']);
 
                 Log::info('Order expired notification sent successfully', [
                     'partner_bill_id' => $partnerBill->id,
@@ -338,10 +361,10 @@ class PartnerBillNotificationService
     public function sendOrderInJobNotification(PartnerBill $partnerBill): void
     {
         try {
-            /** @var Partner|null $partner */
-            $partner = Partner::find($partnerBill->partner_id);
+            /** @var Customer|null $customer */
+            $customer = Customer::find($partnerBill->client_id);
 
-            if ($partner) {
+            if ($customer) {
                 $title = __('notification.bill_in_job_reminder.title');
                 $body = __('notification.bill_in_job_reminder.subject', ['code' => $partnerBill->code]);
 
@@ -349,9 +372,9 @@ class PartnerBillNotificationService
                     ->title($title)
                     ->body($body)
                     ->info()
-                    ->sendToDatabase($partner);
+                    ->sendToDatabase($customer);
 
-                $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_IN_JOB']);
+                $this->fcmService->sendToUser($customer, $title, $body, ['code' => 'BILL_IN_JOB']);
             }
         } catch (\Exception $e) {
             Log::error('Failed to send bill in job notification', [

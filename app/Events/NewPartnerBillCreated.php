@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\PartnerBill;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
@@ -12,12 +13,12 @@ class NewPartnerBillCreated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $bill;
+    public PartnerBill $bill;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($bill)
+    public function __construct(PartnerBill $bill)
     {
         $this->bill = $bill;
     }
@@ -37,9 +38,17 @@ class NewPartnerBillCreated implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
-        return [
+        $channels = [
             new PrivateChannel('category.' . $this->bill->category_id),
         ];
+
+        if ($this->bill->location_id) {
+            $channels[] = new PrivateChannel(
+                'category.' . $this->bill->category_id . '.location.' . $this->bill->location_id
+            );
+        }
+
+        return $channels;
     }
 
     /**
@@ -62,6 +71,7 @@ class NewPartnerBillCreated implements ShouldBroadcastNow
             'start_time' => optional($this->bill->start_time)->format('H:i'),
             'end_time' => optional($this->bill->end_time)->format('H:i'),
             'address' => $this->bill->address,
+            'location_id' => $this->bill->location_id,
             'note' => $this->bill->note,
         ];
     }

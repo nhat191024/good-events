@@ -2,25 +2,21 @@
 
 namespace App\Filament\Admin\Resources\ServiceRegistrations;
 
-use App\Models\PartnerService;
-
-use BackedEnum;
-use UnitEnum;
-
+use App\Enum\NavigationGroup;
+use App\Enum\PartnerServiceStatus;
 use App\Filament\Admin\Resources\ServiceRegistrations\Pages\CreateServiceRegistration;
 use App\Filament\Admin\Resources\ServiceRegistrations\Pages\EditServiceRegistration;
 use App\Filament\Admin\Resources\ServiceRegistrations\Pages\ListServiceRegistrations;
 use App\Filament\Admin\Resources\ServiceRegistrations\Schemas\ServiceRegistrationForm;
 use App\Filament\Admin\Resources\ServiceRegistrations\Tables\ServiceRegistrationsTable;
-
+use App\Models\PartnerService;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-
 use Illuminate\Database\Eloquent\Builder;
-
-use App\Enum\NavigationGroup;
+use UnitEnum;
 
 class ServiceRegistrationResource extends Resource
 {
@@ -38,9 +34,10 @@ class ServiceRegistrationResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         $count = static::$model::query()
-            ->where('status', '=', 'pending')
+            ->where('status', '=', PartnerServiceStatus::PENDING->value)
             ->count();
-        return $count > 0 ? (string)$count : null;
+
+        return $count > 0 ? (string) $count : null;
     }
 
     public static function form(Schema $schema): Schema
@@ -64,6 +61,7 @@ class ServiceRegistrationResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(['user', 'category', 'serviceMedia'])
+            ->orderByRaw('case when status = ? then 0 else 1 end', [PartnerServiceStatus::PENDING->value])
             ->orderBy('created_at', 'desc');
     }
 

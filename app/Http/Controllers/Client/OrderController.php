@@ -71,6 +71,7 @@ class OrderController extends Controller
             ->where('id', $orderId)
             ->where('client_id', $request->user()->id)
             ->with([
+                'media',
                 'category.media',
                 'category.parent.media',
                 'event',
@@ -160,12 +161,14 @@ class OrderController extends Controller
 
         $bills = PartnerBill::query()
             ->with([
+                'media',
                 'category.media',
                 'category.parent.media',
                 'event',
                 'details',
                 'partner.statistics',
-                'partner.partnerProfile'
+                'partner.partnerProfile',
+                'voucher' => fn($q) => $q->select(['id', 'code']),
             ])->where('client_id', $request->user()->id)
             ->whereIn('status', [
                 PartnerBillStatus::PENDING,
@@ -343,6 +346,11 @@ class OrderController extends Controller
             $message = __('voucher.not_yet_valid');
         } elseif ($limitReached) {
             $message = __('voucher.usage_limit_reached');
+        }
+
+        if ($status) {
+            $partnerBill->voucher_id = $voucher->id;
+            $partnerBill->save();
         }
 
         return response()->json([
