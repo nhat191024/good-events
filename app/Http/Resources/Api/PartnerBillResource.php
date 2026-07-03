@@ -24,6 +24,7 @@ class PartnerBillResource extends BaseResource
             'note' => $this->note,
             'status' => $statusValue,
             'thread_id' => $this->thread_id,
+            'booking_photos' => $this->mediaUrls('booking_photos'),
             'arrival_photo' => $this->mediaUrl('arrival_photo'),
             'category_name' => $this->whenLoaded('category', function () {
                 return $this->category->name;
@@ -35,9 +36,16 @@ class PartnerBillResource extends BaseResource
                 return $this->category->getFirstMediaUrl('images', 'thumb');
             }),
 
-            'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn () => $this->event->name),
+            'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn() => $this->event->name),
 
-            'applicant_count' => $this->whenLoaded('details', fn () => PartnerBillDetailResource::collection($this->details)->count()),
+            'applicant_count' => $this->whenLoaded('details', fn() => PartnerBillDetailResource::collection($this->details)->count()),
+
+            'voucher' => $this->whenLoaded('voucher', function () {
+                return [
+                    'id' => $this->voucher->id,
+                    'code' => $this->voucher->code,
+                ];
+            }),
         ];
     }
 }

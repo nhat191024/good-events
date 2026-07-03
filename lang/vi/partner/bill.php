@@ -30,7 +30,7 @@ return [
     'event_type' => 'Loại sự kiện',
     'price' => 'Giá tiền',
     'total' => 'Tổng giá tiền',
-    'accept_order' => 'Nhận show',
+    'accept_order' => 'Báo giá',
     'view_details' => 'Xem chi tiết',
 
     'filter_date' => 'Lọc theo ngày',
@@ -85,7 +85,7 @@ return [
     'enter_price' => 'Nhập giá tiền',
     'enter_price_for_order' => 'Vui lòng nhập giá tiền cho show',
     'price_label' => 'Giá tiền',
-    'confirm_accept' => 'Xác nhận nhận show',
+    'confirm_accept' => 'Xác nhận báo giá',
     'cancel' => 'Hủy',
     'price_required' => 'Vui lòng nhập giá tiền',
     'price_numeric' => 'Giá tiền phải là số',
@@ -128,6 +128,11 @@ return [
     'max_5mb' => 'Tối đa 5MB',
     'arrival_photo_description' => 'Ảnh này sẽ được sử dụng làm bằng chứng xác nhận bạn đã đến địa điểm tổ chức sự kiện.',
     'no_arrival_photo' => 'Chưa có ảnh xác nhận',
+
+    // Booking photo translations
+    'booking_photos' => 'Ảnh đặt đơn',
+    'booking_photos_description' => 'Ảnh khách hàng gửi khi đặt show để mô tả yêu cầu.',
+    'open_original_photo' => 'Mở ảnh gốc',
 
     // Completion photo translations (for complete order)
     'completion_photo' => 'Ảnh xác nhận hoàn thành',

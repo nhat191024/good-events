@@ -176,7 +176,7 @@ class ProfileController extends Controller
                 ->toMediaCollection('avatar');
         }
 
-        $user->loadMissing('partnerProfile');
+        $user->loadMissing(['partnerProfile.location.province']);
 
         return response()->json([
             'success' => true,

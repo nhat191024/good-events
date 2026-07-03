@@ -30,7 +30,7 @@ class ViewPartnerBill extends Page
         }
 
         try {
-            $this->bill = PartnerBill::with(['category', 'event', 'details' => function ($q) {
+            $this->bill = PartnerBill::with(['category', 'event', 'media', 'details' => function ($q) {
                 $q->where('partner_id', auth()->id());
             }])->findOrFail($this->bill_id);
 

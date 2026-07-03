@@ -59,9 +59,12 @@ class ChatController extends Controller
                 $query->select('id', 'name');
             },
             'bill' => function ($query) {
-                $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'date', 'start_time', 'address');
+                $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'category_id', 'date', 'start_time', 'end_time', 'address');
             },
             'bill.event' => function ($query) {
+                $query->select('id', 'name');
+            },
+            'bill.category' => function ($query) {
                 $query->select('id', 'name');
             },
         ];
@@ -122,7 +125,7 @@ class ChatController extends Controller
                 $subjectUser = $thread->bill?->partner?->name;
             }
 
-            $subject = "{$subjectUser} - " . ($thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event);
+            $subject = "{$subjectUser} - " . ($thread->bill->category_id ? $thread->bill->category?->name : 'No Category');
 
             return [
                 'id' => $thread->id,
@@ -146,8 +149,8 @@ class ChatController extends Controller
                 'bill' => $thread->bill ? [
                     'id' => $thread->bill->id,
                     'event_name' => $thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event,
-                    'datetime' => $thread->bill->date && $thread->bill->start_time
-                        ? $thread->bill->date->format('d/m/Y') . ' ' . $thread->bill->start_time->format('H:i')
+                    'datetime' => $thread->bill->date && $thread->bill->start_time && $thread->bill->end_time
+                        ? $thread->bill->date->format('d/m/Y') . ' - ' . $thread->bill->start_time->format('H:i') . ' - ' . $thread->bill->end_time->format('H:i')
                         : null,
                     'address' => $thread->bill->address,
                 ] : null,

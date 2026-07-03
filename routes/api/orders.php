@@ -14,3 +14,4 @@ Route::post('/orders/choose-partner', [OrderController::class, 'confirmChoosePar
 Route::post('/orders/submit-review', [OrderController::class, 'submitReview']);
 Route::post('/orders/validate-voucher', [OrderController::class, 'validateVoucher']);
 Route::post('/orders/voucher-discount', [OrderController::class, 'getVoucherDiscountAmount']);
+Route::post('/orders/remove-voucher', [OrderController::class, 'removeVoucher']);

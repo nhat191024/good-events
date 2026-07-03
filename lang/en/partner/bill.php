@@ -30,7 +30,7 @@ return [
     'event_type' => 'Event Type',
     'price' => 'Price',
     'total' => 'Total Price',
-    'accept_order' => 'Accept Show',
+    'accept_order' => 'Quote',
     'view_details' => 'View Details',
 
     'filter_date' => 'Filter by Date',
@@ -86,7 +86,7 @@ return [
     'enter_price' => 'Enter Price',
     'enter_price_for_order' => 'Please enter the price for show',
     'price_label' => 'Price',
-    'confirm_accept' => 'Confirm Accept Show',
+    'confirm_accept' => 'Confirm Quote',
     'cancel' => 'Cancel',
     'price_required' => 'Please enter the price',
     'price_numeric' => 'Price must be a number',
@@ -129,6 +129,11 @@ return [
     'max_5mb' => 'Max 5MB',
     'arrival_photo_description' => 'This photo will be used as proof that you have arrived at the event location.',
     'no_arrival_photo' => 'No arrival photo',
+
+    // Booking photo translations
+    'booking_photos' => 'Booking Photos',
+    'booking_photos_description' => 'Photos submitted by the client when placing the show request.',
+    'open_original_photo' => 'Open original',
 
     // Completion photo translations (for complete order)
     'completion_photo' => 'Completion Photo',

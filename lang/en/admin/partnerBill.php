@@ -25,6 +25,9 @@ return [
         'cancel_bill' => 'Cancel Bill',
         'cancel_bill_heading' => 'Confirm Cancel Partner Bill',
         'cancel_bill_description' => 'Are you sure you want to cancel this partner bill? This action cannot be undone.',
+        'view_review' => 'View Review',
+        'view_review_heading' => 'Review for order :code',
+        'close' => 'Close',
     ],
 
     'notifications' => [

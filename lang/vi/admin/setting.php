@@ -9,6 +9,28 @@ return [
     'partner' => 'Đối tác',
     'partner_settings' => 'Các cài đặt liên quan đến đối tác',
 
+    'notifications' => [
+        'navigation_label' => 'Thông báo trên app',
+        'title' => 'Thông báo trên app',
+        'sections' => [
+            'partner' => 'Thông báo bên đối tác',
+            'customer' => 'Thông báo bên khách hàng',
+        ],
+        'fields' => [
+            'enabled' => 'Bật thông báo',
+            'type' => 'Loại thông báo',
+            'notification_image' => 'Ảnh thông báo',
+            'title' => 'Tiêu đề',
+            'content' => 'Nội dung',
+            'image' => 'Ảnh',
+        ],
+        'types' => [
+            'image_only' => 'Chỉ ảnh',
+            'text_only' => 'Chỉ chữ',
+            'text_and_image' => 'Thông báo chữ và ảnh',
+        ],
+    ],
+
     'saved' => 'Cài đặt đã được lưu thành công!',
 
     'sections' => [

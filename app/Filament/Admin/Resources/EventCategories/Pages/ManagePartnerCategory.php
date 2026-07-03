@@ -2,6 +2,8 @@
 
 namespace App\Filament\Admin\Resources\EventCategories\Pages;
 
+use App\Enum\CacheKey;
+
 use App\Filament\Admin\Resources\EventCategories\EventCategoryResource;
 use App\Filament\Admin\Resources\EventCategories\Resources\PartnerCategories\PartnerCategoryResource;
 
@@ -9,6 +11,8 @@ use Filament\Tables\Table;
 use Filament\Actions\CreateAction;
 
 use Filament\Resources\Pages\ManageRelatedRecords;
+
+use Illuminate\Support\Facades\Cache;
 
 class ManagePartnerCategory extends ManageRelatedRecords
 {
@@ -44,5 +48,15 @@ class ManagePartnerCategory extends ManageRelatedRecords
     {
         return $table
             ->modifyQueryUsing(fn($query) => $query->with('media')->withExists('partnerServices')->withTrashed());
+    }
+
+    public function reorderTable(array $order, string|int|null $draggedRecordKey = null): void
+    {
+        parent::reorderTable($order);
+
+        Cache::tags([
+            CacheKey::PARTNER_CATEGORIES->value,
+            CacheKey::PARTNER_CATEGORY_WITH_PARENT->value,
+        ])->flush();
     }
 }

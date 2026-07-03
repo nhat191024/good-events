@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Broadcast;
-use Cmgmyr\Messenger\Models\Participant;
 use App\Enum\CacheKey;
+use Cmgmyr\Messenger\Models\Participant;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Cache;
 
 // Only register channels if we have valid Pusher credentials
 if (
@@ -10,6 +11,28 @@ if (
     config('broadcasting.connections.pusher.secret') &&
     config('broadcasting.connections.pusher.app_id')
 ) {
+    $hasApprovedCategory = function ($user, int|string $categoryId): bool {
+        $key = CacheKey::USER_CATEGORY_EXISTS->value . "{$user->id}_{$categoryId}";
+
+        return Cache::remember($key, now()->addMinutes(10), function () use ($user, $categoryId) {
+            return $user->partnerServices()
+                ->where('category_id', $categoryId)
+                ->where('status', 'approved')
+                ->exists();
+        });
+    };
+
+    $serviceAreaLocationIds = function ($user): array {
+        return Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])
+            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value . "_{$user->id}", function () use ($user): array {
+                return $user->partnerServiceAreas()
+                    ->pluck('location_id')
+                    ->map(fn ($locationId): int => (int) $locationId)
+                    ->unique()
+                    ->values()
+                    ->all();
+            });
+    };
 
     Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
         return (int) $user->id === (int) $id;
@@ -23,11 +46,17 @@ if (
         return (int) $user->id === (int) $id;
     });
 
-    Broadcast::channel('category.{categoryId}', function ($user, $categoryId) {
-        $key = CacheKey::USER_CATEGORY_EXISTS->value . "{$user->id}_{$categoryId}";
-        return cache()->remember($key, now()->addMinutes(10), function () use ($user, $categoryId) {
-            return $user->partnerServices()->where('category_id', $categoryId)->exists();
-        });
+    Broadcast::channel('category.{categoryId}', function ($user, $categoryId) use ($hasApprovedCategory, $serviceAreaLocationIds) {
+        return $hasApprovedCategory($user, $categoryId)
+            && empty($serviceAreaLocationIds($user));
+    });
+
+    Broadcast::channel('category.{categoryId}.location.{locationId}', function ($user, $categoryId, $locationId) use ($hasApprovedCategory, $serviceAreaLocationIds) {
+        if (!$hasApprovedCategory($user, $categoryId)) {
+            return false;
+        }
+
+        return in_array((int) $locationId, $serviceAreaLocationIds($user), true);
     });
 
     Broadcast::channel('thread.{threadId}', function ($user, $threadId) {
