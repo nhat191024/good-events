@@ -46,7 +46,7 @@ class BillController extends Controller
         if (!$user || !$user->partnerServices()->exists()) {
             return response()->json([
                 'partner_bills' => [],
-                'available_categories' => [],
+                'broadcast_channels' => [],
             ]);
         }
 
@@ -64,13 +64,39 @@ class BillController extends Controller
             ->pluck('category', 'category.id')
             ->unique('id');
 
+        $locationIds = $this->resolvePartnerServiceAreaIds($user);
+
         $availableCategories = $categoriesMap
             ->map(fn($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
+                'channel_names' => $this->broadcastChannelNames((int) $category->id, $locationIds),
             ])
             ->values()
             ->toArray();
+
+        $broadcastChannels = collect($availableCategories)
+            ->pluck('channel_names')
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($categoryIds)) {
+            return response()->json([
+                'partner_bills' => [
+                    'data' => [],
+                    'meta' => [
+                        'current_page' => 1,
+                        'per_page' => $this->resolvePerPage($request, self::DEFAULT_PER_PAGE),
+                        'total' => 0,
+                        'last_page' => 1,
+                    ],
+                ],
+                'broadcast_channels' => $broadcastChannels,
+                'last_updated' => now()->format('H:i:s'),
+            ]);
+        }
 
         $query = PartnerBill::whereIn('category_id', $categoryIds)
             ->with([
@@ -107,7 +133,7 @@ class BillController extends Controller
                     'last_page' => $paginator->lastPage(),
                 ],
             ],
-            'available_categories' => $availableCategories,
+            'broadcast_channels' => $broadcastChannels,
             'last_updated' => now()->format('H:i:s'),
         ]);
     }
