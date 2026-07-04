@@ -46,6 +46,10 @@ if (
         return (int) $user->id === (int) $id;
     });
 
+    Broadcast::channel('partner-orders.{partnerId}', function ($user, $partnerId) {
+        return (int) $user->id === (int) $partnerId;
+    });
+
     Broadcast::channel('category.{categoryId}', function ($user, $categoryId) use ($hasApprovedCategory, $serviceAreaLocationIds) {
         return $hasApprovedCategory($user, $categoryId)
             && empty($serviceAreaLocationIds($user));

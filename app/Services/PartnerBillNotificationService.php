@@ -26,10 +26,12 @@ use Carbon\Carbon;
 class PartnerBillNotificationService
 {
     private FCMService $fcmService;
+    private PartnerBillRecipientResolver $recipientResolver;
 
     public function __construct()
     {
         $this->fcmService = app(FCMService::class);
+        $this->recipientResolver = app(PartnerBillRecipientResolver::class);
     }
 
     /**
@@ -57,19 +59,8 @@ class PartnerBillNotificationService
                     ->queue(new PartnerBillReceived($partnerBill, 'client', $clientLocale));
             }
 
-            $eligiblePartners = User::whereHas('partnerServices', function ($query) use ($partnerBill) {
-                $query->where('category_id', $partnerBill->category_id)
-                    ->where('status', 'approved');
-            })
-                ->where(function ($query) use ($partnerBill) {
-                    $query->whereDoesntHave('partnerServiceAreas');
-
-                    if ($partnerBill->location_id) {
-                        $query->orWhereHas('partnerServiceAreas', function ($serviceAreaQuery) use ($partnerBill) {
-                            $serviceAreaQuery->where('location_id', $partnerBill->location_id);
-                        });
-                    }
-                })
+            $eligiblePartners = User::query()
+                ->whereIn('id', $this->recipientResolver->eligiblePartnerIds($partnerBill))
                 ->whereNotNull('email')
                 ->get();
 

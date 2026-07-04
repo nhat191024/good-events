@@ -160,17 +160,11 @@ class RealtimePartnerBill extends Page
             ->map(fn($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
-                'channel_names' => static::broadcastChannelNames((int) $category->id, $locationIds),
             ])
             ->values()
             ->toArray();
 
-        $this->broadcastChannels = collect($this->availableCategories)
-            ->pluck('channel_names')
-            ->flatten()
-            ->unique()
-            ->values()
-            ->all();
+        $this->broadcastChannels = [static::partnerOrderBroadcastChannelName($user)];
 
         if (empty($this->categoryIds)) {
             $this->partnerBills = [];
@@ -445,19 +439,11 @@ class RealtimePartnerBill extends Page
     }
 
     /**
-     * @param list<int> $locationIds
-     * @return list<string>
+     * @return non-empty-string
      */
-    private static function broadcastChannelNames(int $categoryId, array $locationIds): array
+    private static function partnerOrderBroadcastChannelName(User $user): string
     {
-        if (empty($locationIds)) {
-            return ["category.{$categoryId}"];
-        }
-
-        return collect($locationIds)
-            ->map(fn($locationId): string => "category.{$categoryId}.location.{$locationId}")
-            ->values()
-            ->all();
+        return "partner-orders.{$user->id}";
     }
 
     private static function canReceiveBill($user, PartnerBill $bill): bool

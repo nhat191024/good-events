@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\PartnerBill;
+use App\Services\PartnerBillRecipientResolver;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
@@ -38,17 +39,9 @@ class NewPartnerBillCreated implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
-        $channels = [
-            new PrivateChannel('category.' . $this->bill->category_id),
-        ];
-
-        if ($this->bill->location_id) {
-            $channels[] = new PrivateChannel(
-                'category.' . $this->bill->category_id . '.location.' . $this->bill->location_id
-            );
-        }
-
-        return $channels;
+        return collect(app(PartnerBillRecipientResolver::class)->eligiblePartnerIds($this->bill))
+            ->map(fn (int $partnerId): PrivateChannel => new PrivateChannel("partner-orders.{$partnerId}"))
+            ->all();
     }
 
     /**

@@ -66,23 +66,7 @@ class BillController extends Controller
             ->unique('id');
 
         $locationIds = $this->resolvePartnerServiceAreaIds($user);
-
-        //TODO: will be removed in the future
-        $availableCategories = $categoriesMap
-            ->map(fn($category) => [
-                'id' => $category->id,
-                'name' => $category->name,
-                'channel_names' => $this->broadcastChannelNames((int) $category->id, $locationIds),
-            ])
-            ->values()
-            ->toArray();
-
-        $broadcastChannels = collect($availableCategories)
-            ->pluck('channel_names')
-            ->flatten()
-            ->unique()
-            ->values()
-            ->all();
+        $broadcastChannels = [$this->partnerOrderBroadcastChannelName($user)];
 
         if (empty($categoryIds)) {
             return response()->json([
@@ -494,19 +478,11 @@ class BillController extends Controller
     }
 
     /**
-     * @param list<int> $locationIds
-     * @return list<string>
+     * @return non-empty-string
      */
-    private function broadcastChannelNames(int $categoryId, array $locationIds): array
+    private function partnerOrderBroadcastChannelName(User $user): string
     {
-        if (empty($locationIds)) {
-            return ["private-category.{$categoryId}"];
-        }
-
-        return collect($locationIds)
-            ->map(fn($locationId): string => "private-category.{$categoryId}.location.{$locationId}")
-            ->values()
-            ->all();
+        return "private-partner-orders.{$user->id}";
     }
 
     private function canReceiveBill(User $user, PartnerBill $bill): bool
