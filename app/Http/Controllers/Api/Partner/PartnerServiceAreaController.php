@@ -7,13 +7,18 @@ use App\Enum\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Partner\UpsertPartnerServiceAreasRequest;
 use App\Models\Location;
+use App\Models\PartnerServiceArea;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
 
 class PartnerServiceAreaController extends Controller
 {
+    private const int DEFAULT_PER_PAGE = 50;
+    private const int MAX_PER_PAGE = 100;
+
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -22,9 +27,7 @@ class PartnerServiceAreaController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        $user->loadMissing('partnerServiceAreas.location.province');
-
-        return response()->json($this->serviceAreaPayload($user));
+        return response()->json($this->paginatedServiceAreaPayload($user, $request));
     }
 
     public function store(UpsertPartnerServiceAreasRequest $request): JsonResponse
@@ -42,11 +45,10 @@ class PartnerServiceAreaController extends Controller
         }
 
         $this->flushServiceAreaCache();
-        $user->load('partnerServiceAreas.location.province');
 
         return response()->json([
             'success' => true,
-            ...$this->serviceAreaPayload($user),
+            ...$this->paginatedServiceAreaPayload($user, $request),
         ]);
     }
 
@@ -75,11 +77,10 @@ class PartnerServiceAreaController extends Controller
         }
 
         $this->flushServiceAreaCache();
-        $user->load('partnerServiceAreas.location.province');
 
         return response()->json([
             'success' => true,
-            ...$this->serviceAreaPayload($user),
+            ...$this->paginatedServiceAreaPayload($user, $request),
         ]);
     }
 
@@ -103,24 +104,62 @@ class PartnerServiceAreaController extends Controller
     }
 
     /**
-     * @return array{service_area_location_ids: array<int, int>, service_areas: array<int, array{id: int, name: string|null, province_id: int|null, province_name: string|null}>}
+     * @return array{service_area_location_ids: list<int>, service_areas: list<array{id: int, name: string|null, province_id: int|null, province_name: string|null}>, meta: array{current_page: int, per_page: int, has_more_pages: bool}}
      */
-    private function serviceAreaPayload(User $user): array
+    private function paginatedServiceAreaPayload(User $user, Request $request): array
     {
+        $paginator = $user->partnerServiceAreas()
+            ->select(['id', 'user_id', 'location_id'])
+            ->with([
+                'location:id,parent_id,name',
+                'location.province:id,name',
+            ])
+            ->orderBy('location_id')
+            ->simplePaginate(
+                $this->resolvePerPage($request),
+                ['*'],
+                'page',
+                max(1, (int) $request->query('page', 1)),
+            );
+
+        /** @var \Illuminate\Support\Collection<int, PartnerServiceArea> $serviceAreas */
+        $serviceAreas = $paginator->getCollection();
+
         return [
-            'service_area_location_ids' => $user->partnerServiceAreas
+            'service_area_location_ids' => $serviceAreas
                 ->pluck('location_id')
+                ->map(fn ($locationId): int => (int) $locationId)
                 ->values()
                 ->all(),
-            'service_areas' => $user->partnerServiceAreas
-                ->map(fn ($serviceArea): array => [
-                    'id' => $serviceArea->location_id,
+            'service_areas' => $serviceAreas
+                ->map(fn (PartnerServiceArea $serviceArea): array => [
+                    'id' => (int) $serviceArea->location_id,
                     'name' => $serviceArea->location?->name,
                     'province_id' => $serviceArea->location?->parent_id,
                     'province_name' => $serviceArea->location?->province?->name,
                 ])
                 ->values()
                 ->all(),
+            'meta' => $this->paginationMeta($paginator),
+        ];
+    }
+
+    private function resolvePerPage(Request $request): int
+    {
+        $perPage = max(1, (int) $request->query('per_page', self::DEFAULT_PER_PAGE));
+
+        return min(self::MAX_PER_PAGE, $perPage);
+    }
+
+    /**
+     * @return array{current_page: int, per_page: int, has_more_pages: bool}
+     */
+    private function paginationMeta(Paginator $paginator): array
+    {
+        return [
+            'current_page' => $paginator->currentPage(),
+            'per_page' => $paginator->perPage(),
+            'has_more_pages' => $paginator->hasMorePages(),
         ];
     }
 }
