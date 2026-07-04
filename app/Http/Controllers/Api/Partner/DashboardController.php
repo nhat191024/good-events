@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Partner;
 
 use App\Enum\AppNotificationType;
+use App\Enum\CacheKey;
 use App\Enum\PartnerBillStatus;
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\StatisticType;
@@ -18,6 +19,8 @@ use App\Settings\AppNotificationSettings;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -40,7 +43,7 @@ class DashboardController extends Controller
             ->first();
         $showData = $this->getShowData($user);
 
-        $recentReviews = $user->reviews()->where('created_at', '>=', Carbon::now()->subDay())->get();
+        $recentReviews = $this->recentReviewsForServiceAreas($user);
 
         $recentReviewsCount = $recentReviews->count();
         $recentReviewsAvatars = $this->getRecentReviews($recentReviews);
@@ -149,12 +152,51 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getRecentReviews($reviews)
+    private function getRecentReviews(Collection $reviews): Collection
     {
         $reviewerIds = $reviews->pluck('user_id')->unique()->take(4);
+        if ($reviewerIds->isEmpty()) {
+            return collect();
+        }
+
         $reviewersAvatars = User::whereIn('id', $reviewerIds)->pluck('avatar', 'id');
 
         return $reviewersAvatars;
+    }
+
+    private function recentReviewsForServiceAreas(User $user): Collection
+    {
+        $locationIds = $this->resolvePartnerServiceAreaIds($user);
+
+        $reviewedBillIds = PartnerBill::query()
+            ->select('id')
+            ->where('partner_id', $user->id);
+
+        if (!empty($locationIds)) {
+            $reviewedBillIds->whereIn('location_id', $locationIds);
+        }
+
+        return $user->reviews()
+            ->where('created_at', '>=', Carbon::now()->subDay())
+            ->whereNotNull('partner_bill_id')
+            ->whereIn('partner_bill_id', $reviewedBillIds)
+            ->get();
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function resolvePartnerServiceAreaIds(User $user): array
+    {
+        return Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])
+            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value . "_dashboard_user_{$user->id}", function () use ($user): array {
+                return $user->partnerServiceAreas()
+                    ->pluck('location_id')
+                    ->map(fn ($locationId): int => (int) $locationId)
+                    ->unique()
+                    ->values()
+                    ->all();
+            });
     }
 
     /**
