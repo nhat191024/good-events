@@ -12,7 +12,7 @@ nixPkgs = [
 [phases.install]
 cmds = [
     "mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx",
-    "composer install --ignore-platform-reqs --no-interaction --no-scripts",
+    "composer install --ignore-platform-reqs --no-interaction --no-scripts --no-dev",
     "npm ci",
 ]
 
@@ -160,14 +160,14 @@ group = www-data
 listen.owner = www-data
 listen.group = www-data
 pm = dynamic
-pm.max_children = 50
-pm.min_spare_servers = 4
-pm.max_spare_servers = 32
-pm.start_servers = 18
+pm.max_children = 20
+pm.min_spare_servers = 3
+pm.max_spare_servers = 10
+pm.start_servers = 6
 clear_env = no
 php_admin_value[upload_max_filesize] = 50M
 php_admin_value[post_max_size] = 50M
-php_admin_value[memory_limit] = 1024M
+php_admin_value[memory_limit] = 512M
 php_admin_value[max_input_time] = 300
 php_admin_value[max_execution_time] = 300
 php_admin_value[max_file_uploads] = 20
