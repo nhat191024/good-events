@@ -105,7 +105,8 @@ class BillController extends Controller
                 'client:id,name,email,avatar,created_at',
                 'client.partnerProfile:id,user_id,partner_name',
                 'event:id,name',
-                'category' => fn($q) => $q->withTrashed(),
+                'category' => fn($q) => $q->withTrashed()->with('media'),
+                'media',
             ])
             ->where('status', PartnerBillStatus::PENDING)
             ->whereDoesntHave('details', function ($query) use ($user) {
@@ -121,7 +122,7 @@ class BillController extends Controller
         $perPage = $this->resolvePerPage($request, self::DEFAULT_PER_PAGE);
         $page = max(1, (int) $request->query('page', 1));
 
-        $paginator = $query->latest()->paginate($perPage, ['*'], 'page', $page);
+        $paginator = $query->latest()->simplePaginate($perPage, ['*'], 'page', $page);
 
         $paginator->getCollection()->each(function ($bill) use ($categoriesMap) {
             if (isset($categoriesMap[$bill->category_id])) {
@@ -135,8 +136,9 @@ class BillController extends Controller
                 'meta' => [
                     'current_page' => $paginator->currentPage(),
                     'per_page' => $paginator->perPage(),
-                    'total' => $paginator->total(),
-                    'last_page' => $paginator->lastPage(),
+                    'total' => null,
+                    'last_page' => null,
+                    'has_more_pages' => $paginator->hasMorePages(),
                 ],
             ],
             'broadcast_channels' => $broadcastChannels,
