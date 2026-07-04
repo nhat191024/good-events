@@ -107,6 +107,13 @@ class BillController extends Controller
         $page = max(1, (int) $request->query('page', 1));
 
         $paginator = $query->latest()->simplePaginate($perPage, ['*'], 'page', $page);
+        $hasMorePages = $paginator->hasMorePages();
+        $estimatedTotal = (($paginator->currentPage() - 1) * $paginator->perPage())
+            + $paginator->count()
+            + ($hasMorePages ? 1 : 0);
+        $estimatedLastPage = $hasMorePages
+            ? $paginator->currentPage() + 1
+            : $paginator->currentPage();
 
         $paginator->getCollection()->each(function ($bill) use ($categoriesMap) {
             if (isset($categoriesMap[$bill->category_id])) {
@@ -120,9 +127,9 @@ class BillController extends Controller
                 'meta' => [
                     'current_page' => $paginator->currentPage(),
                     'per_page' => $paginator->perPage(),
-                    'total' => null,
-                    'last_page' => null,
-                    'has_more_pages' => $paginator->hasMorePages(),
+                    'total' => $estimatedTotal,
+                    'last_page' => $estimatedLastPage,
+                    'has_more_pages' => $hasMorePages,
                 ],
             ],
             'broadcast_channels' => $broadcastChannels,
