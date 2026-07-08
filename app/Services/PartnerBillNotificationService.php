@@ -20,6 +20,7 @@ use Filament\Notifications\Notification;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Number;
 
 use Carbon\Carbon;
 
@@ -315,10 +316,11 @@ class PartnerBillNotificationService
             $partner = Partner::find($partnerBillDetail->partner_id);
 
             if ($client) {
+                $price = Number::currency($partnerBillDetail->total, in: 'VND', locale: 'vi');
                 $title = __('notification.partner_accepted_title');
                 $body = __('notification.partner_accepted_body', [
                     'partner_name' => $partner->name,
-                    'price' => $partnerBillDetail->total,
+                    'price' => $price,
                 ]);
 
                 Notification::make()
