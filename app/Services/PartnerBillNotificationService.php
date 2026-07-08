@@ -52,6 +52,7 @@ class PartnerBillNotificationService
             /** @var Customer|null $client */
             $client = Customer::find($partnerBill->client_id);
 
+            $partnerBill->load('category:id,name');
 
             if ($client && $client->email) {
                 $clientLocale = $this->getUserLocale($client);
@@ -72,7 +73,7 @@ class PartnerBillNotificationService
 
                 if ($partner->fcm_token) {
                     $title = __('notification.bill_received.title');
-                    $body = __('notification.bill_received.subject', ['code' => $partnerBill->code]);
+                    $body = __('notification.bill_received.subject', ['category' => $partnerBill->category->name]);
 
                     //TODO: add data payload with order details link
                     $this->fcmService->sendToUser($partner, $title, $body,  ['code' => 'BILL_RECEIVED']);
@@ -96,6 +97,8 @@ class PartnerBillNotificationService
             $partner = Partner::find($partnerBill->partner_id);
             $clientName = $partnerBill->client?->name ?? 'Khách hàng';
 
+            $partnerBill->load('category:id,name');
+
             if (!$partner) {
                 Log::warning('Partner bill confirmed but partner record missing', [
                     'partner_bill_id' => $partnerBill->id,
@@ -115,7 +118,7 @@ class PartnerBillNotificationService
 
                 if ($partner->fcm_token) {
                     $title = __('notification.bill_confirmed.title');
-                    $body = __('notification.bill_confirmed.subject', ['code' => $partnerBill->code]);
+                    $body = __('notification.bill_confirmed.subject', ['category' => $partnerBill->category->name]);
                     $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_CONFIRMED'], '10');
                 }
 
@@ -143,7 +146,6 @@ class PartnerBillNotificationService
 
     /**
      * Gửi mail thông báo sắp đến giờ sự kiện
-     * TODO: có thể sẽ loại bỏ gửi mail cho event này
      */
     public function sendUpcomingEventReminder(PartnerBill $partnerBill): void
     {
@@ -157,33 +159,21 @@ class PartnerBillNotificationService
             /** @var Customer|null $client */
             $client = Customer::find($partnerBill->client_id);
 
+            $partnerBill->load('category:id,name');
+
             if ($client) {
-                $clientLocale = $this->getUserLocale($client);
-
-                if ($client->email) {
-                    Mail::to($client->email)
-                        ->send(new PartnerBillReminder($partnerBill, 'client', $clientLocale));
-                }
-
                 if ($client->fcm_token) {
                     $title = __('notification.bill_reminder.title');
-                    $body = __('notification.bill_reminder.client_subject', ['code' => $partnerBill->code]);
+                    $body = __('notification.bill_reminder.client_subject', ['category' => $partnerBill->category->name]);
                     $this->fcmService->sendToUser($client, $title, $body);
                 }
             }
 
             // Notify for partner
             if ($partner) {
-                $partnerLocale = $this->getUserLocale($partner);
-
-                if ($partner->email) {
-                    Mail::to($partner->email)
-                        ->send(new PartnerBillReminder($partnerBill, 'partner', $partnerLocale));
-                }
-
                 if ($partner->fcm_token) {
                     $title = __('notification.bill_reminder.title');
-                    $body = __('notification.bill_reminder.partner_subject', ['code' => $partnerBill->code]);
+                    $body = __('notification.bill_reminder.partner_subject', ['category' => $partnerBill->category->name]);
                     $this->fcmService->sendToUser($partner, $title, $body);
                 }
 
@@ -192,8 +182,8 @@ class PartnerBillNotificationService
 
                 if ($eventDateTime->isFuture() && $eventDateTime->diffInHours(now()) <= 2) {
                     Notification::make()
-                        ->title(__('notification.partner_show_reminder_title', ['code' => $partnerBill->code]))
-                        ->body(__('notification.partner_show_reminder_body', ['code' => $partnerBill->code, 'start_time' => $eventDateTime]))
+                        ->title(__('notification.bill_reminder.title'))
+                        ->body(__('notification.bill_reminder.partner_subject', ['category' => $partnerBill->category->name]))
                         ->warning()
                         ->actions([
                             Action::make('open')
@@ -225,19 +215,21 @@ class PartnerBillNotificationService
     {
         try {
             // Chỉ gửi cho client vì đơn hết hạn do không có partner nhận
-            if ($partnerBill->client && $partnerBill->client->email) {
-                $clientLocale = $this->getUserLocale($partnerBill->client);
-                Mail::to($partnerBill->client->email)
-                    ->queue(new PartnerBillExpired($partnerBill, $clientLocale));
+            if ($partnerBill->client) {
 
-                $title = __(
-                    'notification.client_order_expired_title',
-                    ['code' => $partnerBill->code]
-                );
+                $partnerBill->load('category:id,name');
+
+                if ($partnerBill->client->email) {
+                    $clientLocale = $this->getUserLocale($partnerBill->client);
+                    Mail::to($partnerBill->client->email)
+                        ->queue(new PartnerBillExpired($partnerBill, $clientLocale));
+                }
+
+                $title = __('notification.client_order_expired_title');
 
                 $body = __(
                     'notification.client_order_expired_body',
-                    ['code' => $partnerBill->code]
+                    ['category' => $partnerBill->category->name]
                 );
 
                 /** @var Customer|null $client */
@@ -277,9 +269,11 @@ class PartnerBillNotificationService
             /** @var Customer|null $client */
             $client = Customer::find($partnerBill->client_id);
 
+            $partnerBill->load('category:id,name');
+
             if ($partner) {
                 $partnerNotificationTitle = __('notification.bill_completed_reminder_partner.title');
-                $partnerNotificationBody = __('notification.bill_completed_reminder_partner.subject', ['code' => $partnerBill->code]);
+                $partnerNotificationBody = __('notification.bill_completed_reminder_partner.subject', ['category' => $partnerBill->category->name]);
 
                 Notification::make()
                     ->title($partnerNotificationTitle)
@@ -292,7 +286,7 @@ class PartnerBillNotificationService
 
             if ($client) {
                 $clientNotificationTitle = __('notification.bill_completed_reminder_client.title');
-                $clientNotificationBody = __('notification.bill_completed_reminder_client.subject', ['code' => $partnerBill->code]);
+                $clientNotificationBody = __('notification.bill_completed_reminder_client.subject', ['category' => $partnerBill->category->name]);
 
                 Notification::make()
                     ->title($clientNotificationTitle)
@@ -324,7 +318,7 @@ class PartnerBillNotificationService
                 $title = __('notification.partner_accepted_title');
                 $body = __('notification.partner_accepted_body', [
                     'partner_name' => $partner->name,
-                    'code' => $partnerBill->code,
+                    'price' => $partnerBillDetail->total,
                 ]);
 
                 Notification::make()
@@ -355,9 +349,11 @@ class PartnerBillNotificationService
             /** @var Customer|null $customer */
             $customer = Customer::find($partnerBill->client_id);
 
+            $partnerBill->load('category:id,name');
+
             if ($customer) {
                 $title = __('notification.bill_in_job_reminder.title');
-                $body = __('notification.bill_in_job_reminder.subject', ['code' => $partnerBill->code]);
+                $body = __('notification.bill_in_job_reminder.subject', ['category' => $partnerBill->category->name]);
 
                 Notification::make()
                     ->title($title)
