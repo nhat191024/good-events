@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Jobs\PartnerBillFirstJob;
+use App\Jobs\PartnerBillAutoCompleteJob;
 use App\Jobs\PartnerBillSecondJob;
 use App\Jobs\PartnerBillThirdJob;
 use App\Models\PartnerBill;
@@ -61,6 +62,11 @@ class PartnerBillJobScheduler
         PartnerBillThirdJob::dispatch($partnerBill);
     }
 
+    public function scheduleAutoCompletion(PartnerBill $partnerBill): void
+    {
+        PartnerBillAutoCompleteJob::dispatch($partnerBill)->delay(now()->addHours(11));
+    }
+
     public function eventStartsAt(PartnerBill $partnerBill): ?CarbonInterface
     {
         if (! $partnerBill->date || ! $partnerBill->start_time) {
@@ -103,7 +109,7 @@ class PartnerBillJobScheduler
 
     public function completionReminderAt(PartnerBill $partnerBill): ?CarbonInterface
     {
-        return $this->eventEndsAt($partnerBill)?->copy()->addMinutes(20);
+        return $this->eventEndsAt($partnerBill)?->copy()->addHour();
     }
 
     public function shouldWaitForUpcomingReminder(PartnerBill $partnerBill): bool

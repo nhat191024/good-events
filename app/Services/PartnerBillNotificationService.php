@@ -305,6 +305,38 @@ class PartnerBillNotificationService
         }
     }
 
+    public function sendPartnerCompletionReminder(PartnerBill $partnerBill): void
+    {
+        try {
+            /** @var Partner|null $partner */
+            $partner = Partner::find($partnerBill->partner_id);
+
+            if (! $partner) {
+                return;
+            }
+
+            $partnerBill->load('category:id,name');
+
+            $partnerNotificationTitle = __('notification.bill_completed_reminder_partner.title');
+            $partnerNotificationBody = __('notification.bill_completed_reminder_partner.subject', [
+                'category' => $partnerBill->category?->name ?? $partnerBill->code,
+            ]);
+
+            Notification::make()
+                ->title($partnerNotificationTitle)
+                ->body($partnerNotificationBody)
+                ->success()
+                ->sendToDatabase($partner);
+
+            $this->fcmService->sendToUser($partner, $partnerNotificationTitle, $partnerNotificationBody, ['code' => 'BILL_COMPLETED_REMINDER']);
+        } catch (\Exception $e) {
+            Log::error('Failed to send partner completion reminder', [
+                'partner_bill_id' => $partnerBill->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function sendNewPartnerAcceptedNotification(PartnerBillDetail $partnerBillDetail): void
     {
         try {

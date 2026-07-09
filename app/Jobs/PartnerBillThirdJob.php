@@ -9,7 +9,7 @@ use App\Services\PartnerBillNotificationService;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class PartnerBillThirdJob implements ShouldQueue
 {
@@ -55,26 +55,11 @@ class PartnerBillThirdJob implements ShouldQueue
             return;
         }
 
-        $completedBill = DB::transaction(function () use ($partnerBill): ?PartnerBill {
-            $lockedBill = PartnerBill::query()
-                ->whereKey($partnerBill->id)
-                ->lockForUpdate()
-                ->first();
-
-            if (! $lockedBill || ! in_array($lockedBill->status, [PartnerBillStatus::CONFIRMED, PartnerBillStatus::IN_JOB], true)) {
-                return null;
-            }
-
-            $lockedBill->status = PartnerBillStatus::COMPLETED;
-            $lockedBill->save();
-
-            return $lockedBill;
-        });
-
-        if (! $completedBill) {
+        if (! Cache::add("partner_bill_completion_reminder_sent_{$partnerBill->id}", true, now()->addHours(13))) {
             return;
         }
 
-        $notificationService->sendBillCompletedReminder($completedBill);
+        $notificationService->sendPartnerCompletionReminder($partnerBill);
+        $scheduler->scheduleAutoCompletion($partnerBill);
     }
 }
