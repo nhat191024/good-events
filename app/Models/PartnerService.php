@@ -85,24 +85,44 @@ class PartnerService extends Model implements HasMedia
         'status' => 'required|string|in:pending,approved,rejected',
     ];
 
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
-        static::saved(function ($model) {
-            Cache::tags([CacheKey::PARTNER_SERVICES->value])->flush();
-            Cache::forget(CacheKey::USER_CATEGORY_EXISTS->value . "{$model->user_id}_{$model->category_id}");
+        static::saved(function (PartnerService $partnerService): void {
+            self::forgetRelatedCaches($partnerService);
         });
 
-        static::deleted(function ($model) {
-            Cache::tags([CacheKey::PARTNER_SERVICES->value])->flush();
-            Cache::forget(CacheKey::USER_CATEGORY_EXISTS->value . "{$model->user_id}_{$model->category_id}");
+        static::deleted(function (PartnerService $partnerService): void {
+            self::forgetRelatedCaches($partnerService);
         });
 
-        static::restored(function ($model) {
-            Cache::tags([CacheKey::PARTNER_SERVICES->value])->flush();
-            Cache::forget(CacheKey::USER_CATEGORY_EXISTS->value . "{$model->user_id}_{$model->category_id}");
+        static::restored(function (PartnerService $partnerService): void {
+            self::forgetRelatedCaches($partnerService);
         });
+    }
+
+    private static function forgetRelatedCaches(PartnerService $partnerService): void
+    {
+        $originalUserId = (int) ($partnerService->getOriginal('user_id') ?: $partnerService->user_id);
+        $originalCategoryId = (int) ($partnerService->getOriginal('category_id') ?: $partnerService->category_id);
+        $currentUserId = (int) $partnerService->user_id;
+        $currentCategoryId = (int) $partnerService->category_id;
+
+        $partnerServicesCache = Cache::tags([CacheKey::PARTNER_SERVICES->value]);
+
+        foreach (array_unique([$originalUserId, $currentUserId]) as $userId) {
+            $partnerServicesCache->forget(CacheKey::PARTNER_SERVICES->value . "_api_user_{$userId}");
+            $partnerServicesCache->forget(CacheKey::PARTNER_SERVICES->value . "_dashboard_user_{$userId}");
+            $partnerServicesCache->forget(CacheKey::PARTNER_SERVICES->value . "_user_{$userId}");
+        }
+
+        foreach (array_unique([$originalCategoryId, $currentCategoryId]) as $categoryId) {
+            $partnerServicesCache->forget(CacheKey::PARTNER_SERVICES->value . "_approved_category_{$categoryId}");
+        }
+
+        Cache::forget(CacheKey::USER_CATEGORY_EXISTS->value . "{$originalUserId}_{$originalCategoryId}");
+        Cache::forget(CacheKey::USER_CATEGORY_EXISTS->value . "{$currentUserId}_{$currentCategoryId}");
     }
 
     public static function getByUserCached($userId)

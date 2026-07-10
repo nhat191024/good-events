@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\Partner;
 
-use App\Enum\CacheKey;
 use App\Enum\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Partner\UpsertPartnerServiceAreasRequest;
@@ -12,7 +11,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Cache;
 
 class PartnerServiceAreaController extends Controller
 {
@@ -44,8 +42,6 @@ class PartnerServiceAreaController extends Controller
             ]);
         }
 
-        $this->flushServiceAreaCache();
-
         return response()->json([
             'success' => true,
             ...$this->paginatedServiceAreaPayload($user, $request),
@@ -63,11 +59,12 @@ class PartnerServiceAreaController extends Controller
         $locationIds = $this->validWardLocationIds($request->input('location_ids', []));
 
         if (empty($locationIds)) {
-            $user->partnerServiceAreas()->delete();
+            $user->partnerServiceAreas()->get()->each->delete();
         } else {
             $user->partnerServiceAreas()
                 ->whereNotIn('location_id', $locationIds)
-                ->delete();
+                ->get()
+                ->each->delete();
 
             foreach ($locationIds as $locationId) {
                 $user->partnerServiceAreas()->firstOrCreate([
@@ -75,8 +72,6 @@ class PartnerServiceAreaController extends Controller
                 ]);
             }
         }
-
-        $this->flushServiceAreaCache();
 
         return response()->json([
             'success' => true,
@@ -96,11 +91,6 @@ class PartnerServiceAreaController extends Controller
             ->pluck('id')
             ->map(fn ($id): int => (int) $id)
             ->all();
-    }
-
-    private function flushServiceAreaCache(): void
-    {
-        Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])->flush();
     }
 
     /**

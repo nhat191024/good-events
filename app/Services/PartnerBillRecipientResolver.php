@@ -25,7 +25,7 @@ class PartnerBillRecipientResolver
             return [];
         }
 
-        $targetAreaPartnerIds = $this->partnerIdsWithoutServiceAreas();
+        $targetAreaPartnerIds = $this->partnerIdsWithoutServiceAreas($approvedPartnerIds);
 
         if ($partnerBill->location_id) {
             $targetAreaPartnerIds = array_values(array_unique([
@@ -56,24 +56,19 @@ class PartnerBillRecipientResolver
     }
 
     /**
+     * @param list<int> $partnerIds
      * @return list<int>
      */
-    private function partnerIdsWithoutServiceAreas(): array
+    private function partnerIdsWithoutServiceAreas(array $partnerIds): array
     {
-        return Cache::tags([
-            CacheKey::PARTNER_SERVICES->value,
-            CacheKey::PARTNER_SERVICE_AREAS->value,
-        ])
-            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value . '_users_without_areas', function (): array {
-                return PartnerService::query()
-                    ->where('status', 'approved')
-                    ->whereDoesntHave('user.partnerServiceAreas')
-                    ->pluck('user_id')
-                    ->map(fn ($userId): int => (int) $userId)
-                    ->unique()
-                    ->values()
-                    ->all();
-            });
+        $partnerIdsWithServiceAreas = PartnerServiceArea::query()
+            ->whereIn('user_id', $partnerIds)
+            ->pluck('user_id')
+            ->map(fn ($userId): int => (int) $userId)
+            ->unique()
+            ->all();
+
+        return array_values(array_diff($partnerIds, $partnerIdsWithServiceAreas));
     }
 
     /**

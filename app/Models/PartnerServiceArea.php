@@ -22,12 +22,30 @@ class PartnerServiceArea extends Model
     protected static function booted(): void
     {
         static::saved(function (PartnerServiceArea $partnerServiceArea): void {
-            Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])->flush();
+            self::forgetRelatedCaches($partnerServiceArea);
         });
 
         static::deleted(function (PartnerServiceArea $partnerServiceArea): void {
-            Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])->flush();
+            self::forgetRelatedCaches($partnerServiceArea);
         });
+    }
+
+    private static function forgetRelatedCaches(PartnerServiceArea $partnerServiceArea): void
+    {
+        $originalUserId = (int) ($partnerServiceArea->getOriginal('user_id') ?: $partnerServiceArea->user_id);
+        $originalLocationId = (int) ($partnerServiceArea->getOriginal('location_id') ?: $partnerServiceArea->location_id);
+        $currentUserId = (int) $partnerServiceArea->user_id;
+        $currentLocationId = (int) $partnerServiceArea->location_id;
+        $serviceAreaCache = Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value]);
+
+        foreach (array_unique([$originalUserId, $currentUserId]) as $userId) {
+            $serviceAreaCache->forget(CacheKey::PARTNER_SERVICE_AREAS->value . "_{$userId}");
+            $serviceAreaCache->forget(CacheKey::PARTNER_SERVICE_AREAS->value . "_dashboard_user_{$userId}");
+        }
+
+        foreach (array_unique([$originalLocationId, $currentLocationId]) as $locationId) {
+            $serviceAreaCache->forget(CacheKey::PARTNER_SERVICE_AREAS->value . "_location_{$locationId}");
+        }
     }
 
     public function user(): BelongsTo

@@ -118,12 +118,13 @@ class DashboardController extends Controller
             ];
         }
 
-        //TODO: cache this forever and only refresh when partner add or update a service
-        $partnerServices = $user->partnerServices()
-            ->where('status', 'approved')
-            ->pluck('category_id')
-            ->unique()
-            ->toArray();
+        $partnerServices =  Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_dashboard_user_{$user->id}", function () use ($user) {
+            return $user->partnerServices()
+                ->where('status', 'approved')
+                ->pluck('category_id')
+                ->unique()
+                ->toArray();
+        });
 
         if (empty($partnerServices)) {
             return [
@@ -132,12 +133,19 @@ class DashboardController extends Controller
             ];
         }
 
-        $new = PartnerBill::whereIn('category_id', $partnerServices)
+        $locationIds = $this->resolvePartnerServiceAreaIds($user);
+
+        $newBillsQuery = PartnerBill::whereIn('category_id', $partnerServices)
             ->where('status', PartnerBillStatus::PENDING)
             ->whereDoesntHave('details', function ($query) use ($user) {
                 $query->where('partner_id', $user->id);
-            })
-            ->count();
+            });
+
+        if (! empty($locationIds)) {
+            $newBillsQuery->whereIn('location_id', $locationIds);
+        }
+
+        $new = $newBillsQuery->count();
 
         $waitingConfirmation = PartnerBillDetail::wherePartnerId($user->id)->whereStatus(PartnerBillDetailStatus::NEW)->count();
 
@@ -156,7 +164,7 @@ class DashboardController extends Controller
             ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value . "_dashboard_user_{$user->id}", function () use ($user): array {
                 return $user->partnerServiceAreas()
                     ->pluck('location_id')
-                    ->map(fn ($locationId): int => (int) $locationId)
+                    ->map(fn($locationId): int => (int) $locationId)
                     ->unique()
                     ->values()
                     ->all();
