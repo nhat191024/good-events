@@ -43,11 +43,6 @@ class DashboardController extends Controller
             ->first();
         $showData = $this->getShowData($user);
 
-        $recentReviews = $this->recentReviewsForServiceAreas($user);
-
-        $recentReviewsCount = $recentReviews->count();
-        $recentReviewsAvatars = $this->getRecentReviews($recentReviews);
-
         $quarterlyRevenue = $this->getQuarterlyRevenue($user->id);
 
         return response()->json([
@@ -56,8 +51,8 @@ class DashboardController extends Controller
             'wallet_balance' => $walletBalance,
             'revenue' => (int) $revenue?->metrics_value ?? 0,
             'show_data' => $showData,
-            'recent_reviews_count' => $recentReviewsCount,
-            'recent_reviews_avatars' => $recentReviewsAvatars,
+            'recent_reviews_count' => 0,
+            'recent_reviews_avatars' => [],
             'quarterly_revenue' => $quarterlyRevenue,
             'app_notification' => $this->formatPartnerNotificationSettings($appNotificationSettings),
         ]);
@@ -111,7 +106,7 @@ class DashboardController extends Controller
     /**
      * Get count of new bills and bills waiting for confirmation
      *
-     * @param \App\Models\User|null $user
+     * @param User|null $user
      * @return array{new: int, waitingConfirmation: int}
      */
     private function getShowData($user): array
@@ -150,37 +145,6 @@ class DashboardController extends Controller
             'new' => (string) $new,
             'waitingConfirmation' => (string) $waitingConfirmation,
         ];
-    }
-
-    private function getRecentReviews(Collection $reviews): Collection
-    {
-        $reviewerIds = $reviews->pluck('user_id')->unique()->take(4);
-        if ($reviewerIds->isEmpty()) {
-            return collect();
-        }
-
-        $reviewersAvatars = User::whereIn('id', $reviewerIds)->pluck('avatar', 'id');
-
-        return $reviewersAvatars;
-    }
-
-    private function recentReviewsForServiceAreas(User $user): Collection
-    {
-        $locationIds = $this->resolvePartnerServiceAreaIds($user);
-
-        $reviewedBillIds = PartnerBill::query()
-            ->select('id')
-            ->where('partner_id', $user->id);
-
-        if (!empty($locationIds)) {
-            $reviewedBillIds->whereIn('location_id', $locationIds);
-        }
-
-        return $user->reviews()
-            ->where('created_at', '>=', Carbon::now()->subDay())
-            ->whereNotNull('partner_bill_id')
-            ->whereIn('partner_bill_id', $reviewedBillIds)
-            ->get();
     }
 
     /**
