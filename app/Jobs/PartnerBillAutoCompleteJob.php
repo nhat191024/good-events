@@ -4,11 +4,12 @@ namespace App\Jobs;
 
 use App\Enum\PartnerBillStatus;
 use App\Models\PartnerBill;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 
-class PartnerBillAutoCompleteJob implements ShouldQueue
+class PartnerBillAutoCompleteJob implements ShouldQueue, ShouldBeUnique
 {
     use Queueable;
 
@@ -16,6 +17,11 @@ class PartnerBillAutoCompleteJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(private PartnerBill $partnerBill) {}
+
+    public function uniqueId(): string
+    {
+        return "partner_bill_auto_complete_{$this->partnerBill->id}";
+    }
 
     /**
      * Execute the job.

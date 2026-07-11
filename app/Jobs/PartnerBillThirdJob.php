@@ -7,11 +7,12 @@ use App\Models\PartnerBill;
 use App\Services\PartnerBillJobScheduler;
 use App\Services\PartnerBillNotificationService;
 
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
 
-class PartnerBillThirdJob implements ShouldQueue
+class PartnerBillThirdJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Queueable;
 
@@ -19,6 +20,11 @@ class PartnerBillThirdJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(private PartnerBill $partnerBill) {}
+
+    public function uniqueId(): string
+    {
+        return "partner_bill_third_{$this->partnerBill->id}";
+    }
 
     /**
      * Execute the job.
