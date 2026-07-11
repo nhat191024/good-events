@@ -6,10 +6,11 @@ use Kreait\Firebase\Contract\Messaging;
 use Kreait\Firebase\Exception\MessagingException;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class SendFCMNotification implements ShouldQueue
+class SendFCMNotification implements ShouldQueue, ShouldBeUnique
 {
     use Queueable;
 
@@ -29,6 +30,22 @@ class SendFCMNotification implements ShouldQueue
         private readonly string $priority = '5',
     ) {
         $this->onQueue('notifications');
+    }
+
+    public function uniqueId(): string
+    {
+        return hash('sha256', serialize([
+            $this->target,
+            $this->targetType,
+            $this->title,
+            $this->body,
+            $this->data,
+        ]));
+    }
+
+    public function uniqueFor(): int
+    {
+        return 60;
     }
 
     public function handle(Messaging $messaging): void
