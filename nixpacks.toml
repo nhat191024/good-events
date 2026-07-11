@@ -119,7 +119,7 @@ autorestart=true
 stopasgroup=true
 killasgroup=true
 startsecs=0
-stopwaitsecs=60
+stopwaitsecs=360
 stdout_logfile=/var/log/worker-laravel-queue.log
 stderr_logfile=/var/log/worker-laravel-queue.log
 '''
