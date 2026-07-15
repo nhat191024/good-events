@@ -451,6 +451,10 @@ class PartnerBill extends Model implements HasMedia
         if ($thread) {
             $thread->delete();
         }
+
+        // Update bill details status to cancelled
+        PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
+            ->update(['status' => PartnerBillDetailStatus::CANCELLED]);
     }
 
     //model helpers method
