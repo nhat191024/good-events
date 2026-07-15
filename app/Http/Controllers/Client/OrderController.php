@@ -283,7 +283,7 @@ class OrderController extends Controller
             ->findOrFail($data['order_id']);
 
         $review = $partner->addReview([
-            'review' => $data['comment'],
+            'review' => $data['comment'] ?? null,
             'ratings' => ['rating' => $data['rating']],
             'recommend' => true,
             'approved' => true,
