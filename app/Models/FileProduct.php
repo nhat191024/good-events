@@ -25,9 +25,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property string|null $cached_zip_path
  * @property string|null $cached_zip_generated_at
  * @property string|null $cached_zip_hash
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable|null $deleted_at
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FileProductBill> $bills
  * @property-read int|null $bills_count
  * @property-read \App\Models\Category|null $category

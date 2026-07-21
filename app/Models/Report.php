@@ -15,8 +15,8 @@ use App\Enum\ReportStatus;
  * @property string $title
  * @property string $description
  * @property ReportStatus $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
  * @property-read \App\Models\PartnerBill|null $reportedBill
  * @property-read \App\Models\User|null $reportedUser
  * @property-read \App\Models\User|null $reporter

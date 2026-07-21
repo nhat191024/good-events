@@ -12,9 +12,9 @@ use App\Models\Message;
 /**
  * @property int $id
  * @property string $subject
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable|null $deleted_at
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
  * @property-read \App\Models\PartnerBill|null $bill
  * @property-read mixed $latest_message
  * @property-read Message|null $latestMessage

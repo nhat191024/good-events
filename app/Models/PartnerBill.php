@@ -37,9 +37,9 @@ use Codebyray\ReviewRateable\Models\Review;
  * @property string $address
  * @property int|null $location_id
  * @property string $phone
- * @property \Illuminate\Support\Carbon|null $date
- * @property \Illuminate\Support\Carbon|null $start_time
- * @property \Illuminate\Support\Carbon|null $end_time
+ * @property \Carbon\CarbonImmutable|null $date
+ * @property \Carbon\CarbonImmutable|null $start_time
+ * @property \Carbon\CarbonImmutable|null $end_time
  * @property float|null $total
  * @property float|null $final_total
  * @property int|null $event_id
@@ -51,8 +51,8 @@ use Codebyray\ReviewRateable\Models\Review;
  * @property PartnerBillStatus $status
  * @property int|null $thread_id
  * @property int|null $voucher_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\PartnerCategory|null $category
@@ -63,7 +63,8 @@ use Codebyray\ReviewRateable\Models\Review;
  * @property-read \App\Models\Location|null $location
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
- * @property-read \App\Models\User|null $partner
+ * @property-read \App\Models\Partner|null $partner
+ * @property-read Review|null $review
  * @property-read Thread|null $thread
  * @property-read \App\Models\Voucher|null $voucher
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newModelQuery()
@@ -80,6 +81,7 @@ use Codebyray\ReviewRateable\Models\Review;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereEventId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereFinalTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereLocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereNote($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill wherePartnerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill wherePhone($value)

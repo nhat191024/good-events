@@ -15,17 +15,17 @@ use Database\Factories\UserFactory;
  * @property string|null $bio
  * @property string $phone
  * @property string $password
- * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property \Carbon\CarbonImmutable|null $email_verified_at
  * @property string|null $phone_verified_at
  * @property bool $can_accept_shows
  * @property string|null $google_id
  * @property string|null $apple_id
  * @property string|null $fcm_token
  * @property bool $is_delete_account
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Carbon\CarbonImmutable|null $deleted_at
  * @property string|null $remember_token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $authoredReviews
@@ -38,7 +38,7 @@ use Database\Factories\UserFactory;
  * @property-read \Bavix\Wallet\Models\Wallet $wallet
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
  * @property-read int|null $media_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Message> $messages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Message> $messages
  * @property-read int|null $messages_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
@@ -51,6 +51,8 @@ use Database\Factories\UserFactory;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $partnerBillsDetails
  * @property-read int|null $partner_bills_details_count
  * @property-read \App\Models\PartnerProfile|null $partnerProfile
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerServiceArea> $partnerServiceAreas
+ * @property-read int|null $partner_service_areas_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerService> $partnerServices
  * @property-read int|null $partner_services_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
@@ -63,7 +65,7 @@ use Database\Factories\UserFactory;
  * @property-read int|null $roles_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Statistical> $statistics
  * @property-read int|null $statistics_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Thread> $threads
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
  * @property-read int|null $threads_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count

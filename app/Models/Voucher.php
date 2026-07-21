@@ -12,9 +12,9 @@ use BeyondCode\Vouchers\Models\Voucher as BaseVoucher;
  * @property string $model_type
  * @property int $model_id
  * @property \Illuminate\Support\Collection<array-key, mixed>|null $data
- * @property Carbon|null $expires_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable|null $expires_at
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $model
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read int|null $users_count

@@ -11,8 +11,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property array<array-key, mixed> $slug
  * @property string|null $type
  * @property int|null $order_column
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
  * @property-read array $translatable_columns_from
  * @property-read mixed $translations
  * @method static Builder<static>|Tag containing(string $name, $locale = null)

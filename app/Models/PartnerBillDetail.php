@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $partner_id
  * @property float $total
  * @property string $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
  * @property-read \App\Models\Partner|null $partner
  * @property-read \App\Models\PartnerBill $partnerBill
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBillDetail newModelQuery()

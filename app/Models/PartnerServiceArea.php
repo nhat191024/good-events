@@ -7,6 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property int $location_id
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property-read \App\Models\Location|null $location
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerServiceArea newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerServiceArea newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerServiceArea query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerServiceArea whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerServiceArea whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerServiceArea whereLocationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerServiceArea whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerServiceArea whereUserId($value)
+ * @mixin \Eloquent
+ */
 class PartnerServiceArea extends Model
 {
     /**
