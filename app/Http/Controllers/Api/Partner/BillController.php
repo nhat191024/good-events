@@ -517,7 +517,7 @@ class BillController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
         $dateFilter = $request->query('date_filter', 'all');
-        $sortBy = $request->query('sort', 'date_asc');
+        $sortBy = $request->query('sort', 'date_desc');
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
@@ -553,7 +553,7 @@ class BillController extends Controller
                 'oldest' => $query->orderBy('updated_at', 'asc'),
                 'date_desc' => $query->orderBy('date', 'desc')->orderBy('start_time', 'desc'),
                 'newest' => $query->orderByDesc('updated_at'),
-                default => $query->orderBy('date', 'asc')->orderBy('start_time', 'asc'),
+                default => $query->orderBy('date', 'desc')->orderBy('start_time', 'desc'),
             };
         }
     }
