@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
-import axios from 'axios';
-import { ArrowLeft, Send, Flag, ImagePlus, MapPin, MessageCircleQuestionIcon, X } from 'lucide-vue-next';
-import { Link } from '@inertiajs/vue3';
-import { computed, inject, nextTick, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
 import ReportModal from '@/components/ReportModal.vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+import { ArrowLeft, Flag, ImagePlus, MapPin, MessageCircleQuestionIcon, Send, X } from 'lucide-vue-next';
+import { computed, inject, nextTick, onMounted, onUnmounted, ref, Ref, watch } from 'vue';
 import type { BroadcastMessagePayload, Message, Thread, ThreadDetail } from '../types';
 import MessageBubble from './MessageBubble.vue';
 
@@ -88,7 +87,6 @@ const reportTargetUserId = computed(() => {
     return other?.id;
 });
 
-
 async function loadThread(threadId: number) {
     messagesCurrentPage.value = 1;
     isLoadingMessages.value = true;
@@ -158,6 +156,7 @@ async function sendMessage() {
 
     try {
         const response = await axios.post(`/chat/threads/${props.threadId}/messages`, {
+            client_message_id: window.crypto.randomUUID(),
             type: 'text',
             body: messageBody,
         });
@@ -243,6 +242,7 @@ async function sendImageMessage() {
 
     try {
         const formData = new FormData();
+        formData.append('client_message_id', window.crypto.randomUUID());
         formData.append('type', 'image');
 
         if (caption.trim()) {
@@ -289,6 +289,7 @@ async function sendCurrentLocation() {
         async (position) => {
             try {
                 const response = await axios.post(`/chat/threads/${props.threadId}/messages`, {
+                    client_message_id: window.crypto.randomUUID(),
                     type: 'location',
                     body: newMessage.value.trim() || undefined,
                     location: {
@@ -460,7 +461,9 @@ onUnmounted(() => {
             <div class="p-4">
                 <button
                     class="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 md:hidden"
-                    @click="emit('toggleMobileMenu')" aria-label="Toggle menu">
+                    @click="emit('toggleMobileMenu')"
+                    aria-label="Toggle menu"
+                >
                     <ArrowLeft class="h-4 w-4" />
                     <span>Trở lại</span>
                 </button>
@@ -470,7 +473,7 @@ onUnmounted(() => {
                             {{ thread?.subject || currentThread?.subject || 'Không có tiêu đề' }}
                         </h2>
                         <p v-if="thread?.participants" class="text-xs text-gray-600">
-                            Người tham gia: {{thread.participants.map((p) => p.name).join(', ')}}
+                            Người tham gia: {{ thread.participants.map((p) => p.name).join(', ') }}
                         </p>
                         <p v-if="thread?.bill" class="mt-2 text-xs text-gray-600">Thông tin đơn hàng:</p>
                         <div v-if="thread?.bill" class="text-xs text-gray-600">
@@ -479,15 +482,19 @@ onUnmounted(() => {
                             Địa điểm: {{ thread.bill.address || 'N/A' }}
                         </div>
                     </div>
-                    <Link title="Trợ giúp"
-                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        :href="route('tutorial.index')">
-                        <MessageCircleQuestionIcon class="w-5 h-5" />
+                    <Link
+                        title="Trợ giúp"
+                        class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                        :href="route('tutorial.index')"
+                    >
+                        <MessageCircleQuestionIcon class="h-5 w-5" />
                     </Link>
-                    <button title="Báo cáo"
-                        class="cursor-pointer p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        @click="isReportModalOpen = true">
-                        <Flag class="w-5 h-5" />
+                    <button
+                        title="Báo cáo"
+                        class="cursor-pointer rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                        @click="isReportModalOpen = true"
+                    >
+                        <Flag class="h-5 w-5" />
                     </button>
                 </div>
             </div>
@@ -501,24 +508,19 @@ onUnmounted(() => {
                 <span class="ml-2 text-sm text-gray-600">Đang tải tin nhắn cũ...</span>
             </div>
 
-            <div
-                class="flex h-fit w-full flex-col gap-2 rounded-md bg-primary-50 p-3 text-center text-xs text-gray-500 ring ring-primary md:text-sm">
+            <div class="flex h-fit w-full flex-col gap-2 rounded-md bg-primary-50 p-3 text-center text-xs text-gray-500 ring ring-primary md:text-sm">
                 <p>
-                    <b>Bảo mật thông tin: </b>Vui lòng không chia sẻ số điện thoại, zalo hay thông tin cá nhân khác để
-                    đảm bảo an toàn cho chính bạn.
-                    giao dịch qua ứng dụng : mọi thỏa thuận về giá cả, công việc phát sinh hoặc thay đổi lịch hẹn đều
-                    cần được xác nhận trên ứng dụng
+                    <b>Bảo mật thông tin: </b>Vui lòng không chia sẻ số điện thoại, zalo hay thông tin cá nhân khác để đảm bảo an toàn cho chính bạn.
+                    giao dịch qua ứng dụng : mọi thỏa thuận về giá cả, công việc phát sinh hoặc thay đổi lịch hẹn đều cần được xác nhận trên ứng dụng
                 </p>
 
                 <p>
-                    <b>Đảm bảo quyền lợi: </b>sukientot.com chỉ bảo vệ và hỗ trợ các vấn đề (bảo hành, khiếu nại) dựa
-                    trên các giao dịch được ghi nhận
+                    <b>Đảm bảo quyền lợi: </b>sukientot.com chỉ bảo vệ và hỗ trợ các vấn đề (bảo hành, khiếu nại) dựa trên các giao dịch được ghi nhận
                     chính thức trên ứng dụng.
                 </p>
 
                 <p>
-                    <b>Báo cáo vi phạm:</b> Nếu CTV sukientot.com có bất kỳ yêu cầu giao dịch riêng nào, hãy báo cáo
-                    ngay cho chúng tôi qua hotline
+                    <b>Báo cáo vi phạm:</b> Nếu CTV sukientot.com có bất kỳ yêu cầu giao dịch riêng nào, hãy báo cáo ngay cho chúng tôi qua hotline
                     <b>0393719095</b>.
                 </p>
             </div>
@@ -526,8 +528,10 @@ onUnmounted(() => {
             <!-- Messages list -->
             <template v-for="(message, idx) in messages" :key="message.id">
                 <!-- Date separator -->
-                <div v-if="idx === 0 || new Date(messages[idx - 1].created_at).toDateString() !== new Date(message.created_at).toDateString()"
-                    class="flex justify-center py-2">
+                <div
+                    v-if="idx === 0 || new Date(messages[idx - 1].created_at).toDateString() !== new Date(message.created_at).toDateString()"
+                    class="flex justify-center py-2"
+                >
                     <div class="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
                         {{ formatDate(message.created_at) }}
                     </div>
@@ -547,9 +551,7 @@ onUnmounted(() => {
 
             <div v-if="hasSelectedImages" class="mb-3 rounded-lg bg-gray-50 p-3">
                 <div class="mb-2 flex items-center justify-between gap-3">
-                    <span class="text-sm font-medium text-gray-700">
-                        {{ selectedImageFiles.length }} ảnh đã chọn
-                    </span>
+                    <span class="text-sm font-medium text-gray-700"> {{ selectedImageFiles.length }} ảnh đã chọn </span>
                     <button
                         class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900"
                         type="button"
@@ -569,7 +571,7 @@ onUnmounted(() => {
                     >
                         <img :src="preview" alt="Ảnh đã chọn" class="h-full w-full object-cover" />
                         <button
-                            class="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white transition-colors hover:bg-black/80"
+                            class="absolute top-1 right-1 rounded-full bg-black/60 p-1 text-white transition-colors hover:bg-black/80"
                             type="button"
                             title="Bỏ ảnh này"
                             aria-label="remove selected image"
@@ -582,14 +584,7 @@ onUnmounted(() => {
             </div>
 
             <div class="flex items-end gap-2">
-                <input
-                    ref="fileInput"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    class="hidden"
-                    @change="onImageSelected"
-                />
+                <input ref="fileInput" type="file" accept="image/*" multiple class="hidden" @change="onImageSelected" />
 
                 <button
                     class="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
@@ -614,20 +609,26 @@ onUnmounted(() => {
                 </button>
 
                 <div class="flex-1">
-                    <input v-model="newMessage" @keydown="onKeydown" placeholder="Nhập tin nhắn..."
+                    <input
+                        v-model="newMessage"
+                        @keydown="onKeydown"
+                        placeholder="Nhập tin nhắn..."
                         :disabled="isSending"
                         class="w-full rounded-full border-0 bg-gray-50 px-4 py-2 ring-red-500 focus:ring-1 focus:outline-none disabled:opacity-50"
-                        type="text" />
+                        type="text"
+                    />
                 </div>
 
                 <button
                     class="rounded-full bg-red-500 p-2 text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="!canSend" @click="sendMessage" aria-label="send">
+                    :disabled="!canSend"
+                    @click="sendMessage"
+                    aria-label="send"
+                >
                     <Send class="h-4 w-4" />
                 </button>
             </div>
         </div>
     </div>
-    <ReportModal v-model:open="isReportModalOpen" :user-id="reportTargetUserId" :bill-id="thread?.bill?.id"
-        :bill-code="thread?.bill?.code" />
+    <ReportModal v-model:open="isReportModalOpen" :user-id="reportTargetUserId" :bill-id="thread?.bill?.id" :bill-code="thread?.bill?.code" />
 </template>

@@ -326,7 +326,7 @@
                         </div>
 
                         <input class="focus:border-primary-500 focus:ring-primary-500 flex-1 rounded-lg border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white" type="text" wire:model="messageBody" placeholder="{{ __('chat.message_placeholder') }}" />
-                        <button class="bg-primary-800 hover:bg-primary-700 inline-flex items-center justify-center rounded-lg px-6 py-2 text-sm font-medium text-white transition" type="submit">
+                        <button class="bg-primary-800 hover:bg-primary-700 inline-flex items-center justify-center rounded-lg px-6 py-2 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-50" type="submit" wire:loading.attr="disabled" wire:target="sendMessage">
                             Gửi
                         </button>
                     </form>
