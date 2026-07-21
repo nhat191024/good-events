@@ -2,32 +2,27 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Models\Thread;
-use App\Models\Message;
-
-use App\Jobs\SendMessage;
-use App\Support\ChatMessagePayload;
-
 use App\Enum\PartnerBillStatus;
-
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreChatMessageRequest;
-
+use App\Jobs\SendMessage;
+use App\Models\Message;
+use App\Models\Thread;
+use App\Support\ChatMessagePayload;
+use Cmgmyr\Messenger\Models\Participant;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
-use Cmgmyr\Messenger\Models\Participant;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\QueryException;
-
 /**
- *  @property PartnerBillStatus $status
+ * @property PartnerBillStatus $status
  */
 class ChatController extends Controller
 {
     private const int THREADS_PER_PAGE = 10;
+
     private const int MESSAGES_PER_PAGE = 20;
 
     public function index(Request $request): Response
@@ -74,7 +69,7 @@ class ChatController extends Controller
                 'user_id' => $userId,
             ])->first();
 
-            if (!$participant) {
+            if (! $participant) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Bạn không phải là thành viên của cuộc trò chuyện này.',
@@ -84,7 +79,25 @@ class ChatController extends Controller
             $participant->last_read = now();
             $participant->save();
 
-            $message = Message::create($request->messageAttributes($threadId, $userId));
+            $messageAttributes = $request->messageAttributes($threadId, $userId);
+            $clientMessageId = $messageAttributes['client_message_id'];
+
+            $message = $clientMessageId
+                ? Message::firstOrCreate([
+                    'thread_id' => $threadId,
+                    'user_id' => $userId,
+                    'client_message_id' => $clientMessageId,
+                ], $messageAttributes)
+                : Message::create($messageAttributes);
+
+            if (! $message->wasRecentlyCreated) {
+                $message->load('user', 'media');
+
+                return response()->json([
+                    'success' => true,
+                    'message' => ChatMessagePayload::response($message, Auth::user()),
+                ]);
+            }
 
             foreach ($request->file('images', []) as $image) {
                 $message
@@ -138,11 +151,11 @@ class ChatController extends Controller
             ])
             ->latest('updated_at');
 
-        if (!empty(trim($searchTerm))) {
+        if (! empty(trim($searchTerm))) {
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('subject', 'like', '%' . $searchTerm . '%')
+                $q->where('subject', 'like', '%'.$searchTerm.'%')
                     ->orWhereHas('participants.user', function ($userQuery) use ($searchTerm) {
-                        $userQuery->where('name', 'like', '%' . $searchTerm . '%');
+                        $userQuery->where('name', 'like', '%'.$searchTerm.'%');
                     });
             });
         }
@@ -200,7 +213,7 @@ class ChatController extends Controller
                     'id' => $thread->bill->id,
                     'event_name' => $thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event,
                     'datetime' => $thread->bill->date && $thread->bill->start_time
-                        ? $thread->bill->date->format('d/m/Y') . ' ' . $thread->bill->start_time->format('H:i')
+                        ? $thread->bill->date->format('d/m/Y').' '.$thread->bill->start_time->format('H:i')
                         : null,
                     'address' => $thread->bill->address,
                 ] : null,
@@ -225,7 +238,7 @@ class ChatController extends Controller
         ])->find($threadId);
         $thread?->markAsRead(Auth::id());
 
-        if (!$thread) {
+        if (! $thread) {
             return [
                 'data' => [],
                 'hasMore' => false,
@@ -247,7 +260,7 @@ class ChatController extends Controller
 
         $hasMore = $offset > 0;
 
-        $mappedMessages = $messages->map(fn($msg) => [
+        $mappedMessages = $messages->map(fn ($msg) => [
             ...ChatMessagePayload::message($msg),
             'user' => [
                 'id' => $msg->user->id,
@@ -287,7 +300,7 @@ class ChatController extends Controller
                     'id' => $thread->bill->id,
                     'event_name' => $thread->bill->event_id ? $thread->bill->event?->name : $thread->bill->custom_event,
                     'datetime' => $thread->bill->date && $thread->bill->start_time
-                        ? $thread->bill->date->format('d/m/Y') . ' ' . $thread->bill->start_time->format('H:i')
+                        ? $thread->bill->date->format('d/m/Y').' '.$thread->bill->start_time->format('H:i')
                         : null,
                     'address' => $thread->bill->address,
                 ] : null,

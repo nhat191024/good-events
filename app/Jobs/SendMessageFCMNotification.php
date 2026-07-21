@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
 
-class SendMessageFCMNotification implements ShouldQueue, ShouldBeUnique
+class SendMessageFCMNotification implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -30,11 +30,12 @@ class SendMessageFCMNotification implements ShouldQueue, ShouldBeUnique
     }
 
     /**
-     * Hold the unique lock for 60 seconds (delay 30s + processing buffer).
+     * Keep the unique lock longer than the queue retry window so backlog cannot
+     * admit another notification for the same user and thread.
      */
     public function uniqueFor(): int
     {
-        return 60;
+        return 3600;
     }
 
     public function handle(FCMService $fcmService): void

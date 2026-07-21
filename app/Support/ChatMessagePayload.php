@@ -100,13 +100,15 @@ class ChatMessagePayload
      */
     private static function otherParticipantIds(int $threadId, int $userId): array
     {
-        return array_values(array_diff(
-            Cache::remember(
-                CacheKey::THREAD_PARTICIPANT->value . "{$threadId}",
-                now()->addWeek(),
-                fn() => Participant::where('thread_id', $threadId)->pluck('user_id')->all()
-            ),
-            [$userId]
-        ));
+        return collect(Cache::remember(
+            CacheKey::THREAD_PARTICIPANT->value."{$threadId}",
+            now()->addWeek(),
+            fn () => Participant::where('thread_id', $threadId)->pluck('user_id')->all()
+        ))
+            ->map(fn (mixed $participantId): int => (int) $participantId)
+            ->reject(fn (int $participantId): bool => $participantId === $userId)
+            ->unique()
+            ->values()
+            ->all();
     }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Jobs;
 
+use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
 use Kreait\Firebase\Contract\Messaging;
 use Kreait\Firebase\Exception\MessagingException;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
 
-class SendFCMNotification implements ShouldQueue, ShouldBeUnique
+class SendFCMNotification implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -19,7 +19,7 @@ class SendFCMNotification implements ShouldQueue, ShouldBeUnique
     public int $backoff = 10;
 
     /**
-     * @param array<non-empty-string, string> $data
+     * @param  array<non-empty-string, string>  $data
      */
     public function __construct(
         private readonly string $target,
@@ -45,7 +45,7 @@ class SendFCMNotification implements ShouldQueue, ShouldBeUnique
 
     public function uniqueFor(): int
     {
-        return 60;
+        return 3600;
     }
 
     public function handle(Messaging $messaging): void

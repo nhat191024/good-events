@@ -28,6 +28,7 @@ class StoreChatMessageRequest extends FormRequest
         $type = $this->input('type', Message::TYPE_TEXT);
 
         return [
+            'client_message_id' => ['nullable', 'uuid'],
             'type' => ['required', 'string', Rule::in([
                 Message::TYPE_TEXT,
                 Message::TYPE_IMAGE,
@@ -100,6 +101,7 @@ class StoreChatMessageRequest extends FormRequest
         return [
             'thread_id' => $threadId,
             'user_id' => $userId,
+            'client_message_id' => $this->input('client_message_id'),
             'type' => $this->input('type', Message::TYPE_TEXT),
             'body' => $this->input('body'),
             'location_latitude' => data_get($location, 'latitude'),
