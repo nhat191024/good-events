@@ -194,7 +194,6 @@ class PasswordResetLinkController extends Controller
      */
     public function resetPhone(Request $request): RedirectResponse
     {
-        ds($request->all());
         $request->validate([
             'password' => ['required', 'confirmed', Password::defaults()],
         ], [
