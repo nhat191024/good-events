@@ -42,7 +42,7 @@ class PartnerBillHistoryResource extends BaseResource
             'completion_photo' => $this->mediaUrl('completion_photo'),
             'status' => $statusValue,
             'updated_at' => optional($this->updated_at)->toIso8601String(),
-            'created_at' => optional($this->created_at)->toIso8601String(),
+            'created_at' => optional($this->created_at)->toDateTimeString(),
             'category_name' => $this->whenLoaded('category', function () {
                 return $this->category->name;
             }),
