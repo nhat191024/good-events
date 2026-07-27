@@ -46,6 +46,7 @@ class PartnerBillResource extends BaseResource
                     'code' => $this->voucher->code,
                 ];
             }),
+            'created_at' => $this->created_at->toDateTimeString(),
         ];
     }
 }
