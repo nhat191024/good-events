@@ -63,10 +63,30 @@ class AppErrorReportInfolist
     {
         return TextEntry::make($name)
             ->label($label)
-            ->formatStateUsing(fn (?array $state): string => $state === null
-                ? '—'
-                : (json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '—'))
+            ->formatStateUsing(fn (mixed $state): string => self::formatJsonState($state))
             ->fontFamily('mono')
             ->columnSpan(2);
+    }
+
+    private static function formatJsonState(mixed $state): string
+    {
+        if ($state === null || $state === '') {
+            return '—';
+        }
+
+        if (is_string($state)) {
+            $decodedState = json_decode($state, true);
+
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $state = $decodedState;
+            } else {
+                return $state;
+            }
+        }
+
+        return json_encode(
+            $state,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+        ) ?: '—';
     }
 }
