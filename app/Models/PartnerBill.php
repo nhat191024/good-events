@@ -352,8 +352,15 @@ class PartnerBill extends Model implements HasMedia
 
         $voucher = $partnerBill->voucher;
         if ($voucher) {
-            $voucher->data['times_used'] = $voucher->timesUsed() + 1;
-            $voucher->save();
+            $discountAmount = Voucher::getDiscountAmount($partnerBill->total);
+            $transId = date('YmdHis') . rand(1000, 9999) + $partnerBill->id + rand(100, 999) + $partnerBill->voucher_id;
+            $oldBalance = $user->balanceInt;
+            $transaction = $user->deposit($discountAmount, ['transaction_codes' => $transId, 'reason' => 'Hoàn tiền voucher show mã: ' . $voucher->code, 'old_balance' => $oldBalance]);
+            $newBalance = $user->balanceInt;
+            $transaction->meta = array_merge($transaction->meta ?? [], [
+                'new_balance' => $newBalance,
+            ]);
+            $transaction->save();
         }
     }
 
