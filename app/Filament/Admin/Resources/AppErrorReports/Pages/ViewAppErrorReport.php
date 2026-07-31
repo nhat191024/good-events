@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\AppErrorReports\AppErrorReportResource;
 use App\Models\AppErrorReport;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Js;
@@ -27,6 +28,28 @@ class ViewAppErrorReport extends ViewRecord
                     return 'window.navigator.clipboard.writeText('.Js::from($markdown).'); '
                         .'$tooltip('.Js::from('Đã sao chép nội dung lỗi.').', { theme: $store.theme });';
                 }),
+            Action::make('markAsChecked')
+                ->label('Mark as checked')
+                ->icon(Heroicon::OutlinedCheckCircle)
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Đánh dấu lỗi đã được kiểm tra?')
+                ->modalDescription('Lỗi này sẽ không còn xuất hiện trong danh sách mặc định.')
+                ->action(function (AppErrorReport $record): void {
+                    $record->update([
+                        'checked_at' => now(),
+                        'checked_by' => auth()->id(),
+                    ]);
+                    $record->load('checkedBy');
+
+                    Notification::make()
+                        ->title('Đã đánh dấu lỗi là đã kiểm tra')
+                        ->success()
+                        ->send();
+
+                    $this->refreshFormData(['checked_at', 'checked_by']);
+                })
+                ->visible(fn (AppErrorReport $record): bool => $record->checked_at === null),
             DeleteAction::make(),
         ];
     }
@@ -51,6 +74,7 @@ class ViewAppErrorReport extends ViewRecord
             "- **Nguồn:** {$record->source}",
             "- **Xảy ra lúc:** {$occurredAt}",
             "- **Gửi lên lúc:** {$reportedAt}",
+            '- **Trạng thái kiểm tra:** '.($record->checked_at === null ? 'Chưa kiểm tra' : 'Đã kiểm tra'),
             '',
             '## Nội dung lỗi',
             '',

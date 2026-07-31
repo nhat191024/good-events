@@ -55,6 +55,13 @@ class AppErrorReportInfolist
                         TextEntry::make('occurred_at')->label('Xảy ra lúc')->dateTime('d/m/Y H:i:s'),
                         TextEntry::make('user_agent')->label('User agent')->placeholder('—')->columnSpanFull(),
                         TextEntry::make('created_at')->label('Gửi lúc')->dateTime('d/m/Y H:i:s'),
+                        TextEntry::make('checked_at')
+                            ->label('Đã kiểm tra lúc')
+                            ->dateTime('d/m/Y H:i:s')
+                            ->placeholder('Chưa kiểm tra'),
+                        TextEntry::make('checkedBy.name')
+                            ->label('Người kiểm tra')
+                            ->placeholder('—'),
                     ]),
             ]);
     }

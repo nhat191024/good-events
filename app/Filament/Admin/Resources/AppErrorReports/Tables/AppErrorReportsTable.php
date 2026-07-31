@@ -10,6 +10,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class AppErrorReportsTable
@@ -63,6 +64,12 @@ class AppErrorReportsTable
                     ->label('Xảy ra lúc')
                     ->dateTime('d/m/Y H:i:s')
                     ->sortable(),
+                TextColumn::make('review_status')
+                    ->label('Kiểm tra')
+                    ->state(fn (AppErrorReport $record): string => $record->checked_at === null ? 'unchecked' : 'checked')
+                    ->formatStateUsing(fn (string $state): string => $state === 'checked' ? 'Đã kiểm tra' : 'Chưa kiểm tra')
+                    ->badge()
+                    ->color(fn (string $state): string => $state === 'checked' ? 'success' : 'warning'),
                 TextColumn::make('created_at')
                     ->label('Gửi lúc')
                     ->dateTime('d/m/Y H:i:s')
@@ -70,6 +77,13 @@ class AppErrorReportsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                TernaryFilter::make('checked_at')
+                    ->label('Trạng thái kiểm tra')
+                    ->nullable()
+                    ->trueLabel('Đã kiểm tra')
+                    ->falseLabel('Chưa kiểm tra')
+                    ->placeholder('Tất cả')
+                    ->default(false),
                 SelectFilter::make('type')
                     ->label('Loại lỗi')
                     ->options(AppErrorType::class),

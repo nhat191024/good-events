@@ -35,6 +35,8 @@ class AppErrorReport extends Model
         'ip_address',
         'user_agent',
         'occurred_at',
+        'checked_at',
+        'checked_by',
     ];
 
     /**
@@ -49,11 +51,17 @@ class AppErrorReport extends Model
             'api_request' => 'array',
             'api_response' => 'array',
             'occurred_at' => 'immutable_datetime',
+            'checked_at' => 'immutable_datetime',
         ];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    public function checkedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'checked_by')->withTrashed();
     }
 }
