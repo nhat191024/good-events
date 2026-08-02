@@ -40,15 +40,15 @@ return [
     ],
 
     'google' => [
-        'client_id'     => env('GOOGLE_CLIENT_ID'),
+        'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect'      => env('GOOGLE_REDIRECT_URI'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
     'apple' => [
-        'service_id'    => env('APPLE_SERVICE_ID'),
+        'service_id' => env('APPLE_SERVICE_ID'),
         'ios_bundle_id' => env('APPLE_IOS_BUNDLE_ID'),
-        'redirect'      => env('APPLE_REDIRECT_URI'),
+        'redirect' => env('APPLE_REDIRECT_URI'),
     ],
 
     'payos' => [
@@ -56,6 +56,13 @@ return [
         'api_key' => env('PAYOS_API_KEY', ''),
         'checksum_key' => env('PAYOS_CHECKSUM_KEY', ''),
         'partner_code' => env('PAYOS_PARTNER_CODE', ''),
-        'app_deep_link' => env('APP_PAYMENT_RESULT_DEEPLINK_URL', '')
+        'app_deep_link' => env('APP_PAYMENT_RESULT_DEEPLINK_URL', ''),
+    ],
+
+    'agora' => [
+        'app_id' => env('AGORA_APP_ID'),
+        'app_certificate' => env('AGORA_APP_CERTIFICATE'),
+        'token_ttl' => (int) env('AGORA_TOKEN_TTL', 3600),
+        'call_ttl' => (int) env('AGORA_CALL_TTL', 14400),
     ],
 ];
