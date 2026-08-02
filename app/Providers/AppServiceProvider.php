@@ -2,47 +2,37 @@
 
 namespace App\Providers;
 
-use Inertia\Inertia;
-
-use BezhanSalleh\LanguageSwitch\LanguageSwitch;
-
-use App\Models\User;
-
-use App\Settings\AppSettings;
-use App\Enum\FilamentNavigationGroup;
-
 use App\Auth\PolymorphicUserProvider;
-
+use App\Enum\FilamentNavigationGroup;
+use App\Models\Call;
+use App\Models\User;
+use App\Policies\ActivityPolicy;
+use App\Policies\CallPolicy;
+use App\Policies\FailedJobPolicy;
+use App\Policies\MailLogPolicy;
+use App\Policies\TagPolicy;
+use App\Policies\VoucherPolicy;
+use App\Settings\AppSettings;
+use BeyondCode\Vouchers\Models\Voucher;
+use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rules\Password;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Cache\RateLimiting\Limit;
-
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
-
-use Spatie\Tags\Tag;
-use App\Policies\TagPolicy;
-
-use BeyondCode\Vouchers\Models\Voucher;
-use App\Policies\VoucherPolicy;
-
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
 use Spatie\Activitylog\Models\Activity;
-use App\Policies\ActivityPolicy;
-
-use BinaryBuilds\FilamentFailedJobs\Models\FailedJob;
-use App\Policies\FailedJobPolicy;
-
+use Spatie\Tags\Tag;
 use Tapp\FilamentMailLog\Models\MailLog;
-use App\Policies\MailLogPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -79,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $policies = [
+            Call::class => CallPolicy::class,
             Tag::class => TagPolicy::class,
             Voucher::class => VoucherPolicy::class,
             Activity::class => ActivityPolicy::class,
@@ -86,12 +77,12 @@ class AppServiceProvider extends ServiceProvider
             MailLog::class => MailLogPolicy::class,
         ];
 
-        //manually register policies - why? idk
+        // manually register policies - why? idk
         foreach ($policies as $model => $policy) {
             Gate::policy($model, $policy);
         }
 
-        //use if super admin can't access everything
+        // use if super admin can't access everything
         // Gate::before(function ($user, $ability) {
         //     return $user->hasRole(Role::SUPER_ADMIN->value) ? true : null;
         // });
@@ -101,8 +92,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Filament::registerNavigationGroups([
-            'system'   => NavigationGroup::make(fn() => FilamentNavigationGroup::SYSTEM->getLabel()),
-            'settings' => NavigationGroup::make(fn() => FilamentNavigationGroup::SETTINGS->getLabel()),
+            'system' => NavigationGroup::make(fn () => FilamentNavigationGroup::SYSTEM->getLabel()),
+            'settings' => NavigationGroup::make(fn () => FilamentNavigationGroup::SETTINGS->getLabel()),
         ]);
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
@@ -121,10 +112,10 @@ class AppServiceProvider extends ServiceProvider
             'flash' => function () {
                 return [
                     'success' => session('success'),
-                    'error'   => session('error'),
+                    'error' => session('error'),
                 ];
             },
-            'app_settings'  => fn() => $settingsArray
+            'app_settings' => fn () => $settingsArray,
         ]);
 
         View::share('settings', $settingsArray);
@@ -142,13 +133,13 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Password::defaults(
-            fn(): ?Password => app()->isProduction()
+            fn (): ?Password => app()->isProduction()
                 ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
                 : null,
         );
     }
@@ -157,8 +148,8 @@ class AppServiceProvider extends ServiceProvider
     {
         try {
             return [
-                'app_name'    => $settings->app_name,
-                'app_logo'    => secure_asset($settings->app_logo),
+                'app_name' => $settings->app_name,
+                'app_logo' => secure_asset($settings->app_logo),
                 'app_favicon' => secure_asset($settings->app_favicon),
                 'contact_hotline' => $settings->contact_hotline,
                 'contact_email' => $settings->contact_email,
@@ -176,8 +167,8 @@ class AppServiceProvider extends ServiceProvider
     private function getFallbackSettingsArray(): array
     {
         return [
-            'app_name'    => config('app.name'),
-            'app_logo'    => null,
+            'app_name' => config('app.name'),
+            'app_logo' => null,
             'app_favicon' => null,
             'contact_hotline' => null,
             'contact_email' => null,

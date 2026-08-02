@@ -2,28 +2,31 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-
-use Cmgmyr\Messenger\Models\Thread as BaseThread;
+use Carbon\CarbonImmutable;
 use Cmgmyr\Messenger\Models\Models;
-use App\Models\Message;
+use Cmgmyr\Messenger\Models\Participant;
+use Cmgmyr\Messenger\Models\Thread as BaseThread;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int $id
  * @property string $subject
- * @property \Carbon\CarbonImmutable|null $deleted_at
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
- * @property-read \App\Models\PartnerBill|null $bill
+ * @property CarbonImmutable|null $deleted_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property-read PartnerBill|null $bill
  * @property-read mixed $latest_message
  * @property-read Message|null $latestMessage
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Message> $messages
+ * @property-read Collection<int, Message> $messages
  * @property-read int|null $messages_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Participant> $participants
+ * @property-read Collection<int, Participant> $participants
  * @property-read int|null $participants_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read Collection<int, User> $users
  * @property-read int|null $users_count
+ *
  * @method static Builder<static>|Thread between(array $participants)
  * @method static Builder<static>|Thread betweenOnly(array $participants)
  * @method static Builder<static>|Thread forUser($userId)
@@ -40,17 +43,21 @@ use App\Models\Message;
  * @method static Builder<static>|Thread whereUpdatedAt($value)
  * @method static Builder<static>|Thread withTrashed(bool $withTrashed = true)
  * @method static Builder<static>|Thread withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Thread extends BaseThread
 {
+    public function calls(): HasMany
+    {
+        return $this->hasMany(Call::class);
+    }
+
     /**
      * Returns threads that the user is associated with and sorts start from unread.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $userId
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  int  $userId
+     * @return Builder
      */
     public function scopeForUserOrderByNotReadMessages(Builder $query, $userId)
     {
@@ -58,18 +65,19 @@ class Thread extends BaseThread
         $threadsTable = Models::table('threads');
         $tablePrefix = $this->getConnection()->getTablePrefix();
 
-        $orderBy = 'IF(`' . $participantTable . '`.last_read IS NULL, 2, IF (`' . $threadsTable . '`.updated_at>`' . $tablePrefix . $participantTable . '`.last_read, 2, 0)) DESC';
-        return $query->join($participantTable, $this->getQualifiedKeyName(), '=', $participantTable . '.thread_id')
-            ->where($participantTable . '.user_id', $userId)
-            ->whereNull($participantTable . '.deleted_at')
+        $orderBy = 'IF(`'.$participantTable.'`.last_read IS NULL, 2, IF (`'.$threadsTable.'`.updated_at>`'.$tablePrefix.$participantTable.'`.last_read, 2, 0)) DESC';
+
+        return $query->join($participantTable, $this->getQualifiedKeyName(), '=', $participantTable.'.thread_id')
+            ->where($participantTable.'.user_id', $userId)
+            ->whereNull($participantTable.'.deleted_at')
             ->orderByRaw($orderBy)
-            ->select($threadsTable . '.*');
+            ->select($threadsTable.'.*');
     }
 
     /**
      * Get the latest message associated with the thread.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function latestMessage()
     {
@@ -81,6 +89,7 @@ class Thread extends BaseThread
         if ($this->relationLoaded('latestMessage')) {
             return $this->getRelation('latestMessage');
         }
+
         return $this->messages()->latest()->first();
     }
 
