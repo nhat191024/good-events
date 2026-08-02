@@ -551,9 +551,9 @@ class BillController extends Controller
         if (!$includesCategoryFilter) {
             match ($sortBy) {
                 'oldest' => $query->orderBy('updated_at', 'asc'),
-                'date_desc' => $query->orderBy('date', 'desc')->orderBy('start_time', 'desc'),
+                'date_desc' => $query->orderBy('date', 'asc')->orderBy('start_time', 'asc'),
                 'newest' => $query->orderByDesc('updated_at'),
-                default => $query->orderBy('date', 'desc')->orderBy('start_time', 'desc'),
+                default => $query->orderBy('date', 'asc')->orderBy('start_time', 'asc'),
             };
         }
     }
