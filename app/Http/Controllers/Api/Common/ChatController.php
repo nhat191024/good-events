@@ -51,7 +51,7 @@ class ChatController extends Controller
             },
             'participants',
             'participants.user' => function ($query) {
-                $query->select('id', 'name', 'avatar_url');
+                $query->select('id', 'name', 'avatar');
             },
             'bill' => function ($query) {
                 $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'category_id', 'date', 'start_time', 'end_time', 'address');
