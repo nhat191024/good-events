@@ -21,14 +21,13 @@ class ChatInvitationController extends Controller
         $users = User::query()
             ->whereKeyNot($request->user()->id)
             ->where('phone', 'like', '%'.$phone.'%')
-            ->select(['id', 'name', 'phone', 'avatar'])
+            ->select(['id', 'name', 'phone'])
             ->limit(20)
             ->get()
             ->map(fn (User $user): array => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'phone' => $user->phone,
-                'avatar' => $user->avatar_url,
             ]);
 
         return response()->json(['users' => $users]);
