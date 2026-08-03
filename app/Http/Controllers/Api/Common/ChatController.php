@@ -51,7 +51,7 @@ class ChatController extends Controller
             },
             'participants',
             'participants.user' => function ($query) {
-                $query->select('id', 'name', 'avatar');
+                $query->select('id', 'name');
             },
             'bill' => function ($query) {
                 $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'category_id', 'date', 'start_time', 'end_time', 'address');
@@ -131,7 +131,6 @@ class ChatController extends Controller
                     return [
                         'id' => $participant->user->id,
                         'name' => $participant->user->name,
-                        'avatar_url' => $participant->user->getFirstMediaUrl('avatar', 'avatar_webp') ? $participant->user->getFirstMediaUrl('avatar', 'avatar_webp') : $participant->user->avatar_url,
                     ];
                 })->values(),
                 'latest_message' => $thread->latestMessage ? [
