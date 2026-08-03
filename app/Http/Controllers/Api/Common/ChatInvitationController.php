@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers\Api\Common;
 
+use App\Enum\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\InviteChatUserRequest;
 use App\Http\Requests\SearchChatUserRequest;
 use App\Models\ChatInvitation;
+use App\Models\Customer;
+use App\Models\Partner;
 use App\Models\User;
 use App\Notifications\ChatInvitationNotification;
 use App\Services\FCMService;
 use Cmgmyr\Messenger\Models\Participant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\DB;
 
 class ChatInvitationController extends Controller
@@ -114,7 +118,10 @@ class ChatInvitationController extends Controller
             return response()->json(['message' => 'Không tìm thấy lời mời đang chờ.'], 404);
         }
 
-        $request->user()->unreadNotifications()
+        DatabaseNotification::query()
+            ->where('notifiable_id', $request->user()->id)
+            ->whereIn('notifiable_type', [User::class, Partner::class, Customer::class])
+            ->whereNull('read_at')
             ->where('data->type', 'chat_invitation')
             ->where('data->thread_id', $thread)
             ->update(['read_at' => now()]);
@@ -183,9 +190,7 @@ class ChatInvitationController extends Controller
 
     private function notifyInvitedUser(ChatInvitation $invitation, User $inviter): void
     {
-        $invitedUser = User::query()
-            ->with('pushDevices')
-            ->find($invitation->user_id);
+        $invitedUser = $this->resolveNotifiableUser($invitation->user_id);
 
         if (! $invitedUser) {
             return;
@@ -235,5 +240,28 @@ class ChatInvitationController extends Controller
                 '10',
             );
         }
+    }
+
+    private function resolveNotifiableUser(int $userId): ?User
+    {
+        $roles = DB::table('model_has_roles')
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->where('model_has_roles.model_id', $userId)
+            ->whereIn('model_has_roles.model_type', [
+                User::class,
+                Partner::class,
+                Customer::class,
+            ])
+            ->pluck('roles.name');
+
+        $modelClass = match (true) {
+            $roles->contains(Role::PARTNER->value) => Partner::class,
+            $roles->contains(Role::CLIENT->value) => Customer::class,
+            default => User::class,
+        };
+
+        return $modelClass::query()
+            ->with('pushDevices')
+            ->find($userId);
     }
 }

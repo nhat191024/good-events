@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\NotificationResource;
+use App\Models\Customer;
+use App\Models\Partner;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
 
@@ -28,7 +32,7 @@ class NotificationController extends Controller
         $perPage = (int) min(50, max(5, (int) $request->integer('per_page', 10)));
         $onlyUnread = $request->boolean('unread');
 
-        $query = $user->notifications()
+        $query = $this->notificationQuery($user->id)
             ->when($onlyUnread, fn ($q) => $q->whereNull('read_at'))
             ->orderByDesc('created_at');
 
@@ -36,7 +40,9 @@ class NotificationController extends Controller
 
         return NotificationResource::collection($paginator)->additional([
             'meta' => [
-                'unread_count' => $user->unreadNotifications()->count(),
+                'unread_count' => $this->notificationQuery($user->id)
+                    ->whereNull('read_at')
+                    ->count(),
             ],
         ]);
     }
@@ -58,7 +64,7 @@ class NotificationController extends Controller
         }
 
         /** @var DatabaseNotification $notification */
-        $notification = $user->notifications()->where('id', $id)->firstOrFail();
+        $notification = $this->notificationQuery($user->id)->whereKey($id)->firstOrFail();
         if (is_null($notification->read_at)) {
             $notification->markAsRead();
         }
@@ -84,8 +90,9 @@ class NotificationController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        $user = $request->user();
-        $user->unreadNotifications->markAsRead();
+        $this->notificationQuery($authUser->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
 
         return response()->json(['success' => true]);
     }
@@ -106,9 +113,21 @@ class NotificationController extends Controller
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        $notification = $user->notifications()->where('id', $id)->firstOrFail();
+        $notification = $this->notificationQuery($user->id)->whereKey($id)->firstOrFail();
         $notification->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    /** @return Builder<DatabaseNotification> */
+    private function notificationQuery(int $userId): Builder
+    {
+        return DatabaseNotification::query()
+            ->where('notifiable_id', $userId)
+            ->whereIn('notifiable_type', [
+                User::class,
+                Partner::class,
+                Customer::class,
+            ]);
     }
 }
