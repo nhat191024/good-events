@@ -12,6 +12,7 @@ class CallResource extends JsonResource
     {
         return [
             'id' => $this->uuid,
+            'callkit_uuid' => $this->callkit_uuid,
             'thread_id' => $this->thread_id,
             'type' => $this->type,
             'status' => $this->status,

@@ -65,4 +65,12 @@ return [
         'token_ttl' => (int) env('AGORA_TOKEN_TTL', 3600),
         'call_ttl' => (int) env('AGORA_CALL_TTL', 14400),
     ],
+
+    'apns_voip' => [
+        'team_id' => env('APNS_TEAM_ID'),
+        'key_id' => env('APNS_KEY_ID'),
+        'bundle_id' => env('APNS_BUNDLE_ID', 'com.sukientot.app'),
+        'private_key' => env('APNS_PRIVATE_KEY'),
+        'environment' => env('APNS_ENVIRONMENT', 'development'),
+    ],
 ];

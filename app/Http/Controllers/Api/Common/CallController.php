@@ -7,12 +7,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AccessThreadCallRequest;
 use App\Http\Requests\StartCallRequest;
 use App\Http\Resources\Api\CallResource;
+use App\Jobs\SendApnsVoipNotification;
 use App\Jobs\SendMessage as SendMessageJob;
 use App\Models\Call;
 use App\Models\Message;
+use App\Models\PushDevice;
 use App\Models\Thread;
 use App\Models\User;
 use App\Services\AgoraTokenService;
+use App\Services\ApnsVoipService;
 use App\Services\FCMService;
 use App\Support\ChatMessagePayload;
 use Illuminate\Http\JsonResponse;
@@ -25,6 +28,7 @@ class CallController extends Controller
 {
     public function __construct(
         private readonly AgoraTokenService $agoraTokenService,
+        private readonly ApnsVoipService $apnsVoipService,
         private readonly FCMService $fcmService,
     ) {}
 
@@ -44,6 +48,7 @@ class CallController extends Controller
             $uuid = (string) Str::ulid();
             $call = Call::query()->create([
                 'uuid' => $uuid,
+                'callkit_uuid' => (string) Str::uuid(),
                 'thread_id' => $thread,
                 'initiated_by' => $user->id,
                 'channel' => "call_{$uuid}",
@@ -240,23 +245,65 @@ class CallController extends Controller
     {
         $invitedUsers = User::query()
             ->whereIn('id', $call->invites->pluck('user_id'))
+            ->with('pushDevices')
             ->get();
 
         foreach ($invitedUsers as $invitedUser) {
-            $sent = $this->fcmService->sendToUser(
-                $invitedUser,
-                'Cuộc gọi đến',
-                "{$initiator->name} đang mời bạn tham gia cuộc gọi.",
-                [
-                    'type' => 'incoming_call',
-                    'call_id' => $call->uuid,
-                    'thread_id' => (string) $call->thread_id,
-                    'call_type' => $call->type,
-                    'initiator_id' => (string) $initiator->id,
-                    'initiator_name' => $initiator->name,
-                ],
-                '10',
-            );
+            $notificationData = [
+                'type' => 'incoming_call',
+                'call_id' => $call->uuid,
+                'callkit_uuid' => $call->callkit_uuid,
+                'thread_id' => (string) $call->thread_id,
+                'call_type' => $call->type,
+                'initiator_id' => (string) $initiator->id,
+                'initiator_name' => $initiator->name,
+                'expires_at' => $call->expires_at->toIso8601String(),
+            ];
+            $sent = false;
+
+            foreach ($invitedUser->pushDevices as $pushDevice) {
+                $canSendVoip = $pushDevice->platform === PushDevice::PLATFORM_IOS
+                    && $pushDevice->voip_token !== null
+                    && $this->apnsVoipService->isConfigured();
+
+                if ($canSendVoip) {
+                    SendApnsVoipNotification::dispatch(
+                        $pushDevice->id,
+                        $call->uuid,
+                        [
+                            'aps' => ['content-available' => 1],
+                            ...$notificationData,
+                            'caller_name' => $initiator->name,
+                            'handle' => (string) $initiator->id,
+                            'has_video' => $call->type === Call::TYPE_VIDEO,
+                        ],
+                    );
+                    $sent = true;
+
+                    continue;
+                }
+
+                if ($pushDevice->fcm_token !== null) {
+                    $this->fcmService->sendToToken(
+                        $pushDevice->fcm_token,
+                        'Cuộc gọi đến',
+                        "{$initiator->name} đang mời bạn tham gia cuộc gọi.",
+                        $notificationData,
+                        '10',
+                    );
+                    $sent = true;
+                }
+            }
+
+            if (! $sent) {
+                $sent = $this->fcmService->sendToUser(
+                    $invitedUser,
+                    'Cuộc gọi đến',
+                    "{$initiator->name} đang mời bạn tham gia cuộc gọi.",
+                    $notificationData,
+                    '10',
+                );
+            }
 
             if ($sent) {
                 $call->invites()

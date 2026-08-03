@@ -24,6 +24,7 @@ class Call extends Model
      */
     protected $fillable = [
         'uuid',
+        'callkit_uuid',
         'thread_id',
         'initiated_by',
         'channel',

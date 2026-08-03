@@ -42,6 +42,7 @@ use App\Interfaces\MustVerifyPhone;
 use App\Models\Traits\MustVerifyPhoneTrait;
 
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -150,6 +151,11 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanConfirm, CanRedeemVouchers, ReviewRateable, LogsActivity, CanResetPassword, HasApiTokens, InteractsWithMedia, MustVerifyPhoneTrait;
+
+    public function pushDevices(): HasMany
+    {
+        return $this->hasMany(PushDevice::class);
+    }
 
     /**
      * The attributes that are mass assignable.
