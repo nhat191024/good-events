@@ -17,7 +17,7 @@ class NotificationResource extends BaseResource
         $actionUrl = null;
         if (isset($data['actions']) && is_array($data['actions'])) {
             foreach ($data['actions'] as $action) {
-                if (!empty($action['url'])) {
+                if (! empty($action['url'])) {
                     $actionUrl = $action['url'];
                     break;
                 }
@@ -31,6 +31,13 @@ class NotificationResource extends BaseResource
             'unread' => is_null($this->read_at),
             'created_at' => optional($this->created_at)->toIso8601String(),
             'href' => $actionUrl,
+            'type' => $data['type'] ?? null,
+            'thread_id' => isset($data['thread_id']) ? (int) $data['thread_id'] : null,
+            'invitation_id' => isset($data['invitation_id']) ? (int) $data['invitation_id'] : null,
+            'inviter' => isset($data['inviter_id']) ? [
+                'id' => (int) $data['inviter_id'],
+                'name' => $data['inviter_name'] ?? null,
+            ] : null,
             'payload' => $data,
         ];
     }

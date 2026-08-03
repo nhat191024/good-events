@@ -13,7 +13,7 @@ class NotificationController extends Controller
      * GET /api/notifications
      *
      * Query: per_page, unread
-     * Response: paginated NotificationResource with meta.unread_count
+     * Response: paginated NotificationResource with normalized action data and meta.unread_count
      *
      * @param Request $request
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\JsonResponse
