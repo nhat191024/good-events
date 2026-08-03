@@ -154,7 +154,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
 
     public function pushDevices(): HasMany
     {
-        return $this->hasMany(PushDevice::class);
+        return $this->hasMany(PushDevice::class, 'user_id');
     }
 
     /**
