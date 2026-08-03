@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read PartnerBill|null $bill
+ * @property-read Collection<int, ChatInvitation> $chatInvitations
+ * @property-read int|null $chat_invitations_count
  * @property-read mixed $latest_message
  * @property-read Message|null $latestMessage
  * @property-read Collection<int, Message> $messages
@@ -48,6 +50,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class Thread extends BaseThread
 {
+    public function chatInvitations(): HasMany
+    {
+        return $this->hasMany(ChatInvitation::class);
+    }
+
     public function calls(): HasMany
     {
         return $this->hasMany(Call::class);

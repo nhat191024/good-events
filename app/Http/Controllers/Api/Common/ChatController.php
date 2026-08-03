@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Common;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreChatMessageRequest;
 use App\Jobs\SendMessage;
+use App\Models\ChatInvitation;
 use App\Models\Message;
 use App\Models\Thread;
 use App\Support\ChatMessagePayload;
@@ -52,6 +53,11 @@ class ChatController extends Controller
             'participants',
             'participants.user' => function ($query) {
                 $query->select('id', 'name');
+            },
+            'chatInvitations' => function ($query) use ($userId) {
+                $query
+                    ->where('user_id', $userId)
+                    ->where('status', ChatInvitation::STATUS_ACCEPTED);
             },
             'bill' => function ($query) {
                 $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'category_id', 'date', 'start_time', 'end_time', 'address');
@@ -107,6 +113,7 @@ class ChatController extends Controller
         $mappedThreads = $threads->map(function ($thread) use ($sideRequest, $userId, $userRole) {
             $isUnread = false;
             $participant = $thread->participants->firstWhere('user_id', $userId);
+            $canLeave = $thread->chatInvitations->isNotEmpty();
 
             if ($participant) {
                 $isUnread = $participant->last_read !== null && $thread->updated_at->gt($participant->last_read);
@@ -126,6 +133,8 @@ class ChatController extends Controller
                 'id' => $thread->id,
                 'subject' => $subject,
                 'is_unread' => $isUnread,
+                'can_leave' => $canLeave,
+                'membership_source' => $canLeave ? 'invitation' : 'system',
                 'code' => $thread->bill->code,
                 'participants' => $thread->participants->map(function ($participant) {
                     return [
@@ -171,7 +180,14 @@ class ChatController extends Controller
     public function loadMessages(Request $request, int $threadId)
     {
         $page = (int) $request->input('page', 1);
-        $thread = Thread::find($threadId);
+        $userId = (int) Auth::id();
+        $thread = Thread::query()
+            ->with(['chatInvitations' => function ($query) use ($userId) {
+                $query
+                    ->where('user_id', $userId)
+                    ->where('status', ChatInvitation::STATUS_ACCEPTED);
+            }])
+            ->find($threadId);
 
         $thread?->markAsRead(Auth::id());
 
@@ -208,6 +224,13 @@ class ChatController extends Controller
         return response()->json([
             'messages' => $mappedMessages,
             'hasMore' => $hasMore,
+            'thread' => [
+                'id' => $thread->id,
+                'can_leave' => $thread->chatInvitations->isNotEmpty(),
+                'membership_source' => $thread->chatInvitations->isNotEmpty()
+                    ? 'invitation'
+                    : 'system',
+            ],
         ]);
     }
 
