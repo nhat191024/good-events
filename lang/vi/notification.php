@@ -64,4 +64,9 @@ return [
         'body' => 'Đã gửi cho bạn một tin nhắn mới.',
         'body_count' => 'Bạn có :count tin nhắn mới',
     ],
+
+    'chat_invitation' => [
+        'title' => 'Lời mời tham gia đoạn chat',
+        'body' => ':inviter đã mời bạn tham gia một đoạn chat.',
+    ],
 ];

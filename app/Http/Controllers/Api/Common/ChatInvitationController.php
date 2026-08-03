@@ -7,6 +7,8 @@ use App\Http\Requests\InviteChatUserRequest;
 use App\Http\Requests\SearchChatUserRequest;
 use App\Models\ChatInvitation;
 use App\Models\User;
+use App\Notifications\ChatInvitationNotification;
+use App\Services\FCMService;
 use Cmgmyr\Messenger\Models\Participant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +16,10 @@ use Illuminate\Support\Facades\DB;
 
 class ChatInvitationController extends Controller
 {
+    public function __construct(
+        private readonly FCMService $fcmService,
+    ) {}
+
     public function searchUsers(SearchChatUserRequest $request): JsonResponse
     {
         $phone = trim((string) $request->validated('phone'));
@@ -66,6 +72,8 @@ class ChatInvitationController extends Controller
             return $invitation;
         });
 
+        $this->notifyInvitedUser($invitation, $request->user());
+
         return response()->json([
             'message' => 'Đã gửi lời mời tham gia đoạn chat.',
             'invitation' => $this->invitationPayload($invitation),
@@ -105,6 +113,11 @@ class ChatInvitationController extends Controller
         if (! $invitation) {
             return response()->json(['message' => 'Không tìm thấy lời mời đang chờ.'], 404);
         }
+
+        $request->user()->unreadNotifications()
+            ->where('data->type', 'chat_invitation')
+            ->where('data->thread_id', $thread)
+            ->update(['read_at' => now()]);
 
         return response()->json([
             'message' => 'Bạn đã tham gia đoạn chat.',
@@ -166,5 +179,61 @@ class ChatInvitationController extends Controller
             'accepted_at' => $invitation->accepted_at?->toIso8601String(),
             'left_at' => $invitation->left_at?->toIso8601String(),
         ];
+    }
+
+    private function notifyInvitedUser(ChatInvitation $invitation, User $inviter): void
+    {
+        $invitedUser = User::query()
+            ->with('pushDevices')
+            ->find($invitation->user_id);
+
+        if (! $invitedUser) {
+            return;
+        }
+
+        $title = __('notification.chat_invitation.title');
+        $body = __('notification.chat_invitation.body', ['inviter' => $inviter->name]);
+        $data = [
+            'type' => 'chat_invitation',
+            'code' => 'CHAT_INVITATION',
+            'invitation_id' => (string) $invitation->id,
+            'thread_id' => (string) $invitation->thread_id,
+            'inviter_id' => (string) $inviter->id,
+            'inviter_name' => $inviter->name,
+        ];
+
+        $invitedUser->notify(new ChatInvitationNotification(
+            invitationId: $invitation->id,
+            threadId: $invitation->thread_id,
+            inviterId: $inviter->id,
+            inviterName: $inviter->name,
+        ));
+
+        $sentToRegisteredDevice = false;
+
+        foreach ($invitedUser->pushDevices as $pushDevice) {
+            if ($pushDevice->fcm_token === null) {
+                continue;
+            }
+
+            $this->fcmService->sendToToken(
+                $pushDevice->fcm_token,
+                $title,
+                $body,
+                $data,
+                '10',
+            );
+            $sentToRegisteredDevice = true;
+        }
+
+        if (! $sentToRegisteredDevice && $invitedUser->fcm_token !== null) {
+            $this->fcmService->sendToUser(
+                $invitedUser,
+                $title,
+                $body,
+                $data,
+                '10',
+            );
+        }
     }
 }
