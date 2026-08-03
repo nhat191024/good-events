@@ -2,9 +2,14 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Cmgmyr\Messenger\Models\Message as BaseMessage;
+use Cmgmyr\Messenger\Models\Participant;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
@@ -12,26 +17,30 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property int $thread_id
  * @property int $user_id
  * @property string|null $client_message_id
+ * @property int|null $call_id
+ * @property int|null $call_duration_seconds
  * @property string $type
  * @property string|null $body
  * @property numeric|null $location_latitude
  * @property numeric|null $location_longitude
  * @property string|null $location_label
  * @property string|null $location_address
- * @property \Carbon\CarbonImmutable|null $deleted_at
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property CarbonImmutable|null $deleted_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  * @property-read array<int, array<string, mixed>> $attachments
  * @property-read array<string, mixed>|null $location
+ * @property-read array<string, mixed>|null $call_summary
  * @property-read string $preview_text
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Participant> $participants
+ * @property-read Collection<int, Participant> $participants
  * @property-read int|null $participants_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Participant> $recipients
+ * @property-read Collection<int, Participant> $recipients
  * @property-read int|null $recipients_count
- * @property-read \App\Models\Thread|null $thread
- * @property-read \App\Models\User|null $user
+ * @property-read Thread|null $thread
+ * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Message newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Message newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Message onlyTrashed()
@@ -52,6 +61,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Message withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Message withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Message extends BaseMessage implements HasMedia
@@ -64,12 +74,16 @@ class Message extends BaseMessage implements HasMedia
 
     public const string TYPE_LOCATION = 'location';
 
+    public const string TYPE_CALL = 'call';
+
     public const string MEDIA_COLLECTION_CHAT_IMAGES = 'chat_images';
 
     protected $fillable = [
         'thread_id',
         'user_id',
         'client_message_id',
+        'call_id',
+        'call_duration_seconds',
         'type',
         'body',
         'location_latitude',
@@ -81,6 +95,7 @@ class Message extends BaseMessage implements HasMedia
     protected $appends = [
         'attachments',
         'location',
+        'call_summary',
         'preview_text',
     ];
 
@@ -100,6 +115,26 @@ class Message extends BaseMessage implements HasMedia
         $this
             ->addMediaCollection(self::MEDIA_COLLECTION_CHAT_IMAGES)
             ->useDisk('public');
+    }
+
+    public function call(): BelongsTo
+    {
+        return $this->belongsTo(Call::class);
+    }
+
+    /** @return array<string, mixed>|null */
+    public function getCallSummaryAttribute(): ?array
+    {
+        if ($this->type !== self::TYPE_CALL || $this->call_id === null) {
+            return null;
+        }
+
+        return [
+            'id' => $this->call?->uuid,
+            'duration_seconds' => (int) ($this->call_duration_seconds ?? 0),
+            'started_at' => $this->call?->started_at?->toIso8601String(),
+            'ended_at' => $this->call?->ended_at?->toIso8601String(),
+        ];
     }
 
     /**
@@ -147,6 +182,7 @@ class Message extends BaseMessage implements HasMedia
         return match ($this->type) {
             self::TYPE_IMAGE => $this->body ?: '[Ảnh]',
             self::TYPE_LOCATION => $this->location_label ?: $this->location_address ?: '[Vị trí]',
+            self::TYPE_CALL => '[Cuộc gọi]',
             default => (string) $this->body,
         };
     }

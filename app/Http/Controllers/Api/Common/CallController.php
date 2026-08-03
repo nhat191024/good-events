@@ -7,11 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AccessThreadCallRequest;
 use App\Http\Requests\StartCallRequest;
 use App\Http\Resources\Api\CallResource;
+use App\Jobs\SendMessage as SendMessageJob;
 use App\Models\Call;
+use App\Models\Message;
 use App\Models\Thread;
 use App\Models\User;
 use App\Services\AgoraTokenService;
 use App\Services\FCMService;
+use App\Support\ChatMessagePayload;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -176,19 +179,44 @@ class CallController extends Controller
     {
         Gate::authorize('end', $call);
 
-        DB::transaction(function () use ($call): void {
+        $message = DB::transaction(function () use ($call): Message {
+            $endedAt = now();
+            $connectedAt = $call->participants()
+                ->where('user_id', '!=', $call->initiated_by)
+                ->oldest('joined_at')
+                ->first()
+                ?->joined_at;
+
             $call->update([
                 'status' => Call::STATUS_ENDED,
-                'ended_at' => now(),
+                'ended_at' => $endedAt,
             ]);
 
             $call->participants()
                 ->whereNull('left_at')
-                ->update(['left_at' => now()]);
+                ->update(['left_at' => $endedAt]);
+
+            return Message::query()->firstOrCreate(
+                ['call_id' => $call->id],
+                [
+                    'thread_id' => $call->thread_id,
+                    'user_id' => $call->initiated_by,
+                    'type' => Message::TYPE_CALL,
+                    'body' => null,
+                    'call_duration_seconds' => $connectedAt === null
+                        ? 0
+                        : (int) $connectedAt->diffInSeconds($endedAt),
+                ],
+            );
         });
 
         $call = $this->loadCall($call->refresh());
         CallUpdated::dispatch($this->callPayload($call, $request));
+
+        $message->load(['user', 'call']);
+        SendMessageJob::dispatch(
+            ChatMessagePayload::forDispatch($message, $call->initiator)
+        );
 
         return response()->json(['success' => true]);
     }

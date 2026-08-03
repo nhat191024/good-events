@@ -189,7 +189,7 @@ class ChatController extends Controller
         $messages = $thread->messages()
             ->with(['user' => function ($query) {
                 $query->select('id', 'name');
-            }, 'media'])
+            }, 'media', 'call'])
             ->orderBy('created_at', 'asc')
             ->skip($offset)
             ->take(self::MESSAGES_PER_PAGE)
