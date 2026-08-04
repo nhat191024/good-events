@@ -6,6 +6,7 @@ use App\Jobs\SendCallEndedFCMNotification;
 use App\Jobs\SendFCMNotification;
 use App\Jobs\SendIncomingCallFCMNotification;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class FCMService
 {
@@ -47,6 +48,19 @@ class FCMService
     /** @param array<non-empty-string, string> $data */
     public function sendIncomingCallToAndroid(string $token, string $callId, array $data): bool
     {
+        Log::info('[FCM][IncomingCall] Queued Android data message.', [
+            'call_id' => $callId,
+            'thread_id' => $data['thread_id'] ?? null,
+            'type' => $data['type'] ?? null,
+            'token_fingerprint' => substr(hash('sha256', $token), 0, 12),
+            'data' => $data,
+            'android' => [
+                'priority' => 'high',
+                'ttl' => '60s',
+                'collapse_key' => "call_{$callId}",
+            ],
+        ]);
+
         SendIncomingCallFCMNotification::dispatch($token, $callId, $data);
 
         return true;

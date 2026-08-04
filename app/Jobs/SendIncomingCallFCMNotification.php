@@ -5,6 +5,7 @@ namespace App\Jobs;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Contract\Messaging;
 use Kreait\Firebase\Exception\MessagingException;
 use Kreait\Firebase\Messaging\CloudMessage;
@@ -38,6 +39,7 @@ class SendIncomingCallFCMNotification implements ShouldBeUnique, ShouldQueue
 
     public function handle(Messaging $messaging): void
     {
+        $tokenFingerprint = substr(hash('sha256', $this->token), 0, 12);
         $message = CloudMessage::fromArray([
             'token' => $this->token,
             'data' => $this->data,
@@ -48,8 +50,31 @@ class SendIncomingCallFCMNotification implements ShouldBeUnique, ShouldQueue
         ]);
 
         try {
-            $messaging->send($message);
+            Log::info('[FCM][IncomingCall] Sending Android data message.', [
+                'call_id' => $this->callId,
+                'thread_id' => $this->data['thread_id'] ?? null,
+                'type' => $this->data['type'] ?? null,
+                'token_fingerprint' => $tokenFingerprint,
+                'attempt' => $this->attempts(),
+            ]);
+
+            $messageId = $messaging->send($message);
+
+            Log::info('[FCM][IncomingCall] Firebase accepted Android data message.', [
+                'call_id' => $this->callId,
+                'thread_id' => $this->data['thread_id'] ?? null,
+                'token_fingerprint' => $tokenFingerprint,
+                'firebase_message_id' => $messageId,
+            ]);
         } catch (MessagingException $exception) {
+            Log::error('[FCM][IncomingCall] Firebase rejected Android data message.', [
+                'call_id' => $this->callId,
+                'thread_id' => $this->data['thread_id'] ?? null,
+                'token_fingerprint' => $tokenFingerprint,
+                'attempt' => $this->attempts(),
+                'exception' => $exception::class,
+                'error' => $exception->getMessage(),
+            ]);
             $this->fail($exception);
         }
     }
