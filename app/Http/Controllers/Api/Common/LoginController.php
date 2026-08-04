@@ -3,22 +3,22 @@
 namespace App\Http\Controllers\Api\Common;
 
 use App\Enum\Role;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\LogoutRequest;
+use App\Http\Resources\Api\UserResource;
 use App\Models\Customer;
 use App\Models\Partner;
 use App\Models\User;
-
 use App\Services\AppleTokenVerifier;
-
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Resources\Api\UserResource;
-
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\AbstractProvider;
 
 class LoginController extends Controller
 {
@@ -27,9 +27,6 @@ class LoginController extends Controller
      *
      * Body: email, password
      * Response: { token, token_type, role, user }
-     *
-     * @param LoginRequest $request
-     * @return JsonResponse
      */
     public function login(LoginRequest $request): JsonResponse
     {
@@ -37,8 +34,9 @@ class LoginController extends Controller
 
         $user = $request->user();
 
-        if (!$user->hasVerifiedEmail() && !$user->hasVerifiedPhone()) {
+        if (! $user->hasVerifiedEmail() && ! $user->hasVerifiedPhone()) {
             $token = $user->createToken('mobile')->plainTextToken;
+
             return response()->json([
                 'code' => 'UNVERIFIED',
                 'token' => $token,
@@ -61,9 +59,6 @@ class LoginController extends Controller
      *
      * Body: access_token (Google access token)
      * Response: { token, token_type, role, user } (401/404 on failure)
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function loginGoogle(Request $request): JsonResponse
     {
@@ -72,7 +67,7 @@ class LoginController extends Controller
         ]);
 
         try {
-            /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+            /** @var AbstractProvider $driver */
             $driver = Socialite::driver('google');
             $googleUser = $driver->userFromToken($validated['access_token']);
         } catch (\Throwable $e) {
@@ -82,14 +77,15 @@ class LoginController extends Controller
         }
 
         $user = $this->resolveUserByEmail($googleUser->getEmail());
-        if (!$user || $user->is_delete_account) {
+        if (! $user || $user->is_delete_account) {
             return response()->json([
                 'message' => 'Account not found.',
             ], 404);
         }
 
-        if (!$user->hasVerifiedEmail() && !$user->hasVerifiedPhone()) {
+        if (! $user->hasVerifiedEmail() && ! $user->hasVerifiedPhone()) {
             $token = $user->createToken('mobile')->plainTextToken;
+
             return response()->json([
                 'code' => 'UNVERIFIED',
                 'token' => $token,
@@ -115,10 +111,6 @@ class LoginController extends Controller
      *
      * Body: identity_token, authorization_code, email?, given_name?, family_name?
      * Response: { token, token_type, role, user } (401/404 on failure)
-     *
-     * @param Request $request
-     * @param AppleTokenVerifier $appleTokenVerifier
-     * @return JsonResponse
      */
     public function loginApple(Request $request, AppleTokenVerifier $appleTokenVerifier): JsonResponse
     {
@@ -153,12 +145,12 @@ class LoginController extends Controller
 
         $user = $this->resolveUserByAppleId($appleUser['sub']);
 
-        if (!$user) {
+        if (! $user) {
             $email = $appleUser['email'] ?? $validated['email'] ?? null;
             $user = $email ? $this->resolveUserByEmail($email) : null;
         }
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'message' => 'Account not found.',
             ], 404);
@@ -170,8 +162,9 @@ class LoginController extends Controller
             ], 409);
         }
 
-        if (!$user->hasVerifiedEmail() && !$user->hasVerifiedPhone()) {
+        if (! $user->hasVerifiedEmail() && ! $user->hasVerifiedPhone()) {
             $token = $user->createToken('mobile')->plainTextToken;
+
             return response()->json([
                 'code' => 'UNVERIFIED',
                 'token' => $token,
@@ -197,13 +190,12 @@ class LoginController extends Controller
      *
      * Return Apple web auth result to Android callback activity.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function appleCallback(Request $request)
     {
         $query = http_build_query($request->all());
-        $callbackUrl = 'signinwithapple://callback' . ($query ? '?' . $query : '');
+        $callbackUrl = 'signinwithapple://callback'.($query ? '?'.$query : '');
 
         return Redirect::away($callbackUrl);
     }
@@ -213,15 +205,23 @@ class LoginController extends Controller
      *
      * Response: { success: true }
      *
-     * @param Request $request
-     * @return JsonResponse
+     * @param  LogoutRequest  $request
      */
-    public function logout(Request $request): JsonResponse
+    public function logout(LogoutRequest $request): JsonResponse
     {
         $user = $request->user();
-        $user?->currentAccessToken()?->delete();
-        $user->fcm_token = null;
-        $user->save();
+
+        DB::transaction(function () use ($request, $user): void {
+            $deviceId = $request->validated('device_id');
+            if ($deviceId !== null) {
+                $user->pushDevices()
+                    ->where('device_id', $deviceId)
+                    ->delete();
+            }
+
+            $user->forceFill(['fcm_token' => null])->save();
+            $user->currentAccessToken()?->delete();
+        });
 
         return response()->json([
             'success' => true,
@@ -232,8 +232,6 @@ class LoginController extends Controller
      * GET /api/check-token
      *
      * Response: { valid: bool }
-     *
-     * @return JsonResponse
      */
     public function checkToken(): JsonResponse
     {
@@ -253,14 +251,11 @@ class LoginController extends Controller
      * Delete account endpoint
      *
      * Response: { success: bool }
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function deleteAccount(Request $request): JsonResponse
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized.',
@@ -273,7 +268,7 @@ class LoginController extends Controller
 
         $user->tokens()->delete();
         $user->update([
-            'email' => 'ghost_' . $user->id . '@example.com',
+            'email' => 'ghost_'.$user->id.'@example.com',
             'phone' => '0000000000',
             'is_delete_account' => true,
             'fcm_token' => null,
@@ -344,7 +339,7 @@ class LoginController extends Controller
             return '***';
         }
 
-        return substr($value, 0, 4) . '...' . substr($value, -4);
+        return substr($value, 0, 4).'...'.substr($value, -4);
     }
 
     private function resolveUserByEmail(string $email): ?User
@@ -361,7 +356,7 @@ class LoginController extends Controller
     {
         $user = User::where($column, $value)->first();
 
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 
