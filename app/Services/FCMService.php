@@ -9,16 +9,29 @@ use App\Models\User;
 
 class FCMService
 {
-    /**
-     * Dispatch a push notification job for a user via their FCM token.
-     */
+    /** Dispatch a push notification job to every registered device for a user. */
     public function sendToUser(User $user, string $title, string $body, array $data = [], string $priority = '5'): bool
     {
-        if (empty($user->fcm_token)) {
-            return false;
+        $pushDevices = $user->relationLoaded('pushDevices')
+            ? $user->pushDevices
+            : $user->pushDevices()->whereNotNull('fcm_token')->get(['fcm_token']);
+
+        $tokens = $pushDevices->pluck('fcm_token');
+
+        if (! empty($user->fcm_token)) {
+            $tokens->push($user->fcm_token);
         }
 
-        return $this->sendToToken($user->fcm_token, $title, $body, $data, $priority);
+        $tokens = $tokens
+            ->filter(fn (?string $token): bool => $token !== null && $token !== '')
+            ->unique()
+            ->values();
+
+        foreach ($tokens as $token) {
+            $this->sendToToken($token, $title, $body, $data, $priority);
+        }
+
+        return $tokens->isNotEmpty();
     }
 
     /**

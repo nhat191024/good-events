@@ -45,7 +45,7 @@ class SendMessageFCMNotification implements ShouldBeUnique, ShouldQueue
         $cacheKey = "pending_msg_count:{$this->userId}:{$this->threadId}";
         $count = (int) Cache::pull($cacheKey, 1);
 
-        if (! $user || empty($user->fcm_token)) {
+        if (! $user) {
             return;
         }
 

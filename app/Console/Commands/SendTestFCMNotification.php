@@ -46,8 +46,16 @@ class SendTestFCMNotification extends Command
             return self::FAILURE;
         }
 
-        if (empty($user->fcm_token)) {
-            $this->error("User [{$user->name}] (ID: {$user->id}) does not have an FCM token.");
+        $deviceTokens = $user->pushDevices()
+            ->whereNotNull('fcm_token')
+            ->pluck('fcm_token')
+            ->filter()
+            ->when(! empty($user->fcm_token), fn ($tokens) => $tokens->push($user->fcm_token))
+            ->unique()
+            ->values();
+
+        if ($deviceTokens->isEmpty()) {
+            $this->error("User [{$user->name}] (ID: {$user->id}) does not have a registered FCM device.");
 
             return self::FAILURE;
         }
@@ -56,7 +64,7 @@ class SendTestFCMNotification extends Command
         $body = $this->option('body') ?? $this->ask('Notification body', 'This is a test push notification.');
 
         $this->info("Sending FCM notification to user [{$user->name}] (ID: {$user->id})...");
-        $this->line("  FCM Token : {$user->fcm_token}");
+        $this->line("  Devices   : {$deviceTokens->count()}");
         $this->line("  Title     : {$title}");
         $this->line("  Body      : {$body}");
 
@@ -68,7 +76,7 @@ class SendTestFCMNotification extends Command
             return self::SUCCESS;
         }
 
-        $this->error('Failed to send notification. Check your Firebase credentials and the FCM token.');
+        $this->error('Failed to send notification. Check Firebase credentials and registered push devices.');
 
         return self::FAILURE;
     }

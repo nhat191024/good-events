@@ -2,31 +2,24 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\Partner;
+use App\Mail\PartnerBillConfirmed;
+use App\Mail\PartnerBillExpired;
+use App\Mail\PartnerBillReceived;
 use App\Models\Customer;
+use App\Models\Partner;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
-
-use App\Services\FCMService;
-
-use App\Mail\PartnerBillReceived;
-use App\Mail\PartnerBillConfirmed;
-use App\Mail\PartnerBillReminder;
-use App\Mail\PartnerBillExpired;
-
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Number;
-
-use Carbon\Carbon;
 
 class PartnerBillNotificationService
 {
     private FCMService $fcmService;
+
     private PartnerBillRecipientResolver $recipientResolver;
 
     public function __construct()
@@ -64,6 +57,7 @@ class PartnerBillNotificationService
             $eligiblePartners = User::query()
                 ->whereIn('id', $this->recipientResolver->eligiblePartnerIds($partnerBill))
                 ->whereNotNull('email')
+                ->with('pushDevices:id,user_id,fcm_token')
                 ->get();
 
             /** @var User|null $partner */
@@ -72,18 +66,16 @@ class PartnerBillNotificationService
                 Mail::to($partner->email)
                     ->queue(new PartnerBillReceived($partnerBill, 'partner', $partnerLocale));
 
-                if ($partner->fcm_token) {
-                    $title = __('notification.bill_received.title');
-                    $body = __('notification.bill_received.subject', ['category' => $partnerBill->category->name]);
+                $title = __('notification.bill_received.title');
+                $body = __('notification.bill_received.subject', ['category' => $partnerBill->category->name]);
 
-                    //TODO: add data payload with order details link
-                    $this->fcmService->sendToUser($partner, $title, $body,  ['code' => 'BILL_RECEIVED']);
-                }
+                // TODO: add data payload with order details link
+                $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_RECEIVED']);
             }
         } catch (\Exception $e) {
             Log::error('Failed to send order received notification', [
                 'partner_bill_id' => $partnerBill->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -100,7 +92,7 @@ class PartnerBillNotificationService
 
             $partnerBill->load('category:id,name');
 
-            if (!$partner) {
+            if (! $partner) {
                 Log::warning('Partner bill confirmed but partner record missing', [
                     'partner_bill_id' => $partnerBill->id,
                     'partner_id' => $partnerBill->partner_id,
@@ -117,11 +109,9 @@ class PartnerBillNotificationService
                         ->queue(new PartnerBillConfirmed($partnerBill, $partnerLocale));
                 }
 
-                if ($partner->fcm_token) {
-                    $title = __('notification.bill_confirmed.title');
-                    $body = __('notification.bill_confirmed.subject', ['category' => $partnerBill->category->name]);
-                    $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_CONFIRMED'], '10');
-                }
+                $title = __('notification.bill_confirmed.title');
+                $body = __('notification.bill_confirmed.subject', ['category' => $partnerBill->category->name]);
+                $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_CONFIRMED'], '10');
 
                 Notification::make()
                     ->title(__('notification.client_accepted_title'))
@@ -135,12 +125,12 @@ class PartnerBillNotificationService
                             ->label('Mở chat')
                             ->url(route('filament.partner.pages.chat', ['chat' => $partnerBill->thread_id])),
                     ])
-                    ->sendToDatabase($partner,  true);
+                    ->sendToDatabase($partner, true);
             }
         } catch (\Exception $e) {
             Log::error('Failed to send order confirmed notification', [
                 'partner_bill_id' => $partnerBill->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -163,20 +153,16 @@ class PartnerBillNotificationService
             $partnerBill->load('category:id,name');
 
             if ($client) {
-                if ($client->fcm_token) {
-                    $title = __('notification.bill_reminder.title');
-                    $body = __('notification.bill_reminder.client_subject', ['category' => $partnerBill->category->name]);
-                    $this->fcmService->sendToUser($client, $title, $body);
-                }
+                $title = __('notification.bill_reminder.title');
+                $body = __('notification.bill_reminder.client_subject', ['category' => $partnerBill->category->name]);
+                $this->fcmService->sendToUser($client, $title, $body);
             }
 
             // Notify for partner
             if ($partner) {
-                if ($partner->fcm_token) {
-                    $title = __('notification.bill_reminder.title');
-                    $body = __('notification.bill_reminder.partner_subject', ['category' => $partnerBill->category->name]);
-                    $this->fcmService->sendToUser($partner, $title, $body);
-                }
+                $title = __('notification.bill_reminder.title');
+                $body = __('notification.bill_reminder.partner_subject', ['category' => $partnerBill->category->name]);
+                $this->fcmService->sendToUser($partner, $title, $body);
 
                 $eventDateTime = $partnerBill->date->copy()
                     ->setTimeFrom($partnerBill->start_time);
@@ -199,12 +185,12 @@ class PartnerBillNotificationService
                 'partner_bill_id' => $partnerBill->id,
                 'code' => $partnerBill->code,
                 'event_date' => $partnerBill->date,
-                'start_time' => $partnerBill->start_time
+                'start_time' => $partnerBill->start_time,
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to send upcoming event reminder', [
                 'partner_bill_id' => $partnerBill->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -251,13 +237,13 @@ class PartnerBillNotificationService
                 Log::info('Order expired notification sent successfully', [
                     'partner_bill_id' => $partnerBill->id,
                     'code' => $partnerBill->code,
-                    'client_email' => $partnerBill->client->email
+                    'client_email' => $partnerBill->client->email,
                 ]);
             }
         } catch (\Exception $e) {
             Log::error('Failed to send order expired notification', [
                 'partner_bill_id' => $partnerBill->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -300,7 +286,7 @@ class PartnerBillNotificationService
         } catch (\Exception $e) {
             Log::error('Failed to send bill completed reminder', [
                 'partner_bill_id' => $partnerBill->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -332,7 +318,7 @@ class PartnerBillNotificationService
         } catch (\Exception $e) {
             Log::error('Failed to send partner completion reminder', [
                 'partner_bill_id' => $partnerBill->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -372,7 +358,7 @@ class PartnerBillNotificationService
             Log::error('Failed to send new partner accepted notification', [
                 'partner_bill_id' => $partnerBill->id,
                 'new_partner_id' => $partner->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -400,7 +386,7 @@ class PartnerBillNotificationService
         } catch (\Exception $e) {
             Log::error('Failed to send bill in job notification', [
                 'partner_bill_id' => $partnerBill->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
