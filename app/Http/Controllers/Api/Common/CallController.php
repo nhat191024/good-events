@@ -174,17 +174,47 @@ class CallController extends Controller
             ], 409);
         }
 
+        $shouldEndCall = ! $call->invites()
+            ->where('status', 'pending')
+            ->exists()
+            && ! $call->participants()
+                ->where('user_id', '!=', $call->initiated_by)
+                ->whereNull('left_at')
+                ->exists();
+
+        $message = $shouldEndCall ? $this->endCallAndCreateMessage($call) : null;
+
         $call = $this->loadCall($call->refresh());
         CallUpdated::dispatch($this->callPayload($call, $request));
 
-        return response()->json(['success' => true]);
+        if ($message !== null) {
+            $this->notifyCallEnded($call);
+            $this->dispatchCallSummaryMessage($message, $call);
+        }
+
+        return response()->json([
+            'success' => true,
+            'call_ended' => $message !== null,
+        ]);
     }
 
     public function end(Request $request, Call $call): JsonResponse
     {
         Gate::authorize('end', $call);
 
-        $message = DB::transaction(function () use ($call): Message {
+        $message = $this->endCallAndCreateMessage($call);
+
+        $call = $this->loadCall($call->refresh());
+        CallUpdated::dispatch($this->callPayload($call, $request));
+        $this->notifyCallEnded($call);
+        $this->dispatchCallSummaryMessage($message, $call);
+
+        return response()->json(['success' => true]);
+    }
+
+    private function endCallAndCreateMessage(Call $call): Message
+    {
+        return DB::transaction(function () use ($call): Message {
             $endedAt = now();
             $connectedAt = $call->participants()
                 ->where('user_id', '!=', $call->initiated_by)
@@ -214,17 +244,14 @@ class CallController extends Controller
                 ],
             );
         });
+    }
 
-        $call = $this->loadCall($call->refresh());
-        CallUpdated::dispatch($this->callPayload($call, $request));
-        $this->notifyCallEnded($call);
-
+    private function dispatchCallSummaryMessage(Message $message, Call $call): void
+    {
         $message->load(['user', 'call']);
         SendMessageJob::dispatch(
             ChatMessagePayload::forDispatch($message, $call->initiator)
         );
-
-        return response()->json(['success' => true]);
     }
 
     private function loadCall(Call $call): Call
