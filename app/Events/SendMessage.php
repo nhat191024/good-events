@@ -58,7 +58,7 @@ class SendMessage implements ShouldBroadcastNow
     {
         $payload = ChatMessagePayload::broadcast($this->message);
 
-        Log::info('🚀 Broadcasting message', $payload);
+        // Log::info('🚀 Broadcasting message', $payload);
 
         return $payload;
     }

@@ -121,7 +121,7 @@ class OrderController extends Controller
             abort(404);
         }
         $data = response()->json(PartnerProfilePayload::for($user));
-        Log::debug('Getting partner profile for user id: ' . $user->id);
+        // Log::debug('Getting partner profile for user id: ' . $user->id);
 
         return $data;
     }

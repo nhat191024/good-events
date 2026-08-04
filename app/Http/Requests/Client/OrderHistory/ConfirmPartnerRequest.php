@@ -11,7 +11,7 @@ class ConfirmPartnerRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        Log::debug('[request file] authorising confirm choose partner requrest', $this->all());
+        // Log::debug('[request file] authorizing confirm choose partner request', $this->all());
         $orderId = $this->input('order_id');
         $bill = PartnerBill::find($orderId);
 
@@ -24,7 +24,7 @@ class ConfirmPartnerRequest extends FormRequest
 
     public function rules(): array
     {
-        Log::debug('[request file] ConfirmPartnerRequest data', $this->all());
+        // Log::debug('[request file] ConfirmPartnerRequest data', $this->all());
         return [
             'order_id' => ['required', 'integer', 'exists:partner_bills,id'],
             'partner_id' => ['required', 'integer', 'exists:users,id']
