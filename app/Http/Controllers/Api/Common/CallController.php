@@ -284,13 +284,21 @@ class CallController extends Controller
                 }
 
                 if ($pushDevice->fcm_token !== null) {
-                    $this->fcmService->sendToToken(
-                        $pushDevice->fcm_token,
-                        'Cuộc gọi đến',
-                        "{$initiator->name} đang mời bạn tham gia cuộc gọi.",
-                        $notificationData,
-                        '10',
-                    );
+                    if ($pushDevice->platform === PushDevice::PLATFORM_ANDROID) {
+                        $this->fcmService->sendIncomingCallToAndroid(
+                            $pushDevice->fcm_token,
+                            $call->uuid,
+                            $notificationData,
+                        );
+                    } else {
+                        $this->fcmService->sendToToken(
+                            $pushDevice->fcm_token,
+                            'Cuộc gọi đến',
+                            "{$initiator->name} đang mời bạn tham gia cuộc gọi.",
+                            $notificationData,
+                            '10',
+                        );
+                    }
                     $sent = true;
                 }
             }

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Jobs\SendFCMNotification;
+use App\Jobs\SendIncomingCallFCMNotification;
 use App\Models\User;
 
 class FCMService
@@ -25,6 +26,14 @@ class FCMService
     public function sendToToken(string $token, string $title, string $body, array $data = [], string $priority = '5'): bool
     {
         SendFCMNotification::dispatch($token, 'token', $title, $body, $data, $priority);
+
+        return true;
+    }
+
+    /** @param array<non-empty-string, string> $data */
+    public function sendIncomingCallToAndroid(string $token, string $callId, array $data): bool
+    {
+        SendIncomingCallFCMNotification::dispatch($token, $callId, $data);
 
         return true;
     }
