@@ -9,7 +9,7 @@ use Kreait\Firebase\Contract\Messaging;
 use Kreait\Firebase\Exception\MessagingException;
 use Kreait\Firebase\Messaging\CloudMessage;
 
-class SendIncomingCallFCMNotification implements ShouldBeUnique, ShouldQueue
+class SendCallEndedFCMNotification implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -28,7 +28,7 @@ class SendIncomingCallFCMNotification implements ShouldBeUnique, ShouldQueue
 
     public function uniqueId(): string
     {
-        return hash('sha256', "incoming-call:{$this->token}:{$this->callId}");
+        return hash('sha256', "call-ended:{$this->token}:{$this->callId}");
     }
 
     public function uniqueFor(): int

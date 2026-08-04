@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SendCallEndedFCMNotification;
 use App\Jobs\SendFCMNotification;
 use App\Jobs\SendIncomingCallFCMNotification;
 use App\Models\User;
@@ -34,6 +35,14 @@ class FCMService
     public function sendIncomingCallToAndroid(string $token, string $callId, array $data): bool
     {
         SendIncomingCallFCMNotification::dispatch($token, $callId, $data);
+
+        return true;
+    }
+
+    /** @param array<non-empty-string, string> $data */
+    public function sendCallEndedToAndroid(string $token, string $callId, array $data): bool
+    {
+        SendCallEndedFCMNotification::dispatch($token, $callId, $data);
 
         return true;
     }

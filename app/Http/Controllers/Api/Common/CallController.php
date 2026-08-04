@@ -217,6 +217,7 @@ class CallController extends Controller
 
         $call = $this->loadCall($call->refresh());
         CallUpdated::dispatch($this->callPayload($call, $request));
+        $this->notifyCallEnded($call);
 
         $message->load(['user', 'call']);
         SendMessageJob::dispatch(
@@ -319,5 +320,32 @@ class CallController extends Controller
                     ->update(['notified_at' => now()]);
             }
         }
+    }
+
+    private function notifyCallEnded(Call $call): void
+    {
+        $notificationData = [
+            'type' => 'call_ended',
+            'call_id' => $call->uuid,
+            'callkit_uuid' => $call->callkit_uuid,
+            'thread_id' => (string) $call->thread_id,
+            'reason' => 'remote_ended',
+        ];
+
+        User::query()
+            ->whereIn('id', $call->invites->pluck('user_id'))
+            ->with(['pushDevices' => fn ($query) => $query
+                ->where('platform', PushDevice::PLATFORM_ANDROID)
+                ->whereNotNull('fcm_token')])
+            ->get()
+            ->each(function (User $user) use ($call, $notificationData): void {
+                foreach ($user->pushDevices as $pushDevice) {
+                    $this->fcmService->sendCallEndedToAndroid(
+                        $pushDevice->fcm_token,
+                        $call->uuid,
+                        $notificationData,
+                    );
+                }
+            });
     }
 }
