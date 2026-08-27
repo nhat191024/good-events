@@ -1,4 +1,5 @@
 <?php
+
 return [
     'partner' => 'Partner',
 
@@ -34,6 +35,7 @@ return [
     'actions.ban_accept_show' => 'Ban Accepting Shows',
     'actions.ban_accept_hide' => 'Unban Accepting Shows',
     'actions.view_personal_information' => 'View Personal Information',
+    'actions.wallet_transactions' => 'Wallet transactions',
 
     'tooltips.manage_services_disabled' => 'Cannot manage services for deleted partners.',
 
@@ -50,4 +52,5 @@ return [
     'unban_success_message' => 'Người dùng đã được bỏ cấm thành công.',
 
     'view_partner_personal_information' => 'View Partner Personal Information',
+    'wallet_transactions_title' => ':name\'s wallet transactions',
 ];

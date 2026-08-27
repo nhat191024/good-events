@@ -1,4 +1,5 @@
 <?php
+
 return [
     'partner' => 'Đối tác',
 
@@ -34,6 +35,7 @@ return [
     'actions.ban_accept_show' => 'Cấm nhận show',
     'actions.ban_accept_hide' => 'Bỏ cấm nhận show',
     'actions.view_personal_information' => 'Xem thông tin cá nhân',
+    'actions.wallet_transactions' => 'Giao dịch ví',
 
     'tooltips.manage_services_disabled' => 'Không thể quản lý dịch vụ cho đối tác đã bị xóa.',
 
@@ -50,4 +52,5 @@ return [
     'unban_success_message' => 'Người dùng đã được bỏ cấm thành công.',
 
     'view_partner_personal_information' => 'Xem thông tin cá nhân đối tác',
+    'wallet_transactions_title' => 'Giao dịch ví của :name',
 ];

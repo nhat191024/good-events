@@ -3,24 +3,18 @@
 namespace App\Filament\Admin\Resources\Partners\Tables;
 
 use App\Enum\Role;
-
-use App\Models\Partner;
 use App\Filament\Admin\Resources\Partners\PartnerResource;
-
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
-
+use App\Models\Partner;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
-
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
-
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
 // use Filament\Actions\BulkActionGroup;
 // use Filament\Actions\DeleteBulkAction;
 // use Filament\Actions\RestoreBulkAction;
@@ -39,8 +33,10 @@ class PartnersTable
                     ->formatStateUsing(function ($state, Partner $record) {
                         if ($record->avatar) {
                             $url = asset($record->avatar);
-                            return '<img src="' . e($url) . '" alt="Avatar" style="height:80px;max-width:80px;object-fit:contain;border-radius:100px;">';
+
+                            return '<img src="'.e($url).'" alt="Avatar" style="height:80px;max-width:80px;object-fit:contain;border-radius:100px;">';
                         }
+
                         return '';
                     })
                     ->html(),
@@ -94,6 +90,12 @@ class PartnersTable
             ])
             ->recordActions([
                 ActionGroup::make([
+                    Action::make('walletTransactions')
+                        ->label(__('admin/partner.actions.wallet_transactions'))
+                        ->icon('heroicon-o-wallet')
+                        ->url(fn (Partner $record): string => PartnerResource::getUrl('wallet-transactions', [
+                            'record' => $record,
+                        ])),
                     Action::make('deposit')
                         ->label(__('admin/partner.actions.deposit'))
                         ->icon('heroicon-o-banknotes')
@@ -141,9 +143,9 @@ class PartnersTable
                     Action::make('manage_services')
                         ->label('Quản lý dịch vụ')
                         ->icon('heroicon-o-rectangle-stack')
-                        ->disabled(fn(Partner $record) => $record->deleted_at !== null)
-                        ->tooltip(fn($record): ?string => $record->deleted_at ? __('admin/partner.tooltips.manage_services_disabled') : null)
-                        ->url(fn(Partner $record): string => PartnerResource::getUrl('services', ['record' => $record])),
+                        ->disabled(fn (Partner $record) => $record->deleted_at !== null)
+                        ->tooltip(fn ($record): ?string => $record->deleted_at ? __('admin/partner.tooltips.manage_services_disabled') : null)
+                        ->url(fn (Partner $record): string => PartnerResource::getUrl('services', ['record' => $record])),
                     Impersonate::make()
                         ->redirectTo(route('filament.partner.pages.dashboard')),
                     // EditAction::make(),
@@ -158,7 +160,7 @@ class PartnersTable
                         ->label(__('admin/partner.actions.ban_accept_show'))
                         ->icon('heroicon-o-minus-circle')
                         ->color('danger')
-                        ->visible(fn(Partner $record): bool => $record->deleted_at === null && $record->can_accept_shows)
+                        ->visible(fn (Partner $record): bool => $record->deleted_at === null && $record->can_accept_shows)
                         ->action(function (Partner $record): void {
                             $record->can_accept_shows = false;
                             $record->save();
@@ -172,7 +174,7 @@ class PartnersTable
                         ->label(__('admin/partner.actions.ban_accept_hide'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->visible(fn(Partner $record): bool => $record->deleted_at === null && ! $record->can_accept_shows)
+                        ->visible(fn (Partner $record): bool => $record->deleted_at === null && ! $record->can_accept_shows)
                         ->action(function (Partner $record): void {
                             $record->can_accept_shows = true;
                             $record->save();
@@ -188,18 +190,18 @@ class PartnersTable
                         ->color('info')
 
                         ->modalHeading(__('admin/partner.view_partner_personal_information'))
-                        ->modalContent(fn(Partner $record) => view('filament.admin.modals.view-partner-id-card', [
+                        ->modalContent(fn (Partner $record) => view('filament.admin.modals.view-partner-id-card', [
                             'record' => $record,
                         ]))
                         ->modalWidth('3xl')
                         ->slideOver()
                         ->modalSubmitAction(false)
                         ->modalCancelAction(false)
-                        ->extraModalFooterActions(fn(Partner $record): array => [
+                        ->extraModalFooterActions(fn (Partner $record): array => [
                             Action::make('approve')
                                 ->label(__('global.approve'))
                                 ->color('success')
-                                ->visible(fn() => $record->partnerProfile && ! $record->partnerProfile->is_legit)
+                                ->visible(fn () => $record->partnerProfile && ! $record->partnerProfile->is_legit)
                                 ->requiresConfirmation()
                                 ->action(function () use ($record) {
                                     $record->partnerProfile?->update(['is_legit' => true]);
@@ -208,7 +210,7 @@ class PartnersTable
                             Action::make('unapprove')
                                 ->label('Hủy phê duyệt')
                                 ->color('danger')
-                                ->visible(fn() => $record->partnerProfile && $record->partnerProfile->is_legit)
+                                ->visible(fn () => $record->partnerProfile && $record->partnerProfile->is_legit)
                                 ->requiresConfirmation()
                                 ->action(function () use ($record) {
                                     $record->partnerProfile?->update(['is_legit' => false]);
@@ -225,6 +227,7 @@ class PartnersTable
                 if (auth()->user()->hasRole(Role::SUPER_ADMIN)) {
                     return PartnerResource::getUrl('edit', ['record' => $record]);
                 }
+
                 return null;
             })
             ->toolbarActions([

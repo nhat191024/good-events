@@ -2,34 +2,31 @@
 
 namespace App\Filament\Admin\Resources\Partners;
 
-use App\Models\Partner;
-
-use BackedEnum;
-use UnitEnum;
-
+use App\Enum\FilamentNavigationGroup;
+use App\Enum\Role;
 use App\Filament\Admin\Resources\Partners\Pages\CreatePartner;
 use App\Filament\Admin\Resources\Partners\Pages\EditPartner;
-use App\Filament\Admin\Resources\Partners\Pages\ManagePartnerServices;
 use App\Filament\Admin\Resources\Partners\Pages\ListPartners;
+use App\Filament\Admin\Resources\Partners\Pages\ManagePartnerServices;
+use App\Filament\Admin\Resources\Partners\Pages\ManagePartnerWalletTransactions;
 use App\Filament\Admin\Resources\Partners\Schemas\PartnerForm;
 use App\Filament\Admin\Resources\Partners\Tables\PartnersTable;
-
+use App\Models\Partner;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
-use App\Enum\Role;
-use App\Enum\FilamentNavigationGroup;
+use UnitEnum;
 
 class PartnerResource extends Resource
 {
     protected static ?string $model = Partner::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+
     protected static string|UnitEnum|null $navigationGroup = FilamentNavigationGroup::USER_MANAGEMENT;
 
     public static function getModelLabel(): string
@@ -68,6 +65,7 @@ class PartnerResource extends Resource
             'create' => CreatePartner::route('/create'),
             'edit' => EditPartner::route('/{record}/edit'),
             'services' => ManagePartnerServices::route('/{record}/services'),
+            'wallet-transactions' => ManagePartnerWalletTransactions::route('/{record}/wallet-transactions'),
         ];
     }
 
