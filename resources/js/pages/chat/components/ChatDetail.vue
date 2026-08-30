@@ -11,7 +11,6 @@ const props = defineProps<{ threadId: number }>();
 const emit = defineEmits<{ (e: 'back'): void; (e: 'toggleMobileMenu'): void }>();
 
 const threads = inject<Ref<Thread[]>>('threads')!;
-const selectedThreadId = inject<Ref<number | null>>('selectedThreadId')!;
 
 const page = usePage();
 
@@ -399,6 +398,7 @@ function handleBroadcastMessage(payload: BroadcastMessagePayload) {
             body: payload.message.body,
             attachments: payload.message.attachments,
             location: payload.message.location,
+            call: payload.message.call,
             preview_text: payload.message.preview_text,
             created_at: payload.message.created_at,
             updated_at: payload.message.updated_at,

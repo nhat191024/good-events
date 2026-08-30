@@ -251,7 +251,38 @@
                                         {{ $message['user']['name'] ?? 'Người dùng đã xóa' }}
                                     </p>
                                 @endif
-                                @if (($message['type'] ?? 'text') === 'image')
+                                @if (($message['type'] ?? 'text') === 'call')
+                                    @php
+                                        $callDurationSeconds = max(0, (int) data_get($message, 'call.duration_seconds', 0));
+                                        $callHours = intdiv($callDurationSeconds, 3600);
+                                        $callMinutes = intdiv($callDurationSeconds % 3600, 60);
+                                        $callSeconds = $callDurationSeconds % 60;
+                                        $callDurationParts = [];
+
+                                        if ($callHours > 0) {
+                                            $callDurationParts[] = "{$callHours} giờ";
+                                        }
+
+                                        if ($callMinutes > 0) {
+                                            $callDurationParts[] = "{$callMinutes} phút";
+                                        }
+
+                                        if ($callSeconds > 0 || $callDurationParts === []) {
+                                            $callDurationParts[] = "{$callSeconds} giây";
+                                        }
+
+                                        $isOutgoingCall = $message['user_id'] === auth()->id();
+                                    @endphp
+                                    <div class="{{ $isOutgoingCall ? 'bg-primary-600 rounded-br-md text-white' : 'rounded-bl-md bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-white' }} flex min-w-56 items-center gap-3 rounded-2xl px-4 py-3 shadow-sm">
+                                        <span class="{{ $isOutgoingCall ? 'bg-white/20' : 'bg-white dark:bg-gray-700' }} flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                                            <x-filament::icon class="h-5 w-5" icon="{{ $isOutgoingCall ? 'heroicon-o-phone-arrow-up-right' : 'heroicon-o-phone-arrow-down-left' }}" />
+                                        </span>
+                                        <span class="min-w-0">
+                                            <span class="block text-sm font-medium">{{ $isOutgoingCall ? 'Cuộc gọi đi' : 'Cuộc gọi đến' }}</span>
+                                            <span class="{{ $isOutgoingCall ? 'text-white/80' : 'text-gray-600 dark:text-gray-300' }} block text-xs">{{ implode(' ', $callDurationParts) }}</span>
+                                        </span>
+                                    </div>
+                                @elseif (($message['type'] ?? 'text') === 'image')
                                     <div class="space-y-2">
                                         <div class="{{ count($message['attachments'] ?? []) > 1 ? 'grid grid-cols-2' : 'inline-grid grid-cols-1' }} gap-2">
                                             @foreach (($message['attachments'] ?? []) as $attachment)

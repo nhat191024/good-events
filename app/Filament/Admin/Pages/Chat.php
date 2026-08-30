@@ -2,28 +2,22 @@
 
 namespace App\Filament\Admin\Pages;
 
-use BackedEnum;
-
 use App\Jobs\SendMessage;
-
 use App\Models\Message;
 use App\Models\Thread;
-
 use App\Support\ChatMessagePayload;
+use BackedEnum;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Carbon\Carbon;
 use Cmgmyr\Messenger\Models\Participant;
-
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use Filament\Notifications\Notification;
-
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Attributes\On;
 use Livewire\WithFileUploads;
-
-use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class Chat extends Page
 {
@@ -51,7 +45,7 @@ class Chat extends Page
 
         $query = Thread::withTrashed();
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $query->forUser($userId)
                 ->whereHas('participants', function ($query) use ($userId) {
                     $query->where('user_id', $userId)
@@ -74,7 +68,7 @@ class Chat extends Page
         return $unreadCount > 0 ? (string) $unreadCount : null;
     }
 
-    //threads list & thread per page
+    // threads list & thread per page
     public $threads = [];
 
     public int $threadsPerPage = 10;
@@ -83,30 +77,29 @@ class Chat extends Page
 
     public bool $hasMoreThreads = true;
 
-    //selected thread
+    // selected thread
     public ?int $selectedThreadId = null;
 
     public ?object $selectedThread = null;
 
-    //selected thread messages
+    // selected thread messages
     public $messages = [];
 
-    //messages pagination
+    // messages pagination
     public int $messagesPerPage = 20;
 
     public int $messagesCurrentPage = 1;
 
     public bool $hasMoreMessages = false;
 
-    //user input message
+    // user input message
     public string $messageBody = '';
 
     public array $messageImages = [];
 
     public array $pendingMessageImages = [];
 
-
-    //show thread list on mobile
+    // show thread list on mobile
     public bool $showThreadListOnMobile = true;
 
     public $cachedSelectedThread = null;
@@ -123,7 +116,7 @@ class Chat extends Page
     private function isAdmin(): bool
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
@@ -198,11 +191,11 @@ class Chat extends Page
     /**
      * Switch between active and inactive tabs
      *
-     * @param string $tab 'active' or 'inactive'
+     * @param  string  $tab  'active' or 'inactive'
      */
     public function switchTab(string $tab): void
     {
-        if (!in_array($tab, ['active', 'inactive'])) {
+        if (! in_array($tab, ['active', 'inactive'])) {
             return;
         }
 
@@ -227,7 +220,7 @@ class Chat extends Page
      */
     public function loadMoreThreads(): void
     {
-        if (!$this->hasMoreThreads) {
+        if (! $this->hasMoreThreads) {
             return;
         }
 
@@ -238,7 +231,7 @@ class Chat extends Page
     /**
      * Load threads for the authenticated user
      *
-     * @param bool $append Whether to append to existing threads or replace them
+     * @param  bool  $append  Whether to append to existing threads or replace them
      */
     private function loadThreads(bool $append = false): void
     {
@@ -258,7 +251,7 @@ class Chat extends Page
 
         $query = Thread::withTrashed();
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $query->forUserOrderByNotReadMessages($userId);
         }
 
@@ -281,11 +274,11 @@ class Chat extends Page
             $query->whereNotNull('threads.deleted_at');
         }
 
-        if (!empty(trim($this->searchTerm))) {
+        if (! empty(trim($this->searchTerm))) {
             $query->where(function ($q) {
-                $q->where('subject', 'like', '%' . $this->searchTerm . '%')
+                $q->where('subject', 'like', '%'.$this->searchTerm.'%')
                     ->orWhereHas('participants.user', function ($userQuery) {
-                        $userQuery->where('name', 'like', '%' . $this->searchTerm . '%');
+                        $userQuery->where('name', 'like', '%'.$this->searchTerm.'%');
                     });
             });
         }
@@ -295,10 +288,10 @@ class Chat extends Page
             ->take($this->threadsPerPage + 1)
             ->get();
 
-        //check if there are more threads to load
+        // check if there are more threads to load
         $this->hasMoreThreads = $threads->count() > $this->threadsPerPage;
 
-        //if there are more threads, remove the last one
+        // if there are more threads, remove the last one
         if ($this->hasMoreThreads) {
             $threads = $threads->take($this->threadsPerPage);
         }
@@ -319,11 +312,11 @@ class Chat extends Page
                 'subject' => $thread->subject,
                 'updated_at' => $thread->updated_at,
                 'is_unread' => $isUnread,
-                'other_participants' => $thread->participants->where('user_id', '!=', $userId)->filter(fn($p) => $p->user)->map(fn($participant) => (object) [
+                'other_participants' => $thread->participants->where('user_id', '!=', $userId)->filter(fn ($p) => $p->user)->map(fn ($participant) => (object) [
                     'id' => $participant->user->id,
                     'name' => $participant->user->name,
                 ]),
-                'participants' => $thread->participants->filter(fn($p) => $p->user)->map(fn($participant) => (object) [
+                'participants' => $thread->participants->filter(fn ($p) => $p->user)->map(fn ($participant) => (object) [
                     'id' => $participant->user->id,
                     'name' => $participant->user->name,
                 ]),
@@ -337,7 +330,7 @@ class Chat extends Page
                 ] : null,
                 'bill' => $thread->bill ? (object) [
                     'address' => $thread->bill->address,
-                    'datetime' => Carbon::parse($thread->bill->start_time)->format('H:i') . ' - ' . Carbon::parse($thread->bill->date)->format('d/m/Y'),
+                    'datetime' => Carbon::parse($thread->bill->start_time)->format('H:i').' - '.Carbon::parse($thread->bill->date)->format('d/m/Y'),
                     'event_name' => $thread->bill->event ? $thread->bill->event->name : $thread->bill->custom_event,
                 ] : null,
             ];
@@ -360,7 +353,7 @@ class Chat extends Page
      */
     public function loadMoreMessages(): void
     {
-        if (!$this->hasMoreMessages || !$this->selectedThreadId) {
+        if (! $this->hasMoreMessages || ! $this->selectedThreadId) {
             return;
         }
 
@@ -370,8 +363,6 @@ class Chat extends Page
 
     /**
      * Open thread and clear unread count
-     *
-     * @param int $threadId
      */
     public function openThread(int $threadId)
     {
@@ -380,28 +371,28 @@ class Chat extends Page
 
         // Verify thread exists and user has access
         $threadExists = Thread::withTrashed()
-            ->when(!$isAdmin, function ($query) use ($userId) {
+            ->when(! $isAdmin, function ($query) use ($userId) {
                 $query->forUser($userId);
             })
             ->where('threads.id', $threadId)
             ->exists();
 
-        if (!$threadExists) {
+        if (! $threadExists) {
             return null;
         }
 
         $oldThreadId = $this->selectedThreadId;
         $this->selectedThreadId = $threadId;
 
-        //clear user input message
+        // clear user input message
         $this->messageBody = '';
 
-        //reset messages pagination
+        // reset messages pagination
         $this->messagesCurrentPage = 1;
         $this->hasMoreMessages = false;
 
-        //get thread data
-        if (!$this->selectedThreadId) {
+        // get thread data
+        if (! $this->selectedThreadId) {
             return null;
         }
 
@@ -417,7 +408,6 @@ class Chat extends Page
             $this->cachedSelectedThread = $thread;
         }
 
-
         if ($this->cachedMessages && $oldThreadId === $threadId) {
             $this->messages = $this->cachedMessages;
         } else {
@@ -431,8 +421,7 @@ class Chat extends Page
     /**
      * Load messages for the selected thread with pagination
      *
-     * @param int $threadId
-     * @param bool $prepend Whether to prepend to existing messages or replace them
+     * @param  bool  $prepend  Whether to prepend to existing messages or replace them
      */
     private function loadMessages(int $threadId, bool $prepend = false): void
     {
@@ -440,7 +429,7 @@ class Chat extends Page
 
         $thread?->markAsRead(Auth::id());
 
-        if (!$thread) {
+        if (! $thread) {
             return;
         }
 
@@ -452,7 +441,7 @@ class Chat extends Page
         $messages = $thread->messages()
             ->with(['user' => function ($query) {
                 $query->select('id', 'name');
-            }, 'media'])
+            }, 'media', 'call'])
             ->orderBy('created_at', 'asc')
             ->skip($offset)
             ->take($this->messagesPerPage)
@@ -461,7 +450,7 @@ class Chat extends Page
         // Check if there are more messages to load
         $this->hasMoreMessages = $offset > 0;
 
-        $mappedMessages = $messages->map(fn($msg) => [
+        $mappedMessages = $messages->map(fn ($msg) => [
             'id' => $msg->id,
             'thread_id' => $msg->thread_id,
             'user_id' => $msg->user_id,
@@ -469,6 +458,7 @@ class Chat extends Page
             'body' => $msg->body,
             'attachments' => $msg->attachments,
             'location' => $msg->location,
+            'call' => $msg->call_summary,
             'preview_text' => $msg->preview_text,
             'created_at' => $msg->created_at,
             'updated_at' => $msg->updated_at,
@@ -494,7 +484,7 @@ class Chat extends Page
      */
     public function sendMessage(): void
     {
-        if (empty(trim($this->messageBody)) || !$this->selectedThreadId) {
+        if (empty(trim($this->messageBody)) || ! $this->selectedThreadId) {
             return;
         }
 
@@ -521,7 +511,7 @@ class Chat extends Page
 
     public function sendImageMessage(): void
     {
-        if (!$this->selectedThreadId || $this->pendingMessageImages === []) {
+        if (! $this->selectedThreadId || $this->pendingMessageImages === []) {
             return;
         }
 
@@ -562,7 +552,7 @@ class Chat extends Page
 
     public function sendLocationMessage(float $latitude, float $longitude): void
     {
-        if (!$this->selectedThreadId) {
+        if (! $this->selectedThreadId) {
             return;
         }
 
@@ -619,16 +609,15 @@ class Chat extends Page
         SendMessage::dispatch($payload);
     }
 
-
     /**
      * Handle incoming broadcasted messages
      *
-     * @param array|null $payload
+     * @param  array|null  $payload
      */
     #[On('chat:message-received')]
     public function handleBroadcastMessage($payload = null): void
     {
-        if (!$payload) {
+        if (! $payload) {
             return;
         }
 
@@ -642,7 +631,7 @@ class Chat extends Page
         $messageData = data_get($payload, 'message');
         $userData = data_get($payload, 'user');
 
-        if (!is_array($messageData) || !is_array($userData)) {
+        if (! is_array($messageData) || ! is_array($userData)) {
             return;
         }
 
@@ -656,6 +645,7 @@ class Chat extends Page
                 'body' => $messageData['body'] ?? null,
                 'attachments' => $messageData['attachments'] ?? [],
                 'location' => $messageData['location'] ?? null,
+                'call' => $messageData['call'] ?? null,
                 'preview_text' => $messageData['preview_text'] ?? (string) ($messageData['body'] ?? ''),
                 'created_at' => Carbon::parse($messageData['created_at']),
                 'updated_at' => Carbon::parse($messageData['updated_at']),
@@ -676,10 +666,6 @@ class Chat extends Page
 
     /**
      * Update thread in the list with the latest message
-     *
-     * @param int $threadId
-     * @param array $messageData
-     * @return void
      */
     private function updateThreadInList(int $threadId, array $messageData): void
     {
@@ -689,7 +675,7 @@ class Chat extends Page
             return;
         }
 
-        $index = $threads->search(fn($thread) => $thread->id === $threadId);
+        $index = $threads->search(fn ($thread) => $thread->id === $threadId);
 
         if ($index === false) {
             return;
@@ -725,7 +711,9 @@ class Chat extends Page
      */
     public function deleteChat()
     {
-        if ($this->selectedThreadId == null) return;
+        if ($this->selectedThreadId == null) {
+            return;
+        }
 
         $thread = Thread::find($this->selectedThreadId);
         if ($thread) {
@@ -748,7 +736,9 @@ class Chat extends Page
      */
     public function restoreChat()
     {
-        if ($this->selectedThreadId == null) return;
+        if ($this->selectedThreadId == null) {
+            return;
+        }
 
         $thread = Thread::withTrashed()->find($this->selectedThreadId);
         if ($thread && $thread->trashed()) {
