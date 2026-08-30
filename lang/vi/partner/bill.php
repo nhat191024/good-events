@@ -42,6 +42,7 @@ return [
     'apply_filters' => 'Áp dụng bộ lọc',
     'order_accepted' => 'Đã nhận show thành công',
     'order_accept_error' => 'Có lỗi xảy ra khi nhận show',
+    'self_order_not_allowed' => 'Bạn không thể tự nhận show do chính tài khoản mình tạo.',
     'total_amount' => 'Tổng tiền',
     'start_time' => 'Thời gian bắt đầu',
     'end_time' => 'Thời gian kết thúc',
@@ -166,7 +167,7 @@ return [
     'back_to_list' => 'Quay lại danh sách show',
     'bill_not_found' => 'Không tìm thấy show',
 
-    //banned modal
+    // banned modal
     'ban_partner_title' => 'Bạn đã bị cấm nhận show',
     'ban_partner_description' => 'Bạn không thể nhận show mới cho đến khi quản trị viên gỡ bỏ lệnh cấm.',
 ];

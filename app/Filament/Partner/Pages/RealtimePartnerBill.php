@@ -3,27 +3,20 @@
 namespace App\Filament\Partner\Pages;
 
 use App\Enum\CacheKey;
-
-use App\Models\User;
+use App\Enum\PartnerBillDetailStatus;
+use App\Enum\PartnerBillStatus;
 use App\Models\Customer;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 use App\Models\PartnerService;
-
-use App\Enum\PartnerBillStatus;
-use App\Enum\PartnerBillDetailStatus;
-
+use App\Models\User;
+use App\Settings\PartnerSettings;
 use BackedEnum;
-use UnitEnum;
-
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
-
-use App\Settings\PartnerSettings;
+use Illuminate\Support\Facades\Cache;
 
 class RealtimePartnerBill extends Page
 {
@@ -48,11 +41,11 @@ class RealtimePartnerBill extends Page
     public static function getNavigationBadge(): ?string
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 
-        $partnerServices = Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_category_ids_user_{$user->id}", function () use ($user) {
+        $partnerServices = Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value."_category_ids_user_{$user->id}", function () use ($user) {
             return PartnerService::where('user_id', $user->id)
                 ->where('status', 'approved')
                 ->pluck('category_id')
@@ -70,11 +63,15 @@ class RealtimePartnerBill extends Page
 
         $count = PartnerBill::whereIn('category_id', $categoryIds)
             ->where('status', PartnerBillStatus::PENDING)
+            ->where(function ($query) use ($user) {
+                $query->whereNull('client_id')
+                    ->orWhere('client_id', '!=', $user->id);
+            })
             ->whereDoesntHave('details', function ($query) use ($user) {
                 $query->where('partner_id', $user->id);
             });
 
-        if (!empty($locationIds)) {
+        if (! empty($locationIds)) {
             $count->whereIn('location_id', $locationIds);
         }
 
@@ -150,14 +147,14 @@ class RealtimePartnerBill extends Page
         $this->categoryIds = $partnerServices->pluck('category_id')->unique()->toArray();
 
         $categoriesMap = $partnerServices
-            ->filter(fn($service) => $service->category !== null)
+            ->filter(fn ($service) => $service->category !== null)
             ->pluck('category', 'category.id')
             ->unique('id');
 
         $locationIds = static::resolvePartnerServiceAreaIds($user);
 
         $this->availableCategories = $categoriesMap
-            ->map(fn($category) => [
+            ->map(fn ($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
             ])
@@ -181,11 +178,15 @@ class RealtimePartnerBill extends Page
                 'media',
             ])
             ->where('status', PartnerBillStatus::PENDING)
+            ->where(function ($query) use ($user) {
+                $query->whereNull('client_id')
+                    ->orWhere('client_id', '!=', $user->id);
+            })
             ->whereDoesntHave('details', function ($query) use ($user) {
                 $query->where('partner_id', $user->id);
             });
 
-        if (!empty($locationIds)) {
+        if (! empty($locationIds)) {
             $query->whereIn('location_id', $locationIds);
         }
 
@@ -210,12 +211,12 @@ class RealtimePartnerBill extends Page
 
         if (! empty($this->searchQuery)) {
             $query->where(function ($q) {
-                $q->where('code', 'like', '%' . $this->searchQuery . '%')
+                $q->where('code', 'like', '%'.$this->searchQuery.'%')
                     ->orWhereHas('client', function ($clientQuery) {
-                        $clientQuery->where('name', 'like', '%' . $this->searchQuery . '%');
+                        $clientQuery->where('name', 'like', '%'.$this->searchQuery.'%');
                     })
                     ->orWhereHas('event', function ($eventQuery) {
-                        $eventQuery->where('name', 'like', '%' . $this->searchQuery . '%');
+                        $eventQuery->where('name', 'like', '%'.$this->searchQuery.'%');
                     });
             });
         }
@@ -271,6 +272,7 @@ class RealtimePartnerBill extends Page
     {
         $this->loadPartnerBills();
     }
+
     public function autoRefresh(): void
     {
         $this->loadPartnerBills();
@@ -289,8 +291,9 @@ class RealtimePartnerBill extends Page
         $bill = PartnerBill::find($billId);
         $canAccept = Auth::user()->can_accept_shows;
 
-        if (!$canAccept) {
+        if (! $canAccept) {
             $this->showBannedModal = true;
+
             return;
         }
 
@@ -327,15 +330,24 @@ class RealtimePartnerBill extends Page
         ]);
 
         try {
-            $user =  Auth::user();
+            $user = Auth::user();
+            $bill = PartnerBill::find($this->selectedBillId);
+
+            if (! $bill || (int) $bill->client_id === (int) $user->id) {
+                session()->flash('error', __('partner/bill.self_order_not_allowed'));
+                $this->closeAcceptModal();
+
+                return;
+            }
+
             $balance = $user->balanceInt;
             $minimum_balance = app(PartnerSettings::class)->minimum_balance;
             if ($balance < $minimum_balance) {
                 session()->flash('error', __('partner/bill.minimum_balance'));
+
                 return;
             }
 
-            $bill = PartnerBill::find($this->selectedBillId);
             if ($bill && $bill->status === PartnerBillStatus::PENDING && static::canReceiveBill($user, $bill)) {
 
                 PartnerBillDetail::create([
@@ -393,6 +405,7 @@ class RealtimePartnerBill extends Page
 
         if (empty($bookingPhotoUrls)) {
             session()->flash('info', 'Đơn này chưa có ảnh đặt đơn.');
+
             return;
         }
 
@@ -410,26 +423,26 @@ class RealtimePartnerBill extends Page
 
     public function updatedDateFilter(): void
     {
-        logger('Date filter updated: ' . $this->dateFilter);
+        logger('Date filter updated: '.$this->dateFilter);
         $this->loadPartnerBills();
     }
 
     public function updatedCategoryFilter(): void
     {
-        logger('Category filter updated: ' . $this->categoryFilter);
+        logger('Category filter updated: '.$this->categoryFilter);
         $this->loadPartnerBills();
     }
 
     public function updatedSearchQuery(): void
     {
-        logger('Search query updated: ' . $this->searchQuery);
+        logger('Search query updated: '.$this->searchQuery);
         $this->loadPartnerBills();
     }
 
     private static function resolvePartnerServiceAreaIds($user): array
     {
         return Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])
-            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value . "_{$user->id}", function () use ($user): array {
+            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value."_{$user->id}", function () use ($user): array {
                 return $user->partnerServiceAreas()
                     ->pluck('location_id')
                     ->unique()
@@ -448,12 +461,16 @@ class RealtimePartnerBill extends Page
 
     private static function canReceiveBill($user, PartnerBill $bill): bool
     {
+        if ((int) $bill->client_id === (int) $user->id) {
+            return false;
+        }
+
         $isApprovedForCategory = $user->partnerServices()
             ->where('status', 'approved')
             ->where('category_id', $bill->category_id)
             ->exists();
 
-        if (!$isApprovedForCategory) {
+        if (! $isApprovedForCategory) {
             return false;
         }
 

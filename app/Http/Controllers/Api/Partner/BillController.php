@@ -3,33 +3,29 @@
 namespace App\Http\Controllers\Api\Partner;
 
 use App\Enum\CacheKey;
-
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
-
+use App\Http\Controllers\Api\Concerns\PaginatesApi;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\Partner\PartnerBillResource;
+use App\Http\Resources\Api\Partner\RealtimePartnerBillCollection;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 use App\Models\PartnerService;
 use App\Models\User;
-
-use App\Http\Controllers\Api\Concerns\PaginatesApi;
-use App\Http\Controllers\Controller;
-
-use App\Http\Resources\Api\Partner\PartnerBillResource;
-use App\Http\Resources\Api\Partner\RealtimePartnerBillCollection;
-
 use App\Settings\PartnerSettings;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-
-use Carbon\Carbon;
 
 class BillController extends Controller
 {
     use PaginatesApi;
 
     private const int DEFAULT_PER_PAGE = 5;
+
     private const int MAX_PER_PAGE = 50;
 
     /**
@@ -38,20 +34,19 @@ class BillController extends Controller
      * Query: search, date_filter, category_id
      * Response: { partner_bills, available_categories, last_updated }
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function realtime(Request $request)
     {
         $user = $request->user();
-        if (!$user || !$user->partnerServices()->exists()) {
+        if (! $user || ! $user->partnerServices()->exists()) {
             return response()->json([
                 'partner_bills' => [],
                 'broadcast_channels' => [],
             ]);
         }
 
-        $partnerServices =  Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_api_user_{$user->id}", function () use ($user) {
+        $partnerServices = Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value."_api_user_{$user->id}", function () use ($user) {
             return PartnerService::where('user_id', $user->id)
                 ->where('status', 'approved')
                 ->select('id', 'category_id', 'status')
@@ -61,7 +56,7 @@ class BillController extends Controller
 
         $categoryIds = $partnerServices->pluck('category_id')->unique()->toArray();
         $categoriesMap = $partnerServices
-            ->filter(fn($service) => $service->category !== null)
+            ->filter(fn ($service) => $service->category !== null)
             ->pluck('category', 'category.id')
             ->unique('id');
 
@@ -89,15 +84,19 @@ class BillController extends Controller
                 'client:id,name,email,avatar,created_at',
                 'client.partnerProfile:id,user_id,partner_name',
                 'event:id,name',
-                'category' => fn($q) => $q->withTrashed()->with('media'),
+                'category' => fn ($q) => $q->withTrashed()->with('media'),
                 'media',
             ])
             ->where('status', PartnerBillStatus::PENDING)
+            ->where(function ($query) use ($user) {
+                $query->whereNull('client_id')
+                    ->orWhere('client_id', '!=', $user->id);
+            })
             ->whereDoesntHave('details', function ($query) use ($user) {
                 $query->where('partner_id', $user->id);
             });
 
-        if (!empty($locationIds)) {
+        if (! empty($locationIds)) {
             $query->whereIn('location_id', $locationIds);
         }
 
@@ -143,9 +142,7 @@ class BillController extends Controller
      * Body: price
      * Response: { success: true } or { message }
      *
-     * @param Request $request
-     * @param PartnerBill $bill
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function accept(Request $request, PartnerBill $bill)
     {
@@ -154,11 +151,18 @@ class BillController extends Controller
         ]);
 
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated.', 'code' => 'UNAUTHENTICATED'], 401);
         }
 
-        if (!$user->can_accept_shows) {
+        if ((int) $bill->client_id === (int) $user->id) {
+            return response()->json([
+                'message' => __('partner/bill.self_order_not_allowed'),
+                'code' => 'SELF_ORDER_NOT_ALLOWED',
+            ], 403);
+        }
+
+        if (! $user->can_accept_shows) {
             return response()->json(['message' => 'Not allowed to accept orders.', 'code' => 'NOT_ALLOWED_TO_ACCEPT_ORDERS'], 403);
         }
 
@@ -172,7 +176,7 @@ class BillController extends Controller
             return response()->json(['message' => 'Order is not pending.', 'code' => 'ORDER_NOT_PENDING'], 422);
         }
 
-        if (!$this->canReceiveBill($user, $bill)) {
+        if (! $this->canReceiveBill($user, $bill)) {
             return response()->json(['message' => 'Order is outside your service areas.', 'code' => 'ORDER_OUTSIDE_SERVICE_AREAS'], 403);
         }
 
@@ -192,8 +196,7 @@ class BillController extends Controller
      * Query: search, date_filter, sort, page, per_page
      * Response: { bills: PartnerBillResource[] (paginated) }
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function history(Request $request)
     {
@@ -206,7 +209,7 @@ class BillController extends Controller
             ])
             ->with([
                 'client',
-                'category' => fn($q) => $q->withTrashed(),
+                'category' => fn ($q) => $q->withTrashed(),
                 'event',
                 'details' => function ($q) {
                     $q->where('partner_id', auth()->id());
@@ -233,9 +236,7 @@ class BillController extends Controller
      * Query: search, date_filter, sort, page, per_page
      * Response: { bills: PartnerBillResource[] (paginated) }
      *
-     * @param Request $request
-     * @param string $status
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function list(Request $request, string $status)
     {
@@ -249,7 +250,7 @@ class BillController extends Controller
                 })
                 ->with([
                     'client',
-                    'category' => fn($q) => $q->withTrashed(),
+                    'category' => fn ($q) => $q->withTrashed(),
                     'event',
                     'details' => function ($query) {
                         $query->where('partner_id', auth()->id())
@@ -267,7 +268,7 @@ class BillController extends Controller
                 })
                 ->with([
                     'client',
-                    'category' => fn($q) => $q->withTrashed(),
+                    'category' => fn ($q) => $q->withTrashed(),
                     'event',
                     'details' => function ($query) {
                         $query->where('partner_id', auth()->id());
@@ -292,17 +293,15 @@ class BillController extends Controller
      *
      * Response: { bill: PartnerBillResource }
      *
-     * @param Request $request
-     * @param PartnerBill $bill
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function show(Request $request, PartnerBill $bill)
     {
-        if (!$this->canAccessBill($bill)) {
+        if (! $this->canAccessBill($bill)) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        $bill->load(['client', 'category' => fn($q) => $q->withTrashed(), 'event', 'details' => function ($q) {
+        $bill->load(['client', 'category' => fn ($q) => $q->withTrashed(), 'event', 'details' => function ($q) {
             $q->where('partner_id', auth()->id());
         }]);
 
@@ -316,13 +315,11 @@ class BillController extends Controller
      *
      * Response: { review: object|null }
      *
-     * @param Request $request
-     * @param PartnerBill $bill
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function review(Request $request, PartnerBill $bill)
     {
-        if (!$this->canAccessBill($bill)) {
+        if (! $this->canAccessBill($bill)) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -330,13 +327,13 @@ class BillController extends Controller
             ->with('ratings')
             ->first();
 
-        if (!$review) {
+        if (! $review) {
             return response()->json([
                 'review' => null,
             ]);
         }
 
-        $ratings = $review->ratings->mapWithKeys(fn($rating) => [
+        $ratings = $review->ratings->mapWithKeys(fn ($rating) => [
             $rating->key => (int) $rating->value,
         ]);
 
@@ -357,13 +354,11 @@ class BillController extends Controller
      * Body: arrival_photo (image)
      * Response: { success: true }
      *
-     * @param Request $request
-     * @param PartnerBill $bill
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function markInJob(Request $request, PartnerBill $bill)
     {
-        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+        if (! $bill->details()->where('partner_id', auth()->id())->exists()) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -378,7 +373,7 @@ class BillController extends Controller
         if ($request->hasFile('arrival_photo')) {
             $file = $request->file('arrival_photo');
             $bill->addMedia($file->getRealPath())
-                ->usingName('Arrival Photo - ' . $bill->code)
+                ->usingName('Arrival Photo - '.$bill->code)
                 ->usingFileName($file->getClientOriginalName())
                 ->toMediaCollection('arrival_photo');
         }
@@ -394,13 +389,11 @@ class BillController extends Controller
      *
      * Response: { success: true }
      *
-     * @param Request $request
-     * @param PartnerBill $bill
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function complete(Request $request, PartnerBill $bill)
     {
-        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+        if (! $bill->details()->where('partner_id', auth()->id())->exists()) {
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
@@ -415,7 +408,7 @@ class BillController extends Controller
         if ($request->hasFile('completion_photo')) {
             $file = $request->file('completion_photo');
             $bill->addMedia($file->getRealPath())
-                ->usingName('Completion Photo - ' . $bill->code)
+                ->usingName('Completion Photo - '.$bill->code)
                 ->usingFileName($file->getClientOriginalName())
                 ->toMediaCollection('completion_photo');
         }
@@ -446,6 +439,7 @@ class BillController extends Controller
                 ->where('partner_id', auth()->id())
                 ->first();
             $billDetail->delete();
+
             return response()->json(['success' => true]);
         }
 
@@ -464,7 +458,7 @@ class BillController extends Controller
     {
         $partnerId = auth()->id();
 
-        if (!$partnerId) {
+        if (! $partnerId) {
             return false;
         }
 
@@ -475,7 +469,7 @@ class BillController extends Controller
     private function resolvePartnerServiceAreaIds($user): array
     {
         return Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])
-            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value . "_{$user->id}", function () use ($user): array {
+            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value."_{$user->id}", function () use ($user): array {
                 return $user->partnerServiceAreas()
                     ->pluck('location_id')
                     ->unique()
@@ -494,12 +488,16 @@ class BillController extends Controller
 
     private function canReceiveBill(User $user, PartnerBill $bill): bool
     {
+        if ((int) $bill->client_id === (int) $user->id) {
+            return false;
+        }
+
         $isApprovedForCategory = $user->partnerServices()
             ->where('status', 'approved')
             ->where('category_id', $bill->category_id)
             ->exists();
 
-        if (!$isApprovedForCategory) {
+        if (! $isApprovedForCategory) {
             return false;
         }
 
@@ -521,14 +519,14 @@ class BillController extends Controller
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
-                $q->where('code', 'like', '%' . $search . '%')
-                    ->orWhere('address', 'like', '%' . $search . '%')
-                    ->orWhere('phone', 'like', '%' . $search . '%')
+                $q->where('code', 'like', '%'.$search.'%')
+                    ->orWhere('address', 'like', '%'.$search.'%')
+                    ->orWhere('phone', 'like', '%'.$search.'%')
                     ->orWhereHas('client', function ($clientQuery) use ($search) {
-                        $clientQuery->where('name', 'like', '%' . $search . '%');
+                        $clientQuery->where('name', 'like', '%'.$search.'%');
                     })
                     ->orWhereHas('event', function ($eventQuery) use ($search) {
-                        $eventQuery->where('name', 'like', '%' . $search . '%');
+                        $eventQuery->where('name', 'like', '%'.$search.'%');
                     });
             });
         }
@@ -548,7 +546,7 @@ class BillController extends Controller
             $query->where('category_id', $request->query('category_id'));
         }
 
-        if (!$includesCategoryFilter) {
+        if (! $includesCategoryFilter) {
             match ($sortBy) {
                 'oldest' => $query->orderBy('updated_at', 'asc'),
                 'date_desc' => $query->orderBy('date', 'asc')->orderBy('start_time', 'asc'),

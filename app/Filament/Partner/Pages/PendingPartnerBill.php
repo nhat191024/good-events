@@ -2,20 +2,13 @@
 
 namespace App\Filament\Partner\Pages;
 
-use BackedEnum;
-
-use App\Models\PartnerBill;
-use App\Enum\PartnerBillStatus;
 use App\Enum\PartnerBillDetailStatus;
-
+use App\Enum\PartnerBillStatus;
+use App\Models\PartnerBill;
+use BackedEnum;
 use Filament\Pages\Page;
-use Filament\Notifications\Notification;
-
 use Filament\Support\Icons\Heroicon;
-
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
-
 use Livewire\WithPagination;
 
 class PendingPartnerBill extends Page
@@ -62,6 +55,10 @@ class PendingPartnerBill extends Page
             ->whereIn('status', [
                 PartnerBillStatus::PENDING,
             ])
+            ->where(function (Builder $query) {
+                $query->whereNull('client_id')
+                    ->orWhere('client_id', '!=', auth()->id());
+            })
             ->whereHas('details', function (Builder $query) {
                 $query->where('partner_id', auth()->id());
             })

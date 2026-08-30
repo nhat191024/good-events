@@ -42,6 +42,7 @@ return [
     'apply_filters' => 'Apply Filters',
     'order_accepted' => 'Show accepted successfully',
     'order_accept_error' => 'An error occurred while accepting the show',
+    'self_order_not_allowed' => 'You cannot accept a show created by your own account.',
     'total_amount' => 'Total Amount',
     'start_time' => 'Start Time',
     'end_time' => 'End Time',
@@ -167,7 +168,7 @@ return [
     'back_to_list' => 'Back to show list',
     'bill_not_found' => 'No shows found.',
 
-    //banned modal
+    // banned modal
     'ban_partner_title' => 'You have been banned from accepting shows',
     'ban_partner_description' => 'You cannot accept new shows until the administrator lifts the ban.',
 ];
