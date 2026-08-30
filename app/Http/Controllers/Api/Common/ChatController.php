@@ -219,11 +219,14 @@ class ChatController extends Controller
         $page = (int) $request->input('page', 1);
         $userId = (int) Auth::id();
         $thread = Thread::query()
-            ->with(['chatInvitations' => function ($query) use ($userId) {
-                $query
-                    ->where('user_id', $userId)
-                    ->where('status', ChatInvitation::STATUS_ACCEPTED);
-            }])
+            ->with([
+                'bill:id,thread_id,client_id,partner_id',
+                'chatInvitations' => function ($query) use ($userId) {
+                    $query
+                        ->where('user_id', $userId)
+                        ->where('status', ChatInvitation::STATUS_ACCEPTED);
+                },
+            ])
             ->find($threadId);
 
         $thread?->markAsRead(Auth::id());
@@ -240,7 +243,7 @@ class ChatController extends Controller
 
         $messages = $thread->messages()
             ->with(['user' => function ($query) {
-                $query->select('id', 'name');
+                $query->select('id', 'name', 'avatar');
             }, 'media', 'call'])
             ->orderBy('created_at', 'asc')
             ->skip($offset)
@@ -249,14 +252,40 @@ class ChatController extends Controller
 
         $hasMore = $offset > 0;
 
-        $mappedMessages = $messages->map(fn ($msg) => [
-            'sender_id' => $msg->user_id,
-            'message' => ChatMessagePayload::message($msg),
-            'user' => [
-                'id' => $msg->user_id,
-                'name' => $msg->user->name ?? 'Ghost',
-            ],
-        ])->toArray();
+        $avatarMediaByModel = Media::query()
+            ->whereIn('model_id', $messages->pluck('user_id')->unique())
+            ->whereIn('model_type', [User::class, Partner::class, Customer::class])
+            ->where('collection_name', 'avatar')
+            ->orderBy('order_column')
+            ->get()
+            ->keyBy(fn (Media $media): string => $media->model_type.':'.$media->model_id);
+
+        $mappedMessages = $messages->map(function (Message $message) use ($avatarMediaByModel, $thread): array {
+            $senderModelTypes = match ($message->user_id) {
+                $thread->bill?->partner_id => [Partner::class, User::class, Customer::class],
+                $thread->bill?->client_id => [Customer::class, User::class, Partner::class],
+                default => [User::class, Partner::class, Customer::class],
+            };
+            $senderAvatarMedia = collect($senderModelTypes)
+                ->map(fn (string $modelType): ?Media => $avatarMediaByModel->get($modelType.':'.$message->user_id))
+                ->filter()
+                ->first();
+            $senderAvatarUrl = $senderAvatarMedia?->getAvailableUrl(['avatar_webp']);
+
+            if (blank($senderAvatarUrl)) {
+                $senderAvatarUrl = $message->user?->avatar_url;
+            }
+
+            return [
+                'sender_id' => $message->user_id,
+                'message' => ChatMessagePayload::message($message),
+                'user' => [
+                    'id' => $message->user_id,
+                    'name' => $message->user?->name ?? 'Ghost', //TODO: remove name after update app
+                    'avatar' => $senderAvatarUrl,
+                ],
+            ];
+        })->toArray();
 
         return response()->json([
             'messages' => $mappedMessages,
