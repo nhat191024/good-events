@@ -137,10 +137,19 @@ class ChatController extends Controller
                 $thread->bill?->client_id => [Customer::class, User::class, Partner::class],
                 default => [User::class, Partner::class, Customer::class],
             };
-            $latestMessageSenderAvatar = collect($latestMessageSenderModelTypes)
+            $latestMessageSenderAvatarMedia = collect($latestMessageSenderModelTypes)
                 ->map(fn (string $modelType): ?Media => $avatarMediaByModel->get($modelType.':'.$thread->latestMessage?->user_id))
                 ->filter()
                 ->first();
+            $latestMessageSenderAvatarUrl = null;
+
+            if ($latestMessageSender !== null) {
+                $latestMessageSenderAvatarUrl = $latestMessageSenderAvatarMedia?->getAvailableUrl(['avatar_webp']);
+
+                if (blank($latestMessageSenderAvatarUrl)) {
+                    $latestMessageSenderAvatarUrl = $latestMessageSender->avatar_url;
+                }
+            }
 
             if ($participant) {
                 $isUnread = $participant->last_read !== null && $thread->updated_at->gt($participant->last_read);
@@ -176,8 +185,7 @@ class ChatController extends Controller
                     'location' => null,
                     'preview_text' => $thread->latestMessage->preview_text,
                     'sender_name' => $latestMessageSender?->name ?? 'Ghost',
-                    'sender_avatar' => $latestMessageSenderAvatar?->getAvailableUrl(['avatar_webp'])
-                        ?: $latestMessageSender?->avatar_url,
+                    'sender_avatar' => $latestMessageSenderAvatarUrl,
                     'created_at' => $thread->latestMessage->created_at?->diffForHumans(),
                 ] : null,
                 'bill' => $thread->bill ? [
