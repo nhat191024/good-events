@@ -44,6 +44,7 @@ class ChatMessagePayload
             'user' => [
                 'id' => $message->user_id,
                 'name' => $user?->name ?? $message->user?->name ?? 'Ghost',
+                'avatar' => self::avatarUrl($user ?? $message->user),
             ],
             'other_participant_ids' => self::otherParticipantIds($message->thread_id, $message->user_id),
         ];
@@ -59,6 +60,7 @@ class ChatMessagePayload
             'user' => [
                 'id' => $message->user_id,
                 'name' => $user?->name ?? $message->user?->name ?? 'Ghost',
+                'avatar' => self::avatarUrl($user ?? $message->user),
             ],
         ];
     }
@@ -93,8 +95,20 @@ class ChatMessagePayload
             'user' => [
                 'id' => $message['user_id'],
                 'name' => $message['user']['name'] ?? 'Ghost',
+                'avatar' => $message['user']['avatar'] ?? null,
             ],
         ];
+    }
+
+    private static function avatarUrl(?User $user): ?string
+    {
+        if ($user === null) {
+            return null;
+        }
+
+        $avatarUrl = $user->getFirstMedia('avatar')?->getAvailableUrl(['avatar_webp']);
+
+        return filled($avatarUrl) ? $avatarUrl : $user->avatar_url;
     }
 
     /**

@@ -29,3 +29,23 @@ it('includes the call summary used by chat history views', function () {
         'duration_seconds' => 3723,
     ]);
 });
+
+it('includes the sender avatar in the websocket payload', function () {
+    $payload = ChatMessagePayload::broadcast([
+        'id' => 40,
+        'thread_id' => 10,
+        'user_id' => 20,
+        'type' => Message::TYPE_TEXT,
+        'body' => 'Hello',
+        'user' => [
+            'name' => 'Sender',
+            'avatar' => 'https://example.com/avatar.webp',
+        ],
+    ]);
+
+    expect($payload['user'])->toMatchArray([
+        'id' => 20,
+        'name' => 'Sender',
+        'avatar' => 'https://example.com/avatar.webp',
+    ]);
+});
