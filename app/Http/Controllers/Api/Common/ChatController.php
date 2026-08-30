@@ -6,14 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreChatMessageRequest;
 use App\Jobs\SendMessage;
 use App\Models\ChatInvitation;
+use App\Models\Customer;
 use App\Models\Message;
+use App\Models\Partner;
 use App\Models\Thread;
+use App\Models\User;
 use App\Support\ChatMessagePayload;
 use Cmgmyr\Messenger\Models\Participant;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ChatController extends Controller
 {
@@ -46,9 +50,8 @@ class ChatController extends Controller
         $page = max(1, (int) $request->input('page', 1));
 
         $with = [
-            'latestMessage.media',
             'latestMessage.user' => function ($query) {
-                $query->select('id', 'name');
+                $query->select('id', 'name', 'avatar');
             },
             'participants',
             'participants.user' => function ($query) {
@@ -110,10 +113,34 @@ class ChatController extends Controller
             $threads = $threads->take(self::THREADS_PER_PAGE);
         }
 
-        $mappedThreads = $threads->map(function ($thread) use ($sideRequest, $userId, $userRole) {
+        $latestMessageSenderIds = $threads
+            ->pluck('latestMessage.user_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $avatarMediaByModel = Media::query()
+            ->whereIn('model_id', $latestMessageSenderIds)
+            ->whereIn('model_type', [User::class, Partner::class, Customer::class])
+            ->where('collection_name', 'avatar')
+            ->orderBy('order_column')
+            ->get()
+            ->keyBy(fn (Media $media): string => $media->model_type.':'.$media->model_id);
+
+        $mappedThreads = $threads->map(function ($thread) use ($avatarMediaByModel, $sideRequest, $userId, $userRole) {
             $isUnread = false;
             $participant = $thread->participants->firstWhere('user_id', $userId);
             $canLeave = $thread->chatInvitations->isNotEmpty();
+            $latestMessageSender = $thread->latestMessage?->user;
+            $latestMessageSenderModelTypes = match ($thread->latestMessage?->user_id) {
+                $thread->bill?->partner_id => [Partner::class, User::class, Customer::class],
+                $thread->bill?->client_id => [Customer::class, User::class, Partner::class],
+                default => [User::class, Partner::class, Customer::class],
+            };
+            $latestMessageSenderAvatar = collect($latestMessageSenderModelTypes)
+                ->map(fn (string $modelType): ?Media => $avatarMediaByModel->get($modelType.':'.$thread->latestMessage?->user_id))
+                ->filter()
+                ->first();
 
             if ($participant) {
                 $isUnread = $participant->last_read !== null && $thread->updated_at->gt($participant->last_read);
@@ -148,7 +175,9 @@ class ChatController extends Controller
                     'attachments' => null,
                     'location' => null,
                     'preview_text' => $thread->latestMessage->preview_text,
-                    'sender_name' => $thread->latestMessage->user->name,
+                    'sender_name' => $latestMessageSender?->name ?? 'Ghost',
+                    'sender_avatar' => $latestMessageSenderAvatar?->getAvailableUrl(['avatar_webp'])
+                        ?: $latestMessageSender?->avatar_url,
                     'created_at' => $thread->latestMessage->created_at?->diffForHumans(),
                 ] : null,
                 'bill' => $thread->bill ? [
