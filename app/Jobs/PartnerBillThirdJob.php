@@ -3,16 +3,17 @@
 namespace App\Jobs;
 
 use App\Enum\PartnerBillStatus;
+use App\Models\Partner;
 use App\Models\PartnerBill;
 use App\Services\PartnerBillJobScheduler;
 use App\Services\PartnerBillNotificationService;
-
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
-class PartnerBillThirdJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
+class PartnerBillThirdJob implements ShouldBeUniqueUntilProcessing, ShouldQueue
 {
     use Queueable;
 
@@ -32,8 +33,7 @@ class PartnerBillThirdJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
     public function handle(
         PartnerBillNotificationService $notificationService,
         PartnerBillJobScheduler $scheduler,
-    ): void
-    {
+    ): void {
         $this->partnerBill->refresh();
 
         match ($this->partnerBill->status) {
@@ -53,19 +53,76 @@ class PartnerBillThirdJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
         PartnerBill $partnerBill,
         PartnerBillNotificationService $notificationService,
         PartnerBillJobScheduler $scheduler,
-    ): void
-    {
+    ): void {
         if ($scheduler->shouldWaitForCompletionReminder($partnerBill)) {
             $scheduler->scheduleCompletionReminder($partnerBill);
 
             return;
         }
 
-        if (! Cache::add("partner_bill_completion_reminder_sent_{$partnerBill->id}", true, now()->addHours(13))) {
+        if (! $partnerBill->partner()->exists()) {
             return;
         }
 
-        $notificationService->sendPartnerCompletionReminder($partnerBill);
-        $scheduler->scheduleAutoCompletion($partnerBill);
+        $partnerBill = DB::transaction(function () use ($partnerBill): ?PartnerBill {
+            $lockedBill = PartnerBill::query()->lockForUpdate()->findOrFail($partnerBill->id);
+
+            if (! in_array($lockedBill->status, [PartnerBillStatus::CONFIRMED, PartnerBillStatus::IN_JOB], true)) {
+                return null;
+            }
+
+            if (! $lockedBill->completion_reminder_started_at) {
+                $lockedBill->completion_reminder_started_at = now();
+                $lockedBill->saveQuietly();
+            }
+
+            return $lockedBill;
+        });
+
+        if (! $partnerBill) {
+            return;
+        }
+
+        if (Cache::add("partner_bill_completion_reminder_sent_{$partnerBill->id}", true, now()->addMinutes(115))) {
+            $notificationService->sendPartnerCompletionReminder($partnerBill);
+        }
+
+        if ($partnerBill->completion_reminder_started_at->copy()->addDays(3)->lessThanOrEqualTo(now())) {
+            $this->banPartner($partnerBill);
+
+            return;
+        }
+
+        $scheduler->scheduleNextCompletionReminder($partnerBill);
+    }
+
+    private function banPartner(PartnerBill $partnerBill): void
+    {
+        DB::transaction(function () use ($partnerBill): void {
+            $lockedBill = PartnerBill::query()
+                ->whereKey($partnerBill->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $lockedBill || ! in_array($lockedBill->status, [PartnerBillStatus::CONFIRMED, PartnerBillStatus::IN_JOB], true)) {
+                return;
+            }
+
+            $partner = Partner::query()
+                ->whereKey($lockedBill->partner_id)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $partner) {
+                return;
+            }
+
+            if (! filled($partner->ban_reason)) {
+                $partner->ban_reason = 'tạm khóa tài khoản do nghi ngờ tài khoản không hoạt động đúng quy trình hoặc đối tác ảo';
+                $partner->save();
+            }
+
+            $partner->delete();
+        });
     }
 }

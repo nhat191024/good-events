@@ -14,6 +14,7 @@ use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 use App\Models\PartnerService;
 use App\Models\User;
+use App\Services\PartnerBillWorkflowService;
 use App\Settings\PartnerSettings;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -381,6 +382,13 @@ class BillController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
+        if (app(PartnerBillWorkflowService::class)->isActionLocked((int) auth()->id(), $bill)) {
+            return response()->json([
+                'message' => 'Complete overdue orders before checking in or out of other orders.',
+                'code' => 'PARTNER_WORKFLOW_LOCKED',
+            ], 403);
+        }
+
         if ($bill->status !== PartnerBillStatus::CONFIRMED) {
             return response()->json(['message' => 'Order must be confirmed.', 'status' => $bill->status], 422);
         }
@@ -414,6 +422,13 @@ class BillController extends Controller
     {
         if (! $bill->details()->where('partner_id', auth()->id())->exists()) {
             return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        if (app(PartnerBillWorkflowService::class)->isActionLocked((int) auth()->id(), $bill)) {
+            return response()->json([
+                'message' => 'Complete overdue orders before checking in or out of other orders.',
+                'code' => 'PARTNER_WORKFLOW_LOCKED',
+            ], 403);
         }
 
         if ($bill->status !== PartnerBillStatus::IN_JOB) {

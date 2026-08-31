@@ -2,24 +2,22 @@
 
 namespace App\Filament\Partner\Pages;
 
-use BackedEnum;
-
-use App\Models\PartnerBill;
-use App\Enum\PartnerBillStatus;
 use App\Enum\PartnerBillDetailStatus;
-
-use Filament\Pages\Page;
+use App\Enum\PartnerBillStatus;
+use App\Models\PartnerBill;
+use App\Services\PartnerBillWorkflowService;
+use App\Settings\PartnerSettings;
+use BackedEnum;
 use Filament\Notifications\Notification;
-
+use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-
 use Illuminate\Database\Eloquent\Builder;
-
 use Livewire\WithPagination;
 
 class ConfirmedPartnerBill extends Page
 {
     use WithPagination;
+
     protected static ?int $navigationSort = 1;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDateRange;
@@ -206,11 +204,21 @@ class ConfirmedPartnerBill extends Page
 
         $bill = PartnerBill::findOrFail($billId);
 
-        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+        if (! $bill->details()->where('partner_id', auth()->id())->exists()) {
             Notification::make()
                 ->title(__('partner/bill.unauthorized_action'))
                 ->danger()
                 ->send();
+
+            return;
+        }
+
+        if (app(PartnerBillWorkflowService::class)->isActionLocked((int) auth()->id(), $bill)) {
+            Notification::make()
+                ->title('Vui lòng hoàn thành các đơn quá hạn trước khi thao tác đơn khác.')
+                ->danger()
+                ->send();
+
             return;
         }
 
@@ -219,16 +227,17 @@ class ConfirmedPartnerBill extends Page
                 ->title(__('partner/bill.must_be_confirmed'))
                 ->danger()
                 ->send();
+
             return;
         }
 
         if ($this->arrivalPhoto) {
-            //use if livewire temporary file upload on s3
+            // use if livewire temporary file upload on s3
             // $disk = config('livewire.temporary_file_upload.disk', 'local');
             // $bill->addMediaFromDisk($this->arrivalPhoto->getRealPath(), $disk)
 
             $bill->addMedia($this->arrivalPhoto->getRealPath())
-                ->usingName('Arrival Photo - ' . $bill->code)
+                ->usingName('Arrival Photo - '.$bill->code)
                 ->usingFileName($this->arrivalPhoto->getClientOriginalName())
                 ->toMediaCollection('arrival_photo');
         }
@@ -255,11 +264,21 @@ class ConfirmedPartnerBill extends Page
         $bill = PartnerBill::findOrFail($billId);
 
         // Verify the bill belongs to this partner
-        if (!$bill->details()->where('partner_id', auth()->id())->exists()) {
+        if (! $bill->details()->where('partner_id', auth()->id())->exists()) {
             Notification::make()
                 ->title(__('partner/bill.unauthorized_action'))
                 ->danger()
                 ->send();
+
+            return;
+        }
+
+        if (app(PartnerBillWorkflowService::class)->isActionLocked((int) auth()->id(), $bill)) {
+            Notification::make()
+                ->title('Vui lòng hoàn thành các đơn quá hạn trước khi thao tác đơn khác.')
+                ->danger()
+                ->send();
+
             return;
         }
 
@@ -269,27 +288,29 @@ class ConfirmedPartnerBill extends Page
                 ->title(__('partner/bill.must_be_in_job'))
                 ->danger()
                 ->send();
+
             return;
         }
 
         $user = auth()->user();
         $balance = $user->balanceInt;
-        $feePercentage = app(\App\Settings\PartnerSettings::class)->fee_percentage;
+        $feePercentage = app(PartnerSettings::class)->fee_percentage;
         $withdrawAmount = floor($bill->total * ($feePercentage / 100));
 
         if ($balance < $withdrawAmount) {
-            $formatWithdrawAmount = number_format($withdrawAmount) . ' VND';
-            $formatBalance = number_format($balance) . ' VND';
+            $formatWithdrawAmount = number_format($withdrawAmount).' VND';
+            $formatBalance = number_format($balance).' VND';
             Notification::make()
                 ->title(__('partner/bill.insufficient_balance', ['amount' => $formatWithdrawAmount, 'balance' => $formatBalance]))
                 ->danger()
                 ->send();
+
             return;
         }
 
         if ($this->completionPhoto) {
             $bill->addMedia($this->completionPhoto->getRealPath())
-                ->usingName('Completion Photo - ' . $bill->code)
+                ->usingName('Completion Photo - '.$bill->code)
                 ->usingFileName($this->completionPhoto->getClientOriginalName())
                 ->toMediaCollection('completion_photo');
         }

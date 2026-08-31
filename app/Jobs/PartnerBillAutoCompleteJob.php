@@ -2,14 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Enum\PartnerBillStatus;
 use App\Models\PartnerBill;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\DB;
 
-class PartnerBillAutoCompleteJob implements ShouldQueue, ShouldBeUnique
+class PartnerBillAutoCompleteJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -24,28 +22,7 @@ class PartnerBillAutoCompleteJob implements ShouldQueue, ShouldBeUnique
     }
 
     /**
-     * Execute the job.
+     * Keep legacy queued jobs harmless after automatic completion is disabled.
      */
-    public function handle(): void
-    {
-        $this->partnerBill->refresh();
-
-        if (! in_array($this->partnerBill->status, [PartnerBillStatus::CONFIRMED, PartnerBillStatus::IN_JOB], true)) {
-            return;
-        }
-
-        DB::transaction(function (): void {
-            $lockedBill = PartnerBill::query()
-                ->whereKey($this->partnerBill->id)
-                ->lockForUpdate()
-                ->first();
-
-            if (! $lockedBill || ! in_array($lockedBill->status, [PartnerBillStatus::CONFIRMED, PartnerBillStatus::IN_JOB], true)) {
-                return;
-            }
-
-            $lockedBill->status = PartnerBillStatus::COMPLETED;
-            $lockedBill->save();
-        });
-    }
+    public function handle(): void {}
 }
