@@ -104,7 +104,7 @@ class PartnerBillJobScheduler
 
     public function expirationCheckAt(PartnerBill $partnerBill): ?CarbonInterface
     {
-        return $partnerBill->created_at?->copy()->addHours(48);
+        return $partnerBill->created_at?->copy()->addHours(24);
     }
 
     public function completionReminderAt(PartnerBill $partnerBill): ?CarbonInterface

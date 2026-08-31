@@ -42,10 +42,6 @@ class PartnerBillSecondJob implements ShouldQueue, ShouldBeUnique
      */
     private function expirePartnerBill(PartnerBill $partnerBill, PartnerBillNotificationService $notificationService): void
     {
-        if (! $partnerBill->details()->exists()) {
-            return;
-        }
-
         $partnerBill->status = PartnerBillStatus::EXPIRED;
         $partnerBill->save();
 
