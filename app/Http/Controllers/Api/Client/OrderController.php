@@ -3,43 +3,46 @@
 namespace App\Http\Controllers\Api\Client;
 
 use App\Enum\PartnerBillDetailStatus;
+use App\Enum\PartnerBillPriceIncreaseRequestStatus;
 use App\Enum\PartnerBillStatus;
-
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\Concerns\PaginatesApi;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Client\Order\AcceptPriceIncreaseRequest;
+use App\Http\Requests\Client\Order\RejectPriceIncreaseRequest;
 use App\Http\Requests\Client\OrderHistory\CancelOrderRequest;
 use App\Http\Requests\Client\OrderHistory\ConfirmPartnerRequest;
 use App\Http\Resources\Api\PartnerBillDetailResource;
 use App\Http\Resources\Api\PartnerBillHistoryResource;
+use App\Http\Resources\Api\PartnerBillPriceIncreaseRequestResource;
 use App\Http\Resources\Api\PartnerBillResource;
 use App\Http\Resources\Api\PartnerProfileResource;
 use App\Http\Resources\Api\PartnerServiceResource;
 use App\Http\Resources\Api\UserResource;
-
+use App\Models\Partner;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
+use App\Models\PartnerBillPriceIncreaseRequest;
 use App\Models\Statistical;
 use App\Models\User;
-use App\Models\Partner;
 use App\Models\Voucher;
-
-use App\Services\PartnerWidgetCacheService;
 use App\Services\FCMService;
-
+use App\Services\PartnerWidgetCacheService;
+use Codebyray\ReviewRateable\Models\Review;
+use Filament\Notifications\Notification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
-use Filament\Notifications\Notification;
-
-use Codebyray\ReviewRateable\Models\Review;
 
 class OrderController extends Controller
 {
     use PaginatesApi;
 
     private const DEFAULT_PER_PAGE = 20;
+
     private const MAX_PER_PAGE = 50;
+
     private FCMService $fcmService;
 
     public function __construct()
@@ -53,8 +56,7 @@ class OrderController extends Controller
      * Query: page, per_page
      * Response: { orders: PartnerBillResource[] (paginated) }
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function list(Request $request)
     {
@@ -64,14 +66,14 @@ class OrderController extends Controller
 
         $bills = PartnerBill::query()
             ->with([
-                'category' => fn($q) => $q->withTrashed(),
+                'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
                 'event',
                 'details',
                 'partner.statistics',
                 'partner.partnerProfile',
                 'media',
-                'voucher' => fn($q) => $q->select(['id', 'code']),
+                'voucher' => fn ($q) => $q->select(['id', 'code']),
             ])
             ->where('client_id', $request->user()->id)
             ->whereIn('status', [
@@ -93,8 +95,7 @@ class OrderController extends Controller
      * Query: page, per_page
      * Response: { orders: PartnerBillHistoryResource[] (paginated) }
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function history(Request $request)
     {
@@ -105,19 +106,19 @@ class OrderController extends Controller
             ->where('client_id', $request->user()->id)
             ->with([
                 'media',
-                'category' => fn($q) => $q->withTrashed(),
+                'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
-                'category.parent' => fn($q) => $q->withTrashed(),
+                'category.parent' => fn ($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'partner.media',
                 'partner.statistics',
                 'partner.partnerProfile',
-                'review' => fn($query) => $query
+                'review' => fn ($query) => $query
                     ->where('reviewable_type', Partner::class)
                     ->where('user_id', $request->user()->id)
                     ->with('ratings'),
-                'voucher' => fn($q) => $q->select(['id', 'code']),
+                'voucher' => fn ($q) => $q->select(['id', 'code']),
             ])
             ->whereIn('status', [
                 PartnerBillStatus::COMPLETED,
@@ -138,9 +139,7 @@ class OrderController extends Controller
      * Path: order (id)
      * Response: { order: PartnerBillResource|null }
      *
-     * @param Request $request
-     * @param int $orderId
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function single(Request $request, int $orderId)
     {
@@ -149,15 +148,15 @@ class OrderController extends Controller
             ->where('client_id', $request->user()->id)
             ->with([
                 'media',
-                'category' => fn($q) => $q->withTrashed(),
+                'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
-                'category.parent' => fn($q) => $q->withTrashed(),
+                'category.parent' => fn ($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'details',
                 'partner.statistics',
                 'partner.partnerProfile',
-                'voucher' => fn($q) => $q->select(['id', 'code']),
+                'voucher' => fn ($q) => $q->select(['id', 'code']),
             ])
             ->first();
 
@@ -170,9 +169,7 @@ class OrderController extends Controller
      * Path: order (id)
      * Response: { order: PartnerBillHistoryResource|null }
      *
-     * @param Request $request
-     * @param int $orderId
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function singleHistory(Request $request, int $orderId)
     {
@@ -181,20 +178,20 @@ class OrderController extends Controller
             ->where('client_id', $request->user()->id)
             ->with([
                 'media',
-                'category' => fn($q) => $q->withTrashed(),
+                'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
-                'category.parent' => fn($q) => $q->withTrashed(),
+                'category.parent' => fn ($q) => $q->withTrashed(),
                 'category.parent.media',
                 'event',
                 'details',
                 'partner.media',
                 'partner.statistics',
                 'partner.partnerProfile',
-                'review' => fn($query) => $query
+                'review' => fn ($query) => $query
                     ->where('reviewable_type', Partner::class)
                     ->where('user_id', $request->user()->id)
                     ->with('ratings'),
-                'voucher' => fn($q) => $q->select(['id', 'code']),
+                'voucher' => fn ($q) => $q->select(['id', 'code']),
             ])
             ->first();
 
@@ -207,9 +204,7 @@ class OrderController extends Controller
      * Path: order (id)
      * Response: { bill_id, items: PartnerBillDetailResource[], version }
      *
-     * @param Request $request
-     * @param int $billId
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function details(Request $request, int $billId)
     {
@@ -241,14 +236,13 @@ class OrderController extends Controller
      * Path: user (id)
      * Response: { user, partner_profile, services }
      *
-     * @param User $user
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function partnerProfile(User $user)
     {
         $user->loadMissing('partnerProfile', 'partnerServices.category', 'partnerServices.media');
 
-        if (!$user->partnerProfile) {
+        if (! $user->partnerProfile) {
             return response()->json(['message' => 'Partner profile not found.'], 404);
         }
 
@@ -265,8 +259,7 @@ class OrderController extends Controller
      * Body: order_id
      * Response: { success: true } or 422 with message
      *
-     * @param CancelOrderRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function cancelOrder(CancelOrderRequest $request)
     {
@@ -286,7 +279,7 @@ class OrderController extends Controller
             try {
                 $startDate = $bill->date->format('Y-m-d');
                 $startTime = $bill->start_time->format('H:i');
-                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $startDate . ' ' . $startTime, $tz);
+                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $startDate.' '.$startTime, $tz);
             } catch (\Throwable $exception) {
                 $startDateTime = null;
             }
@@ -315,8 +308,7 @@ class OrderController extends Controller
      * Body: order_id, partner_id, voucher_code (optional)
      * Response: { success: true } or error message
      *
-     * @param ConfirmPartnerRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function confirmChoosePartner(ConfirmPartnerRequest $request)
     {
@@ -330,7 +322,7 @@ class OrderController extends Controller
                 ->where('partner_id', $partnerId)
                 ->first();
 
-            if (!$partnerBillDetail) {
+            if (! $partnerBillDetail) {
                 return response()->json(['message' => 'Partner selection not found.'], 404);
             }
 
@@ -363,8 +355,7 @@ class OrderController extends Controller
      * Body: partner_id, order_id, rating, comment (optional)
      * Response: { success: true }
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function submitReview(Request $request)
     {
@@ -408,7 +399,7 @@ class OrderController extends Controller
             ->title($notificationTitle)
             ->body($notificationBody)
             ->info()
-            ->sendToDatabase($partner,  true);
+            ->sendToDatabase($partner, true);
 
         Statistical::syncPartnerRatingMetrics($partner->id);
         PartnerWidgetCacheService::clearPartnerCaches($partner->id);
@@ -422,8 +413,7 @@ class OrderController extends Controller
      * Body: voucher_input, order_id
      * Response: { status, message, details }
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function validateVoucher(Request $request)
     {
@@ -435,7 +425,7 @@ class OrderController extends Controller
         $partnerBill = PartnerBill::find($data['order_id']);
         $voucher = Voucher::where('code', $data['voucher_input'])->first();
 
-        if (!$voucher || !$partnerBill) {
+        if (! $voucher || ! $partnerBill) {
             return response()->json([
                 'status' => false,
                 'message' => 'Voucher not found.',
@@ -445,11 +435,11 @@ class OrderController extends Controller
         $now = now();
         $isExpired = $voucher->expires_at && $now->greaterThan($voucher->expires_at);
         $notStarted = $voucher->startAt() && $now->lessThan($voucher->startAt());
-        $limitReached = !$voucher->isUnlimited()
+        $limitReached = ! $voucher->isUnlimited()
             && $voucher->usageLimit() !== null
             && $voucher->timesUsed() >= $voucher->usageLimit();
 
-        $status = !($isExpired || $notStarted || $limitReached);
+        $status = ! ($isExpired || $notStarted || $limitReached);
 
         $message = 'Voucher is valid.';
         if ($isExpired) {
@@ -488,8 +478,7 @@ class OrderController extends Controller
      * Body: voucher_input, order_id, partner_id
      * Response: { status, message, discount }
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getVoucherDiscountAmount(Request $request)
     {
@@ -500,7 +489,7 @@ class OrderController extends Controller
         ]);
 
         $partnerBill = PartnerBill::find($data['order_id']);
-        if (!$partnerBill) {
+        if (! $partnerBill) {
             return response()->json([
                 'status' => false,
                 'message' => 'Order not found.',
@@ -509,7 +498,7 @@ class OrderController extends Controller
         }
 
         $partner = User::find($data['partner_id']);
-        if (!$partner) {
+        if (! $partner) {
             return response()->json([
                 'status' => false,
                 'message' => 'Partner not found.',
@@ -520,7 +509,7 @@ class OrderController extends Controller
         $partnerBillDetail = PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
             ->where('partner_id', $partner->id)
             ->first();
-        if (!$partnerBillDetail) {
+        if (! $partnerBillDetail) {
             return response()->json([
                 'status' => false,
                 'message' => 'Partner detail not found.',
@@ -529,7 +518,7 @@ class OrderController extends Controller
         }
 
         $voucher = Voucher::where('code', $data['voucher_input'])->first();
-        if (!$voucher) {
+        if (! $voucher) {
             return response()->json([
                 'status' => false,
                 'message' => 'Voucher not found.',
@@ -538,7 +527,7 @@ class OrderController extends Controller
         }
 
         $result = $voucher->validate($partnerBillDetail->total);
-        if (!$result->status) {
+        if (! $result->status) {
             return response()->json([
                 'status' => false,
                 'message' => $result->message,
@@ -565,7 +554,7 @@ class OrderController extends Controller
         ]);
 
         $partnerBill = PartnerBill::find($data['order_id']);
-        if (!$partnerBill) {
+        if (! $partnerBill) {
             return response()->json([
                 'status' => false,
                 'message' => 'Order not found.',
@@ -579,6 +568,123 @@ class OrderController extends Controller
             'status' => true,
             'message' => 'Voucher removed successfully.',
         ]);
+    }
+
+    public function priceIncreaseRequests(Request $request, PartnerBill $order): JsonResponse
+    {
+        if ((int) $order->client_id !== (int) $request->user()->id) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $priceIncreaseRequests = $order->priceIncreaseRequests()
+            ->latest()
+            ->paginate($this->resolvePerPage($request, self::DEFAULT_PER_PAGE));
+
+        return response()->json([
+            'price_increase_requests' => $this->paginatedData(
+                $priceIncreaseRequests,
+                PartnerBillPriceIncreaseRequestResource::class,
+            ),
+        ]);
+    }
+
+    public function acceptPriceIncreaseRequest(
+        AcceptPriceIncreaseRequest $request,
+        PartnerBill $order,
+        PartnerBillPriceIncreaseRequest $priceIncreaseRequest,
+    ): JsonResponse {
+        return DB::transaction(function () use ($request, $order, $priceIncreaseRequest) {
+            $lockedOrder = PartnerBill::query()->lockForUpdate()->findOrFail($order->id);
+
+            if ((int) $lockedOrder->client_id !== (int) $request->user()->id) {
+                return response()->json(['message' => 'Forbidden.'], 403);
+            }
+
+            $lockedPriceIncreaseRequest = PartnerBillPriceIncreaseRequest::query()
+                ->lockForUpdate()
+                ->findOrFail($priceIncreaseRequest->id);
+
+            if ((int) $lockedPriceIncreaseRequest->partner_bill_id !== (int) $lockedOrder->id) {
+                return response()->json(['message' => 'Price increase request does not belong to this order.'], 404);
+            }
+
+            if ($lockedPriceIncreaseRequest->status !== PartnerBillPriceIncreaseRequestStatus::Pending) {
+                return response()->json(['message' => 'Price increase request has already been processed.'], 422);
+            }
+
+            if (! in_array($lockedOrder->status, [PartnerBillStatus::CONFIRMED, PartnerBillStatus::IN_JOB], true)) {
+                return response()->json(['message' => 'Order does not allow price changes.'], 422);
+            }
+
+            $newTotal = $lockedPriceIncreaseRequest->requested_total;
+            $discount = $lockedOrder->voucher?->getDiscountAmount($newTotal) ?? 0;
+
+            $lockedOrder->forceFill([
+                'total' => $newTotal,
+                'final_total' => max($newTotal - $discount, 0),
+            ])->save();
+
+            $lockedPriceIncreaseRequest->forceFill([
+                'status' => PartnerBillPriceIncreaseRequestStatus::Accepted,
+                'responded_by' => $request->user()->id,
+                'responded_at' => now(),
+            ])->save();
+
+            $lockedOrder->priceIncreaseRequests()
+                ->whereKeyNot($lockedPriceIncreaseRequest->id)
+                ->where('status', PartnerBillPriceIncreaseRequestStatus::Pending->value)
+                ->update([
+                    'status' => PartnerBillPriceIncreaseRequestStatus::Superseded->value,
+                    'responded_at' => now(),
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'order' => [
+                    'id' => $lockedOrder->id,
+                    'total' => $lockedOrder->total,
+                    'final_total' => $lockedOrder->final_total,
+                ],
+                'price_increase_request' => new PartnerBillPriceIncreaseRequestResource($lockedPriceIncreaseRequest),
+            ]);
+        });
+    }
+
+    public function rejectPriceIncreaseRequest(
+        RejectPriceIncreaseRequest $request,
+        PartnerBill $order,
+        PartnerBillPriceIncreaseRequest $priceIncreaseRequest,
+    ): JsonResponse {
+        return DB::transaction(function () use ($request, $order, $priceIncreaseRequest) {
+            $lockedOrder = PartnerBill::query()->lockForUpdate()->findOrFail($order->id);
+
+            if ((int) $lockedOrder->client_id !== (int) $request->user()->id) {
+                return response()->json(['message' => 'Forbidden.'], 403);
+            }
+
+            $lockedPriceIncreaseRequest = PartnerBillPriceIncreaseRequest::query()
+                ->lockForUpdate()
+                ->findOrFail($priceIncreaseRequest->id);
+
+            if ((int) $lockedPriceIncreaseRequest->partner_bill_id !== (int) $lockedOrder->id) {
+                return response()->json(['message' => 'Price increase request does not belong to this order.'], 404);
+            }
+
+            if ($lockedPriceIncreaseRequest->status !== PartnerBillPriceIncreaseRequestStatus::Pending) {
+                return response()->json(['message' => 'Price increase request has already been processed.'], 422);
+            }
+
+            $lockedPriceIncreaseRequest->forceFill([
+                'status' => PartnerBillPriceIncreaseRequestStatus::Rejected,
+                'responded_by' => $request->user()->id,
+                'responded_at' => now(),
+            ])->save();
+
+            return response()->json([
+                'success' => true,
+                'price_increase_request' => new PartnerBillPriceIncreaseRequestResource($lockedPriceIncreaseRequest),
+            ]);
+        });
     }
 
     private function resolvePerPage(Request $request, int $default): int

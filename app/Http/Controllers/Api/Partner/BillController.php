@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Concerns\PaginatesApi;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\PartnerBillResource;
 use App\Http\Resources\Api\Partner\RealtimePartnerBillCollection;
+use App\Http\Resources\Api\PartnerBillPriceIncreaseRequestResource;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 use App\Models\PartnerService;
@@ -307,6 +308,24 @@ class BillController extends Controller
 
         return response()->json([
             'bill' => new PartnerBillResource($bill),
+        ]);
+    }
+
+    public function priceIncreaseRequests(Request $request, PartnerBill $bill): JsonResponse
+    {
+        if ((int) $bill->partner_id !== (int) $request->user()->id) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $priceIncreaseRequests = $bill->priceIncreaseRequests()
+            ->latest()
+            ->paginate($this->resolvePerPage($request, 20));
+
+        return response()->json([
+            'price_increase_requests' => $this->paginatedData(
+                $priceIncreaseRequests,
+                PartnerBillPriceIncreaseRequestResource::class,
+            ),
         ]);
     }
 

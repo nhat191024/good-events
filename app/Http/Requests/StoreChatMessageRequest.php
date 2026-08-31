@@ -33,6 +33,7 @@ class StoreChatMessageRequest extends FormRequest
                 Message::TYPE_TEXT,
                 Message::TYPE_IMAGE,
                 Message::TYPE_LOCATION,
+                Message::TYPE_PRICE_INCREASE_REQUEST,
             ])],
             'body' => [
                 Rule::requiredIf($type === Message::TYPE_TEXT),
@@ -70,6 +71,19 @@ class StoreChatMessageRequest extends FormRequest
                 'string',
                 'max:255',
             ],
+            'requested_price' => [
+                Rule::requiredIf($type === Message::TYPE_PRICE_INCREASE_REQUEST),
+                'nullable',
+                'integer',
+                'min:1',
+                'max:9000000000000000',
+            ],
+            'reason' => [
+                Rule::requiredIf($type === Message::TYPE_PRICE_INCREASE_REQUEST),
+                'nullable',
+                'string',
+                'max:1000',
+            ],
         ];
     }
 
@@ -88,6 +102,9 @@ class StoreChatMessageRequest extends FormRequest
             'location.latitude.between' => 'Vĩ độ không hợp lệ.',
             'location.longitude.required' => 'Vui lòng gửi kinh độ.',
             'location.longitude.between' => 'Kinh độ không hợp lệ.',
+            'requested_price.required' => 'Vui lòng nhập giá đề nghị.',
+            'requested_price.integer' => 'Giá đề nghị phải là số nguyên.',
+            'reason.required' => 'Vui lòng nhập lý do tăng giá.',
         ];
     }
 

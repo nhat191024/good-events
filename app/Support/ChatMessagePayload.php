@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Enum\CacheKey;
+use App\Http\Resources\Api\PartnerBillPriceIncreaseRequestResource;
 use App\Models\Message;
 use App\Models\User;
 use Cmgmyr\Messenger\Models\Participant;
@@ -24,6 +25,9 @@ class ChatMessagePayload
             'attachments' => $message->attachments,
             'location' => $message->location,
             'call' => $message->call_summary,
+            'price_increase_request' => $message->priceIncreaseRequest
+                ? (new PartnerBillPriceIncreaseRequestResource($message->priceIncreaseRequest))->resolve()
+                : null,
             'preview_text' => $message->preview_text,
             'created_at' => $message->created_at?->toIso8601String(),
             'updated_at' => $message->updated_at?->toIso8601String(),
@@ -88,6 +92,7 @@ class ChatMessagePayload
                 'attachments' => $message['attachments'] ?? [],
                 'location' => $message['location'] ?? null,
                 'call' => $message['call'] ?? null,
+                'price_increase_request' => $message['price_increase_request'] ?? null,
                 'preview_text' => $message['preview_text'] ?? (string) ($message['body'] ?? ''),
                 'created_at' => $createdAt,
                 'updated_at' => $updatedAt,

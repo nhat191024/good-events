@@ -9,6 +9,13 @@ Route::get('/orders/partner-profile/{user}', [OrderController::class, 'partnerPr
 Route::get('/orders/{order}', [OrderController::class, 'single'])->whereNumber('order');
 Route::get('/orders/history/{order}', [OrderController::class, 'singleHistory'])->whereNumber('order');
 Route::get('/orders/{order}/details', [OrderController::class, 'details'])->whereNumber('order');
+Route::get('/orders/{order}/price-increase-requests', [OrderController::class, 'priceIncreaseRequests'])->whereNumber('order');
+Route::post('/orders/{order}/price-increase-requests/{priceIncreaseRequest}/accept', [OrderController::class, 'acceptPriceIncreaseRequest'])
+    ->whereNumber('order')
+    ->whereNumber('priceIncreaseRequest');
+Route::post('/orders/{order}/price-increase-requests/{priceIncreaseRequest}/reject', [OrderController::class, 'rejectPriceIncreaseRequest'])
+    ->whereNumber('order')
+    ->whereNumber('priceIncreaseRequest');
 Route::post('/orders/cancel', [OrderController::class, 'cancelOrder']);
 Route::post('/orders/choose-partner', [OrderController::class, 'confirmChoosePartner']);
 Route::post('/orders/submit-review', [OrderController::class, 'submitReview']);

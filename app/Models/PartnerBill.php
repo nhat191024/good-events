@@ -2,34 +2,31 @@
 
 namespace App\Models;
 
-use App\Enum\PartnerBillStatus;
-use App\Enum\PartnerBillDetailStatus;
-use App\Enum\StatisticType;
 use App\Enum\CacheKey;
-
-use App\Services\PartnerWidgetCacheService;
-use App\Services\PartnerBillNotificationService;
+use App\Enum\PartnerBillDetailStatus;
+use App\Enum\PartnerBillPriceIncreaseRequestStatus;
+use App\Enum\PartnerBillStatus;
+use App\Enum\StatisticType;
 use App\Services\PartnerBillJobScheduler;
-
+use App\Services\PartnerBillNotificationService;
+use App\Services\PartnerWidgetCacheService;
 use App\Settings\PartnerSettings;
-
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
-
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
-
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-
+use Carbon\CarbonImmutable;
 use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
-use Illuminate\Support\Facades\Log;
-
 use Codebyray\ReviewRateable\Models\Review;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @property int $id
@@ -37,9 +34,9 @@ use Codebyray\ReviewRateable\Models\Review;
  * @property string $address
  * @property int|null $location_id
  * @property string $phone
- * @property \Carbon\CarbonImmutable|null $date
- * @property \Carbon\CarbonImmutable|null $start_time
- * @property \Carbon\CarbonImmutable|null $end_time
+ * @property CarbonImmutable|null $date
+ * @property CarbonImmutable|null $start_time
+ * @property CarbonImmutable|null $end_time
  * @property float|null $total
  * @property float|null $final_total
  * @property int|null $event_id
@@ -51,22 +48,23 @@ use Codebyray\ReviewRateable\Models\Review;
  * @property PartnerBillStatus $status
  * @property int|null $thread_id
  * @property int|null $voucher_id
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \App\Models\PartnerCategory|null $category
- * @property-read \App\Models\User|null $client
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $details
+ * @property-read PartnerCategory|null $category
+ * @property-read User|null $client
+ * @property-read Collection<int, PartnerBillDetail> $details
  * @property-read int|null $details_count
- * @property-read \App\Models\Event|null $event
- * @property-read \App\Models\Location|null $location
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read Event|null $event
+ * @property-read Location|null $location
+ * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
- * @property-read \App\Models\Partner|null $partner
+ * @property-read Partner|null $partner
  * @property-read Review|null $review
  * @property-read Thread|null $thread
- * @property-read \App\Models\Voucher|null $voucher
+ * @property-read Voucher|null $voucher
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill query()
@@ -91,6 +89,7 @@ use Codebyray\ReviewRateable\Models\Review;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerBill whereVoucherId($value)
+ *
  * @mixin \Eloquent
  */
 class PartnerBill extends Model implements HasMedia
@@ -139,7 +138,6 @@ class PartnerBill extends Model implements HasMedia
 
     /**
      * Summary of getActivitylogOptions
-     * @return LogOptions
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -164,13 +162,13 @@ class PartnerBill extends Model implements HasMedia
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
     }
 
-    //model boot method
+    // model boot method
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($partnerBill) {
-            $partnerBill->code = 'PB' . date('Ymd') . rand(1000, 9999);
+            $partnerBill->code = 'PB'.date('Ymd').rand(1000, 9999);
         });
 
         static::created(function ($partnerBill) {
@@ -188,6 +186,19 @@ class PartnerBill extends Model implements HasMedia
                     PartnerBillStatus::EXPIRED => static::handleExpiredStatus($partnerBill),
                     default => null,
                 };
+
+                if (in_array($partnerBill->status, [
+                    PartnerBillStatus::COMPLETED,
+                    PartnerBillStatus::CANCELLED,
+                    PartnerBillStatus::EXPIRED,
+                ], true)) {
+                    $partnerBill->priceIncreaseRequests()
+                        ->where('status', PartnerBillPriceIncreaseRequestStatus::Pending->value)
+                        ->update([
+                            'status' => PartnerBillPriceIncreaseRequestStatus::Cancelled->value,
+                            'responded_at' => now(),
+                        ]);
+                }
             }
 
             // Clear widget caches when bill is updated
@@ -199,14 +210,12 @@ class PartnerBill extends Model implements HasMedia
 
     /**
      * Handle bill created event
-     * @param \App\Models\PartnerBill $partnerBill
-     * @return void
      */
     protected static function handleBillCreated(PartnerBill $partnerBill): void
     {
         // $superAdmin = User::whereName('Super Admin')->first();
         $admin = User::whereName('Admin')->first();
-        $mailService = new PartnerBillNotificationService();
+        $mailService = new PartnerBillNotificationService;
         $mailService->sendOrderReceivedNotification($partnerBill);
 
         $clientId = $partnerBill->client_id;
@@ -218,27 +227,27 @@ class PartnerBill extends Model implements HasMedia
 
         // Update client statistics
         if ($stats) {
-            $stats->metrics_value = (int)$stats->metrics_value + 1;
+            $stats->metrics_value = (int) $stats->metrics_value + 1;
             $stats->save();
         }
 
-        //create thread for communication
+        // create thread for communication
         $partnerCategoryName = $partnerBill->category ? $partnerBill->category->name : 'General';
         $thread = Thread::create([
-            'subject' => "$clientName - $partnerCategoryName"
+            'subject' => "$clientName - $partnerCategoryName",
         ]);
 
         try {
             Participant::create([
                 'thread_id' => $thread->id,
-                'user_id' => $admin->id, //system user
+                'user_id' => $admin->id, // system user
                 'last_read' => now(),
             ]);
 
             Participant::create([
                 'thread_id' => $thread->id,
                 'user_id' => $partnerBill->client_id,
-                'last_read' => null
+                'last_read' => null,
             ]);
         } catch (\Throwable $th) {
             Log::error('From PartnerBill.php', ['message' => $th->getMessage(), 'exception' => $th]);
@@ -256,7 +265,7 @@ class PartnerBill extends Model implements HasMedia
      */
     protected static function handlePendingStatus(PartnerBill $partnerBill): void
     {
-        //if admin rollback to pending from confirmed or in_job
+        // if admin rollback to pending from confirmed or in_job
         if ($partnerBill->thread_id) {
             $thread = Thread::find($partnerBill->thread_id);
             if ($thread) {
@@ -293,19 +302,19 @@ class PartnerBill extends Model implements HasMedia
         // Update partner statistics
         /** @var Statistical|null $stat */
         if ($stat = $partnerStats->get(StatisticType::REVENUE_GENERATED->value)) {
-            $stat->metrics_value = (float)$stat->metrics_value + (float)$finalTotal;
+            $stat->metrics_value = (float) $stat->metrics_value + (float) $finalTotal;
             $stat->save();
         }
 
         /** @var Statistical|null $stat */
         if ($stat = $partnerStats->get(StatisticType::NUMBER_CUSTOMER->value)) {
-            $stat->metrics_value = (int)$stat->metrics_value + 1;
+            $stat->metrics_value = (int) $stat->metrics_value + 1;
             $stat->save();
         }
 
         /** @var Statistical|null $stat */
         if ($stat = $partnerStats->get(StatisticType::COMPLETED_ORDERS->value)) {
-            $stat->metrics_value = (int)$stat->metrics_value + 1;
+            $stat->metrics_value = (int) $stat->metrics_value + 1;
             $stat->save();
         }
 
@@ -321,13 +330,13 @@ class PartnerBill extends Model implements HasMedia
         // Update client statistics
         /** @var Statistical|null $stat */
         if ($stat = $clientStats->get(StatisticType::TOTAL_SPENT->value)) {
-            $stat->metrics_value = (float)$stat->metrics_value + (float)$finalTotal;
+            $stat->metrics_value = (float) $stat->metrics_value + (float) $finalTotal;
             $stat->save();
         }
 
         /** @var Statistical|null $stat */
         if ($stat = $clientStats->get(StatisticType::COMPLETED_ORDERS->value)) {
-            $stat->metrics_value = (int)$stat->metrics_value + 1;
+            $stat->metrics_value = (int) $stat->metrics_value + 1;
             $stat->save();
         }
 
@@ -336,14 +345,14 @@ class PartnerBill extends Model implements HasMedia
             $thread->delete();
         }
 
-        //with draw to partner balance
+        // with draw to partner balance
         $user = Partner::find($partnerId);
         $feePercentage = app(PartnerSettings::class)->fee_percentage;
         $withdrawAmount = floor($partnerBill->total * ($feePercentage / 100));
 
-        $id = date('YmdHis') . rand(1000, 9999) + $partnerBill->id + rand(100, 999);
+        $id = date('YmdHis').rand(1000, 9999) + $partnerBill->id + rand(100, 999);
         $old_balance = $user->balanceInt;
-        $transaction = $user->forceWithdraw($withdrawAmount, ['transaction_codes' => $id, 'reason' => 'Thu phí nền tảng show mã: ' . $partnerBill->code, 'old_balance' => $old_balance]);
+        $transaction = $user->forceWithdraw($withdrawAmount, ['transaction_codes' => $id, 'reason' => 'Thu phí nền tảng show mã: '.$partnerBill->code, 'old_balance' => $old_balance]);
         $new_balance = $user->balanceInt;
         $transaction->meta = array_merge($transaction->meta ?? [], [
             'new_balance' => $new_balance,
@@ -353,9 +362,9 @@ class PartnerBill extends Model implements HasMedia
         $voucher = $partnerBill->voucher;
         if ($voucher) {
             $discountAmount = $voucher->getDiscountAmount($partnerBill->total);
-            $transId = date('YmdHis') . rand(1000, 9999) + $partnerBill->id + rand(100, 999) + $partnerBill->voucher_id;
+            $transId = date('YmdHis').rand(1000, 9999) + $partnerBill->id + rand(100, 999) + $partnerBill->voucher_id;
             $oldBalance = $user->balanceInt;
-            $transaction = $user->deposit($discountAmount, ['transaction_codes' => $transId, 'reason' => 'Hoàn tiền voucher: ' . $voucher->code . ' - Show: ' . $partnerBill->code, 'old_balance' => $oldBalance]);
+            $transaction = $user->deposit($discountAmount, ['transaction_codes' => $transId, 'reason' => 'Hoàn tiền voucher: '.$voucher->code.' - Show: '.$partnerBill->code, 'old_balance' => $oldBalance]);
             $newBalance = $user->balanceInt;
             $transaction->meta = array_merge($transaction->meta ?? [], [
                 'new_balance' => $newBalance,
@@ -389,7 +398,7 @@ class PartnerBill extends Model implements HasMedia
         // Update cancelled orders percentage statistic for both partner and client
         foreach ([$partnerId, $clientId] as $userId) {
             $userStats = $allStats->get($userId);
-            if (!$userStats) {
+            if (! $userStats) {
                 continue;
             }
 
@@ -400,8 +409,8 @@ class PartnerBill extends Model implements HasMedia
             $cancelledOrdersPercentageStat = $userStatsKeyed->get(StatisticType::CANCELLED_ORDERS_PERCENTAGE->value);
 
             if ($cancelledOrdersPercentageStat) {
-                $totalOrders = $totalOrdersStat ? (float)$totalOrdersStat->metrics_value : 0;
-                $completedOrders = $completedOrdersStat ? (float)$completedOrdersStat->metrics_value : 0;
+                $totalOrders = $totalOrdersStat ? (float) $totalOrdersStat->metrics_value : 0;
+                $completedOrders = $completedOrdersStat ? (float) $completedOrdersStat->metrics_value : 0;
 
                 $cancelledOrders = max($totalOrders - $completedOrders, 0);
                 $cancelledPercentage = $totalOrders > 0 ? round(($cancelledOrders / $totalOrders) * 100, 2) : 0;
@@ -422,18 +431,18 @@ class PartnerBill extends Model implements HasMedia
      */
     protected static function handleConfirmedStatus(PartnerBill $partnerBill): void
     {
-        Cache::forget(CacheKey::THREAD_PARTICIPANT->value . "{$partnerBill->thread_id}");
+        Cache::forget(CacheKey::THREAD_PARTICIPANT->value."{$partnerBill->thread_id}");
         Participant::create([
             'thread_id' => $partnerBill->thread_id,
             'user_id' => $partnerBill->partner_id,
-            'last_read' => null
+            'last_read' => null,
         ]);
 
         PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
             ->where('status', '!=', PartnerBillDetailStatus::CLOSED)
             ->update(['status' => PartnerBillDetailStatus::CANCELLED]);
 
-        $notificationService = new PartnerBillNotificationService();
+        $notificationService = new PartnerBillNotificationService;
         $notificationService->sendOrderConfirmedNotification($partnerBill);
 
         app(PartnerBillJobScheduler::class)->scheduleFirstCheck($partnerBill);
@@ -445,7 +454,7 @@ class PartnerBill extends Model implements HasMedia
      */
     protected static function handleInJobStatus(PartnerBill $partnerBill): void
     {
-        $notificationService = new PartnerBillNotificationService();
+        $notificationService = new PartnerBillNotificationService;
         $notificationService->sendOrderInJobNotification($partnerBill);
 
         app(PartnerBillJobScheduler::class)->scheduleCompletionReminder($partnerBill);
@@ -466,7 +475,7 @@ class PartnerBill extends Model implements HasMedia
             ->update(['status' => PartnerBillDetailStatus::CANCELLED]);
     }
 
-    //model helpers method
+    // model helpers method
     public function isPaid(): bool
     {
         return $this->status === PartnerBillStatus::COMPLETED;
@@ -482,10 +491,15 @@ class PartnerBill extends Model implements HasMedia
         return $this->status === PartnerBillStatus::PENDING;
     }
 
-    //model relationship
+    // model relationship
     public function details()
     {
         return $this->hasMany(PartnerBillDetail::class);
+    }
+
+    public function priceIncreaseRequests(): HasMany
+    {
+        return $this->hasMany(PartnerBillPriceIncreaseRequest::class);
     }
 
     public function event()

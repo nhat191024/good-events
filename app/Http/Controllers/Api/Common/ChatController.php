@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Common;
 
+use App\Enum\PartnerBillPriceIncreaseRequestStatus;
+use App\Enum\PartnerBillStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreChatMessageRequest;
 use App\Jobs\SendMessage;
@@ -9,6 +11,8 @@ use App\Models\ChatInvitation;
 use App\Models\Customer;
 use App\Models\Message;
 use App\Models\Partner;
+use App\Models\PartnerBill;
+use App\Models\PartnerBillPriceIncreaseRequest;
 use App\Models\Thread;
 use App\Models\User;
 use App\Support\ChatMessagePayload;
@@ -17,6 +21,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ChatController extends Controller
@@ -53,6 +58,7 @@ class ChatController extends Controller
             'latestMessage.user' => function ($query) {
                 $query->select('id', 'name', 'avatar');
             },
+            'latestMessage.priceIncreaseRequest',
             'participants',
             'participants.user' => function ($query) {
                 $query->select('id', 'name');
@@ -244,7 +250,7 @@ class ChatController extends Controller
         $messages = $thread->messages()
             ->with(['user' => function ($query) {
                 $query->select('id', 'name', 'avatar');
-            }, 'media', 'call'])
+            }, 'media', 'call', 'priceIncreaseRequest'])
             ->orderBy('created_at', 'asc')
             ->skip($offset)
             ->take(self::MESSAGES_PER_PAGE)
@@ -281,7 +287,7 @@ class ChatController extends Controller
                 'message' => ChatMessagePayload::message($message),
                 'user' => [
                     'id' => $message->user_id,
-                    'name' => $message->user?->name ?? 'Ghost', //TODO: remove name after update app
+                    'name' => $message->user?->name ?? 'Ghost', // TODO: remove name after update app
                     'avatar' => $senderAvatarUrl,
                 ],
             ];
@@ -332,6 +338,32 @@ class ChatController extends Controller
             $messageAttributes = $request->messageAttributes($threadId, $userId);
             $clientMessageId = $messageAttributes['client_message_id'];
 
+            if ($request->input('type') === Message::TYPE_PRICE_INCREASE_REQUEST) {
+                $result = $this->createPriceIncreaseRequestMessage($request, $threadId, $userId);
+
+                if ($result instanceof JsonResponse) {
+                    return $result;
+                }
+
+                $message = $result;
+
+                if (! $message->wasRecentlyCreated) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => ChatMessagePayload::response($message, Auth::user()),
+                    ]);
+                }
+
+                $formattedMessage = ChatMessagePayload::forDispatch($message, Auth::user());
+
+                SendMessage::dispatch($formattedMessage);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => ChatMessagePayload::response($message, Auth::user()),
+                ]);
+            }
+
             $message = $clientMessageId
                 ? Message::firstOrCreate([
                     'thread_id' => $threadId,
@@ -341,7 +373,7 @@ class ChatController extends Controller
                 : Message::create($messageAttributes);
 
             if (! $message->wasRecentlyCreated) {
-                $message->load('user', 'media');
+                $message->load('user', 'media', 'priceIncreaseRequest');
 
                 return response()->json([
                     'success' => true,
@@ -355,7 +387,7 @@ class ChatController extends Controller
                     ->toMediaCollection(Message::MEDIA_COLLECTION_CHAT_IMAGES);
             }
 
-            $message->load('user', 'media');
+            $message->load('user', 'media', 'priceIncreaseRequest');
 
             $formattedMessage = ChatMessagePayload::forDispatch($message, Auth::user());
 
@@ -373,5 +405,78 @@ class ChatController extends Controller
                 'message' => 'Failed to send message.',
             ], 500);
         }
+    }
+
+    private function createPriceIncreaseRequestMessage(
+        StoreChatMessageRequest $request,
+        int $threadId,
+        int $userId,
+    ): Message|JsonResponse {
+        return DB::transaction(function () use ($request, $threadId, $userId): Message|JsonResponse {
+            $clientMessageId = $request->input('client_message_id');
+
+            $bill = PartnerBill::query()
+                ->where('thread_id', $threadId)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $bill) {
+                return response()->json(['message' => 'Thread is not associated with an order.'], 422);
+            }
+
+            if ($clientMessageId) {
+                $existingMessage = Message::query()
+                    ->where('thread_id', $threadId)
+                    ->where('user_id', $userId)
+                    ->where('client_message_id', $clientMessageId)
+                    ->with(['user', 'media', 'priceIncreaseRequest'])
+                    ->first();
+
+                if ($existingMessage) {
+                    return $existingMessage;
+                }
+            }
+
+            if ((int) $bill->partner_id !== $userId) {
+                return response()->json(['message' => 'Only the assigned partner can request a price increase.'], 403);
+            }
+
+            if (! in_array($bill->status, [PartnerBillStatus::CONFIRMED, PartnerBillStatus::IN_JOB], true)) {
+                return response()->json(['message' => 'Order does not allow price increase requests.'], 422);
+            }
+
+            $requestedTotal = (int) $request->integer('requested_price');
+            $originalTotal = (int) round((float) $bill->total);
+
+            if ($requestedTotal <= $originalTotal) {
+                return response()->json(['message' => 'Requested price must be greater than the current order total.'], 422);
+            }
+
+            $bill->priceIncreaseRequests()
+                ->where('status', PartnerBillPriceIncreaseRequestStatus::Pending->value)
+                ->update([
+                    'status' => PartnerBillPriceIncreaseRequestStatus::Superseded->value,
+                    'responded_at' => now(),
+                ]);
+
+            $message = Message::create([
+                ...$request->messageAttributes($threadId, $userId),
+                'body' => $request->string('reason')->trim()->toString(),
+            ]);
+
+            PartnerBillPriceIncreaseRequest::create([
+                'partner_bill_id' => $bill->id,
+                'partner_id' => $userId,
+                'message_id' => $message->id,
+                'original_total' => $originalTotal,
+                'requested_total' => $requestedTotal,
+                'reason' => $request->string('reason')->trim()->toString(),
+                'status' => PartnerBillPriceIncreaseRequestStatus::Pending,
+            ]);
+
+            $message->load(['user', 'media', 'priceIncreaseRequest']);
+
+            return $message;
+        });
     }
 }

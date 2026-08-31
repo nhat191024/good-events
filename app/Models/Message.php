@@ -7,6 +7,7 @@ use Cmgmyr\Messenger\Models\Message as BaseMessage;
 use Cmgmyr\Messenger\Models\Participant;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
@@ -76,6 +77,8 @@ class Message extends BaseMessage implements HasMedia
 
     public const string TYPE_CALL = 'call';
 
+    public const string TYPE_PRICE_INCREASE_REQUEST = 'price_increase_request';
+
     public const string MEDIA_COLLECTION_CHAT_IMAGES = 'chat_images';
 
     protected $fillable = [
@@ -120,6 +123,11 @@ class Message extends BaseMessage implements HasMedia
     public function call(): BelongsTo
     {
         return $this->belongsTo(Call::class);
+    }
+
+    public function priceIncreaseRequest(): HasOne
+    {
+        return $this->hasOne(PartnerBillPriceIncreaseRequest::class);
     }
 
     /** @return array<string, mixed>|null */
@@ -183,6 +191,9 @@ class Message extends BaseMessage implements HasMedia
             self::TYPE_IMAGE => $this->body ?: '[Ảnh]',
             self::TYPE_LOCATION => $this->location_label ?: $this->location_address ?: '[Vị trí]',
             self::TYPE_CALL => '[Cuộc gọi]',
+            self::TYPE_PRICE_INCREASE_REQUEST => $this->priceIncreaseRequest
+                ? 'Yêu cầu tăng giá lên '.number_format($this->priceIncreaseRequest->requested_total, 0, ',', '.').' đ'
+                : '[Yêu cầu tăng giá]',
             default => (string) $this->body,
         };
     }
