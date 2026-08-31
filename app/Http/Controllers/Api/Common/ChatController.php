@@ -69,7 +69,7 @@ class ChatController extends Controller
                     ->where('status', ChatInvitation::STATUS_ACCEPTED);
             },
             'bill' => function ($query) {
-                $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'category_id', 'date', 'start_time', 'end_time', 'address');
+                $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'category_id', 'date', 'start_time', 'end_time', 'address', 'status');
             },
             'bill.event' => function ($query) {
                 $query->select('id', 'name');
@@ -201,6 +201,7 @@ class ChatController extends Controller
                         ? $thread->bill->date->format('d/m/Y').' - '.$thread->bill->start_time->format('H:i').' - '.$thread->bill->end_time->format('H:i')
                         : null,
                     'address' => $thread->bill->address,
+                    'status' => $thread->bill->status,
                 ] : null,
             ];
         });
