@@ -69,8 +69,11 @@ class PaymentService
                 'webhookUrl' => $webhookUrl,
             ]);
 
-        $response->throw();
         $body = $response->json();
+
+        if ($response->failed()) {
+            throw new RuntimeException($body['desc'] ?? 'PayOS could not confirm the webhook URL.');
+        }
 
         if (($body['code'] ?? null) !== '00') {
             throw new RuntimeException($body['desc'] ?? 'PayOS could not confirm the webhook URL.');

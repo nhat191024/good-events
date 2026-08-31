@@ -48,3 +48,21 @@ it('fails when PayOS rejects the webhook URL', function (): void {
     expect(fn () => app(PaymentService::class)->confirmWebhook('https://invalid.test/webhook'))
         ->toThrow(RuntimeException::class, 'Webhook URL invalid');
 });
+
+it('shows the PayOS description for an HTTP error response', function (): void {
+    config()->set([
+        'services.payos.base_url' => 'https://api-merchant.payos.vn',
+        'services.payos.client_id' => 'client-id',
+        'services.payos.api_key' => 'api-key',
+        'services.payos.checksum_key' => 'checksum-key',
+    ]);
+    Http::fake([
+        'https://api-merchant.payos.vn/confirm-webhook' => Http::response([
+            'code' => '20',
+            'desc' => 'Webhook url invalid',
+        ], 400),
+    ]);
+
+    expect(fn () => app(PaymentService::class)->confirmWebhook('https://invalid.test/webhook'))
+        ->toThrow(RuntimeException::class, 'Webhook url invalid');
+});

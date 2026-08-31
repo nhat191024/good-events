@@ -5,6 +5,7 @@ use App\Models\FileProductBill;
 use App\Services\PaymentService;
 use App\Services\PayOSWebhookService;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
 
 function payOSWebhookPayload(array $overrides = []): array
@@ -65,6 +66,30 @@ it('acknowledges a signed PayOS verification sample with an unknown order', func
         ->assertSuccessful()
         ->assertJsonPath('success', true)
         ->assertJsonPath('message', 'Webhook acknowledged for an unknown order.');
+});
+
+it('accepts a signed PayOS verification payload without optional bank fields', function (): void {
+    $payload = payOSWebhookPayload();
+    $payload['data'] = Arr::only($payload['data'], [
+        'orderCode',
+        'amount',
+        'paymentLinkId',
+        'code',
+    ]);
+
+    $this->mock(PaymentService::class)
+        ->shouldReceive('verifyWebhook')
+        ->once()
+        ->andReturn($payload['data']);
+    $this->mock(PayOSWebhookService::class)
+        ->shouldReceive('handle')
+        ->once()
+        ->with(true, '00', $payload['data'])
+        ->andReturn('Webhook acknowledged for an unknown order.');
+
+    $this->postJson(route('payos.webhook'), $payload)
+        ->assertSuccessful()
+        ->assertJsonPath('success', true);
 });
 
 it('marks a matching file product bill as paid idempotently', function (): void {
