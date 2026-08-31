@@ -2,17 +2,13 @@
 
 namespace App\Filament\Partner\Resources\Wallets\Pages;
 
+use App\Enum\PaymentMethod;
 use App\Filament\Partner\Resources\Wallets\WalletResource;
-
+use App\Services\PaymentService;
 use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-
-use App\Services\PaymentService;
-use App\Enum\PaymentMethod;
-
+use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Auth;
 
 class ListWallets extends ListRecords
@@ -42,24 +38,24 @@ class ListWallets extends ListRecords
                             ->step(10000)
                             ->maxValue(10000000)
                             ->suffix('VND')
-                            ->placeholder(__('partner/transaction.form.amount_placeholder'))
+                            ->placeholder(__('partner/transaction.form.amount_placeholder')),
                     ]
                 )
                 ->action(function (array $data): void {
                     $this->handleAddFunds($data['amount']);
-                })
+                }),
         ];
     }
 
     protected function handleAddFunds(int $amount): void
     {
         $user = Auth::user();
-        $id = date('YmdHis') . rand(1000, 9999) + 1;
+        $id = date('YmdHis').rand(1000, 9999) + 1;
         $oldBalance = $user->balanceInt;
         $transaction = $user->deposit($amount, ['reason' => 'Nạp tiền vào ví qua QR', 'transaction_codes' => $id, 'old_balance' => $oldBalance, 'new_balance' => $oldBalance + $amount], false);
 
         $timestamp = time();
-        $billId = intval($transaction->id . '1010' . substr((string) $timestamp, -3));
+        $billId = intval($transaction->id.'1010'.substr((string) $timestamp, -3));
 
         $data = [
             'billId' => $billId,
@@ -70,19 +66,27 @@ class ListWallets extends ListRecords
             'buyerPhone' => $user->phone,
             'items' => [
                 [
-                    'name' => "Nạp tiền vào ví qua QR",
+                    'name' => 'Nạp tiền vào ví qua QR',
                     'price' => $amount,
-                    'quantity' => 1
-                ]
+                    'quantity' => 1,
+                ],
             ],
-            'expiryTime' => intval(now()->addMinutes(10)->timestamp)
+            'expiryTime' => intval(now()->addMinutes(10)->timestamp),
         ];
+
+        $metaData = PaymentService::withPayOSMetadata($transaction->meta, $billId, $data);
+        $transaction->meta = $metaData;
+        $transaction->save();
 
         $paymentService = app(PaymentService::class);
         $response = $paymentService->processAppointmentPayment($data, PaymentMethod::QR_TRANSFER->gatewayChannel(), false);
 
+        $metaData = PaymentService::withPayOSMetadata($metaData, $billId, $data, $response);
+        $transaction->meta = $metaData;
+        $transaction->save();
+
         if (isset($response['checkoutUrl'])) {
-            $this->js('window.location.href = "' . $response['checkoutUrl'] . '";');
+            $this->js('window.location.href = "'.$response['checkoutUrl'].'";');
         } else {
             Notification::make()
                 ->title('Error')

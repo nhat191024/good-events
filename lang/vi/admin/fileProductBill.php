@@ -1,4 +1,5 @@
 <?php
+
 return [
     'singular' => 'Hóa đơn File thiết kế',
     'plural' => 'Hóa đơn File thiết kế',
@@ -17,6 +18,15 @@ return [
         'pending' => 'Chờ thanh toán',
         'paid' => 'Đã thanh toán',
         'cancelled' => 'Đã hủy',
+    ],
+
+    'actions' => [
+        'change_payment_status' => 'Đổi trạng thái thanh toán',
+        'change_payment_status_warning' => 'Thao tác thủ công này có thể cấp hoặc thu hồi quyền tải tài liệu của khách hàng. Vui lòng kiểm tra giao dịch PayOS trước khi xác nhận.',
+        'confirm_change' => 'Xác nhận thay đổi',
+        'reason' => 'Lý do điều chỉnh',
+        'reason_helper' => 'Lý do và tài khoản admin thực hiện sẽ được lưu trong nhật ký hoạt động.',
+        'status_updated' => 'Đã cập nhật trạng thái thanh toán',
     ],
 
     'payment_method' => [

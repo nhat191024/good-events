@@ -1,5 +1,15 @@
 <?php
+
 return [
+    'payos_webhook' => [
+        'navigation_label' => 'Webhook PayOS',
+        'title' => 'Cài đặt webhook PayOS',
+        'section_title' => 'Webhook thanh toán',
+        'section_description' => 'Cấu hình endpoint nhận thông báo thanh toán trực tiếp từ PayOS.',
+        'webhook_url' => 'URL webhook',
+        'webhook_url_helper' => 'Khi URL thay đổi, hệ thống sẽ yêu cầu PayOS kiểm tra và cập nhật webhook trước khi lưu.',
+        'confirmation_failed' => 'Không thể cập nhật webhook PayOS',
+    ],
     'app' => 'Hệ thống',
     'app_settings' => 'Các cài đặt liên quan đến hệ thống',
 

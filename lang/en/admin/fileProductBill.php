@@ -1,4 +1,5 @@
 <?php
+
 return [
     'singular' => 'File Product Bill',
     'plural' => 'File Product Bills',
@@ -17,6 +18,15 @@ return [
         'pending' => 'Pending',
         'paid' => 'Paid',
         'cancelled' => 'Cancelled',
+    ],
+
+    'actions' => [
+        'change_payment_status' => 'Change payment status',
+        'change_payment_status_warning' => 'This manual action may grant or revoke the customer’s download access. Verify the PayOS transaction before confirming.',
+        'confirm_change' => 'Confirm change',
+        'reason' => 'Adjustment reason',
+        'reason_helper' => 'The reason and administrator account will be recorded in the activity log.',
+        'status_updated' => 'Payment status updated',
     ],
 
     'payment_method' => [

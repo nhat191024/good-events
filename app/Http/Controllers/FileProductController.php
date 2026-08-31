@@ -2,44 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use Inertia\Response;
-use Inertia\Response as InertiaResponse;
-
+use App\Enum\CacheKey;
 use App\Enum\FileProductBillStatus;
 use App\Enum\PaymentMethod;
-use App\Enum\CacheKey;
-
+use App\Http\Resources\Home\CategoryResource;
+use App\Http\Resources\Home\FileProductResource;
+use App\Http\Resources\Home\TagResource;
 use App\Models\Category;
 use App\Models\FileProduct;
 use App\Models\FileProductBill;
 use App\Models\Taggable;
-
-use App\Http\Resources\Home\CategoryResource;
-use App\Http\Resources\Home\FileProductResource;
-use App\Http\Resources\Home\TagResource;
-
-use App\Helper\TemporaryImage;
+use App\Models\User;
 use App\Services\PaymentService;
-
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
+use Inertia\Response as InertiaResponse;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
-
 use Throwable;
+
 use function activity;
 
 class FileProductController extends Controller
 {
     private const DISCOVER_PER_PAGE = 12;
+
     private const SUGGESTION_LIMIT = 10;
 
     public function assetDiscover(Request $request): Response|RedirectResponse
@@ -60,9 +55,9 @@ class FileProductController extends Controller
 
         $suggestions = FileProduct::query()
             ->where(function ($builder) use ($term) {
-                $builder->where('name', 'like', '%' . $term . '%')
-                    ->orWhere('slug', 'like', '%' . $term . '%')
-                    ->orWhere('description', 'like', '%' . $term . '%');
+                $builder->where('name', 'like', '%'.$term.'%')
+                    ->orWhere('slug', 'like', '%'.$term.'%')
+                    ->orWhere('description', 'like', '%'.$term.'%');
             })
             ->orderByDesc('created_at')
             ->limit(self::SUGGESTION_LIMIT * 3)
@@ -106,9 +101,9 @@ class FileProductController extends Controller
     private function fetchCachedCategory(string $slug): Category
     {
         return Cache::remember(
-            CacheKey::FILE_CATEGORY_DETAIL->value . ":{$slug}",
+            CacheKey::FILE_CATEGORY_DETAIL->value.":{$slug}",
             now()->addHours(4),
-            fn() => Category::query()
+            fn () => Category::query()
                 ->with(['parent', 'media'])
                 ->where('slug', $slug)
                 ->firstOrFail()
@@ -138,7 +133,7 @@ class FileProductController extends Controller
             ->take(6)
             ->get();
 
-        $related->each(fn($product) => $product->setRelation('category', $category));
+        $related->each(fn ($product) => $product->setRelation('category', $category));
 
         return $related;
     }
@@ -154,9 +149,9 @@ class FileProductController extends Controller
     /**
      * @return array{0: bool, 1: string|null}
      */
-    private function checkPurchaseStatus(?\App\Models\User $user, FileProduct $fileProduct): array
+    private function checkPurchaseStatus(?User $user, FileProduct $fileProduct): array
     {
-        if (!$user) {
+        if (! $user) {
             return [false, null];
         }
 
@@ -194,7 +189,7 @@ class FileProductController extends Controller
     public function assetPurchase(Request $request, string $slug): Response|RedirectResponse
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
@@ -217,7 +212,7 @@ class FileProductController extends Controller
         $buyer = array_merge($buyerDefaults, $sessionBuyer);
 
         $paymentMethods = PaymentMethod::toOptions();
-        if (!$buyer['payment_method']) {
+        if (! $buyer['payment_method']) {
             $buyer['payment_method'] = PaymentMethod::QR_TRANSFER->value;
         }
 
@@ -232,7 +227,7 @@ class FileProductController extends Controller
     public function assetConfirmPurchase(Request $request): RedirectResponse|InertiaResponse|HttpResponse
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
@@ -255,7 +250,7 @@ class FileProductController extends Controller
 
     private function validatePurchaseRequest(Request $request): array
     {
-        $allowedMethods = array_map(fn(PaymentMethod $m) => $m->value, PaymentMethod::cases());
+        $allowedMethods = array_map(fn (PaymentMethod $m) => $m->value, PaymentMethod::cases());
 
         return $request->validate([
             'slug' => ['required', 'string', 'exists:file_products,slug'],
@@ -265,7 +260,7 @@ class FileProductController extends Controller
             'company' => ['nullable', 'string', 'max:255'],
             'tax_code' => ['nullable', 'string', 'max:100'],
             'note' => ['nullable', 'string', 'max:1000'],
-            'payment_method' => ['required', 'string', 'in:' . implode(',', $allowedMethods)],
+            'payment_method' => ['required', 'string', 'in:'.implode(',', $allowedMethods)],
         ]);
     }
 
@@ -277,7 +272,7 @@ class FileProductController extends Controller
             ->firstOrFail();
     }
 
-    private function updateBuyerProfile(\App\Models\User $user, array $validated): void
+    private function updateBuyerProfile(User $user, array $validated): void
     {
         $user->fill([
             'name' => $validated['name'],
@@ -289,9 +284,10 @@ class FileProductController extends Controller
         }
     }
 
-    private function createPurchaseBill(\App\Models\User $user, FileProduct $fileProduct, array $validated): FileProductBill
+    private function createPurchaseBill(User $user, FileProduct $fileProduct, array $validated): FileProductBill
     {
         $tax = 0.1 * $fileProduct->price;
+
         return FileProductBill::updateOrCreate(
             [
                 'file_product_id' => $fileProduct->getKey(),
@@ -310,7 +306,7 @@ class FileProductController extends Controller
         );
     }
 
-    private function logPurchaseActivity(\App\Models\User $user, FileProductBill $bill, array $validated): void
+    private function logPurchaseActivity(User $user, FileProductBill $bill, array $validated): void
     {
         activity('file_product_checkout')
             ->performedOn($bill)
@@ -325,6 +321,7 @@ class FileProductController extends Controller
     {
         $paymentService = app(PaymentService::class);
         $payload = $this->buildPaymentPayload($bill, $fileProduct, $validated);
+        $bill->recordPayOSPayment($payload);
 
         $this->logPurchaseDebug('payment payload prepared', [
             'bill_id' => $bill->getKey(),
@@ -341,6 +338,7 @@ class FileProductController extends Controller
                 $returnUrl,
                 $returnUrl
             );
+            $bill->recordPayOSPayment($payload, $paymentResponse);
 
             $this->logPurchaseDebug('payment response', ['bill_id' => $bill->getKey(), 'response' => $paymentResponse]);
 
@@ -363,8 +361,8 @@ class FileProductController extends Controller
         $billTotal = (int) round($bill->final_total ?? $fileProduct->price);
 
         return [
-            'billId' => $bill->getKey() . time(),
-            'billCode' => 'FPB-' . $bill->getKey(),
+            'billId' => $bill->getKey().time(),
+            'billCode' => 'FPB-'.$bill->getKey(),
             'amount' => $billTotal,
             'buyerName' => $validated['name'],
             'buyerEmail' => $validated['email'],
@@ -387,7 +385,7 @@ class FileProductController extends Controller
 
     private function logPurchaseDebug(string $message, array $context = []): void
     {
-        \Illuminate\Support\Facades\Log::debug("assetConfirmPurchase - {$message}", $context);
+        Log::debug("assetConfirmPurchase - {$message}", $context);
     }
 
     private function renderDiscoverPage(Request $request, ?Category $category = null): Response|RedirectResponse
@@ -430,7 +428,7 @@ class FileProductController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
         $tagSlugs = collect(Arr::wrap($request->query('tags', [])))
-            ->map(fn($slug) => trim((string) $slug))
+            ->map(fn ($slug) => trim((string) $slug))
             ->filter();
 
         // Fallback for singular 'tag' parameter
@@ -453,6 +451,7 @@ class FileProductController extends Controller
         if ($this->shouldRedirectToNormalizedQuery($request, $normalizedQuery)) {
             $routeName = $category ? 'asset.category' : 'asset.discover';
             $routeParams = $category ? ['category_slug' => $category->slug] : [];
+
             return redirect()->route($routeName, array_merge($routeParams, $normalizedQuery));
         }
 
@@ -461,8 +460,8 @@ class FileProductController extends Controller
 
     private function getChildCategories(?Category $category): Collection
     {
-        if (!$category) {
-            return new Collection();
+        if (! $category) {
+            return new Collection;
         }
 
         $category->loadMissing('parent');
@@ -472,7 +471,7 @@ class FileProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        $children->each(fn($child) => $child->setRelation('parent', $category));
+        $children->each(fn ($child) => $child->setRelation('parent', $category));
 
         return $children;
     }
@@ -513,16 +512,14 @@ class FileProductController extends Controller
 
     private function getSidebarData(): array
     {
-        $categories = Cache::remember(CacheKey::FILE_DISCOVER_CATEGORIES_SIDEBAR->value, now()->addMinutes(10), fn() =>
-            Category::with('parent', 'media')
-                ->whereType('design')
-                ->orderBy('name')
-                ->limit(15)
-                ->get()
+        $categories = Cache::remember(CacheKey::FILE_DISCOVER_CATEGORIES_SIDEBAR->value, now()->addMinutes(10), fn () => Category::with('parent', 'media')
+            ->whereType('design')
+            ->orderBy('name')
+            ->limit(15)
+            ->get()
         );
 
-        $tags = Cache::remember(CacheKey::FILE_DISCOVER_TAGS_SIDEBAR->value, now()->addMinutes(10), fn() =>
-            Taggable::getModelTags('FileProduct')
+        $tags = Cache::remember(CacheKey::FILE_DISCOVER_TAGS_SIDEBAR->value, now()->addMinutes(10), fn () => Taggable::getModelTags('FileProduct')
         );
 
         return [$categories, $tags];
@@ -558,14 +555,14 @@ class FileProductController extends Controller
             return true;
         }
 
-        if (isset($currentQuery['tags']) && !is_array($currentQuery['tags'])) {
+        if (isset($currentQuery['tags']) && ! is_array($currentQuery['tags'])) {
             return true;
         }
 
         $currentTags = [];
         if (isset($currentQuery['tags']) && is_array($currentQuery['tags'])) {
             $currentTags = collect($currentQuery['tags'])
-                ->map(fn($tag) => trim((string) $tag))
+                ->map(fn ($tag) => trim((string) $tag))
                 ->filter()
                 ->values()
                 ->all();
@@ -589,7 +586,7 @@ class FileProductController extends Controller
             $sanitizedCurrent['q'] = trim((string) $currentQuery['q']);
         }
 
-        if (!empty($currentTags)) {
+        if (! empty($currentTags)) {
             $sanitizedCurrent['tags'] = $currentTags;
         }
 
@@ -614,7 +611,7 @@ class FileProductController extends Controller
             ->map(function (Media $media) {
                 try {
                     $url = $media->getUrl('thumb');
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $url = $media->getFullUrl();
                 }
 

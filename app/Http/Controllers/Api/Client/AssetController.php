@@ -17,10 +17,10 @@ use App\Models\FileProductBill;
 use App\Models\Taggable;
 use App\Services\PaymentService;
 use App\Settings\AppSettings;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 
@@ -29,6 +29,7 @@ class AssetController extends Controller
     use PaginatesApi;
 
     private const DEFAULT_PER_PAGE = 20;
+
     private const MAX_PER_PAGE = 50;
 
     /**
@@ -37,9 +38,7 @@ class AssetController extends Controller
      * Query: page, per_page
      * Response: { file_products, tags, categories, settings }
      *
-     * @param Request $request
-     * @param AppSettings $settings
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function home(Request $request, AppSettings $settings)
     {
@@ -76,14 +75,13 @@ class AssetController extends Controller
      * Query: q, tags[], tag (fallback), category_slug, page, per_page
      * Response: { file_products, categories, tags, category, child_categories, filters }
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function search(Request $request)
     {
         $search = trim((string) $request->query('q', ''));
         $tagSlugs = collect(Arr::wrap($request->query('tags', [])))
-            ->map(fn($slug) => trim((string) $slug))
+            ->map(fn ($slug) => trim((string) $slug))
             ->filter();
 
         if ($tagSlugs->isEmpty() && $request->filled('tag')) {
@@ -107,8 +105,8 @@ class AssetController extends Controller
         $query = FileProduct::query()
             ->with(['category.parent', 'tags', 'media']);
 
-        $childCategories = new Collection();
-        $categoryIds = new Collection();
+        $childCategories = new Collection;
+        $categoryIds = new Collection;
         if ($category) {
             $category = $category->loadMissing('parent');
             $childCategories = Category::query()
@@ -125,9 +123,9 @@ class AssetController extends Controller
 
         if ($search !== '') {
             $query->where(function ($builder) use ($search) {
-                $builder->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('slug', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%');
+                $builder->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('slug', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
             });
         }
 
@@ -177,16 +175,13 @@ class AssetController extends Controller
      *
      * Response: { file_product, related, download_zip_url, is_purchased }
      *
-     * @param Request $request
-     * @param string $categorySlug
-     * @param string $fileProductSlug
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function detail(Request $request, string $categorySlug, string $fileProductSlug)
     {
         $fileProduct = FileProduct::query()
             ->with(['category.parent', 'tags', 'media'])
-            ->whereHas('category', fn($builder) => $builder->where('slug', $categorySlug))
+            ->whereHas('category', fn ($builder) => $builder->where('slug', $categorySlug))
             ->where('slug', $fileProductSlug)
             ->firstOrFail();
 
@@ -254,14 +249,12 @@ class AssetController extends Controller
      *
      * Response: { file_product, buyer, payment_methods, totals }
      *
-     * @param Request $request
-     * @param string $slug
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function purchase(Request $request, string $slug)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
@@ -297,19 +290,17 @@ class AssetController extends Controller
      * Body: slug, name, email, phone, company, tax_code, note, payment_method
      * Response: { checkout_url, bill_id } (500 with message on failure)
      *
-     * @param Request $request
-     * @param PaymentService $paymentService
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function confirmPurchase(Request $request, PaymentService $paymentService)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
         $paymentMethods = PaymentMethod::toOptions();
-        $allowedMethods = array_map(fn(PaymentMethod $m) => $m->value, PaymentMethod::cases());
+        $allowedMethods = array_map(fn (PaymentMethod $m) => $m->value, PaymentMethod::cases());
 
         $validated = $request->validate([
             'slug' => ['required', 'string', 'exists:file_products,slug'],
@@ -319,7 +310,7 @@ class AssetController extends Controller
             'company' => ['nullable', 'string', 'max:255'],
             'tax_code' => ['nullable', 'string', 'max:100'],
             'note' => ['nullable', 'string', 'max:1000'],
-            'payment_method' => ['required', 'string', 'in:' . implode(',', $allowedMethods)],
+            'payment_method' => ['required', 'string', 'in:'.implode(',', $allowedMethods)],
         ]);
 
         $fileProduct = FileProduct::query()
@@ -356,8 +347,8 @@ class AssetController extends Controller
 
         $billTotal = (int) round($bill->final_total ?? $fileProduct->price);
         $paymentPayload = [
-            'billId' => $bill->getKey() . time(),
-            'billCode' => 'FPB-' . $bill->getKey(),
+            'billId' => $bill->getKey().time(),
+            'billCode' => 'FPB-'.$bill->getKey(),
             'amount' => $billTotal,
             'buyerName' => $validated['name'],
             'buyerEmail' => $validated['email'],
@@ -378,6 +369,7 @@ class AssetController extends Controller
         ];
 
         $returnUrl = route('payment.result', ['bill_id' => $bill->getKey()]);
+        $bill->recordPayOSPayment($paymentPayload);
 
         try {
             $paymentResponse = $paymentService->processAppointmentPayment(
@@ -387,6 +379,7 @@ class AssetController extends Controller
                 $returnUrl,
                 $returnUrl
             );
+            $bill->recordPayOSPayment($paymentPayload, $paymentResponse);
 
             if (isset($paymentResponse['checkoutUrl'])) {
                 return response()->json([
@@ -421,7 +414,7 @@ class AssetController extends Controller
             ->map(function (Media $media) {
                 try {
                     $url = $media->getUrl('thumb');
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $url = $media->getFullUrl();
                 }
 
@@ -459,7 +452,7 @@ class AssetController extends Controller
     private function bannerImages(string $type): array
     {
         $banner = Banner::where('type', $type)->first();
-        if (!$banner) {
+        if (! $banner) {
             return [];
         }
 
@@ -467,7 +460,7 @@ class AssetController extends Controller
             ->map(function ($media) {
                 try {
                     $url = $media->getUrl('thumb');
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $url = $media->getFullUrl();
                 }
 

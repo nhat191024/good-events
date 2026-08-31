@@ -9,6 +9,7 @@ return [
     'settings' => [
         App\Settings\AppSettings::class,
         App\Settings\PartnerSettings::class,
+        App\Settings\PayOSSettings::class,
     ],
 
     /*

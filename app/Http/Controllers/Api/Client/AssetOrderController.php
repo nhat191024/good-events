@@ -16,12 +16,14 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
+use ZipStream\CompressionMethod;
 
 class AssetOrderController extends Controller
 {
     use PaginatesApi;
 
     private const DEFAULT_PER_PAGE = 20;
+
     private const MAX_PER_PAGE = 50;
 
     /**
@@ -29,14 +31,11 @@ class AssetOrderController extends Controller
      *
      * Query: page, per_page
      * Response: { orders: FileProductBillResource[] (paginated) }
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
         $userId = $request->user()?->getAuthIdentifier();
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
@@ -44,7 +43,7 @@ class AssetOrderController extends Controller
             ->where('client_id', $userId)
             ->with(['fileProduct.media', 'fileProduct.category'])
             ->orderByDesc('created_at');
-        
+
         return response()->json(FileProductBillResource::collection($orders->get()));
     }
 
@@ -53,10 +52,6 @@ class AssetOrderController extends Controller
      *
      * Path: bill (id)
      * Response: { order: FileProductBillResource }
-     *
-     * @param Request $request
-     * @param FileProductBill $bill
-     * @return JsonResponse
      */
     public function show(Request $request, FileProductBill $bill): JsonResponse
     {
@@ -73,11 +68,6 @@ class AssetOrderController extends Controller
      * POST /api/asset-orders/{bill}/repay
      *
      * Response: { checkout_url } or { message } on failure
-     *
-     * @param Request $request
-     * @param FileProductBill $bill
-     * @param PaymentService $paymentService
-     * @return JsonResponse
      */
     public function repay(Request $request, FileProductBill $bill, PaymentService $paymentService): JsonResponse
     {
@@ -96,19 +86,19 @@ class AssetOrderController extends Controller
         $bill->loadMissing('fileProduct');
         $fileProduct = $bill->fileProduct;
 
-        if (!$fileProduct) {
+        if (! $fileProduct) {
             return response()->json([
                 'message' => 'File product not found.',
             ], 500);
         }
 
         $amount = (int) round($bill->final_total ?? $bill->total);
-        $orderCode = $bill->getKey() . time();
+        $orderCode = $bill->getKey().time();
         $tax = 0.1 * $fileProduct->price;
 
         $payload = [
             'billId' => $orderCode,
-            'billCode' => 'FPB-' . $bill->getKey(),
+            'billCode' => 'FPB-'.$bill->getKey(),
             'amount' => $amount,
             'buyerName' => $request->user()?->name,
             'buyerEmail' => $request->user()?->email,
@@ -129,6 +119,7 @@ class AssetOrderController extends Controller
         ];
 
         $returnUrl = route('payment.result', ['bill_id' => $bill->getKey()]);
+        $bill->recordPayOSPayment($payload);
 
         try {
             $channel = $bill->payment_method instanceof PaymentMethod
@@ -142,6 +133,7 @@ class AssetOrderController extends Controller
                 $returnUrl,
                 $returnUrl
             );
+            $bill->recordPayOSPayment($payload, $paymentResponse);
 
             if (isset($paymentResponse['checkoutUrl'])) {
                 return response()->json([
@@ -162,9 +154,7 @@ class AssetOrderController extends Controller
      *
      * Response: streamed ZIP when paid and within rate limits.
      *
-     * @param Request $request
-     * @param FileProductBill $bill
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\JsonResponse
+     * @return StreamedResponse|JsonResponse
      */
     public function download(Request $request, FileProductBill $bill)
     {
@@ -180,7 +170,7 @@ class AssetOrderController extends Controller
             ], 422);
         }
 
-        $key = 'downloads_weekly:bill:' . $bill->getKey();
+        $key = 'downloads_weekly:bill:'.$bill->getKey();
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
@@ -194,7 +184,7 @@ class AssetOrderController extends Controller
         $bill->loadMissing('fileProduct');
         $fileProduct = $bill->fileProduct;
 
-        if (!$fileProduct) {
+        if (! $fileProduct) {
             return response()->json([
                 'message' => 'File product not found.',
             ], 500);
@@ -211,7 +201,7 @@ class AssetOrderController extends Controller
 
         $zipFileName = sprintf('FPB-%s-designs.zip', $bill->getKey());
 
-        if (!class_exists('\ZipStream\ZipStream')) {
+        if (! class_exists('\ZipStream\ZipStream')) {
             return response()->json([
                 'message' => 'ZipStream not installed.',
             ], 500);
@@ -227,7 +217,7 @@ class AssetOrderController extends Controller
                     $path = $media->getPath();
                     try {
                         $diskRoot = Storage::disk($disk)->path('');
-                        if (!empty($diskRoot) && Str::startsWith($path, $diskRoot)) {
+                        if (! empty($diskRoot) && Str::startsWith($path, $diskRoot)) {
                             $path = ltrim(Str::after($path, $diskRoot), '/\\');
                         }
                     } catch (Throwable $ex) {
@@ -235,7 +225,7 @@ class AssetOrderController extends Controller
                     }
 
                     $fileStream = Storage::disk($disk)->readStream($path);
-                    if (!$fileStream) {
+                    if (! $fileStream) {
                         continue;
                     }
 
@@ -245,7 +235,7 @@ class AssetOrderController extends Controller
                     $storeExtensions = ['psd', 'psb', 'tif'];
                     $isStore = in_array($ext, $storeExtensions, true) || ($media->size && $media->size > 50 * 1024 * 1024);
 
-                    $compressionMethod = $isStore ? \ZipStream\CompressionMethod::STORE : null;
+                    $compressionMethod = $isStore ? CompressionMethod::STORE : null;
                     $deflateLevel = $isStore ? 0 : null;
 
                     $zip->addFileFromStream($fileName, $fileStream, '', $compressionMethod, $deflateLevel);
@@ -262,7 +252,7 @@ class AssetOrderController extends Controller
         });
 
         $response->headers->set('Content-Type', 'application/octet-stream');
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . $zipFileName . '"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="'.$zipFileName.'"');
 
         return $response;
     }
@@ -271,7 +261,7 @@ class AssetOrderController extends Controller
     {
         $userId = $request->user()?->getAuthIdentifier();
 
-        if (!$userId || $bill->client_id !== $userId) {
+        if (! $userId || $bill->client_id !== $userId) {
             abort(403, 'Not authorized.');
         }
     }

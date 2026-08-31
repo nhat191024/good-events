@@ -1,5 +1,15 @@
 <?php
+
 return [
+    'payos_webhook' => [
+        'navigation_label' => 'PayOS webhook',
+        'title' => 'PayOS webhook settings',
+        'section_title' => 'Payment webhook',
+        'section_description' => 'Configure the endpoint that receives payment notifications directly from PayOS.',
+        'webhook_url' => 'Webhook URL',
+        'webhook_url_helper' => 'When the URL changes, PayOS will verify and update it before the setting is saved.',
+        'confirmation_failed' => 'Could not update the PayOS webhook',
+    ],
     'app' => 'System',
     'app_settings' => 'Settings related to the system',
 
@@ -108,5 +118,5 @@ return [
 
     'placeholders' => [
         'default_balance' => 'Default balance for new partners',
-    ]
+    ],
 ];

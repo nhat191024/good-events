@@ -5,21 +5,16 @@ namespace App\Http\Controllers;
 use App\Enum\FileProductBillStatus;
 use App\Enum\PaymentMethod;
 use App\Http\Resources\AssetOrder\AssetOrderResource;
-use App\Jobs\GenerateFileProductZip;
 use App\Models\FileProductBill;
 use App\Services\PaymentService;
-use Filament\Support\Assets\Asset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AssetOrderController extends Controller
 {
@@ -28,9 +23,9 @@ class AssetOrderController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('asset/orders/Index', [
-            'orders' => Inertia::lazy(fn() => $this->getOrders($request)),
-            'activeOrder' => Inertia::lazy(fn() => $this->getActiveOrder($request)),
-            'statusOptions' => collect(FileProductBillStatus::cases())->map(fn($status) => [
+            'orders' => Inertia::lazy(fn () => $this->getOrders($request)),
+            'activeOrder' => Inertia::lazy(fn () => $this->getActiveOrder($request)),
+            'statusOptions' => collect(FileProductBillStatus::cases())->map(fn ($status) => [
                 'value' => $status->value,
                 'label' => $status->label(),
             ]),
@@ -63,7 +58,7 @@ class AssetOrderController extends Controller
         $bill->loadMissing('fileProduct');
         $fileProduct = $bill->fileProduct;
 
-        if (!$fileProduct) {
+        if (! $fileProduct) {
             return response()->json([
                 'message' => __('Không tìm thấy thông tin sản phẩm cho đơn hàng.'),
             ], 500);
@@ -71,12 +66,12 @@ class AssetOrderController extends Controller
 
         $paymentService = app(PaymentService::class);
         $amount = (int) round($bill->final_total ?? $bill->total);
-        $orderCode = $bill->getKey() . time();
+        $orderCode = $bill->getKey().time();
         $tax = 0.1 * $fileProduct->price;
 
         $payload = [
             'billId' => $orderCode,
-            'billCode' => 'FPB-' . $bill->getKey(),
+            'billCode' => 'FPB-'.$bill->getKey(),
             'amount' => $amount,
             'buyerName' => $request->user()?->name,
             'buyerEmail' => $request->user()?->email,
@@ -97,6 +92,7 @@ class AssetOrderController extends Controller
         ];
 
         $returnUrl = route('payment.result', ['bill_id' => $bill->getKey()]);
+        $bill->recordPayOSPayment($payload);
 
         try {
             $channel = $bill->payment_method instanceof PaymentMethod
@@ -110,6 +106,7 @@ class AssetOrderController extends Controller
                 $returnUrl,
                 $returnUrl
             );
+            $bill->recordPayOSPayment($payload, $paymentResponse);
 
             if (isset($paymentResponse['checkoutUrl'])) {
                 return response()->json([
@@ -143,7 +140,7 @@ class AssetOrderController extends Controller
             ]);
         }
 
-        $key = 'downloads_weekly:bill:' . $bill->getKey();
+        $key = 'downloads_weekly:bill:'.$bill->getKey();
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
@@ -161,7 +158,7 @@ class AssetOrderController extends Controller
         $bill->loadMissing('fileProduct.files');
         $fileProduct = $bill->fileProduct;
 
-        if (!$fileProduct) {
+        if (! $fileProduct) {
             return Inertia::render('asset/orders/ProcessingMessage', [
                 'type' => 'error',
                 'title' => __('Lỗi'),
@@ -185,7 +182,7 @@ class AssetOrderController extends Controller
         // Get the latest file
         $file = $files->sortByDesc('created_at')->first();
 
-        if (!Storage::disk('s3')->exists($file->path)) {
+        if (! Storage::disk('s3')->exists($file->path)) {
             return Inertia::render('asset/orders/ProcessingMessage', [
                 'type' => 'error',
                 'title' => __('File không tồn tại'),
@@ -207,7 +204,7 @@ class AssetOrderController extends Controller
     private function getOrders(Request $request): AnonymousResourceCollection|array
     {
         $userId = $request->user()?->getAuthIdentifier();
-        if (!$userId) {
+        if (! $userId) {
             return [];
         }
 
@@ -226,12 +223,12 @@ class AssetOrderController extends Controller
     {
 
         $orderId = (int) $request->query('bill_id');
-        if (!$orderId) {
+        if (! $orderId) {
             return null;
         }
 
         $userId = $request->user()?->getAuthIdentifier();
-        if (!$userId) {
+        if (! $userId) {
             return null;
         }
 
@@ -248,7 +245,7 @@ class AssetOrderController extends Controller
     {
         $userId = $request->user()?->getAuthIdentifier();
 
-        if (!$userId || $bill->client_id !== $userId) {
+        if (! $userId || $bill->client_id !== $userId) {
             abort(403, 'Bạn không có quyền truy cập đơn hàng này.');
         }
     }

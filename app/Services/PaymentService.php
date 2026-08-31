@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
 use PayOS\PayOS;
+use RuntimeException;
 
 class PaymentService
 {
@@ -19,11 +21,68 @@ class PaymentService
     }
 
     /**
+     * @param  array<string, mixed>  $metaData
+     * @param  array<string, mixed>  $paymentRequest
+     * @param  array<string, mixed>|null  $paymentResponse
+     * @return array<string, mixed>
+     */
+    public static function withPayOSMetadata(
+        array $metaData,
+        int $orderCode,
+        array $paymentRequest,
+        ?array $paymentResponse = null,
+    ): array {
+        $metaData['payos'] = [
+            'order_code' => $orderCode,
+            'request' => $paymentRequest,
+        ];
+
+        if ($paymentResponse !== null) {
+            $metaData['payos']['payment_link_id'] = $paymentResponse['paymentLinkId'] ?? null;
+            $metaData['payos']['response'] = $paymentResponse;
+        }
+
+        return $metaData;
+    }
+
+    /**
+     * @param  array<string, mixed>  $webhookBody
+     * @return array<string, mixed>
+     */
+    public function verifyWebhook(array $webhookBody): array
+    {
+        return $this->payOS->verifyPaymentWebhookData($webhookBody);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function confirmWebhook(string $webhookUrl): array
+    {
+        $response = Http::baseUrl(config('services.payos.base_url'))
+            ->acceptJson()
+            ->withHeaders([
+                'x-client-id' => config('services.payos.client_id'),
+                'x-api-key' => config('services.payos.api_key'),
+            ])
+            ->post('/confirm-webhook', [
+                'webhookUrl' => $webhookUrl,
+            ]);
+
+        $response->throw();
+        $body = $response->json();
+
+        if (($body['code'] ?? null) !== '00') {
+            throw new RuntimeException($body['desc'] ?? 'PayOS could not confirm the webhook URL.');
+        }
+
+        return $body['data'] ?? [];
+    }
+
+    /**
      * Process appointment payment
      *
-     * @param array $data
-     * @param string $paymentMethod
-     * @param bool $isAppRequest
+     * @param  string  $paymentMethod
      * @return array
      */
     public function processAppointmentPayment(
@@ -65,7 +124,7 @@ class PaymentService
      */
     private function processWalletPayment($appointment)
     {
-        //TODO: Implement wallet payment logic
+        // TODO: Implement wallet payment logic
         return [];
     }
 
@@ -74,26 +133,14 @@ class PaymentService
      */
     private function processCreditCardPayment($appointment)
     {
-        //TODO: Implement credit card payment logic
+        // TODO: Implement credit card payment logic
         return [];
     }
 
     /**
      * Process QR transfer payment
      *
-     * @param int $billId
-     * @param string $billCode
-     * @param int $amount
-     * @param string|null $buyerName
-     * @param string|null $buyerEmail
-     * @param string|null $buyerPhone
-     * @param string|null $buyerAddress
-     * @param array|null $items
-     * @param int|null $expiryTime
-     * @param bool $isAppRequest
-     * @param string|null $returnUrl
-     * @param string|null $cancelUrl
-     *
+     * @param  string|null  $buyerAddress
      * @return array
      */
     private function processQRTransferPayment(
@@ -112,14 +159,14 @@ class PaymentService
         $expiryTime ??= intval(now()->addMinutes(5)->timestamp);
 
         $url = $returnUrl;
-        if (!$url) {
+        if (! $url) {
             $url = $isAppRequest
                 ? config('services.payos.app_deep_link')
                 : route('payment.result');
         }
 
         $cancelTarget = $cancelUrl;
-        if (!$cancelTarget) {
+        if (! $cancelTarget) {
             $cancelTarget = $isAppRequest
                 ? config('services.payos.app_deep_link')
                 : route('payment.result');
@@ -139,7 +186,7 @@ class PaymentService
         ];
 
         $signature = self::createSignaturePaymentRequest(
-            env("PAYOS_CHECKSUM_KEY"),
+            env('PAYOS_CHECKSUM_KEY'),
             $paymentRequest
         );
 
@@ -155,8 +202,8 @@ class PaymentService
     /**
      * Create a signature for the payment request
      *
-     * @param string $checksumKey
-     * @param array $obj
+     * @param  string  $checksumKey
+     * @param  array  $obj
      * @return string
      */
     public static function createSignatureFromObj($checksumKey, $obj)
@@ -164,28 +211,31 @@ class PaymentService
         ksort($obj);
         $queryStrArr = [];
         foreach ($obj as $key => $value) {
-            if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
-                $value = "";
+            if (in_array($value, ['undefined', 'null']) || gettype($value) == 'NULL') {
+                $value = '';
             }
 
             if (is_array($value)) {
                 $valueSortedElementObj = array_map(function ($ele) {
                     ksort($ele);
+
                     return $ele;
                 }, $value);
                 $value = json_encode($valueSortedElementObj);
             }
             $queryStrArr[] = "{$key}={$value}";
         }
-        $queryStr = implode("&", $queryStrArr);
+        $queryStr = implode('&', $queryStrArr);
         $signature = hash_hmac('sha256', $queryStr, $checksumKey);
+
         return $signature;
     }
 
     private static function createSignaturePaymentRequest($checksumKey, $obj)
     {
-        $dataStr = "amount={$obj["amount"]}&cancelUrl={$obj["cancelUrl"]}&description={$obj["description"]}&orderCode={$obj["orderCode"]}&returnUrl={$obj["returnUrl"]}";
-        $signature = hash_hmac("sha256", $dataStr, $checksumKey);
+        $dataStr = "amount={$obj['amount']}&cancelUrl={$obj['cancelUrl']}&description={$obj['description']}&orderCode={$obj['orderCode']}&returnUrl={$obj['returnUrl']}";
+        $signature = hash_hmac('sha256', $dataStr, $checksumKey);
+
         return $signature;
     }
 }

@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-
 use App\Enum\FileProductBillStatus;
 use App\Enum\PaymentMethod;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * @property int $id
@@ -22,12 +23,16 @@ use App\Enum\PaymentMethod;
  * @property string|null $note
  * @property FileProductBillStatus $status
  * @property PaymentMethod $payment_method
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property int|null $payos_order_code
+ * @property string|null $payos_payment_link_id
+ * @property array<string, mixed>|null $payos_data
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \App\Models\User|null $client
- * @property-read \App\Models\FileProduct|null $fileProduct
+ * @property-read User|null $client
+ * @property-read FileProduct|null $fileProduct
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill query()
@@ -44,6 +49,7 @@ use App\Enum\PaymentMethod;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereTaxNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|FileProductBill whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class FileProductBill extends Model
@@ -66,6 +72,9 @@ class FileProductBill extends Model
         'note',
         'status',
         'payment_method',
+        'payos_order_code',
+        'payos_payment_link_id',
+        'payos_data',
     ];
 
     /**
@@ -78,12 +87,32 @@ class FileProductBill extends Model
         return [
             'status' => FileProductBillStatus::class,
             'payment_method' => PaymentMethod::class,
+            'payos_order_code' => 'integer',
+            'payos_data' => 'array',
         ];
     }
 
     /**
+     * @param  array<string, mixed>  $paymentRequest
+     * @param  array<string, mixed>|null  $paymentResponse
+     */
+    public function recordPayOSPayment(array $paymentRequest, ?array $paymentResponse = null): void
+    {
+        $payOSData = ['request' => $paymentRequest];
+
+        if ($paymentResponse !== null) {
+            $payOSData['response'] = $paymentResponse;
+        }
+
+        $this->forceFill([
+            'payos_order_code' => $paymentRequest['billId'],
+            'payos_payment_link_id' => $paymentResponse['paymentLinkId'] ?? null,
+            'payos_data' => $payOSData,
+        ])->save();
+    }
+
+    /**
      * Summary of getActivitylogOptions
-     * @return LogOptions
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -91,7 +120,7 @@ class FileProductBill extends Model
             ->logOnlyDirty();
     }
 
-    //model relationships
+    // model relationships
     public function fileProduct()
     {
         return $this->belongsTo(FileProduct::class);
