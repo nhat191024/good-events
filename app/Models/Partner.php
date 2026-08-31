@@ -2,9 +2,24 @@
 
 namespace App\Models;
 
+use Bavix\Wallet\Models\Transaction;
+use Bavix\Wallet\Models\Transfer;
+use Bavix\Wallet\Models\Wallet;
+use BeyondCode\Vouchers\Models\Voucher;
+use Carbon\CarbonImmutable;
+use Cmgmyr\Messenger\Models\Participant;
+use Codebyray\ReviewRateable\Models\Review;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Database\Factories\UserFactory;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
+use Laravel\Sanctum\PersonalAccessToken;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 /**
  * @property int $id
@@ -15,68 +30,70 @@ use Database\Factories\UserFactory;
  * @property string|null $bio
  * @property string $phone
  * @property string $password
- * @property \Carbon\CarbonImmutable|null $email_verified_at
+ * @property CarbonImmutable|null $email_verified_at
  * @property string|null $phone_verified_at
  * @property bool $can_accept_shows
  * @property string|null $google_id
  * @property string|null $apple_id
  * @property string|null $fcm_token
  * @property bool $is_delete_account
- * @property \Carbon\CarbonImmutable|null $deleted_at
+ * @property string|null $ban_reason
+ * @property CarbonImmutable|null $deleted_at
  * @property string|null $remember_token
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $authoredReviews
+ * @property-read Collection<int, Review> $authoredReviews
  * @property-read int|null $authored_reviews_count
  * @property-read string|null $avatar_image_tag
  * @property-read string|null $avatar_url
  * @property-read non-empty-string $balance
  * @property-read int $balance_int
  * @property-read string|null $partner_profile_name
- * @property-read \Bavix\Wallet\Models\Wallet $wallet
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read Wallet $wallet
+ * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Message> $messages
+ * @property-read Collection<int, Message> $messages
  * @property-read int|null $messages_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Participant> $participants
+ * @property-read Collection<int, Participant> $participants
  * @property-read int|null $participants_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBill> $partnerBillsAsClient
+ * @property-read Collection<int, PartnerBill> $partnerBillsAsClient
  * @property-read int|null $partner_bills_as_client_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBill> $partnerBillsAsPartner
+ * @property-read Collection<int, PartnerBill> $partnerBillsAsPartner
  * @property-read int|null $partner_bills_as_partner_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $partnerBillsDetails
+ * @property-read Collection<int, PartnerBillDetail> $partnerBillsDetails
  * @property-read int|null $partner_bills_details_count
- * @property-read \App\Models\PartnerProfile|null $partnerProfile
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerServiceArea> $partnerServiceAreas
+ * @property-read PartnerProfile|null $partnerProfile
+ * @property-read Collection<int, PartnerServiceArea> $partnerServiceAreas
  * @property-read int|null $partner_service_areas_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerService> $partnerServices
+ * @property-read Collection<int, PartnerService> $partnerServices
  * @property-read int|null $partner_services_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $receivedTransfers
+ * @property-read Collection<int, Transfer> $receivedTransfers
  * @property-read int|null $received_transfers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Codebyray\ReviewRateable\Models\Review> $reviews
+ * @property-read Collection<int, Review> $reviews
  * @property-read int|null $reviews_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Statistical> $statistics
+ * @property-read Collection<int, Statistical> $statistics
  * @property-read int|null $statistics_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
+ * @property-read Collection<int, Thread> $threads
  * @property-read int|null $threads_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transaction> $transactions
+ * @property-read Collection<int, Transaction> $transactions
  * @property-read int|null $transactions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $transfers
+ * @property-read Collection<int, Transfer> $transfers
  * @property-read int|null $transfers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \BeyondCode\Vouchers\Models\Voucher> $vouchers
+ * @property-read Collection<int, Voucher> $vouchers
  * @property-read int|null $vouchers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transaction> $walletTransactions
+ * @property-read Collection<int, Transaction> $walletTransactions
  * @property-read int|null $wallet_transactions_count
+ *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner newQuery()
@@ -107,6 +124,7 @@ use Database\Factories\UserFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner withoutPermission($permissions)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner withoutRole($roles, $guard = null)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Partner withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Partner extends User
@@ -114,6 +132,7 @@ class Partner extends User
     use HasFactory;
 
     protected $table = 'users';
+
     protected $guard_name = 'web';
 
     /**

@@ -18,6 +18,7 @@ return [
     'fields.label.wallet_balance' => 'Số dư ví',
     'fields.label.deposit_amount' => 'Số tiền nạp',
     'fields.label.deposit_description' => 'Mô tả giao dịch',
+    'fields.label.ban_reason' => 'Lý do cấm',
 
     'fields.placeholder.name' => 'Nhập tên',
     'fields.placeholder.partner_name' => 'Nhập biệt danh đối tác',
@@ -27,6 +28,8 @@ return [
     'fields.placeholder.password' => 'Nhập mật khẩu',
 
     'placeholders.deposit_description' => 'Nhập lý do nạp tiền (tùy chọn)',
+    'placeholders.ban_reason' => 'Nhập lý do cấm đối tác',
+    'placeholders.ban_accept_show_reason' => 'Nhập lý do cấm đối tác nhận show',
 
     'helpers.minimum_deposit' => 'Số tiền tối thiểu: 1.000 VND',
 
@@ -36,13 +39,19 @@ return [
     'actions.ban_accept_hide' => 'Bỏ cấm nhận show',
     'actions.view_personal_information' => 'Xem thông tin cá nhân',
     'actions.wallet_transactions' => 'Giao dịch ví',
+    'actions.view_ban_reason' => 'Xem lý do bị cấm',
 
     'tooltips.manage_services_disabled' => 'Không thể quản lý dịch vụ cho đối tác đã bị xóa.',
 
     'modals.deposit_heading' => 'Nạp tiền vào ví đối tác',
+    'modals.ban_reason_heading' => 'Lý do cấm đối tác',
+    'modals.ban_accept_show_heading' => 'Cấm đối tác nhận show',
 
     'messages.admin_deposit' => 'Nạp tiền từ quản trị viên',
     'messages.app_deposit' => 'Nền tảng tặng tiền đối tác đăng ký lần đầu',
+
+    'activity.banned' => 'Đã cấm đối tác :partner',
+    'activity.show_banned' => 'Đã cấm đối tác :partner nhận show',
 
     'notifications.deposit_success.title' => 'Nạp tiền thành công',
     'notifications.deposit_success.body' => 'Đã nạp :amount VND vào ví của :partner',

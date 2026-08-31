@@ -18,6 +18,7 @@ return [
     'fields.label.wallet_balance' => 'Wallet Balance',
     'fields.label.deposit_amount' => 'Deposit Amount',
     'fields.label.deposit_description' => 'Transaction Description',
+    'fields.label.ban_reason' => 'Ban reason',
 
     'fields.placeholder.name' => 'Enter name',
     'fields.placeholder.partner_name' => 'Enter partner nickname',
@@ -27,6 +28,8 @@ return [
     'fields.placeholder.password' => 'Enter password',
 
     'placeholders.deposit_description' => 'Enter deposit reason (optional)',
+    'placeholders.ban_reason' => 'Enter the reason for banning this partner',
+    'placeholders.ban_accept_show_reason' => 'Enter the reason for banning this partner from accepting shows',
 
     'helpers.minimum_deposit' => 'Minimum amount: 1,000 VND',
 
@@ -36,13 +39,19 @@ return [
     'actions.ban_accept_hide' => 'Unban Accepting Shows',
     'actions.view_personal_information' => 'View Personal Information',
     'actions.wallet_transactions' => 'Wallet transactions',
+    'actions.view_ban_reason' => 'View ban reason',
 
     'tooltips.manage_services_disabled' => 'Cannot manage services for deleted partners.',
 
     'modals.deposit_heading' => 'Deposit to Partner Wallet',
+    'modals.ban_reason_heading' => 'Partner ban reason',
+    'modals.ban_accept_show_heading' => 'Ban partner from accepting shows',
 
     'messages.admin_deposit' => 'Deposit from administrator',
     'messages.app_deposit' => 'The platform gives money to partners who register for the first time',
+
+    'activity.banned' => 'Banned partner :partner',
+    'activity.show_banned' => 'Banned partner :partner from accepting shows',
 
     'notifications.deposit_success.title' => 'Deposit Successful',
     'notifications.deposit_success.body' => 'Deposited :amount VND to :partner\'s wallet',

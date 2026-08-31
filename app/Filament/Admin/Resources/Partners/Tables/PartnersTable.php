@@ -10,6 +10,7 @@ use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -153,31 +154,96 @@ class PartnersTable
                         ->label(__('global.ban'))
                         ->modalHeading(__('admin/user.ban_title'))
                         ->modalDescription(__('admin/user.ban_description'))
+                        ->schema([
+                            Textarea::make('reason')
+                                ->label(__('admin/partner.fields.label.ban_reason'))
+                                ->placeholder(__('admin/partner.placeholders.ban_reason'))
+                                ->required()
+                                ->maxLength(1000)
+                                ->rows(4),
+                        ])
+                        ->before(function (Partner $record, array $data): void {
+                            $record->update([
+                                'ban_reason' => $data['reason'],
+                            ]);
+
+                            activity('partner_ban')
+                                ->causedBy(auth()->user())
+                                ->performedOn($record)
+                                ->event('banned')
+                                ->withProperty('reason', $data['reason'])
+                                ->log(__('admin/partner.activity.banned', [
+                                    'partner' => $record->name,
+                                ]));
+                        })
                         ->modalSubmitActionLabel(__('global.ban'))
                         ->successNotificationTitle(__('admin/user.ban_success_message')),
-                    RestoreAction::make(),
+                    RestoreAction::make()
+                        ->after(fn (Partner $record) => $record->update([
+                            'ban_reason' => null,
+                        ])),
+                    Action::make('view_ban_reason')
+                        ->label(__('admin/partner.actions.view_ban_reason'))
+                        ->icon('heroicon-o-document-magnifying-glass')
+                        ->color('warning')
+                        ->visible(fn (Partner $record): bool => ($record->trashed() || ! $record->can_accept_shows) && filled($record->ban_reason))
+                        ->fillForm(fn (Partner $record): array => [
+                            'ban_reason' => $record->ban_reason,
+                        ])
+                        ->schema([
+                            Textarea::make('ban_reason')
+                                ->label(__('admin/partner.fields.label.ban_reason'))
+                                ->disabled()
+                                ->rows(6),
+                        ])
+                        ->modalHeading(__('admin/partner.modals.ban_reason_heading'))
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel(__('global.close')),
                     Action::make('ban_accept_show')
                         ->label(__('admin/partner.actions.ban_accept_show'))
                         ->icon('heroicon-o-minus-circle')
                         ->color('danger')
                         ->visible(fn (Partner $record): bool => $record->deleted_at === null && $record->can_accept_shows)
-                        ->action(function (Partner $record): void {
-                            $record->can_accept_shows = false;
-                            $record->save();
+                        ->schema([
+                            Textarea::make('reason')
+                                ->label(__('admin/partner.fields.label.ban_reason'))
+                                ->placeholder(__('admin/partner.placeholders.ban_accept_show_reason'))
+                                ->required()
+                                ->maxLength(1000)
+                                ->rows(4),
+                        ])
+                        ->action(function (Partner $record, array $data): void {
+                            $record->update([
+                                'can_accept_shows' => false,
+                                'ban_reason' => $data['reason'],
+                            ]);
+
+                            activity('partner_show_ban')
+                                ->causedBy(auth()->user())
+                                ->performedOn($record)
+                                ->event('show_banned')
+                                ->withProperty('reason', $data['reason'])
+                                ->log(__('admin/partner.activity.show_banned', [
+                                    'partner' => $record->name,
+                                ]));
 
                             Notification::make()
                                 ->success()
                                 ->title(__('admin/partner.ban_success_message'))
                                 ->send();
-                        }),
+                        })
+                        ->modalHeading(__('admin/partner.modals.ban_accept_show_heading'))
+                        ->modalSubmitActionLabel(__('admin/partner.actions.ban_accept_show')),
                     Action::make('ban_accept_hide')
                         ->label(__('admin/partner.actions.ban_accept_hide'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->visible(fn (Partner $record): bool => $record->deleted_at === null && ! $record->can_accept_shows)
                         ->action(function (Partner $record): void {
-                            $record->can_accept_shows = true;
-                            $record->save();
+                            $record->update([
+                                'can_accept_shows' => true,
+                                'ban_reason' => null,
+                            ]);
 
                             Notification::make()
                                 ->success()

@@ -3,46 +3,48 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Str;
-
-use Spatie\Permission\Traits\HasRoles;
-
-use Cmgmyr\Messenger\Traits\Messagable;
-
-use Bavix\Wallet\Interfaces\Wallet;
+use App\Enum\Role;
+use App\Interfaces\MustVerifyPhone;
+use App\Models\Traits\MustVerifyPhoneTrait;
 use Bavix\Wallet\Interfaces\Confirmable;
-use Bavix\Wallet\Traits\HasWallet;
+use Bavix\Wallet\Interfaces\Wallet;
+use Bavix\Wallet\Models\Transaction;
+use Bavix\Wallet\Models\Transfer;
 use Bavix\Wallet\Traits\CanConfirm;
-
+use Bavix\Wallet\Traits\HasWallet;
+use BeyondCode\Vouchers\Models\Voucher;
 use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
-
-use Codebyray\ReviewRateable\Traits\ReviewRateable;
+use Carbon\CarbonImmutable;
+use Cmgmyr\Messenger\Models\Participant;
+use Cmgmyr\Messenger\Traits\Messagable;
 use Codebyray\ReviewRateable\Models\Review;
-
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
-
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
-
+use Codebyray\ReviewRateable\Traits\ReviewRateable;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
-
-use App\Enum\Role;
-
-use App\Interfaces\MustVerifyPhone;
-use App\Models\Traits\MustVerifyPhoneTrait;
-
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @property int $id
@@ -53,20 +55,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $bio
  * @property string $phone
  * @property string $password
- * @property \Carbon\CarbonImmutable|null $email_verified_at
+ * @property CarbonImmutable|null $email_verified_at
  * @property string|null $phone_verified_at
  * @property bool $can_accept_shows
  * @property string|null $google_id
  * @property string|null $apple_id
  * @property string|null $fcm_token
  * @property bool $is_delete_account
- * @property \Carbon\CarbonImmutable|null $deleted_at
+ * @property string|null $ban_reason
+ * @property CarbonImmutable|null $deleted_at
  * @property string|null $remember_token
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Review> $authoredReviews
+ * @property-read Collection<int, Review> $authoredReviews
  * @property-read int|null $authored_reviews_count
  * @property-read string|null $avatar_image_tag
  * @property-read string|null $avatar_url
@@ -74,47 +77,48 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int $balance_int
  * @property-read string|null $partner_profile_name
  * @property-read \Bavix\Wallet\Models\Wallet $wallet
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Message> $messages
+ * @property-read Collection<int, Message> $messages
  * @property-read int|null $messages_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Cmgmyr\Messenger\Models\Participant> $participants
+ * @property-read Collection<int, Participant> $participants
  * @property-read int|null $participants_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBill> $partnerBillsAsClient
+ * @property-read Collection<int, PartnerBill> $partnerBillsAsClient
  * @property-read int|null $partner_bills_as_client_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBill> $partnerBillsAsPartner
+ * @property-read Collection<int, PartnerBill> $partnerBillsAsPartner
  * @property-read int|null $partner_bills_as_partner_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerBillDetail> $partnerBillsDetails
+ * @property-read Collection<int, PartnerBillDetail> $partnerBillsDetails
  * @property-read int|null $partner_bills_details_count
- * @property-read \App\Models\PartnerProfile|null $partnerProfile
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerServiceArea> $partnerServiceAreas
+ * @property-read PartnerProfile|null $partnerProfile
+ * @property-read Collection<int, PartnerServiceArea> $partnerServiceAreas
  * @property-read int|null $partner_service_areas_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerService> $partnerServices
+ * @property-read Collection<int, PartnerService> $partnerServices
  * @property-read int|null $partner_services_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $receivedTransfers
+ * @property-read Collection<int, Transfer> $receivedTransfers
  * @property-read int|null $received_transfers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Review> $reviews
+ * @property-read Collection<int, Review> $reviews
  * @property-read int|null $reviews_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Statistical> $statistics
+ * @property-read Collection<int, Statistical> $statistics
  * @property-read int|null $statistics_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
+ * @property-read Collection<int, Thread> $threads
  * @property-read int|null $threads_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transaction> $transactions
+ * @property-read Collection<int, Transaction> $transactions
  * @property-read int|null $transactions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transfer> $transfers
+ * @property-read Collection<int, Transfer> $transfers
  * @property-read int|null $transfers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \BeyondCode\Vouchers\Models\Voucher> $vouchers
+ * @property-read Collection<int, Voucher> $vouchers
  * @property-read int|null $vouchers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Bavix\Wallet\Models\Transaction> $walletTransactions
+ * @property-read Collection<int, Transaction> $walletTransactions
  * @property-read int|null $wallet_transactions_count
+ *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -145,12 +149,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutPermission($permissions)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutRole($roles, $guard = null)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
+ *
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, Confirmable, MustVerifyEmail, MustVerifyPhone, HasMedia
+class User extends Authenticatable implements Confirmable, FilamentUser, HasAvatar, HasMedia, MustVerifyEmail, MustVerifyPhone, Wallet
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, Messagable, HasWallet, CanConfirm, CanRedeemVouchers, ReviewRateable, LogsActivity, CanResetPassword, HasApiTokens, InteractsWithMedia, MustVerifyPhoneTrait;
+    /** @use HasFactory<UserFactory> */
+    use CanConfirm, CanRedeemVouchers, CanResetPassword, HasApiTokens, HasFactory, HasRoles, HasWallet, InteractsWithMedia, LogsActivity, Messagable, MustVerifyPhoneTrait, Notifiable, ReviewRateable, SoftDeletes;
 
     public function pushDevices(): HasMany
     {
@@ -175,6 +180,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         'apple_id',
         'fcm_token',
         'is_delete_account',
+        'ban_reason',
     ];
 
     /**
@@ -215,7 +221,6 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
 
     /**
      * Summary of getActivitylogOptions
-     * @return LogOptions
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -225,8 +230,6 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
 
     /**
      * Determine if the user can access the Filament admin panel.
-     * @param \Filament\Panel $panel
-     * @return bool
      */
     public function canAccessPanel(Panel $panel): bool
     {
@@ -242,12 +245,12 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         } elseif ($panel->getId() === 'partner' && $this->hasRole(Role::PARTNER)) {
             return true;
         }
+
         return false;
     }
 
     /**
      * Get the URL of the user's avatar for Filament.
-     * @return string|null
      */
     public function getFilamentAvatarUrl(): ?string
     {
@@ -301,7 +304,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
 
         // return asset('storage/' . ltrim($this->avatar, '/'));
 
-        $url = env('APP_ENV') === 'production' ? asset(ltrim($this->avatar, '/')) : asset('storage/' . ltrim($this->avatar, '/'));
+        $url = env('APP_ENV') === 'production' ? asset(ltrim($this->avatar, '/')) : asset('storage/'.ltrim($this->avatar, '/'));
 
         return $url;
     }
@@ -314,7 +317,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
         return $this->partnerProfile?->partner_name;
     }
 
-    //model boot method
+    // model boot method
     protected static function booted(): void
     {
         parent::boot();
@@ -353,8 +356,6 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
 
     /**
      * Summary of registerMediaConversions
-     * @param Media|null $media
-     * @return void
      */
     public function registerMediaConversions(?Media $media = null): void
     {
@@ -367,7 +368,7 @@ class User extends Authenticatable implements Wallet, FilamentUser, HasAvatar, C
             ->queued();
     }
 
-    //model relationships
+    // model relationships
     public function statistics()
     {
         return $this->hasMany(Statistical::class, 'user_id');
