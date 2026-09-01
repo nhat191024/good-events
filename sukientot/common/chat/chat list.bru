@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{local_url}}chat/?side=client
+  url: {{url}}chat/?side=client
   body: multipartForm
   auth: bearer
 }
 
 params:query {
   side: client
+  ~side: partner
   ~search: PB202603144334
 }
 

@@ -5,14 +5,14 @@ meta {
 }
 
 post {
-  url: {{local_url}}login
+  url: {{url}}login
   body: multipartForm
   auth: inherit
 }
 
 body:multipart-form {
-  ~email: 26.sippers_new@icloud.com
-  ~password: 17012004
+  email: 26.sippers_new@icloud.com
+  password: 17012004
   ~email: 0334524846
   ~password: Shinedecor1008@@@
   ~email: partner@example.com
@@ -21,6 +21,12 @@ body:multipart-form {
   ~password: 12345678
   ~email: loot_choices_2n@icloud.com
   ~password: 17012004
+}
+
+script:post-response {
+  const body = res.getBody();
+  
+  bru.setEnvVar('token', body.token);
 }
 
 settings {
