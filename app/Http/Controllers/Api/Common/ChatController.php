@@ -96,6 +96,20 @@ class ChatController extends Controller
             ->with($with)
             ->orderBy('threads.updated_at', 'desc');
 
+        $requestingSide = in_array($sideRequest, ['client', 'partner'], true)
+            ? $sideRequest
+            : $userRole;
+
+        if ($requestingSide === 'partner') {
+            $query->whereHas('bill', function ($billQuery) use ($userId) {
+                $billQuery->where('partner_id', $userId);
+            });
+        } elseif ($requestingSide === 'client') {
+            $query->whereHas('bill', function ($billQuery) use ($userId) {
+                $billQuery->where('client_id', $userId);
+            });
+        }
+
         if (! empty(trim($searchTerm))) {
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('subject', 'like', '%'.$searchTerm.'%')
