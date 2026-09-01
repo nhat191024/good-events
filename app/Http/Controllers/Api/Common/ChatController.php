@@ -69,7 +69,7 @@ class ChatController extends Controller
                     ->where('status', ChatInvitation::STATUS_ACCEPTED);
             },
             'bill' => function ($query) {
-                $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'category_id', 'date', 'start_time', 'end_time', 'address', 'status');
+                $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'category_id', 'date', 'start_time', 'end_time', 'address', 'status', 'total', 'final_total');
             },
             'bill.event' => function ($query) {
                 $query->select('id', 'name');
@@ -216,6 +216,8 @@ class ChatController extends Controller
                         : null,
                     'address' => $thread->bill->address,
                     'status' => $thread->bill->status,
+                    'total' => $thread->bill->total,
+                    'final_total' => $thread->bill->final_total,
                 ] : null,
             ];
         });
