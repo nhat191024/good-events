@@ -12,6 +12,9 @@ class PartnerBillResource extends BaseResource
     {
         $status = $this->status;
         $statusValue = $status instanceof \BackedEnum ? $status->value : (string) $status;
+        $arrivalPhoto = $this->getFirstMedia('arrival_photo') ?: null;
+        $arrivalPhotoUrl = $arrivalPhoto ? $arrivalPhoto->getUrl() : null;
+        $arrivalPhotoCreateTime = $arrivalPhoto ? $arrivalPhoto->created_at->format('H:i - d-m-Y') : null;
 
         return [
             'id' => $this->id,
@@ -27,7 +30,8 @@ class PartnerBillResource extends BaseResource
             'status' => $statusValue,
             'thread_id' => $this->thread_id,
             'booking_photos' => $this->mediaUrls('booking_photos'),
-            'arrival_photo' => $this->mediaUrl('arrival_photo'),
+            'arrival_photo' => $arrivalPhotoUrl,
+            'arrival_photo_create_time' => $arrivalPhotoCreateTime,
             'category_name' => $this->whenLoaded('category', function () {
                 return $this->category->name;
             }),

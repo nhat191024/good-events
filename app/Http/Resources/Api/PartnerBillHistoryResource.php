@@ -27,6 +27,12 @@ class PartnerBillHistoryResource extends BaseResource
 
         $status = $this->status;
         $statusValue = $status instanceof \BackedEnum ? $status->value : (string) $status;
+        $arrivalPhoto = $this->getFirstMedia('arrival_photo') ?: null;
+        $arrivalPhotoUrl = $arrivalPhoto ? $arrivalPhoto->getUrl() : null;
+        $arrivalPhotoCreateTime = $arrivalPhoto ? $arrivalPhoto->created_at->format('H:i - d-m-Y') : null;
+        $completionPhoto = $this->getFirstMedia('completion_photo') ?: null;
+        $completionPhotoUrl = $completionPhoto ? $completionPhoto->getUrl() : null;
+        $completionPhotoCreateTime = $completionPhoto ? $completionPhoto->created_at->format('H:i - d-m-Y') : null;
 
         return [
             'id' => $this->id,
@@ -41,8 +47,10 @@ class PartnerBillHistoryResource extends BaseResource
             'requires_invoice' => $this->requires_invoice,
             'accessories' => PartnerBillAccessoryResource::collection($this->whenLoaded('accessories')),
             'booking_photos' => $this->mediaUrls('booking_photos'),
-            'arrival_photo' => $this->mediaUrl('arrival_photo'),
-            'completion_photo' => $this->mediaUrl('completion_photo'),
+            'arrival_photo' => $arrivalPhotoUrl,
+            'arrival_photo_create_time' => $arrivalPhotoCreateTime,
+            'completion_photo' => $completionPhotoUrl,
+            'completion_photo_create_time' => $completionPhotoCreateTime,
             'status' => $statusValue,
             'updated_at' => optional($this->updated_at)->toIso8601String(),
             'created_at' => optional($this->created_at)->toDateTimeString(),
