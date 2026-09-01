@@ -2,15 +2,12 @@
 
 namespace App\Filament\Partner\Resources\PartnerBillHistories\Tables;
 
+use App\Enum\PartnerBillStatus;
 use App\Models\PartnerBill;
-use Filament\Tables\Table;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-
-use Filament\Actions\Action;
-
-use App\Enum\PartnerBillStatus;
-
+use Filament\Tables\Table;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class PartnerBillHistoriesTable
@@ -53,14 +50,22 @@ class PartnerBillHistoriesTable
                 TextColumn::make('note')
                     ->label(__('partner/bill.note'))
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('accessories')
+                    ->label('Phụ kiện')
+                    ->state(fn (PartnerBill $record): array => $record->accessories
+                        ->pluck('name')
+                        ->all())
+                    ->bulleted()
+                    ->listWithLineBreaks()
+                    ->placeholder('Không có'),
                 TextColumn::make('final_total')
                     ->label(__('partner/bill.final_total'))
                     ->numeric()
-                    ->formatStateUsing(fn($state) => number_format($state) . ' VND'),
+                    ->formatStateUsing(fn ($state) => number_format($state).' VND'),
                 TextColumn::make('status')
                     ->label(__('partner/bill.status'))
                     ->badge()
-                    ->formatStateUsing(fn($state) => $state->label())
+                    ->formatStateUsing(fn ($state) => $state->label())
                     ->colors([
                         'primary' => PartnerBillStatus::PENDING,
                         'success' => PartnerBillStatus::COMPLETED,

@@ -154,6 +154,8 @@
                                 </div>
                             </div>
 
+                            <x-partner-bill-accessories class="mb-4" :accessories="$bill->accessories" />
+
                             {{-- Partner Detail Info --}}
                             <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
                                 @php

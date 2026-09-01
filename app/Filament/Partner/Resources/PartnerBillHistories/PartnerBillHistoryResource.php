@@ -2,21 +2,17 @@
 
 namespace App\Filament\Partner\Resources\PartnerBillHistories;
 
-use App\Models\PartnerBill;
-
-use BackedEnum;
-
 use App\Filament\Partner\Resources\PartnerBillHistories\Pages\CreatePartnerBillHistory;
 use App\Filament\Partner\Resources\PartnerBillHistories\Pages\EditPartnerBillHistory;
 use App\Filament\Partner\Resources\PartnerBillHistories\Pages\ListPartnerBillHistories;
 use App\Filament\Partner\Resources\PartnerBillHistories\Schemas\PartnerBillHistoryForm;
 use App\Filament\Partner\Resources\PartnerBillHistories\Tables\PartnerBillHistoriesTable;
-
+use App\Models\PartnerBill;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-
 use Illuminate\Database\Eloquent\Builder;
 
 class PartnerBillHistoryResource extends Resource
@@ -46,7 +42,7 @@ class PartnerBillHistoryResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('partner_id', auth()->id())
-            ->with(['client', 'category', 'event'])
+            ->with(['client', 'category', 'event', 'accessories'])
             ->withExists('review')
             ->orderByDesc('updated_at');
     }

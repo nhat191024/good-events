@@ -62,7 +62,7 @@ class PendingPartnerBill extends Page
             ->whereHas('details', function (Builder $query) {
                 $query->where('partner_id', auth()->id());
             })
-            ->with(['client', 'category', 'event', 'details' => function ($query) {
+            ->with(['client', 'category', 'event', 'accessories', 'details' => function ($query) {
                 $query->where('partner_id', auth()->id())
                     ->whereStatus(PartnerBillDetailStatus::NEW);
             }]);

@@ -88,6 +88,7 @@ class BillController extends Controller
                 'event:id,name',
                 'category' => fn ($q) => $q->withTrashed()->with('media'),
                 'media',
+                'accessories',
             ])
             ->where('status', PartnerBillStatus::PENDING)
             ->where(function ($query) use ($user) {
@@ -213,6 +214,7 @@ class BillController extends Controller
                 'client',
                 'category' => fn ($q) => $q->withTrashed(),
                 'event',
+                'accessories',
                 'details' => function ($q) {
                     $q->where('partner_id', auth()->id());
                 },
@@ -254,6 +256,7 @@ class BillController extends Controller
                     'client',
                     'category' => fn ($q) => $q->withTrashed(),
                     'event',
+                    'accessories',
                     'details' => function ($query) {
                         $query->where('partner_id', auth()->id())
                             ->whereStatus(PartnerBillDetailStatus::NEW);
@@ -272,6 +275,7 @@ class BillController extends Controller
                     'client',
                     'category' => fn ($q) => $q->withTrashed(),
                     'event',
+                    'accessories',
                     'details' => function ($query) {
                         $query->where('partner_id', auth()->id());
                     },
@@ -303,7 +307,7 @@ class BillController extends Controller
             return response()->json(['message' => 'Forbidden.'], 403);
         }
 
-        $bill->load(['client', 'category' => fn ($q) => $q->withTrashed(), 'event', 'details' => function ($q) {
+        $bill->load(['client', 'category' => fn ($q) => $q->withTrashed(), 'event', 'accessories', 'details' => function ($q) {
             $q->where('partner_id', auth()->id());
         }]);
 

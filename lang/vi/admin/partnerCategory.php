@@ -1,4 +1,5 @@
 <?php
+
 return [
     'singular' => 'Danh mục đối tác',
     'plural' => 'Danh mục đối tác',
@@ -26,6 +27,7 @@ return [
         'max_price' => 'Giá cao nhất',
 
         'description' => 'Mô tả',
+        'accessories' => 'Phụ kiện danh mục',
 
         'partner_category' => 'Danh mục đối tác',
 

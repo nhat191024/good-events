@@ -27,6 +27,11 @@ class PartnerBillResource extends JsonResource
             'final_total' => $this->final_total,
             'note' => $this->note,
             'requires_invoice' => $this->requires_invoice,
+            'accessories' => $this->whenLoaded('accessories', fn () => $this->accessories->map(fn ($accessory): array => [
+                'id' => $accessory->id,
+                'accessory_id' => $accessory->partner_category_accessory_id,
+                'name' => $accessory->name,
+            ])->values()),
             'booking_photos' => $this->getMedia('booking_photos')
                 ->map(fn ($media): string => $media->getUrl())
                 ->values()

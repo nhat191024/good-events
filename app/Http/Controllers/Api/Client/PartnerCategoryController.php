@@ -3,14 +3,24 @@
 namespace App\Http\Controllers\Api\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\PartnerCategoryAccessoryResource;
 use App\Models\PartnerCategory;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PartnerCategoryController extends Controller
 {
+    public function accessories(PartnerCategory $partnerCategory): AnonymousResourceCollection
+    {
+        return PartnerCategoryAccessoryResource::collection(
+            $partnerCategory->accessories()->orderBy('name')->get()
+        );
+    }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function index()
     {
@@ -38,8 +48,7 @@ class PartnerCategoryController extends Controller
      *
      * Response: { item, category, related }
      *
-     * @param string $slug
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function show(string $slug)
     {
@@ -71,7 +80,7 @@ class PartnerCategoryController extends Controller
 
     private function getImageUrl($model): ?string
     {
-        if (!method_exists($model, 'getFirstMediaUrl')) {
+        if (! method_exists($model, 'getFirstMediaUrl')) {
             return null;
         }
 

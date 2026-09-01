@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 
 class BookingRequest extends FormRequest
 {
@@ -28,6 +29,13 @@ class BookingRequest extends FormRequest
             'location_detail' => ['required', 'string', 'min:5'],
             'note' => ['nullable', 'string'],
             'requires_invoice' => ['sometimes', 'boolean'],
+            'accessory_ids' => ['sometimes', 'array'],
+            'accessory_ids.*' => [
+                'integer',
+                'distinct',
+                Rule::exists('partner_category_accessories', 'id')
+                    ->where(fn ($query) => $query->where('partner_category_id', $this->input('category_id'))),
+            ],
             'booking_photos' => ['nullable', 'array', 'max:5'],
             'booking_photos.*' => ['image', 'max:20480', 'mimes:jpeg,png,jpg,webp'],
         ];
@@ -55,6 +63,9 @@ class BookingRequest extends FormRequest
             'location_detail.min' => 'Địa chỉ chi tiết phải có ít nhất 5 ký tự.',
             'note.string' => 'Ghi chú phải là chuỗi ký tự.',
             'requires_invoice.boolean' => 'Lựa chọn xuất hóa đơn phải là true hoặc false.',
+            'accessory_ids.array' => 'Danh sách phụ kiện không đúng định dạng.',
+            'accessory_ids.*.exists' => 'Phụ kiện không thuộc danh mục đã chọn.',
+            'accessory_ids.*.distinct' => 'Danh sách phụ kiện không được trùng lặp.',
             'booking_photos.array' => 'Danh sách ảnh mô tả không đúng định dạng.',
             'booking_photos.max' => 'Bạn chỉ có thể tải lên tối đa 5 ảnh mô tả.',
             'booking_photos.*.image' => 'Mỗi ảnh mô tả phải là hình ảnh.',

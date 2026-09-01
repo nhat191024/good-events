@@ -15,6 +15,7 @@ import {
     Clock,
     Handshake,
     MapPin,
+    PackagePlus,
     ReceiptText,
     Star,
     StickyNote,
@@ -43,7 +44,6 @@ const props = withDefaults(
 );
 
 const storageKey = computed(() => `voucher_${form.order_id}`);
-
 const getCurrentTitle = computed(() => {
     if (props.mode == 'current') {
         return `Thông tin thuê chi tiết`;
@@ -308,6 +308,22 @@ watch(
                             <div class="text-xs text-muted-foreground">Yêu cầu xuất hóa đơn</div>
                             <div class="md:text-md text-sm font-medium">
                                 {{ props.order?.requires_invoice ? 'Có' : 'Không' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="props.order?.accessories?.length" class="flex items-start gap-3 rounded-lg bg-muted/30 p-1 md:col-span-2 md:p-3">
+                        <PackagePlus class="mt-0.5 h-5 w-5 text-muted-foreground" />
+                        <div class="flex w-full flex-col gap-2">
+                            <div class="text-xs text-muted-foreground">Phụ kiện đã chọn</div>
+                            <div class="flex flex-wrap gap-2">
+                                <span
+                                    v-for="accessory in props.order.accessories"
+                                    :key="accessory.id"
+                                    class="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-sm text-primary-800"
+                                >
+                                    {{ accessory.name }}
+                                </span>
                             </div>
                         </div>
                     </div>

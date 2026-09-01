@@ -39,6 +39,7 @@ class PartnerBillHistoryResource extends BaseResource
             'final_total' => $this->final_total,
             'note' => $this->note,
             'requires_invoice' => $this->requires_invoice,
+            'accessories' => PartnerBillAccessoryResource::collection($this->whenLoaded('accessories')),
             'booking_photos' => $this->mediaUrls('booking_photos'),
             'arrival_photo' => $this->mediaUrl('arrival_photo'),
             'completion_photo' => $this->mediaUrl('completion_photo'),

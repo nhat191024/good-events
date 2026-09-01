@@ -5,6 +5,12 @@ export interface OrderVoucher {
     code: string;
 }
 
+export interface OrderAccessory {
+    id: number;
+    accessory_id: number | null;
+    name: string;
+}
+
 export interface ClientOrderDetail {
     id: number;
     total: number | null;
@@ -28,6 +34,7 @@ export interface ClientOrder {
     final_total: number | null;
     note: string;
     requires_invoice: boolean;
+    accessories: OrderAccessory[];
     status: OrderStatus;
     thread_id: number;
     voucher?: OrderVoucher | null;
@@ -58,6 +65,7 @@ export interface ClientOrderHistory {
     final_total: number | null;
     note: string;
     requires_invoice: boolean;
+    accessories: OrderAccessory[];
     booking_photos: string[];
     arrival_photo: string | null;
     completion_photo: string | null;

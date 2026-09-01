@@ -70,6 +70,7 @@ class OrderController extends Controller
                 'category.media',
                 'event',
                 'details',
+                'accessories',
                 'partner.statistics',
                 'partner.partnerProfile',
                 'media',
@@ -106,6 +107,7 @@ class OrderController extends Controller
             ->where('client_id', $request->user()->id)
             ->with([
                 'media',
+                'accessories',
                 'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
                 'category.parent' => fn ($q) => $q->withTrashed(),
@@ -148,6 +150,7 @@ class OrderController extends Controller
             ->where('client_id', $request->user()->id)
             ->with([
                 'media',
+                'accessories',
                 'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
                 'category.parent' => fn ($q) => $q->withTrashed(),
@@ -178,6 +181,7 @@ class OrderController extends Controller
             ->where('client_id', $request->user()->id)
             ->with([
                 'media',
+                'accessories',
                 'category' => fn ($q) => $q->withTrashed(),
                 'category.media',
                 'category.parent' => fn ($q) => $q->withTrashed(),

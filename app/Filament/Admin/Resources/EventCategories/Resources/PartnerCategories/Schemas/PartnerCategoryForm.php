@@ -2,17 +2,15 @@
 
 namespace App\Filament\Admin\Resources\EventCategories\Resources\PartnerCategories\Schemas;
 
+use App\Models\Accessory;
 use App\Models\PartnerCategory;
-
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Utilities\Set;
-
-use Filament\Forms\Components\TextInput;
+use Cohensive\OEmbed\Facades\OEmbed;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-
-use Cohensive\OEmbed\Facades\OEmbed;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 
 class PartnerCategoryForm
 {
@@ -27,8 +25,7 @@ class PartnerCategoryForm
                     ->label(__('admin/partnerCategory.fields.parent_id'))
                     ->searchable()
                     ->getSearchResultsUsing(
-                        fn(string $search): array =>
-                        PartnerCategory::query()
+                        fn (string $search): array => PartnerCategory::query()
                             ->whereNull('parent_id')
                             ->where('name', 'like', "%{$search}%")
                             ->limit(50)
@@ -36,10 +33,9 @@ class PartnerCategoryForm
                             ->toArray()
                     )
                     ->getOptionLabelUsing(
-                        callback: fn($value): ?string =>
-                        PartnerCategory::find($value)?->name
+                        callback: fn ($value): ?string => PartnerCategory::find($value)?->name
                     )
-                    ->default(fn($livewire) => $livewire->getParentRecord()?->id)
+                    ->default(fn ($livewire) => $livewire->getParentRecord()?->id)
                     ->required(),
                 TextInput::make('slug')
                     ->label(__('admin/partnerCategory.fields.slug'))
@@ -59,7 +55,7 @@ class PartnerCategoryForm
                                     $state = str_replace('/shorts/', '/watch?v=', $state);
                                 }
 
-                                if (!str_contains($state, 'www.') && str_contains($state, 'youtube.com')) {
+                                if (! str_contains($state, 'www.') && str_contains($state, 'youtube.com')) {
                                     $state = str_replace('youtube.com', 'www.youtube.com', $state);
                                 }
 
@@ -80,7 +76,7 @@ class PartnerCategoryForm
                         }
                     })
                     ->dehydrateStateUsing(function (?string $state): ?string {
-                        if ($state && !str_starts_with($state, '<iframe') || str_starts_with($state, '<blockquote')) {
+                        if ($state && ! str_starts_with($state, '<iframe') || str_starts_with($state, '<blockquote')) {
                             try {
                                 $embed = OEmbed::get($state);
                                 if ($embed) {
@@ -93,6 +89,7 @@ class PartnerCategoryForm
                                 return null;
                             }
                         }
+
                         return $state;
                     }),
                 TextInput::make('min_price')
@@ -103,6 +100,13 @@ class PartnerCategoryForm
                     ->label(__('admin/partnerCategory.fields.max_price'))
                     ->numeric()
                     ->required(),
+                    Select::make('accessory_names')
+                        ->label(__('admin/partnerCategory.fields.accessories'))
+                        ->options(fn (): array => Accessory::query()->orderBy('name')->pluck('name', 'name')->all())
+                        ->multiple()
+                        ->searchable()
+                        ->preload()
+                        ->columnSpanFull(),
                 SpatieMediaLibraryFileUpload::make('images')
                     ->label(__('admin/partnerCategory.fields.image'))
                     ->collection('images')

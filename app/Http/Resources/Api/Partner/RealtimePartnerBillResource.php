@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Partner;
 
+use App\Http\Resources\Api\PartnerBillAccessoryResource;
 use App\Models\PartnerBill;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -31,6 +32,7 @@ class RealtimePartnerBillResource extends JsonResource
             'address' => $this->address,
             'note' => $this->note,
             'requires_invoice' => $this->requires_invoice,
+            'accessories' => PartnerBillAccessoryResource::collection($this->whenLoaded('accessories')),
             'booking_photos' => $this->getMedia('booking_photos')
                 ->map(fn ($media): string => $media->getUrl())
                 ->values()

@@ -1,4 +1,5 @@
 <?php
+
 return [
     'singular' => 'Partner Category',
     'plural' => 'Partner Categories',
@@ -26,6 +27,7 @@ return [
         'max_price' => 'Maximum Price',
 
         'description' => 'Description',
+        'accessories' => 'Category Accessories',
 
         'partner_category' => 'Partner Category',
 

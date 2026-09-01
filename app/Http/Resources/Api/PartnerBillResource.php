@@ -23,6 +23,7 @@ class PartnerBillResource extends BaseResource
             'final_total' => $this->final_total,
             'note' => $this->note,
             'requires_invoice' => $this->requires_invoice,
+            'accessories' => PartnerBillAccessoryResource::collection($this->whenLoaded('accessories')),
             'status' => $statusValue,
             'thread_id' => $this->thread_id,
             'booking_photos' => $this->mediaUrls('booking_photos'),

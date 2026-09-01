@@ -50,6 +50,9 @@ return [
     'pending_orders' => 'Pending Shows',
     'final_total' => 'Final Total',
     'category' => 'Category',
+    'requires_invoice' => 'Requires Invoice',
+    'requires_invoice_yes' => 'Yes',
+    'requires_invoice_no' => 'No',
 
     'status' => 'Status',
     'status_pending' => 'Pending',

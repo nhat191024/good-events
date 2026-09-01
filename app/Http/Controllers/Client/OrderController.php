@@ -2,43 +2,34 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Http\Controllers\Controller;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
-
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
-
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\OrderHistory\CancelOrderRequest;
 use App\Http\Requests\Client\OrderHistory\ConfirmPartnerRequest;
-
 use App\Http\Resources\OrderHistory\PartnerBillDetailResource;
 use App\Http\Resources\OrderHistory\PartnerBillHistoryResource;
 use App\Http\Resources\OrderHistory\PartnerBillResource;
-
-use App\Models\Voucher;
+use App\Models\Partner;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
 use App\Models\Statistical;
 use App\Models\User;
-use App\Models\Partner;
-
+use App\Models\Voucher;
+use App\Services\FCMService;
 use App\Services\PartnerProfilePayload;
 use App\Services\PartnerWidgetCacheService;
-use App\Services\FCMService;
-
-use Filament\Notifications\Notification;
-
 use Codebyray\ReviewRateable\Models\Review;
-
+use Filament\Notifications\Notification;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class OrderController extends Controller
 {
     public const RECORD_PER_PAGE = 20;
+
     private FCMService $fcmService;
 
     public function __construct()
@@ -50,10 +41,10 @@ class OrderController extends Controller
     {
         try {
             return Inertia::render('orders/OrderManagementDashboard', [
-                'orderList' => Inertia::lazy(fn() => $this->getOrderList($request)),
-                'orderListDetails' => Inertia::lazy(fn() => $this->getPartnerBillDetails($request)),
-                'orderHistoryList' => Inertia::lazy(fn() => $this->getOrderHistoryList($request)),
-                'singleOrder' => Inertia::lazy(fn() => $this->getSingleOrder($request)),
+                'orderList' => Inertia::lazy(fn () => $this->getOrderList($request)),
+                'orderListDetails' => Inertia::lazy(fn () => $this->getPartnerBillDetails($request)),
+                'orderHistoryList' => Inertia::lazy(fn () => $this->getOrderHistoryList($request)),
+                'singleOrder' => Inertia::lazy(fn () => $this->getSingleOrder($request)),
             ]);
         } catch (\Throwable $th) {
             return redirect()->route('home');
@@ -63,7 +54,7 @@ class OrderController extends Controller
     public function getSingleOrder(Request $request)
     {
         $orderId = (int) ($request->query('order') ?? $request->query('single_order'));
-        if (!$orderId) {
+        if (! $orderId) {
             return null;
         }
 
@@ -72,6 +63,7 @@ class OrderController extends Controller
             ->where('client_id', $request->user()->id)
             ->with([
                 'media',
+                'accessories',
                 'category.media',
                 'category.parent.media',
                 'event',
@@ -87,15 +79,16 @@ class OrderController extends Controller
     public function getPartnerBillDetails(Request $request)
     {
         $billId = (int) $request->query('active');
-        if (!$billId)
+        if (! $billId) {
             return null;
+        }
 
         $details = PartnerBillDetail::query()
             ->where('partner_bill_id', $billId)
             ->with([
                 'partner:id,name,avatar',
                 'partner.statistics',
-                'partner.partnerProfile'
+                'partner.partnerProfile',
             ])
             ->select(['id', 'partner_bill_id', 'partner_id', 'total', 'status', 'updated_at'])
             ->orderByDesc('id')
@@ -134,12 +127,13 @@ class OrderController extends Controller
             ->where('client_id', $request->user()->id)
             ->with([
                 'media',
+                'accessories',
                 'category.media',
                 'category.parent.media',
                 'event',
                 'partner.statistics',
                 'partner.partnerProfile',
-                'review' => fn($query) => $query
+                'review' => fn ($query) => $query
                     ->where('reviewable_type', Partner::class)
                     ->where('user_id', $request->user()->id)
                     ->with('ratings'),
@@ -162,13 +156,14 @@ class OrderController extends Controller
         $bills = PartnerBill::query()
             ->with([
                 'media',
+                'accessories',
                 'category.media',
                 'category.parent.media',
                 'event',
                 'details',
                 'partner.statistics',
                 'partner.partnerProfile',
-                'voucher' => fn($q) => $q->select(['id', 'code']),
+                'voucher' => fn ($q) => $q->select(['id', 'code']),
             ])->where('client_id', $request->user()->id)
             ->whereIn('status', [
                 PartnerBillStatus::PENDING,
@@ -177,6 +172,7 @@ class OrderController extends Controller
             ])
             ->orderByDesc('id')
             ->paginate(self::RECORD_PER_PAGE, ['*'], 'page', $page);
+
         // dd(PartnerBillResource::collection($bills)->resolve());
         return PartnerBillResource::collection($bills);
     }
@@ -191,6 +187,7 @@ class OrderController extends Controller
 
         if ($bill->status != PartnerBillStatus::PENDING) {
             Log::debug('[cancelOrder] Bill status is not PENDING, skipping cancellation', ['status' => $bill->status]);
+
             return back()->with('error', 'Không thể hủy đơn hàng này.');
         }
 
@@ -200,7 +197,7 @@ class OrderController extends Controller
             try {
                 $startDate = $bill->date->format('Y-m-d');
                 $startTime = $bill->start_time->format('H:i');
-                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $startDate . ' ' . $startTime, $tz);
+                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $startDate.' '.$startTime, $tz);
                 Log::debug('[cancelOrder] Calculated start date time', ['startDateTime' => $startDateTime->toDateTimeString()]);
             } catch (\Throwable $exception) {
                 Log::debug('[cancelOrder] Failed to parse start date time', ['error' => $exception->getMessage()]);
@@ -214,6 +211,7 @@ class OrderController extends Controller
 
                 if ($now->greaterThanOrEqualTo($cutoff)) {
                     Log::debug('[cancelOrder] Cancellation failed: within 8-hour cutoff');
+
                     return back()->with('error', 'Bạn chỉ được hủy đơn trước ít nhất 8 giờ kể từ thời gian tổ chức sự kiện.');
                 }
             }
@@ -305,7 +303,7 @@ class OrderController extends Controller
             ->title($notificationTitle)
             ->body($notificationBody)
             ->info()
-            ->sendToDatabase($partner,  true);
+            ->sendToDatabase($partner, true);
 
         Statistical::syncPartnerRatingMetrics($partner->id);
         PartnerWidgetCacheService::clearPartnerCaches($partner->id);
@@ -323,7 +321,7 @@ class OrderController extends Controller
         $partnerBill = PartnerBill::find($data['order_id']);
         $voucher = Voucher::where('code', $data['voucher_input'])->first();
 
-        if (!$voucher || !$partnerBill) {
+        if (! $voucher || ! $partnerBill) {
             return response()->json([
                 'status' => false,
                 'message' => __('Voucher không tồn tại'),
@@ -333,11 +331,11 @@ class OrderController extends Controller
         $now = now();
         $isExpired = $voucher->expires_at && $now->greaterThan($voucher->expires_at);
         $notStarted = $voucher->startAt() && $now->lessThan($voucher->startAt());
-        $limitReached = !$voucher->isUnlimited()
+        $limitReached = ! $voucher->isUnlimited()
             && $voucher->usageLimit() !== null
             && $voucher->timesUsed() >= $voucher->usageLimit();
 
-        $status = !($isExpired || $notStarted || $limitReached);
+        $status = ! ($isExpired || $notStarted || $limitReached);
 
         $message = __('voucher.valid');
         if ($isExpired) {
@@ -372,7 +370,7 @@ class OrderController extends Controller
 
     /**
      * Get the discounted amount of a choosen partner of a bill
-     * @param \Illuminate\Http\Request $request
+     *
      * @return object
      */
     public function getVoucherDiscountAmount(Request $request)
@@ -384,25 +382,30 @@ class OrderController extends Controller
         ]);
 
         $partnerBill = PartnerBill::find($data['order_id']);
-        if (!$partnerBill)
+        if (! $partnerBill) {
             return self::voucherFail(__('Đơn hàng không tồn tại'));
+        }
         // or, user
         $partner = User::find($data['partner_id']);
-        if (!$partner)
+        if (! $partner) {
             return self::voucherFail(__('Đối tác không tồn tại'));
+        }
 
         $partnerBillDetail = PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
             ->where('partner_id', $partner->id)->first();
-        if (!$partnerBillDetail)
+        if (! $partnerBillDetail) {
             return self::voucherFail(__('Đối tác không tồn tại'));
+        }
 
         $voucher = Voucher::where('code', $data['voucher_input'])->first();
-        if (!$voucher)
+        if (! $voucher) {
             return self::voucherFail(__('Voucher không tồn tại'));
+        }
 
         $result = $voucher->validate($partnerBillDetail->total);
-        if (!$result->status)
+        if (! $result->status) {
             return self::voucherFail(__($result->message));
+        }
 
         $discount = $voucher->getDiscountAmount($partnerBillDetail->total);
 

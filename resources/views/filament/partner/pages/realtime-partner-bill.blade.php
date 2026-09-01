@@ -247,6 +247,7 @@
                                             </span>
                                         </span>
                                     </div>
+                                    <x-partner-bill-accessories :accessories="$bill['accessories'] ?? []" />
                                 </div>
 
                                 <!-- Action button for mobile -->
@@ -324,7 +325,7 @@
                                     @endif
 
                                     <!-- Address & note for desktop -->
-                                    <div class="mt-2 grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+                                    <div class="mt-1 grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
                                         <div class="mt-3 flex items-start gap-2">
                                             <x-heroicon-m-map-pin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                                             <div class="flex">
@@ -339,7 +340,18 @@
                                                 <p class="text-sm text-gray-900 dark:text-white">{{ Str::limit($bill['note'], 50) }}</p>
                                             </div>
                                         </div>
+
+                                        <div class="mt-1 grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+                                            <div class="mt-3 flex items-start gap-2">
+                                                <x-heroicon-m-document-text class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                                                <div class="flex">
+                                                    <span class="pe-2 text-sm font-medium text-gray-600 dark:text-gray-400">{{ __('partner/bill.requires_invoice') }}:</span>
+                                                    <p class="text-sm text-gray-900 dark:text-white">{{ $bill['requires_invoice'] ? __('partner/bill.requires_invoice_yes') : __('partner/bill.requires_invoice_no') }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
+                                    <x-partner-bill-accessories class="mt-3" :accessories="$bill['accessories'] ?? []" />
                                 </div>
 
                                 <!-- Right side - Amount and Actions for desktop -->
@@ -430,7 +442,7 @@
                                             <div class="flex items-center gap-2">
                                                 <x-heroicon-m-check-circle class="h-5 w-5 text-green-500" />
                                                 <p class="text-sm font-medium text-green-800 dark:text-green-300">
-                                                    {{ __('partner/bill.formatted_price') }}: <span class="font-bold">{{ number_format($priceInput, 0, ',', '.') }} VNĐ</span>
+                                                    {{ __('partner/bill.formatted_price') }}: <span class="font-bold">{{ number_format((float) $priceInput, 0, ',', '.') }} VNĐ</span>
                                                 </p>
                                             </div>
                                         </div>

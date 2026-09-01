@@ -176,6 +176,7 @@ class RealtimePartnerBill extends Page
                 'client:id,name',
                 'event:id,name',
                 'media',
+                'accessories',
             ])
             ->where('status', PartnerBillStatus::PENDING)
             ->where(function ($query) use ($user) {

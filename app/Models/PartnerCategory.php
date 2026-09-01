@@ -3,23 +3,23 @@
 namespace App\Models;
 
 use App\Enum\CacheKey;
-
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
 use Illuminate\Support\Facades\Cache;
+use RalphJSmit\Laravel\SEO\Models\SEO;
 use RalphJSmit\Laravel\SEO\Support\HasSEO;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
-
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-
-use Spatie\Image\Enums\CropPosition;
-
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * @property int $id
@@ -32,19 +32,20 @@ use Spatie\Activitylog\LogOptions;
  * @property float|null $min_price
  * @property float|null $max_price
  * @property string|null $description
- * @property \Carbon\CarbonImmutable|null $deleted_at
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Activitylog\Models\Activity> $activities
+ * @property CarbonImmutable|null $deleted_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property-read Collection<int, Activity> $activities
  * @property-read int|null $activities_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PartnerCategory> $children
+ * @property-read Collection<int, PartnerCategory> $children
  * @property-read int|null $children_count
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read PartnerCategory|null $parent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PartnerService> $partnerServices
+ * @property-read Collection<int, PartnerService> $partnerServices
  * @property-read int|null $partner_services_count
- * @property-read \RalphJSmit\Laravel\SEO\Models\SEO $seo
+ * @property-read SEO $seo
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory onlyTrashed()
@@ -64,11 +65,12 @@ use Spatie\Activitylog\LogOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory whereVideoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PartnerCategory withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class PartnerCategory extends Model implements HasMedia
 {
-    use SoftDeletes, HasSlug, InteractsWithMedia, LogsActivity, HasSEO;
+    use HasSEO, HasSlug, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -98,7 +100,6 @@ class PartnerCategory extends Model implements HasMedia
 
     /**
      * Summary of registerMediaCollections
-     * @return void
      */
     public function registerMediaCollections(): void
     {
@@ -109,8 +110,6 @@ class PartnerCategory extends Model implements HasMedia
 
     /**
      * Summary of registerMediaConversions
-     * @param Media|null $media
-     * @return void
      */
     public function registerMediaConversions(?Media $media = null): void
     {
@@ -132,7 +131,6 @@ class PartnerCategory extends Model implements HasMedia
 
     /**
      * Summary of getActivitylogOptions
-     * @return LogOptions
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -140,7 +138,7 @@ class PartnerCategory extends Model implements HasMedia
             ->logOnlyDirty();
     }
 
-    //Model Boot
+    // Model Boot
     protected static function boot()
     {
         parent::boot();
@@ -165,7 +163,7 @@ class PartnerCategory extends Model implements HasMedia
     public static function getTree()
     {
         return Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->remember(CacheKey::PARTNER_CATEGORIES_TREE->value, now()->addHours(6), function () {
-            return static::with(['children' => fn($query) => $query->orderBy('order')])->whereNull('parent_id')->orderBy('order')->get();
+            return static::with(['children' => fn ($query) => $query->orderBy('order')])->whereNull('parent_id')->orderBy('order')->get();
         });
     }
 
@@ -176,7 +174,7 @@ class PartnerCategory extends Model implements HasMedia
         });
     }
 
-    //model relationships
+    // model relationships
     public function parent()
     {
         return $this->belongsTo(PartnerCategory::class, 'parent_id');
@@ -190,5 +188,10 @@ class PartnerCategory extends Model implements HasMedia
     public function partnerServices()
     {
         return $this->hasMany(PartnerService::class, 'category_id');
+    }
+
+    public function accessories(): HasMany
+    {
+        return $this->hasMany(PartnerCategoryAccessory::class);
     }
 }

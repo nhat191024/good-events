@@ -50,6 +50,9 @@ return [
     'pending_orders' => 'Show đang chờ duyệt',
     'final_total' => 'Tổng cuối cùng',
     'category' => 'Danh mục',
+    'requires_invoice' => 'Yêu cầu hóa đơn',
+    'requires_invoice_yes' => 'Có',
+    'requires_invoice_no' => 'Không',
 
     'status' => 'Trạng thái',
     'status_pending' => 'Chờ xử lý',

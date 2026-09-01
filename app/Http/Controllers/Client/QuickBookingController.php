@@ -10,6 +10,7 @@ use App\Models\Event;
 use App\Models\Location;
 use App\Models\PartnerBill;
 use App\Models\PartnerCategory;
+use App\Models\PartnerCategoryAccessory;
 use App\Services\QuickBookingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -258,6 +259,7 @@ class QuickBookingController extends Controller
      */
     public function saveBookingInfo(BookingRequest $request)
     {
+        $validated = $request->validated();
         $orderDate = $request->input('order_date');
         $startTime = $request->input('start_time');
         $endTime = $request->input('end_time');
@@ -305,6 +307,15 @@ class QuickBookingController extends Controller
             'requires_invoice' => $requiresInvoice,
             'status' => PartnerBillStatus::PENDING,
         ]);
+
+        $accessories = PartnerCategoryAccessory::query()
+            ->whereIn('id', $validated['accessory_ids'] ?? [])
+            ->get();
+
+        $newBill->accessories()->createMany($accessories->map(fn (PartnerCategoryAccessory $accessory): array => [
+            'partner_category_accessory_id' => $accessory->id,
+            'name' => $accessory->name,
+        ])->all());
 
         $this->attachBookingPhoto($request, $newBill);
 

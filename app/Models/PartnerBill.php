@@ -503,6 +503,11 @@ class PartnerBill extends Model implements HasMedia
         return $this->hasMany(PartnerBillDetail::class);
     }
 
+    public function accessories(): HasMany
+    {
+        return $this->hasMany(PartnerBillAccessory::class);
+    }
+
     public function priceIncreaseRequests(): HasMany
     {
         return $this->hasMany(PartnerBillPriceIncreaseRequest::class);

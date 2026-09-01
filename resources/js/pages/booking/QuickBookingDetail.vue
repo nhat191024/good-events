@@ -18,7 +18,7 @@ import SelectPartnerHeader from '@/pages/booking/layout/Header.vue';
 import { Event as BookingEvent, PartnerCategory, Province, Ward, WardTypeSelectBox } from '@/types/database';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { computed, inject, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { computed, inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { toISODate } from '../../lib/helper';
 import { getImg } from './helper';
 
@@ -38,7 +38,13 @@ type PartnerBillForm = {
     location_detail: string | number | undefined;
     note: string;
     requires_invoice: boolean;
+    accessory_ids: number[];
     booking_photos: File[];
+};
+
+type CategoryAccessory = {
+    id: number;
+    name: string;
 };
 
 // parent
@@ -67,6 +73,7 @@ const emptyInitial: PartnerBillForm = {
     location_detail: '',
     note: '',
     requires_invoice: false,
+    accessory_ids: [],
     booking_photos: [],
 };
 
@@ -100,6 +107,7 @@ if (storedInitial) {
     initial.province_id = null;
     initial.ward_id = null;
     initial.booking_photos = [];
+    initial.accessory_ids = Array.isArray(storedInitial.accessory_ids) ? storedInitial.accessory_ids.map(Number).filter(Number.isInteger) : [];
 }
 
 const location = reactive({
@@ -153,6 +161,9 @@ const title = 'Điền thông tin thuê chi tiết';
 const subtitle = `Bạn đang tìm '${partnerCategory.name}' - '${partnerChildrenCategory.name}', hãy điền đầy đủ thông tin và mô tả rõ sự kiện của bạn dưới đây nhé`;
 
 const form = useForm<PartnerBillForm>(initial);
+const categoryAccessories = ref<CategoryAccessory[]>([]);
+const loadingAccessories = ref(false);
+const accessoriesError = ref('');
 const isCustomEvent = ref(Boolean(initial.custom_event));
 const bookingPhotoInput = ref<HTMLInputElement | null>(null);
 const bookingPhotoPreviewUrls = ref<{ file: File; url: string }[]>([]);
@@ -162,6 +173,36 @@ const customEventModel = computed({
         form.custom_event = String(value);
     },
 });
+
+function toggleAccessory(accessoryId: number, selected: boolean): void {
+    form.accessory_ids = selected ? [...new Set([...form.accessory_ids, accessoryId])] : form.accessory_ids.filter((id) => id !== accessoryId);
+}
+
+function handleAccessoryChange(accessoryId: number, event: globalThis.Event): void {
+    toggleAccessory(accessoryId, (event.target as HTMLInputElement).checked);
+}
+
+async function loadCategoryAccessories(): Promise<void> {
+    loadingAccessories.value = true;
+    accessoriesError.value = '';
+
+    try {
+        const response = await axios.get<{ data: CategoryAccessory[] }>(`/api/partner-categories/${partnerChildrenCategory.id}/accessories`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        categoryAccessories.value = response.data.data;
+        const availableIds = new Set(categoryAccessories.value.map((accessory) => accessory.id));
+        form.accessory_ids = form.accessory_ids.filter((id) => availableIds.has(id));
+    } catch (error) {
+        accessoriesError.value = 'Không tải được danh sách phụ kiện.';
+        console.error(error);
+    } finally {
+        loadingAccessories.value = false;
+    }
+}
+
+onMounted(loadCategoryAccessories);
 
 watch(
     () => form.data(),
@@ -405,6 +446,7 @@ async function submit() {
         location_detail: form.location_detail,
         note: form.note,
         requires_invoice: form.requires_invoice,
+        accessory_ids: form.accessory_ids,
         category_id: partnerChildrenCategory.id,
         booking_photos: form.booking_photos,
     })).post(route('quick-booking.save-info'), {
@@ -453,6 +495,7 @@ function clearStorage() {
         'location_detail',
         'note',
         'requires_invoice',
+        'accessory_ids',
         'booking_photos',
     );
     isCustomEvent.value = false;
@@ -482,6 +525,41 @@ addTutorialRoutes([tutorialQuickLinks.clientQuickOrder]);
 
                     <FormItemLayout :for-id="'select-end-time'" :label="'Thời gian kết thúc'" :error="form.errors.end_time">
                         <TimePickerSingle use24h v-model="form.end_time" :id="'select-end-time'" />
+                    </FormItemLayout>
+                </FormGroupLayout>
+
+                <FormGroupLayout v-if="loadingAccessories || accessoriesError || categoryAccessories.length > 0">
+                    <FormItemLayout
+                        class="w-full"
+                        :for-id="'category-accessories'"
+                        :label="'Phụ kiện danh mục (Tùy chọn)'"
+                        :error="form.errors.accessory_ids ?? accessoriesError"
+                    >
+                        <div v-if="loadingAccessories" class="grid w-full gap-3 sm:grid-cols-2">
+                            <div v-for="index in 2" :key="index" class="h-16 animate-pulse rounded-lg bg-gray-200"></div>
+                        </div>
+                        <div v-else class="flex w-full flex-col gap-3">
+                            <div class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                                Phụ kiện có thể phát sinh thêm phí theo báo giá của đối tác.
+                            </div>
+                            <div class="grid w-full gap-3 sm:grid-cols-2">
+                                <label
+                                    v-for="accessory in categoryAccessories"
+                                    :key="accessory.id"
+                                    class="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white p-3 transition hover:border-primary-400"
+                                >
+                                    <span class="flex items-center gap-3">
+                                        <input
+                                            type="checkbox"
+                                            class="size-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                                            :checked="form.accessory_ids.includes(accessory.id)"
+                                            @change="handleAccessoryChange(accessory.id, $event)"
+                                        />
+                                        <span class="text-sm font-medium text-black">{{ accessory.name }}</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
                     </FormItemLayout>
                 </FormGroupLayout>
 
@@ -523,10 +601,10 @@ addTutorialRoutes([tutorialQuickLinks.clientQuickOrder]);
                             class="text-black"
                         />
                     </FormItemLayout>
-                    <FormItemLayout :for-id="'requires-invoice'" :label="'Xuất hóa đơn'" :error="form.errors.requires_invoice">
+                    <FormItemLayout :for-id="'requires-invoice'" :label="'Hóa đơn'" :error="form.errors.requires_invoice">
                         <div class="flex min-h-10 items-center gap-3 rounded border border-gray-200 bg-white px-3 py-2">
                             <Checkbox id="requires-invoice" v-model="form.requires_invoice" />
-                            <span class="text-sm text-black">Tôi có nhu cầu xuất hóa đơn cho đơn hàng này</span>
+                            <span class="text-sm text-black">Có xuất hóa đơn?</span>
                         </div>
                     </FormItemLayout>
                 </FormGroupLayout>

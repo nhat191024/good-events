@@ -12,6 +12,7 @@ use App\Models\Event;
 use App\Models\Location;
 use App\Models\PartnerBill;
 use App\Models\PartnerCategory;
+use App\Models\PartnerCategoryAccessory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -38,7 +39,7 @@ class QuickBookingController extends Controller
      * POST /api/quick-booking/submit
      *
      * Body: order_date, start_time, end_time, province_id, ward_id, event_id,
-     * custom_event, location_detail, note, category_id, requires_invoice
+     * custom_event, location_detail, note, category_id, requires_invoice, accessory_ids
      * Response: { success: true, bill }
      *
      * @return JsonResponse
@@ -85,13 +86,22 @@ class QuickBookingController extends Controller
             'status' => PartnerBillStatus::PENDING,
         ]);
 
+        $accessories = PartnerCategoryAccessory::query()
+            ->whereIn('id', $validated['accessory_ids'] ?? [])
+            ->get();
+
+        $newBill->accessories()->createMany($accessories->map(fn (PartnerCategoryAccessory $accessory): array => [
+            'partner_category_accessory_id' => $accessory->id,
+            'name' => $accessory->name,
+        ])->all());
+
         $this->attachBookingPhoto($request, $newBill);
 
         NewPartnerBillCreated::dispatch($newBill);
 
         return response()->json([
             'success' => true,
-            'bill' => PartnerBillResource::make($newBill)->resolve(),
+            'bill' => PartnerBillResource::make($newBill->load('accessories'))->resolve(),
         ]);
     }
 
@@ -104,7 +114,7 @@ class QuickBookingController extends Controller
      */
     public function finishedBooking(string $billCode)
     {
-        $bill = PartnerBill::where('code', $billCode)->with('category')->first();
+        $bill = PartnerBill::where('code', $billCode)->with(['category', 'accessories'])->first();
         if (! $bill) {
             return response()->json([
                 'message' => 'Bill not found.',
