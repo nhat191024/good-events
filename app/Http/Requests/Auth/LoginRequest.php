@@ -3,10 +3,14 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\User;
+use App\Services\AccountSuspensionService;
 use App\Services\PhoneLoginService;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
@@ -23,7 +27,7 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -36,7 +40,7 @@ class LoginRequest extends FormRequest
     /**
      * Attempt to authenticate the request's credentials.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function authenticate(): void
     {
@@ -48,7 +52,7 @@ class LoginRequest extends FormRequest
         if ($phoneService->isPhoneNumber($credentials['email'])) {
             $resolvedEmail = $phoneService->findEmailByPhone($credentials['email']);
 
-            if (!$resolvedEmail) {
+            if (! $resolvedEmail) {
                 RateLimiter::hit($this->throttleKey());
                 throw ValidationException::withMessages([
                     'email' => trans('auth.failed'),
@@ -59,6 +63,16 @@ class LoginRequest extends FormRequest
         }
 
         $user = User::withTrashed()->where('email', $credentials['email'])->first();
+
+        if (
+            $user
+            && app(AccountSuspensionService::class)->isSuspended($user)
+            && Hash::check($credentials['password'], $user->password)
+            && $this->is('api/*')
+        ) {
+            throw new HttpResponseException(app(AccountSuspensionService::class)->response($user));
+        }
+
         if ($user?->is_delete_account || $user?->trashed()) {
             RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
@@ -80,7 +94,7 @@ class LoginRequest extends FormRequest
     /**
      * Ensure the login request is not rate limited.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function ensureIsNotRateLimited(): void
     {
@@ -107,7 +121,7 @@ class LoginRequest extends FormRequest
     {
         return $this->string('email')
             ->lower()
-            ->append('|' . $this->ip())
+            ->append('|'.$this->ip())
             ->transliterate()
             ->value();
     }

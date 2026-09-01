@@ -1,29 +1,27 @@
 <?php
 
-use App\Http\Middleware\EnsureUserIsVerified;
 use App\Http\Middleware\Api\EnsureUserIsVerified as ApiEnsureUserIsVerified;
+use App\Http\Middleware\EnsureAccountIsNotSuspended;
+use App\Http\Middleware\EnsureUserIsVerified;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetPermissionsPolicy;
-
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
-
-use Spatie\Permission\Middleware\RoleMiddleware;
-use Spatie\Permission\Middleware\PermissionMiddleware;
-use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
-
 use Sentry\Laravel\Integration;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        commands: __DIR__ . '/../routes/console.php',
-        channels: __DIR__ . '/../routes/channels.php',
-        api: __DIR__ . '/../routes/api.php',
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
+        api: __DIR__.'/../routes/api.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -32,6 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+
+        $middleware->api(prepend: [
+            EnsureAccountIsNotSuspended::class,
+        ]);
 
         $middleware->web(append: [
             SetLocale::class,

@@ -10,6 +10,7 @@ use App\Http\Resources\Api\UserResource;
 use App\Models\Customer;
 use App\Models\Partner;
 use App\Models\User;
+use App\Services\AccountSuspensionService;
 use App\Services\AppleTokenVerifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -60,7 +61,7 @@ class LoginController extends Controller
      * Body: access_token (Google access token)
      * Response: { token, token_type, role, user } (401/404 on failure)
      */
-    public function loginGoogle(Request $request): JsonResponse
+    public function loginGoogle(Request $request, AccountSuspensionService $accountSuspensionService): JsonResponse
     {
         $validated = $request->validate([
             'access_token' => 'required|string',
@@ -77,7 +78,12 @@ class LoginController extends Controller
         }
 
         $user = $this->resolveUserByEmail($googleUser->getEmail());
-        if (! $user || $user->is_delete_account) {
+
+        if ($user && $accountSuspensionService->isSuspended($user)) {
+            return $accountSuspensionService->response($user);
+        }
+
+        if (! $user || $user->is_delete_account || $user->trashed()) {
             return response()->json([
                 'message' => 'Account not found.',
             ], 404);
@@ -112,8 +118,11 @@ class LoginController extends Controller
      * Body: identity_token, authorization_code, email?, given_name?, family_name?
      * Response: { token, token_type, role, user } (401/404 on failure)
      */
-    public function loginApple(Request $request, AppleTokenVerifier $appleTokenVerifier): JsonResponse
-    {
+    public function loginApple(
+        Request $request,
+        AppleTokenVerifier $appleTokenVerifier,
+        AccountSuspensionService $accountSuspensionService,
+    ): JsonResponse {
         $validated = $request->validate([
             'identity_token' => 'required|string',
             'authorization_code' => 'required|string',
@@ -151,6 +160,16 @@ class LoginController extends Controller
         }
 
         if (! $user) {
+            return response()->json([
+                'message' => 'Account not found.',
+            ], 404);
+        }
+
+        if ($accountSuspensionService->isSuspended($user)) {
+            return $accountSuspensionService->response($user);
+        }
+
+        if ($user->is_delete_account || $user->trashed()) {
             return response()->json([
                 'message' => 'Account not found.',
             ], 404);
@@ -204,8 +223,6 @@ class LoginController extends Controller
      * GET /api/logout
      *
      * Response: { success: true }
-     *
-     * @param  LogoutRequest  $request
      */
     public function logout(LogoutRequest $request): JsonResponse
     {
@@ -354,7 +371,7 @@ class LoginController extends Controller
 
     private function resolveUserByColumn(string $column, string $value): ?User
     {
-        $user = User::where($column, $value)->first();
+        $user = User::withTrashed()->where($column, $value)->first();
 
         if (! $user) {
             return null;
