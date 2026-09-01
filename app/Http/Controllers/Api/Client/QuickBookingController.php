@@ -3,33 +3,28 @@
 namespace App\Http\Controllers\Api\Client;
 
 use App\Enum\PartnerBillStatus;
-
-use App\Models\Event;
-use App\Models\Location;
-use App\Models\PartnerBill;
-use App\Models\PartnerCategory;
-
 use App\Events\NewPartnerBillCreated;
-
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\BookingRequest;
 use App\Http\Resources\Api\EventResource;
 use App\Http\Resources\Api\PartnerBillResource;
-
-use Illuminate\Http\Request;
+use App\Models\Event;
+use App\Models\Location;
+use App\Models\PartnerBill;
+use App\Models\PartnerCategory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class QuickBookingController extends Controller
 {
-
     /**
      * GET /api/quick-booking/event-list
      *
      * Response: { event_list }
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function eventList()
     {
@@ -43,11 +38,10 @@ class QuickBookingController extends Controller
      * POST /api/quick-booking/submit
      *
      * Body: order_date, start_time, end_time, province_id, ward_id, event_id,
-     * custom_event, location_detail, note, category_id
+     * custom_event, location_detail, note, category_id, requires_invoice
      * Response: { success: true, bill }
      *
-     * @param BookingRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function saveBookingInfo(BookingRequest $request)
     {
@@ -62,7 +56,7 @@ class QuickBookingController extends Controller
 
         $provinceItem = Location::find($validated['province_id']);
         $wardItem = $provinceItem?->wards()->find($validated['ward_id']);
-        if (!$wardItem) {
+        if (! $wardItem) {
             return response()->json([
                 'message' => 'Invalid ward selection.',
             ], 422);
@@ -72,10 +66,10 @@ class QuickBookingController extends Controller
 
         $user = $request->user();
 
-        $address = $validated['location_detail'] . ', ' . $wardItem->name . ', ' . $provinceItem->name;
+        $address = $validated['location_detail'].', '.$wardItem->name.', '.$provinceItem->name;
 
         $newBill = PartnerBill::create([
-            'code' => 'PB' . rand(10000, 999999),
+            'code' => 'PB'.rand(10000, 999999),
             'address' => $address,
             'location_id' => $wardItem->id,
             'phone' => $user->phone,
@@ -87,6 +81,7 @@ class QuickBookingController extends Controller
             'client_id' => $user->id,
             'category_id' => $validated['category_id'],
             'note' => $validated['note'] ?? null,
+            'requires_invoice' => $validated['requires_invoice'] ?? false,
             'status' => PartnerBillStatus::PENDING,
         ]);
 
@@ -105,13 +100,12 @@ class QuickBookingController extends Controller
      *
      * Response: { partner_bill, category_name }
      *
-     * @param string $billCode
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function finishedBooking(string $billCode)
     {
         $bill = PartnerBill::where('code', $billCode)->with('category')->first();
-        if (!$bill) {
+        if (! $bill) {
             return response()->json([
                 'message' => 'Bill not found.',
             ], 404);
@@ -125,7 +119,7 @@ class QuickBookingController extends Controller
 
     private function getImageUrl($model): ?string
     {
-        if (!method_exists($model, 'getFirstMediaUrl')) {
+        if (! method_exists($model, 'getFirstMediaUrl')) {
             return null;
         }
 
@@ -161,7 +155,7 @@ class QuickBookingController extends Controller
 
     private function attachBookingPhotoFile(UploadedFile $file, PartnerBill $bill, int $index): void
     {
-        $fileName = (string) Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $fileName = (string) Str::uuid().'.'.$file->getClientOriginalExtension();
         $temporaryPath = $file->storeAs('tmp/booking-photos', $fileName, 'local');
 
         if (! $temporaryPath) {
@@ -170,7 +164,7 @@ class QuickBookingController extends Controller
 
         try {
             $bill->addMediaFromDisk($temporaryPath, 'local')
-                ->usingName('Booking Photo ' . $index . ' - ' . $bill->code)
+                ->usingName('Booking Photo '.$index.' - '.$bill->code)
                 ->usingFileName($file->getClientOriginalName())
                 ->toMediaCollection('booking_photos');
         } finally {

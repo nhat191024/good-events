@@ -1,4 +1,5 @@
 <?php
+
 return [
     'singular' => 'Hóa đơn đối tác',
 
@@ -10,6 +11,7 @@ return [
         'start_time' => 'Giờ bắt đầu',
         'end_time' => 'Giờ kết thúc',
         'final_total' => 'Tổng cuối cùng',
+        'requires_invoice' => 'Xuất hóa đơn',
         'event' => 'Sự kiện',
         'client' => 'Khách hàng',
         'partner' => 'Đối tác',

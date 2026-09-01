@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources\Api\Partner;
 
+use App\Models\PartnerBill;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\PartnerBill */
+/** @mixin PartnerBill */
 class PartnerBillResource extends JsonResource
 {
     public function toArray(Request $request): array
@@ -27,6 +28,7 @@ class PartnerBillResource extends JsonResource
 
             'event' => $this->event->name ?? $this->custom_event ?? 'N/A',
             'note' => $this->note,
+            'requires_invoice' => $this->requires_invoice,
             'booking_photos' => $this->getMedia('booking_photos')
                 ->map(fn ($media): string => $media->getUrl())
                 ->values()

@@ -2,25 +2,17 @@
 
 namespace App\Filament\Admin\Resources\PartnerBills\Tables;
 
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-
-use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\EditAction;
-
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-
-use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
-
 use App\Enum\PartnerBillStatus;
 use App\Models\PartnerBill;
-
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Notifications\Notification;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class PartnerBillsTable
@@ -58,9 +50,13 @@ class PartnerBillsTable
                     ->label(__('admin/partnerBill.fields.final_total'))
                     ->numeric()
                     ->sortable(),
+                IconColumn::make('requires_invoice')
+                    ->label(__('admin/partnerBill.fields.requires_invoice'))
+                    ->boolean()
+                    ->sortable(),
                 TextColumn::make('event_name')
                     ->label(__('admin/partnerBill.fields.event'))
-                    ->getStateUsing(fn(PartnerBill $record): string => $record->event?->name ?? $record->custom_event ?? 'N/A')
+                    ->getStateUsing(fn (PartnerBill $record): string => $record->event?->name ?? $record->custom_event ?? 'N/A')
                     ->searchable(query: function ($query, string $search): void {
                         $query->whereHas('event', function ($query) use ($search) {
                             $query->where('name', 'like', "%{$search}%");
@@ -77,7 +73,7 @@ class PartnerBillsTable
                     ->label(__('admin/partnerBill.fields.partner'))
                     ->searchable()
                     ->sortable()
-                    ->formatStateUsing(fn($state) => $state ?? 'N/A'),
+                    ->formatStateUsing(fn ($state) => $state ?? 'N/A'),
                 TextColumn::make('category.name')
                     ->label(__('admin/partnerBill.fields.category'))
                     ->searchable()
@@ -85,8 +81,8 @@ class PartnerBillsTable
                 TextColumn::make('status')
                     ->label(__('admin/partnerBill.fields.status'))
                     ->searchable()
-                    ->formatStateUsing(fn($state) => $state->label())
-                    ->color(fn($state) => match ($state) {
+                    ->formatStateUsing(fn ($state) => $state->label())
+                    ->color(fn ($state) => match ($state) {
                         PartnerBillStatus::PENDING => 'warning',
                         PartnerBillStatus::CANCELLED => 'danger',
                         PartnerBillStatus::COMPLETED => 'success',
@@ -119,7 +115,7 @@ class PartnerBillsTable
                     ->label(__('admin/partnerBill.actions.cancel_bill'))
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn(PartnerBill $record): bool => $record->status != PartnerBillStatus::IN_JOB && $record->status != PartnerBillStatus::COMPLETED && $record->status != PartnerBillStatus::CANCELLED)
+                    ->visible(fn (PartnerBill $record): bool => $record->status != PartnerBillStatus::IN_JOB && $record->status != PartnerBillStatus::COMPLETED && $record->status != PartnerBillStatus::CANCELLED)
                     ->requiresConfirmation()
                     ->modalHeading(__('admin/partnerBill.actions.cancel_bill_heading'))
                     ->modalDescription(__('admin/partnerBill.actions.cancel_bill_description'))
@@ -141,8 +137,8 @@ class PartnerBillsTable
                         ->label(__('admin/partnerBill.actions.view_review'))
                         ->icon('heroicon-o-star')
                         ->color('warning')
-                        ->visible(fn(PartnerBill $record): bool => (bool) $record->review_exists)
-                        ->modalHeading(fn(PartnerBill $record): string => __('admin/partnerBill.actions.view_review_heading', [
+                        ->visible(fn (PartnerBill $record): bool => (bool) $record->review_exists)
+                        ->modalHeading(fn (PartnerBill $record): string => __('admin/partnerBill.actions.view_review_heading', [
                             'code' => $record->code,
                         ]))
                         ->modalWidth('lg')
@@ -151,7 +147,7 @@ class PartnerBillsTable
                                 ->with('ratings')
                                 ->first();
 
-                            $ratings = $review?->ratings->mapWithKeys(fn($rating) => [
+                            $ratings = $review?->ratings->mapWithKeys(fn ($rating) => [
                                 $rating->key => (int) $rating->value,
                             ]) ?? collect();
 
@@ -168,27 +164,27 @@ class PartnerBillsTable
                         ->icon('heroicon-o-photo')
                         ->color('info')
                         ->modalHeading(__('admin/partnerBill.fields.arrival_photo'))
-                        ->modalContent(fn(PartnerBill $record) => view('filament.admin.modals.arrival-photo', [
+                        ->modalContent(fn (PartnerBill $record) => view('filament.admin.modals.arrival-photo', [
                             'media' => $record->getFirstMedia('arrival_photo'),
                         ]))
                         ->modalWidth('3xl')
                         ->slideOver()
                         ->modalSubmitAction(false)
                         ->modalCancelActionLabel('Close')
-                        ->visible(fn(PartnerBill $record): bool => $record->getFirstMedia('arrival_photo') !== null),
+                        ->visible(fn (PartnerBill $record): bool => $record->getFirstMedia('arrival_photo') !== null),
                     Action::make('viewCompletionPhoto')
                         ->label(__('admin/partnerBill.fields.completion_photo'))
                         ->icon('heroicon-o-photo')
                         ->color('info')
                         ->modalHeading(__('admin/partnerBill.fields.completion_photo'))
-                        ->modalContent(fn(PartnerBill $record) => view('filament.admin.modals.completion-photo', [
+                        ->modalContent(fn (PartnerBill $record) => view('filament.admin.modals.completion-photo', [
                             'media' => $record->getFirstMedia('completion_photo'),
                         ]))
                         ->modalWidth('3xl')
                         ->slideOver()
                         ->modalSubmitAction(false)
                         ->modalCancelActionLabel('Close')
-                        ->visible(fn(PartnerBill $record): bool => $record->getFirstMedia('completion_photo') !== null),
+                        ->visible(fn (PartnerBill $record): bool => $record->getFirstMedia('completion_photo') !== null),
                 ]),
             ])
             ->toolbarActions([

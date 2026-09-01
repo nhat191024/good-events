@@ -2,27 +2,22 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Http\Controllers\Controller;
-
 use App\Enum\PartnerBillStatus;
+use App\Events\NewPartnerBillCreated;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Client\BookingRequest;
 use App\Models\Event;
 use App\Models\Location;
 use App\Models\PartnerBill;
 use App\Models\PartnerCategory;
-
-use App\Events\NewPartnerBillCreated;
-
 use App\Services\QuickBookingService;
-
-use App\Http\Requests\Client\BookingRequest;
-
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
 use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * @property PartnerBillStatus $status
@@ -46,7 +41,7 @@ class QuickBookingController extends Controller
     /**
      * Index page (step 1)
      *
-     * @return \Inertia\Response
+     * @return Response
      */
     public function chooseCategory(Request $request)
     {
@@ -60,6 +55,7 @@ class QuickBookingController extends Controller
                     'loading' => 'lazy',
                     'alt' => $category->name,
                 ])->toHtml();
+
                 return [
                     'id' => $category->id,
                     'name' => $category->name,
@@ -92,7 +88,7 @@ class QuickBookingController extends Controller
         $allCategories = PartnerCategory::getTree();
         $partnerCategory = $allCategories->where('slug', $partner_category_slug)->first();
 
-        if (!$partnerCategory) {
+        if (! $partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);
         }
 
@@ -104,7 +100,6 @@ class QuickBookingController extends Controller
                     ->with('media');
             },
         ]);
-
 
         if ($partnerCategory->children->count() == 0) {
             return $this->quickBookingService->goBackWithError(self::PARENT_HAS_NO_CHILD);
@@ -140,6 +135,7 @@ class QuickBookingController extends Controller
                 'loading' => 'lazy',
                 'alt' => $child->name,
             ])->toHtml();
+
             return [
                 'id' => $child->id,
                 'name' => $child->name,
@@ -173,13 +169,12 @@ class QuickBookingController extends Controller
         $allCategories = PartnerCategory::getTree();
         $partnerCategory = $allCategories->where('slug', $partner_category_slug)->first();
 
-        if (!$partnerCategory) {
+        if (! $partnerCategory) {
             return $this->quickBookingService->goBackWithError(self::CATEGORY_NOT_FOUND);
         }
 
         // Load all children with media
         $partnerCategory->load(['children.media']);
-
 
         if ($partnerCategory->children->count() == 0) {
             return $this->quickBookingService->goBackWithError(self::PARENT_HAS_NO_CHILD);
@@ -258,7 +253,7 @@ class QuickBookingController extends Controller
     /**
      * save order info (final)
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return \Inertia\Response | \Illuminate\Http\RedirectResponse;
      */
     public function saveBookingInfo(BookingRequest $request)
@@ -272,6 +267,7 @@ class QuickBookingController extends Controller
         $eventCustom = $request->input('custom_event');
         $locationDetail = $request->input('location_detail');
         $note = $request->input('note');
+        $requiresInvoice = $request->boolean('requires_invoice');
         $categoryId = $request->input('category_id');
 
         $provinceItem = Location::find($provinceId);
@@ -283,18 +279,18 @@ class QuickBookingController extends Controller
 
         $wardItem = $provinceItem->wards()->find($wardId);
         if (! $wardItem) {
-            return back()->withErrors(['ward_id' => 'Vui lòng chọn đúng phường/xã của tỉnh ' . $provinceItem->name . '.']);
+            return back()->withErrors(['ward_id' => 'Vui lòng chọn đúng phường/xã của tỉnh '.$provinceItem->name.'.']);
         }
 
         $user = Auth::user();
-        $address = $locationDetail . ', ' . $wardItem->name . ', ' . $provinceItem->name;
+        $address = $locationDetail.', '.$wardItem->name.', '.$provinceItem->name;
         $phone = $user->phone;
         $clientId = $user->id;
         // $phone = '0987765431';
         // $clientId = 1;
 
         $newBill = PartnerBill::create([
-            'code' => 'PB' . rand(10000, 999999),
+            'code' => 'PB'.rand(10000, 999999),
             'address' => $address,
             'location_id' => $wardItem->id,
             'phone' => $phone,
@@ -306,6 +302,7 @@ class QuickBookingController extends Controller
             'client_id' => $clientId,
             'category_id' => $categoryId,
             'note' => $note,
+            'requires_invoice' => $requiresInvoice,
             'status' => PartnerBillStatus::PENDING,
         ]);
 
@@ -363,7 +360,7 @@ class QuickBookingController extends Controller
 
     private function attachBookingPhotoFile(UploadedFile $file, PartnerBill $bill, int $index): void
     {
-        $fileName = (string) Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $fileName = (string) Str::uuid().'.'.$file->getClientOriginalExtension();
         $temporaryPath = $file->storeAs('tmp/booking-photos', $fileName, 'local');
 
         if (! $temporaryPath) {
@@ -372,7 +369,7 @@ class QuickBookingController extends Controller
 
         try {
             $bill->addMediaFromDisk($temporaryPath, 'local')
-                ->usingName('Booking Photo ' . $index . ' - ' . $bill->code)
+                ->usingName('Booking Photo '.$index.' - '.$bill->code)
                 ->usingFileName($file->getClientOriginalName())
                 ->toMediaCollection('booking_photos');
         } finally {

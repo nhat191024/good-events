@@ -3,12 +3,12 @@
 namespace App\Http\Resources\OrderHistory;
 
 use App\Enum\StatisticType;
-use App\Helper\TemporaryImage;
+use App\Models\PartnerBill;
 use App\Models\Statistical;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\PartnerBill */
+/** @mixin PartnerBill */
 class PartnerBillResource extends JsonResource
 {
     public function toArray(Request $request)
@@ -26,6 +26,7 @@ class PartnerBillResource extends JsonResource
             'total' => $this->total,
             'final_total' => $this->final_total,
             'note' => $this->note,
+            'requires_invoice' => $this->requires_invoice,
             'booking_photos' => $this->getMedia('booking_photos')
                 ->map(fn ($media): string => $media->getUrl())
                 ->values()
@@ -36,7 +37,7 @@ class PartnerBillResource extends JsonResource
             'thread_id' => $this->thread_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'category' => $this->whenLoaded('category', function () use ($expireAt) {
+            'category' => $this->whenLoaded('category', function () {
                 $cat = $this->category;
                 $image = $cat?->getFirstMedia('images');
                 $url = $image?->getUrl();
@@ -45,6 +46,7 @@ class PartnerBillResource extends JsonResource
                     'loading' => 'lazy',
                     'alt' => $cat->name,
                 ])->toHtml();
+
                 return [
                     'id' => $cat->id,
                     'name' => $cat->name,
@@ -63,6 +65,7 @@ class PartnerBillResource extends JsonResource
                                 'loading' => 'lazy',
                                 'alt' => $cat->name,
                             ])->toHtml();
+
                             return [
                                 'id' => $cat->id,
                                 'name' => $cat->name,

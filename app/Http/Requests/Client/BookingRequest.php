@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Client;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
@@ -11,7 +12,7 @@ class BookingRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -26,6 +27,7 @@ class BookingRequest extends FormRequest
             'ward_id' => ['required', 'exists:locations,id'],
             'location_detail' => ['required', 'string', 'min:5'],
             'note' => ['nullable', 'string'],
+            'requires_invoice' => ['sometimes', 'boolean'],
             'booking_photos' => ['nullable', 'array', 'max:5'],
             'booking_photos.*' => ['image', 'max:20480', 'mimes:jpeg,png,jpg,webp'],
         ];
@@ -52,6 +54,7 @@ class BookingRequest extends FormRequest
             'location_detail.string' => 'Địa chỉ chi tiết phải là chuỗi ký tự.',
             'location_detail.min' => 'Địa chỉ chi tiết phải có ít nhất 5 ký tự.',
             'note.string' => 'Ghi chú phải là chuỗi ký tự.',
+            'requires_invoice.boolean' => 'Lựa chọn xuất hóa đơn phải là true hoặc false.',
             'booking_photos.array' => 'Danh sách ảnh mô tả không đúng định dạng.',
             'booking_photos.max' => 'Bạn chỉ có thể tải lên tối đa 5 ảnh mô tả.',
             'booking_photos.*.image' => 'Mỗi ảnh mô tả phải là hình ảnh.',
@@ -78,7 +81,7 @@ class BookingRequest extends FormRequest
                 $validator->errors()->add('booking_photos', 'Bạn chỉ có thể tải lên tối đa 5 ảnh mô tả.');
             }
 
-            if (!$date || !$startTime || !$endTime) {
+            if (! $date || ! $startTime || ! $endTime) {
                 return;
             }
 
@@ -86,10 +89,11 @@ class BookingRequest extends FormRequest
                 // Ensure both parsed times and "now" use the same timezone
                 $tz = config('app.timezone') ?: 'UTC';
 
-                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $startTime, $tz);
-                $endDateTime = Carbon::createFromFormat('Y-m-d H:i', $date . ' ' . $endTime, $tz);
+                $startDateTime = Carbon::createFromFormat('Y-m-d H:i', $date.' '.$startTime, $tz);
+                $endDateTime = Carbon::createFromFormat('Y-m-d H:i', $date.' '.$endTime, $tz);
             } catch (\Exception $e) {
                 $validator->errors()->add('start_time', 'Không thể xác định ngày/giờ.');
+
                 return;
             }
 
@@ -112,7 +116,7 @@ class BookingRequest extends FormRequest
                 $validator->errors()->add('start_time', 'Giờ bắt đầu phải nhỏ hơn giờ kết thúc.');
             }
 
-            if (!$eventId && !$customEvent) {
+            if (! $eventId && ! $customEvent) {
                 $validator->errors()->add('event_id', 'Vui lòng chọn hoặc ghi rõ nội dung sự kiện.');
             }
 

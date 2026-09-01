@@ -3,10 +3,11 @@
 namespace App\Http\Resources\Api;
 
 use App\Enum\StatisticType;
+use App\Models\PartnerBill;
 use App\Models\Statistical;
 use Illuminate\Http\Request;
 
-/** @mixin \App\Models\PartnerBill */
+/** @mixin PartnerBill */
 class PartnerBillHistoryResource extends BaseResource
 {
     public function toArray(Request $request): array
@@ -37,6 +38,7 @@ class PartnerBillHistoryResource extends BaseResource
             'total' => $this->total,
             'final_total' => $this->final_total,
             'note' => $this->note,
+            'requires_invoice' => $this->requires_invoice,
             'booking_photos' => $this->mediaUrls('booking_photos'),
             'arrival_photo' => $this->mediaUrl('arrival_photo'),
             'completion_photo' => $this->mediaUrl('completion_photo'),
@@ -52,7 +54,7 @@ class PartnerBillHistoryResource extends BaseResource
             'category_image' => $this->whenLoaded('category', function () {
                 return $this->category->getFirstMediaUrl('images', 'thumb');
             }),
-            'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn() => $this->event->name),
+            'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn () => $this->event->name),
             'partner' => $this->whenLoaded('partner', function () {
                 $partner = $this->partner;
 
@@ -62,11 +64,11 @@ class PartnerBillHistoryResource extends BaseResource
                     'avatar_url' => $partner->getFirstMediaUrl('avatar', 'avatar_webp') ? $partner->getFirstMediaUrl('avatar', 'avatar_webp') : $partner->avatar_url,
                     'statistics' => $this->when(
                         $partner->relationLoaded('statistics') && $partner->statistics,
-                        fn() => $this->formatStatistics($partner)
+                        fn () => $this->formatStatistics($partner)
                     ),
                     'partner_profile' => $this->when(
                         $partner->relationLoaded('partnerProfile') && $partner->partnerProfile,
-                        fn() => [
+                        fn () => [
                             'id' => $partner->partnerProfile->id,
                             'partner_name' => $partner->partnerProfile->partner_name,
                         ]
@@ -88,7 +90,7 @@ class PartnerBillHistoryResource extends BaseResource
                 StatisticType::AVERAGE_STARS->value,
                 StatisticType::TOTAL_RATINGS->value,
             ])
-            ->mapWithKeys(fn($stat) => [
+            ->mapWithKeys(fn ($stat) => [
                 $stat->metrics_name => $stat->metrics_value,
             ]);
 

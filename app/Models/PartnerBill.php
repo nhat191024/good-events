@@ -45,6 +45,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property int|null $partner_id
  * @property int|null $category_id
  * @property string|null $note
+ * @property bool $requires_invoice
  * @property PartnerBillStatus $status
  * @property CarbonImmutable|null $completion_reminder_started_at
  * @property int|null $thread_id
@@ -118,6 +119,7 @@ class PartnerBill extends Model implements HasMedia
         'partner_id',
         'category_id',
         'note',
+        'requires_invoice',
         'status',
         'completion_reminder_started_at',
         'thread_id',
@@ -135,6 +137,7 @@ class PartnerBill extends Model implements HasMedia
         'end_time' => 'datetime',
         'total' => 'float',
         'final_total' => 'float',
+        'requires_invoice' => 'boolean',
         'status' => PartnerBillStatus::class,
         'completion_reminder_started_at' => 'datetime',
     ];

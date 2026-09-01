@@ -2,10 +2,10 @@
 
 namespace App\Http\Resources\Api;
 
-use App\Models\Voucher;
+use App\Models\PartnerBill;
 use Illuminate\Http\Request;
 
-/** @mixin \App\Models\PartnerBill */
+/** @mixin PartnerBill */
 class PartnerBillResource extends BaseResource
 {
     public function toArray(Request $request): array
@@ -22,6 +22,7 @@ class PartnerBillResource extends BaseResource
             'end_time' => optional($this->end_time)->format('H:i:s'),
             'final_total' => $this->final_total,
             'note' => $this->note,
+            'requires_invoice' => $this->requires_invoice,
             'status' => $statusValue,
             'thread_id' => $this->thread_id,
             'booking_photos' => $this->mediaUrls('booking_photos'),
@@ -36,9 +37,9 @@ class PartnerBillResource extends BaseResource
                 return $this->category->getFirstMediaUrl('images', 'thumb');
             }),
 
-            'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn() => $this->event->name),
+            'event_name' => $this->custom_event ?? $this->whenLoaded('event', fn () => $this->event->name),
 
-            'applicant_count' => $this->whenLoaded('details', fn() => PartnerBillDetailResource::collection($this->details)->count()),
+            'applicant_count' => $this->whenLoaded('details', fn () => PartnerBillDetailResource::collection($this->details)->count()),
 
             'voucher' => $this->whenLoaded('voucher', function () {
                 return [

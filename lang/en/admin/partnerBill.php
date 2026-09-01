@@ -1,4 +1,5 @@
 <?php
+
 return [
     'singular' => 'Partner Bill',
 
@@ -10,6 +11,7 @@ return [
         'start_time' => 'Start Time',
         'end_time' => 'End Time',
         'final_total' => 'Final Total',
+        'requires_invoice' => 'Requires Invoice',
         'event' => 'Event',
         'client' => 'Client',
         'partner' => 'Partner',

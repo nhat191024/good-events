@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources\Api\Partner;
 
+use App\Models\PartnerBill;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Models\PartnerBill */
+/** @mixin PartnerBill */
 class RealtimePartnerBillResource extends JsonResource
 {
     /**
@@ -29,6 +30,7 @@ class RealtimePartnerBillResource extends JsonResource
             'end_time' => optional($this->end_time)->format('H:i'),
             'address' => $this->address,
             'note' => $this->note,
+            'requires_invoice' => $this->requires_invoice,
             'booking_photos' => $this->getMedia('booking_photos')
                 ->map(fn ($media): string => $media->getUrl())
                 ->values()
