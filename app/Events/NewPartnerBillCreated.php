@@ -66,6 +66,14 @@ class NewPartnerBillCreated implements ShouldBroadcastNow
             'address' => $this->bill->address,
             'location_id' => $this->bill->location_id,
             'note' => $this->bill->note,
+            'accessories' => $this->bill->accessories
+                ->map(fn ($accessory) => [
+                    'id' => $accessory->id,
+                    'accessory_id' => $accessory->partner_category_accessory_id,
+                    'name' => $accessory->name,
+                ])
+                ->values()
+                ->all(),
             'booking_photos' => $this->bill->getMedia('booking_photos')
                 ->map(fn ($media): string => $media->getUrl())
                 ->values()
