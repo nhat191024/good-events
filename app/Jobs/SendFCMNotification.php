@@ -62,6 +62,7 @@ class SendFCMNotification implements ShouldBeUnique, ShouldQueue
                 'payload' => [
                     'aps' => [
                         'sound' => 'default',
+                        'content-available' => 1,
                     ],
                 ],
             ])
