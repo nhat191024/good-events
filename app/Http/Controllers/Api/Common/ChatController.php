@@ -194,8 +194,8 @@ class ChatController extends Controller
                 'code' => $thread->bill->code,
                 'participants' => $thread->participants->map(function ($participant) {
                     return [
-                        'id' => $participant->user->id,
-                        'name' => $participant->user->name,
+                        'id' => $participant->user?->id,
+                        'name' => $participant->user?->name ?? 'Ghost',
                     ];
                 })->values(),
                 'latest_message' => $thread->latestMessage ? [
