@@ -111,7 +111,18 @@ class PartnerBillNotificationService
 
                 $title = __('notification.bill_confirmed.title');
                 $body = __('notification.bill_confirmed.subject', ['category' => $partnerBill->category->name]);
-                $this->fcmService->sendToUser($partner, $title, $body, ['code' => 'BILL_CONFIRMED'], '10');
+                $this->fcmService->sendToUser($partner, $title, $body,
+                [
+                    'code' => 'BILL_CONFIRMED',
+                    'bill_id' => (string) $partnerBill->id,
+                    'date' => $partnerBill->date?->toDateString() ?? '',
+                    'start_time' => $partnerBill->start_time?->format('H:i') ?? '',
+                    'end_time' => $partnerBill->end_time?->format('H:i') ?? '',
+                    'address' => $partnerBill->address ?? '',
+                    'client' => $clientName,
+                    'event' => $partnerBill->event?->name ?? $partnerBill->custom_event ?? '',
+                    'category' => $partnerBill->category?->name ?? '',
+                ], '10');
 
                 Notification::make()
                     ->title(__('notification.client_accepted_title'))
