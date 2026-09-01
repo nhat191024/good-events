@@ -638,6 +638,11 @@ class OrderController extends Controller
                     'responded_at' => now(),
                 ]);
 
+            DB::afterCommit(fn () => $this->sendPriceIncreaseRequestDecisionNotification(
+                $lockedOrder,
+                $lockedPriceIncreaseRequest,
+            ));
+
             return response()->json([
                 'success' => true,
                 'order' => [
@@ -680,11 +685,64 @@ class OrderController extends Controller
                 'responded_at' => now(),
             ])->save();
 
+            DB::afterCommit(fn () => $this->sendPriceIncreaseRequestDecisionNotification(
+                $lockedOrder,
+                $lockedPriceIncreaseRequest,
+            ));
+
             return response()->json([
                 'success' => true,
                 'price_increase_request' => new PartnerBillPriceIncreaseRequestResource($lockedPriceIncreaseRequest),
             ]);
         });
+    }
+
+    private function sendPriceIncreaseRequestDecisionNotification(
+        PartnerBill $order,
+        PartnerBillPriceIncreaseRequest $priceIncreaseRequest,
+    ): void {
+        try {
+            $partner = Partner::query()->find($priceIncreaseRequest->partner_id);
+
+            if (! $partner) {
+                Log::warning('Price increase request partner not found for FCM notification.', [
+                    'partner_bill_id' => $order->id,
+                    'price_increase_request_id' => $priceIncreaseRequest->id,
+                    'partner_id' => $priceIncreaseRequest->partner_id,
+                ]);
+
+                return;
+            }
+
+            $status = $priceIncreaseRequest->status;
+            $translationKey = $status === PartnerBillPriceIncreaseRequestStatus::Accepted
+                ? 'notification.price_increase_request.accepted'
+                : 'notification.price_increase_request.rejected';
+
+            $this->fcmService->sendToUser(
+                $partner,
+                __("{$translationKey}.title"),
+                __("{$translationKey}.body", [
+                    'code' => $order->code,
+                    'price' => number_format($priceIncreaseRequest->requested_total, 0, ',', '.'),
+                ]),
+                [
+                    'code' => 'PRICE_INCREASE_REQUEST_STATUS_UPDATED',
+                    'order_id' => (string) $order->id,
+                    'thread_id' => (string) $order->thread_id,
+                    'price_increase_request_id' => (string) $priceIncreaseRequest->id,
+                    'requested_total' => (string) $priceIncreaseRequest->requested_total,
+                    'status' => $status->value,
+                ],
+                '10',
+            );
+        } catch (\Throwable $exception) {
+            Log::error('Failed to queue price increase request FCM notification.', [
+                'partner_bill_id' => $order->id,
+                'price_increase_request_id' => $priceIncreaseRequest->id,
+                'error' => $exception->getMessage(),
+            ]);
+        }
     }
 
     private function resolvePerPage(Request $request, int $default): int

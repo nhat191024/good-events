@@ -1,4 +1,5 @@
 <?php
+
 return [
     'partner_show_reminder_title' => 'Nhắc nhở: Buổi diễn :code sắp bắt đầu',
     'partner_show_reminder_body' => 'Buổi diễn với mã :code sẽ bắt đầu vào lúc :start_date. Vui lòng đảm bảo có mặt đúng giờ.',
@@ -63,6 +64,17 @@ return [
     'new_message' => [
         'body' => 'Đã gửi cho bạn một tin nhắn mới.',
         'body_count' => 'Bạn có :count tin nhắn mới',
+    ],
+
+    'price_increase_request' => [
+        'accepted' => [
+            'title' => 'Yêu cầu tăng giá đã được đồng ý',
+            'body' => 'Khách hàng đã đồng ý mức giá :price VNĐ cho đơn :code.',
+        ],
+        'rejected' => [
+            'title' => 'Yêu cầu tăng giá đã bị từ chối',
+            'body' => 'Khách hàng đã từ chối mức giá :price VNĐ cho đơn :code.',
+        ],
     ],
 
     'chat_invitation' => [

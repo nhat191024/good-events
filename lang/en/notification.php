@@ -1,4 +1,5 @@
 <?php
+
 return [
     'partner_show_reminder_title' => 'Reminder: Partner show :code is starting soon',
     'partner_show_reminder_body' => 'The show with code :code is starting on :start_date. Please ensure timely attendance.',
@@ -63,5 +64,16 @@ return [
     'new_message' => [
         'body' => 'You have received a new message',
         'body_count' => 'You have :count new messages',
+    ],
+
+    'price_increase_request' => [
+        'accepted' => [
+            'title' => 'Price increase request accepted',
+            'body' => 'The client accepted the price of :price VND for order :code.',
+        ],
+        'rejected' => [
+            'title' => 'Price increase request rejected',
+            'body' => 'The client rejected the price of :price VND for order :code.',
+        ],
     ],
 ];
