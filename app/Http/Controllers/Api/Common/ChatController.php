@@ -218,6 +218,7 @@ class ChatController extends Controller
                     'status' => $thread->bill->status,
                     'total' => $thread->bill->total,
                     'final_total' => $thread->bill->final_total,
+                    'partner_id' => $thread->bill->partner_id,
                 ] : null,
             ];
         });
