@@ -34,6 +34,7 @@ class PartnerBillResource extends JsonResource
             'status' => $statusValue,
             'thread_id' => $this->thread_id,
             'review_exists' => $this->whenHas('review_exists', fn ($exists) => (bool) $exists),
+            'is_overdue' => $this->completion_reminder_started_at ? true : false,
         ];
     }
 }
