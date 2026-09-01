@@ -18,9 +18,9 @@ class EnsureAccountIsNotSuspended
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $this->accountSuspensionService->findSuspendedUserByToken($request->bearerToken());
+        $user = $request->user();
 
-        if ($user) {
+        if ($user && $this->accountSuspensionService->isSuspended($user)) {
             return $this->accountSuspensionService->response($user);
         }
 

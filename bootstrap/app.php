@@ -31,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
-        $middleware->api(prepend: [
+        $middleware->api(append: [
             EnsureAccountIsNotSuspended::class,
         ]);
 
