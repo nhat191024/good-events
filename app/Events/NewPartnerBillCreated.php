@@ -66,6 +66,7 @@ class NewPartnerBillCreated implements ShouldBroadcastNow
             'address' => $this->bill->address,
             'location_id' => $this->bill->location_id,
             'note' => $this->bill->note,
+            'requires_invoice' => $this->bill->requires_invoice,
             'accessories' => $this->bill->accessories
                 ->map(fn ($accessory) => [
                     'id' => $accessory->id,
