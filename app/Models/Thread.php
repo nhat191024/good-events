@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\ChatMembershipContext;
 use Carbon\CarbonImmutable;
 use Cmgmyr\Messenger\Models\Models;
 use Cmgmyr\Messenger\Models\Participant;
@@ -62,12 +63,12 @@ class Thread extends BaseThread
 
     /**
      * Returns threads that the user is associated with and sorts start from unread.
-     *
-     * @param  int  $userId
-     * @return Builder
      */
-    public function scopeForUserOrderByNotReadMessages(Builder $query, $userId)
-    {
+    public function scopeForUserOrderByNotReadMessages(
+        Builder $query,
+        int $userId,
+        ?ChatMembershipContext $membershipContext = null,
+    ): Builder {
         $participantTable = Models::table('participants');
         $threadsTable = Models::table('threads');
         $tablePrefix = $this->getConnection()->getTablePrefix();
@@ -77,6 +78,12 @@ class Thread extends BaseThread
         return $query->join($participantTable, $this->getQualifiedKeyName(), '=', $participantTable.'.thread_id')
             ->where($participantTable.'.user_id', $userId)
             ->whereNull($participantTable.'.deleted_at')
+            ->when($membershipContext !== null, function (Builder $query) use ($membershipContext, $participantTable): void {
+                $query->whereIn($participantTable.'.membership_context', [
+                    $membershipContext->value,
+                    ChatMembershipContext::Invitation->value,
+                ]);
+            })
             ->orderByRaw($orderBy)
             ->select($threadsTable.'.*');
     }

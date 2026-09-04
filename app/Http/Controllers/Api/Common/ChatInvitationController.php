@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Common;
 
+use App\Enum\ChatMembershipContext;
 use App\Enum\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\InviteChatUserRequest;
@@ -103,6 +104,7 @@ class ChatInvitationController extends Controller
             ]);
             $participant->last_read = now();
             $participant->deleted_at = null;
+            $participant->membership_context = ChatMembershipContext::Invitation->value;
             $participant->save();
 
             $invitation->update([

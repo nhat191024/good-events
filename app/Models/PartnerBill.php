@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enum\CacheKey;
+use App\Enum\ChatMembershipContext;
 use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillPriceIncreaseRequestStatus;
 use App\Enum\PartnerBillStatus;
@@ -244,17 +245,21 @@ class PartnerBill extends Model implements HasMedia
         ]);
 
         try {
-            Participant::create([
+            $adminParticipant = new Participant([
                 'thread_id' => $thread->id,
                 'user_id' => $admin->id, // system user
                 'last_read' => now(),
             ]);
+            $adminParticipant->membership_context = ChatMembershipContext::System->value;
+            $adminParticipant->save();
 
-            Participant::create([
+            $clientParticipant = new Participant([
                 'thread_id' => $thread->id,
                 'user_id' => $partnerBill->client_id,
                 'last_read' => null,
             ]);
+            $clientParticipant->membership_context = ChatMembershipContext::Client->value;
+            $clientParticipant->save();
         } catch (\Throwable $th) {
             Log::error('From PartnerBill.php', ['message' => $th->getMessage(), 'exception' => $th]);
         }
@@ -438,11 +443,13 @@ class PartnerBill extends Model implements HasMedia
     protected static function handleConfirmedStatus(PartnerBill $partnerBill): void
     {
         Cache::forget(CacheKey::THREAD_PARTICIPANT->value."{$partnerBill->thread_id}");
-        Participant::create([
+        $participant = new Participant([
             'thread_id' => $partnerBill->thread_id,
             'user_id' => $partnerBill->partner_id,
             'last_read' => null,
         ]);
+        $participant->membership_context = ChatMembershipContext::Partner->value;
+        $participant->save();
 
         PartnerBillDetail::where('partner_bill_id', $partnerBill->id)
             ->where('status', '!=', PartnerBillDetailStatus::CLOSED)

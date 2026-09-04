@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Common;
 
+use App\Enum\ChatMembershipContext;
 use App\Enum\PartnerBillPriceIncreaseRequestStatus;
 use App\Enum\PartnerBillStatus;
 use App\Http\Controllers\Controller;
@@ -63,11 +64,6 @@ class ChatController extends Controller
             'participants.user' => function ($query) {
                 $query->select('id', 'name');
             },
-            'chatInvitations' => function ($query) use ($userId) {
-                $query
-                    ->where('user_id', $userId)
-                    ->where('status', ChatInvitation::STATUS_ACCEPTED);
-            },
             'bill' => function ($query) {
                 $query->select('id', 'code', 'thread_id', 'event_id', 'custom_event', 'client_id', 'partner_id', 'category_id', 'date', 'start_time', 'end_time', 'address', 'status', 'total', 'final_total');
             },
@@ -92,23 +88,20 @@ class ChatController extends Controller
             };
         }
 
-        $query = Thread::forUserOrderByNotReadMessages($userId)
-            ->with($with)
-            ->orderBy('threads.updated_at', 'desc');
-
         $requestingSide = in_array($sideRequest, ['client', 'partner'], true)
             ? $sideRequest
             : $userRole;
+        $membershipContext = is_string($requestingSide)
+            ? ChatMembershipContext::tryFrom($requestingSide)
+            : null;
 
-        if ($requestingSide === 'partner') {
-            $query->whereHas('bill', function ($billQuery) use ($userId) {
-                $billQuery->where('partner_id', $userId);
-            });
-        } elseif ($requestingSide === 'client') {
-            $query->whereHas('bill', function ($billQuery) use ($userId) {
-                $billQuery->where('client_id', $userId);
-            });
+        if (! in_array($membershipContext, [ChatMembershipContext::Client, ChatMembershipContext::Partner], true)) {
+            $membershipContext = null;
         }
+
+        $query = Thread::forUserOrderByNotReadMessages($userId, $membershipContext)
+            ->with($with)
+            ->orderBy('threads.updated_at', 'desc');
 
         if (! empty(trim($searchTerm))) {
             $query->where(function ($q) use ($searchTerm) {
@@ -150,7 +143,7 @@ class ChatController extends Controller
         $mappedThreads = $threads->map(function ($thread) use ($avatarMediaByModel, $sideRequest, $userId, $userRole) {
             $isUnread = false;
             $participant = $thread->participants->firstWhere('user_id', $userId);
-            $canLeave = $thread->chatInvitations->isNotEmpty();
+            $canLeave = $participant?->membership_context === ChatMembershipContext::Invitation->value;
             $latestMessageSender = $thread->latestMessage?->user;
             $latestMessageSenderModelTypes = match ($thread->latestMessage?->user_id) {
                 $thread->bill?->partner_id => [Partner::class, User::class, Customer::class],
