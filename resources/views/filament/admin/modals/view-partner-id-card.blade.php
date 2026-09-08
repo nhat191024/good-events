@@ -37,7 +37,7 @@
         <x-filament::section>
             <div class="w-2xl flex flex-col items-center justify-center">
                 <p>Số căn cước công dân</p>
-                <p class="text-lg font-medium">{{ $record->partnerProfile->identity_card_number }}</p>
+                <p class="text-lg font-medium">{{ $record->partnerProfile->identity_card_number ?? 'N/A' }}</p>
             </div>
         </x-filament::section>
 
