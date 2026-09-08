@@ -16,6 +16,8 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 // use Filament\Actions\BulkActionGroup;
 // use Filament\Actions\DeleteBulkAction;
 // use Filament\Actions\RestoreBulkAction;
@@ -254,6 +256,7 @@ class PartnersTable
                         ->label(__('admin/partner.actions.view_personal_information'))
                         ->icon('heroicon-o-credit-card')
                         ->color('info')
+                        ->visible(fn (Partner $record): bool => $record->partnerProfile !== null && ! $record->partnerProfile->is_legit)
 
                         ->modalHeading(__('admin/partner.view_partner_personal_information'))
                         ->modalContent(fn (Partner $record) => view('filament.admin.modals.view-partner-id-card', [
@@ -269,8 +272,33 @@ class PartnersTable
                                 ->color('success')
                                 ->visible(fn () => $record->partnerProfile && ! $record->partnerProfile->is_legit)
                                 ->requiresConfirmation()
-                                ->action(function () use ($record) {
-                                    $record->partnerProfile?->update(['is_legit' => true]);
+                                ->modalHeading('Duyệt đối tác và xóa giấy tờ?')
+                                ->modalDescription('Sau khi duyệt, số CCCD, ảnh CCCD hai mặt và ảnh selfie sẽ bị xóa vĩnh viễn.')
+                                ->modalSubmitActionLabel('Duyệt và xóa')
+                                ->action(function () use ($record): void {
+                                    $partnerProfile = $record->partnerProfile;
+
+                                    if (! $partnerProfile) {
+                                        return;
+                                    }
+
+                                    foreach (['selfie_image', 'front_identity_card_image', 'back_identity_card_image'] as $imageField) {
+                                        $imagePath = $partnerProfile->{$imageField};
+
+                                        if (filled($imagePath) && ! Str::startsWith($imagePath, ['http://', 'https://'])) {
+                                            Storage::disk('local')->delete($imagePath);
+                                            Storage::disk('public')->delete($imagePath);
+                                        }
+                                    }
+
+                                    $partnerProfile->update([
+                                        'is_legit' => true,
+                                        'identity_card_number' => null,
+                                        'selfie_image' => null,
+                                        'front_identity_card_image' => null,
+                                        'back_identity_card_image' => null,
+                                    ]);
+
                                     Notification::make()->success()->title('Đã phê duyệt')->send();
                                 }),
                             Action::make('unapprove')

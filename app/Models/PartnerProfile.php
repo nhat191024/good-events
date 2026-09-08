@@ -103,7 +103,10 @@ class PartnerProfile extends Model
         parent::boot();
 
         static::updating(function ($user) {
-            if ($user->isDirty('front_identity_card_image') || $user->isDirty('back_identity_card_image')) {
+            if (
+                ($user->isDirty('front_identity_card_image') || $user->isDirty('back_identity_card_image'))
+                && (filled($user->front_identity_card_image) || filled($user->back_identity_card_image))
+            ) {
 
                 $admin = User::find(2);
                 $partnerSearchQuery = http_build_query([
