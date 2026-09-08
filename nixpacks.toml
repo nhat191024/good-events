@@ -223,9 +223,9 @@ http {
 
         charset utf-8;
 
-        # Spatie Media Library / Laravel public storage
+        # Public storage files, with Laravel fallback for signed private files
         location ^~ /storage/ {
-            try_files $uri =404;
+            try_files $uri /index.php?$query_string;
 
             add_header Cache-Control "public, max-age=2592000, immutable";
             add_header X-Content-Type-Options "nosniff";

@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 /** @mixin \App\Models\User */
 class ProfileResource extends JsonResource
@@ -35,23 +34,16 @@ class ProfileResource extends JsonResource
             'location' => $partnerProfile?->location_id
                 ? ($partnerProfile->location?->name . ' - ' . $partnerProfile->location?->province?->name)
                 : null,
-            'selfie_image' => $this->identityImageUrl($partnerProfile?->selfie_image),
+            'selfie_image' => $partnerProfile?->selfie_image
+                ? Storage::disk('local')->temporaryUrl($partnerProfile->selfie_image, now()->addMinutes(5))
+                : null,
             'identity_card_number' => $partnerProfile?->identity_card_number,
-            'front_identity_card_image' => $this->identityImageUrl($partnerProfile?->front_identity_card_image),
-            'back_identity_card_image' => $this->identityImageUrl($partnerProfile?->back_identity_card_image),
+            'front_identity_card_image' => $partnerProfile?->front_identity_card_image
+                ? Storage::disk('local')->temporaryUrl($partnerProfile->front_identity_card_image, now()->addMinutes(5))
+                : null,
+            'back_identity_card_image' => $partnerProfile?->back_identity_card_image
+                ? Storage::disk('local')->temporaryUrl($partnerProfile->back_identity_card_image, now()->addMinutes(5))
+                : null,
         ];
-    }
-
-    private function identityImageUrl(?string $path): ?string
-    {
-        if (blank($path)) {
-            return null;
-        }
-
-        if (filter_var($path, FILTER_VALIDATE_URL) || Str::startsWith($path, ['/storage/', 'storage/'])) {
-            return $path;
-        }
-
-        return Storage::disk('local')->temporaryUrl(Str::before($path, '?'), now()->addMinutes(5));
     }
 }
