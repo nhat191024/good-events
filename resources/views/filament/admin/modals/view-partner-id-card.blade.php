@@ -1,4 +1,19 @@
 @use('Illuminate\Support\Facades\Storage')
+@use('Illuminate\Support\Str')
+
+@php
+    $identityImageUrl = function (?string $path): ?string {
+        if (blank($path)) {
+            return null;
+        }
+
+        if (filter_var($path, FILTER_VALIDATE_URL) || Str::startsWith($path, ['/storage/', 'storage/'])) {
+            return $path;
+        }
+
+        return Storage::disk('local')->temporaryUrl(Str::before($path, '?'), now()->addMinutes(5));
+    };
+@endphp
 
 @if (!$record->partnerProfile->identity_card_number || !$record->partnerProfile->selfie_image || !$record->partnerProfile->front_identity_card_image || !$record->partnerProfile->back_identity_card_image)
     <x-filament::section>
@@ -15,7 +30,7 @@
         <x-filament::section>
             <div class="w-2xl flex flex-col items-center justify-center">
                 <p>Ảnh selfie</p>
-                <img class="mt-1 max-h-96 w-fit max-w-2xl" src="{{ Storage::disk('local')->temporaryUrl($record->partnerProfile->selfie_image, now()->addMinutes(5)) }}" alt="selfie image" />
+                <img class="mt-1 max-h-96 w-fit max-w-2xl" src="{{ $identityImageUrl($record->partnerProfile->selfie_image) }}" alt="selfie image" />
             </div>
         </x-filament::section>
 
@@ -29,14 +44,14 @@
         <x-filament::section>
             <div class="w-2xl flex flex-col items-center justify-center">
                 <p>Ảnh CCCD mặt trước</p>
-                <img class="mt-1 w-fit max-w-2xl" src="{{ Storage::disk('local')->temporaryUrl($record->partnerProfile->front_identity_card_image, now()->addMinutes(5)) }}" alt="front id card image" />
+                <img class="mt-1 w-fit max-w-2xl" src="{{ $identityImageUrl($record->partnerProfile->front_identity_card_image) }}" alt="front id card image" />
             </div>
         </x-filament::section>
 
         <x-filament::section>
             <div class="w-2xl flex flex-col items-center justify-center">
                 <p>Ảnh CCCD mặt sau</p>
-                <img class="mt-1 w-fit max-w-2xl" src="{{ Storage::disk('local')->temporaryUrl($record->partnerProfile->back_identity_card_image, now()->addMinutes(5)) }}" alt="back id card image" />
+                <img class="mt-1 w-fit max-w-2xl" src="{{ $identityImageUrl($record->partnerProfile->back_identity_card_image) }}" alt="back id card image" />
             </div>
         </x-filament::section>
     </div>
