@@ -50,7 +50,10 @@ class BackfillChatParticipantMembershipContext extends Command
             ->chunkById($chunkSize, function (Collection $participants) use ($participantTable, $dryRun, &$updated): void {
                 $contextsByParticipantId = $this->resolveContexts($participants);
 
-                foreach ($contextsByParticipantId->groupBy(fn (string $context): string => $context) as $context => $participantIds) {
+                foreach ($contextsByParticipantId->groupBy(
+                    fn (string $context): string => $context,
+                    preserveKeys: true,
+                ) as $context => $participantIds) {
                     $ids = $participantIds->keys()->all();
                     $updated += count($ids);
 
