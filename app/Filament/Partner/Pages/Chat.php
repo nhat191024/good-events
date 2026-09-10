@@ -217,14 +217,14 @@ class Chat extends Page
                 'is_unread' => $isUnread,
                 'other_participants' => $thread->participants->where('user_id', '!=', $userId)->map(function ($participant) {
                     return (object) [
-                        'id' => $participant->user->id,
-                        'name' => $participant->user->name,
+                        'id' => $participant->user?->id ?? $participant->user_id,
+                        'name' => $participant->user?->name ?? 'Ghost',
                     ];
                 }),
                 'participants' => $thread->participants->map(function ($participant) {
                     return (object) [
-                        'id' => $participant->user->id,
-                        'name' => $participant->user->name,
+                        'id' => $participant->user?->id ?? $participant->user_id,
+                        'name' => $participant->user?->name ?? 'Ghost',
                     ];
                 }),
                 'latest_message' => $thread->latestMessage ? (object) [
@@ -355,8 +355,8 @@ class Chat extends Page
             'created_at' => $msg->created_at,
             'updated_at' => $msg->updated_at,
             'user' => [
-                'id' => $msg->user->id,
-                'name' => $msg->user->name,
+                'id' => $msg->user?->id ?? $msg->user_id,
+                'name' => $msg->user?->name ?? 'Ghost',
             ],
         ])->toArray();
 
