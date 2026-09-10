@@ -6,6 +6,7 @@ use App\Enum\AppErrorSeverity;
 use App\Enum\AppErrorType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AppErrorReport extends Model
 {
@@ -37,6 +38,12 @@ class AppErrorReport extends Model
         'occurred_at',
         'checked_at',
         'checked_by',
+        'occurrence_count',
+        'first_occurred_at',
+        'last_occurred_at',
+        'merged_at',
+        'merged_by',
+        'merged_into_id',
     ];
 
     /**
@@ -50,8 +57,12 @@ class AppErrorReport extends Model
             'context' => 'array',
             'api_request' => 'array',
             'api_response' => 'array',
+            'occurrence_count' => 'integer',
             'occurred_at' => 'immutable_datetime',
             'checked_at' => 'immutable_datetime',
+            'first_occurred_at' => 'immutable_datetime',
+            'last_occurred_at' => 'immutable_datetime',
+            'merged_at' => 'immutable_datetime',
         ];
     }
 
@@ -63,5 +74,20 @@ class AppErrorReport extends Model
     public function checkedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'checked_by')->withTrashed();
+    }
+
+    public function mergedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'merged_by')->withTrashed();
+    }
+
+    public function mergedInto(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'merged_into_id');
+    }
+
+    public function mergedReports(): HasMany
+    {
+        return $this->hasMany(self::class, 'merged_into_id');
     }
 }

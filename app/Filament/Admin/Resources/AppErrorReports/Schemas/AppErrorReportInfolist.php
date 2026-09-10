@@ -20,6 +20,10 @@ class AppErrorReportInfolist
                         TextEntry::make('severity')->label('Mức độ')->badge(),
                         TextEntry::make('custom_type')->label('Loại khác')->placeholder('—'),
                         TextEntry::make('error_code')->label('Mã lỗi')->placeholder('—'),
+                        TextEntry::make('occurrence_count')->label('Số lần xuất hiện')->badge(),
+                        TextEntry::make('mergedInto.id')
+                            ->label('Đã gộp vào báo cáo')
+                            ->placeholder('—'),
                         TextEntry::make('source')->label('Nguồn')->placeholder('—')->columnSpan(2),
                         TextEntry::make('message')->label('Nội dung')->columnSpanFull(),
                         TextEntry::make('stack_trace')
@@ -53,6 +57,14 @@ class AppErrorReportInfolist
                         TextEntry::make('device_model')->label('Thiết bị')->placeholder('—'),
                         TextEntry::make('ip_address')->label('IP')->placeholder('—'),
                         TextEntry::make('occurred_at')->label('Xảy ra lúc')->dateTime('d/m/Y H:i:s'),
+                        TextEntry::make('first_occurred_at')
+                            ->label('Lần đầu xảy ra')
+                            ->dateTime('d/m/Y H:i:s')
+                            ->placeholder('—'),
+                        TextEntry::make('last_occurred_at')
+                            ->label('Lần gần nhất xảy ra')
+                            ->dateTime('d/m/Y H:i:s')
+                            ->placeholder('—'),
                         TextEntry::make('user_agent')->label('User agent')->placeholder('—')->columnSpanFull(),
                         TextEntry::make('created_at')->label('Gửi lúc')->dateTime('d/m/Y H:i:s'),
                         TextEntry::make('checked_at')

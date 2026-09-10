@@ -49,7 +49,8 @@ class AppErrorReportResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['user', 'checkedBy']);
+        return parent::getEloquentQuery()
+            ->with(['user', 'checkedBy', 'mergedInto']);
     }
 
     public static function getPages(): array

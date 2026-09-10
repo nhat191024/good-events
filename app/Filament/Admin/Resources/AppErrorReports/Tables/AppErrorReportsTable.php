@@ -36,6 +36,10 @@ class AppErrorReportsTable
                     ->limit(70)
                     ->tooltip(fn (AppErrorReport $record): string => $record->message)
                     ->searchable(),
+                TextColumn::make('occurrence_count')
+                    ->label('Số lần')
+                    ->badge()
+                    ->sortable(),
                 TextColumn::make('error_code')
                     ->label('Mã lỗi')
                     ->placeholder('—')
@@ -82,6 +86,13 @@ class AppErrorReportsTable
                     ->nullable()
                     ->trueLabel('Đã kiểm tra')
                     ->falseLabel('Chưa kiểm tra')
+                    ->placeholder('Tất cả')
+                    ->default(false),
+                TernaryFilter::make('merged_into_id')
+                    ->label('Trạng thái gộp')
+                    ->nullable()
+                    ->trueLabel('Đã gộp vào báo cáo khác')
+                    ->falseLabel('Báo cáo chính')
                     ->placeholder('Tất cả')
                     ->default(false),
                 SelectFilter::make('type')
