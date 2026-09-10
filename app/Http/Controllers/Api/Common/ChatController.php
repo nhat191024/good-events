@@ -16,7 +16,6 @@ use App\Models\PartnerBill;
 use App\Models\PartnerBillPriceIncreaseRequest;
 use App\Models\PartnerProfile;
 use App\Models\Thread;
-use App\Models\User;
 use App\Support\ChatMessagePayload;
 use Cmgmyr\Messenger\Models\Participant;
 use Illuminate\Database\QueryException;
@@ -269,24 +268,26 @@ class ChatController extends Controller
 
         $hasMore = $offset > 0;
 
+        $messageSenderIds = $messages->pluck('user_id')->filter()->unique()->values();
+
         $avatarMediaByModel = Media::query()
-            ->whereIn('model_id', $messages->pluck('user_id')->unique())
-            ->whereIn('model_type', [User::class, Partner::class, Customer::class])
+            ->whereIn('model_id', $messageSenderIds)
+            ->whereIn('model_type', [Partner::class, Customer::class])
             ->where('collection_name', 'avatar')
             ->orderBy('order_column')
             ->get()
             ->keyBy(fn (Media $media): string => $media->model_type.':'.$media->model_id);
 
-        $mappedMessages = $messages->map(function (Message $message) use ($avatarMediaByModel, $thread): array {
-            $senderModelTypes = match ($message->user_id) {
-                $thread->bill?->partner_id => [Partner::class, User::class, Customer::class],
-                $thread->bill?->client_id => [Customer::class, User::class, Partner::class],
-                default => [User::class, Partner::class, Customer::class],
-            };
-            $senderAvatarMedia = collect($senderModelTypes)
-                ->map(fn (string $modelType): ?Media => $avatarMediaByModel->get($modelType.':'.$message->user_id))
-                ->filter()
-                ->first();
+        $partnerUserIds = PartnerProfile::query()
+            ->whereIn('user_id', $messageSenderIds)
+            ->pluck('user_id')
+            ->mapWithKeys(fn (int $partnerUserId): array => [$partnerUserId => true]);
+
+        $mappedMessages = $messages->map(function (Message $message) use ($avatarMediaByModel, $partnerUserIds): array {
+            $senderModelType = $partnerUserIds->has($message->user_id)
+                ? Partner::class
+                : Customer::class;
+            $senderAvatarMedia = $avatarMediaByModel->get($senderModelType.':'.$message->user_id);
             $senderAvatarUrl = $senderAvatarMedia?->getAvailableUrl(['avatar_webp']);
 
             if (blank($senderAvatarUrl)) {
