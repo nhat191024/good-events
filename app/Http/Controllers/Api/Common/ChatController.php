@@ -78,13 +78,13 @@ class ChatController extends Controller
         // check side request to determine first, use role if side request is null
         if ($sideRequest === 'partner' || ($sideRequest === null && $userRole === 'partner')) {
             $with['bill.client'] = function ($query) {
-                $query->select('id', 'name');
+                $query->select('id', 'name', 'avatar');
             };
         }
 
         if ($sideRequest === 'client' || ($sideRequest === null && $userRole === 'client')) {
             $with['bill.partner'] = function ($query) {
-                $query->select('id', 'name');
+                $query->select('id', 'name', 'avatar');
             };
         }
 
@@ -126,55 +126,54 @@ class ChatController extends Controller
             $threads = $threads->take(self::THREADS_PER_PAGE);
         }
 
-        $latestMessageSenderIds = $threads
-            ->pluck('latestMessage.user_id')
+        $chatUserIds = $threads
+            ->map(fn (Thread $thread): ?int => match ($requestingSide) {
+                ChatMembershipContext::Partner->value => $thread->bill?->client_id,
+                ChatMembershipContext::Client->value => $thread->bill?->partner_id,
+                default => null,
+            })
             ->filter()
             ->unique()
             ->values();
 
         $avatarMediaByModel = Media::query()
-            ->whereIn('model_id', $latestMessageSenderIds)
+            ->whereIn('model_id', $chatUserIds)
             ->whereIn('model_type', [User::class, Partner::class, Customer::class])
             ->where('collection_name', 'avatar')
             ->orderBy('order_column')
             ->get()
             ->keyBy(fn (Media $media): string => $media->model_type.':'.$media->model_id);
 
-        $mappedThreads = $threads->map(function ($thread) use ($avatarMediaByModel, $sideRequest, $userId, $userRole) {
+        $mappedThreads = $threads->map(function ($thread) use ($avatarMediaByModel, $requestingSide, $userId) {
             $isUnread = false;
             $participant = $thread->participants->firstWhere('user_id', $userId);
             $canLeave = $participant?->membership_context === ChatMembershipContext::Invitation->value;
             $latestMessageSender = $thread->latestMessage?->user;
-            $latestMessageSenderModelTypes = match ($thread->latestMessage?->user_id) {
-                $thread->bill?->partner_id => [Partner::class, User::class, Customer::class],
-                $thread->bill?->client_id => [Customer::class, User::class, Partner::class],
+            $chatUser = match ($requestingSide) {
+                ChatMembershipContext::Partner->value => $thread->bill?->client,
+                ChatMembershipContext::Client->value => $thread->bill?->partner,
+                default => null,
+            };
+            $chatUserModelTypes = match ($requestingSide) {
+                ChatMembershipContext::Partner->value => [Customer::class, User::class, Partner::class],
+                ChatMembershipContext::Client->value => [Partner::class, User::class, Customer::class],
                 default => [User::class, Partner::class, Customer::class],
             };
-            $latestMessageSenderAvatarMedia = collect($latestMessageSenderModelTypes)
-                ->map(fn (string $modelType): ?Media => $avatarMediaByModel->get($modelType.':'.$thread->latestMessage?->user_id))
+            $chatUserAvatarMedia = collect($chatUserModelTypes)
+                ->map(fn (string $modelType): ?Media => $avatarMediaByModel->get($modelType.':'.$chatUser?->id))
                 ->filter()
                 ->first();
-            $latestMessageSenderAvatarUrl = null;
+            $chatImage = $chatUserAvatarMedia?->getAvailableUrl(['avatar_webp']);
 
-            if ($latestMessageSender !== null) {
-                $latestMessageSenderAvatarUrl = $latestMessageSenderAvatarMedia?->getAvailableUrl(['avatar_webp']);
-
-                if (blank($latestMessageSenderAvatarUrl)) {
-                    $latestMessageSenderAvatarUrl = $latestMessageSender->avatar_url;
-                }
+            if (blank($chatImage)) {
+                $chatImage = $chatUser?->avatar_url;
             }
 
             if ($participant) {
                 $isUnread = $participant->last_read !== null && $thread->updated_at->gt($participant->last_read);
             }
 
-            $subjectUser = null;
-
-            if ($sideRequest === 'partner' || ($sideRequest === null && $userRole === 'partner')) {
-                $subjectUser = $thread->bill?->client?->name;
-            } elseif ($sideRequest === 'client' || ($sideRequest === null && $userRole === 'client')) {
-                $subjectUser = $thread->bill?->partner?->name;
-            }
+            $subjectUser = $chatUser?->name;
 
             $subject = "{$subjectUser} - ".($thread->bill->category_id ? $thread->bill->category?->name : 'No Category');
 
@@ -198,7 +197,7 @@ class ChatController extends Controller
                     'location' => null,
                     'preview_text' => $thread->latestMessage->preview_text,
                     'sender_name' => $latestMessageSender?->name ?? 'Ghost',
-                    'sender_avatar' => $latestMessageSenderAvatarUrl,
+                    'sender_avatar' => $chatImage,
                     'created_at' => $thread->latestMessage->created_at?->diffForHumans(),
                 ] : null,
                 'bill' => $thread->bill ? [
