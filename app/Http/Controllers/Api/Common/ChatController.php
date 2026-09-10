@@ -14,6 +14,7 @@ use App\Models\Message;
 use App\Models\Partner;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillPriceIncreaseRequest;
+use App\Models\PartnerProfile;
 use App\Models\Thread;
 use App\Models\User;
 use App\Support\ChatMessagePayload;
@@ -138,13 +139,18 @@ class ChatController extends Controller
 
         $avatarMediaByModel = Media::query()
             ->whereIn('model_id', $chatUserIds)
-            ->whereIn('model_type', [User::class, Partner::class, Customer::class])
+            ->whereIn('model_type', [Partner::class, Customer::class])
             ->where('collection_name', 'avatar')
             ->orderBy('order_column')
             ->get()
             ->keyBy(fn (Media $media): string => $media->model_type.':'.$media->model_id);
 
-        $mappedThreads = $threads->map(function ($thread) use ($avatarMediaByModel, $requestingSide, $userId) {
+        $partnerUserIds = PartnerProfile::query()
+            ->whereIn('user_id', $chatUserIds)
+            ->pluck('user_id')
+            ->mapWithKeys(fn (int $partnerUserId): array => [$partnerUserId => true]);
+
+        $mappedThreads = $threads->map(function ($thread) use ($avatarMediaByModel, $partnerUserIds, $requestingSide, $userId) {
             $isUnread = false;
             $participant = $thread->participants->firstWhere('user_id', $userId);
             $canLeave = $participant?->membership_context === ChatMembershipContext::Invitation->value;
@@ -154,15 +160,10 @@ class ChatController extends Controller
                 ChatMembershipContext::Client->value => $thread->bill?->partner,
                 default => null,
             };
-            $chatUserModelTypes = match ($requestingSide) {
-                ChatMembershipContext::Partner->value => [Customer::class, User::class, Partner::class],
-                ChatMembershipContext::Client->value => [Partner::class, User::class, Customer::class],
-                default => [User::class, Partner::class, Customer::class],
-            };
-            $chatUserAvatarMedia = collect($chatUserModelTypes)
-                ->map(fn (string $modelType): ?Media => $avatarMediaByModel->get($modelType.':'.$chatUser?->id))
-                ->filter()
-                ->first();
+            $chatUserModelType = $partnerUserIds->has($chatUser?->id)
+                ? Partner::class
+                : Customer::class;
+            $chatUserAvatarMedia = $avatarMediaByModel->get($chatUserModelType.':'.$chatUser?->id);
             $chatImage = $chatUserAvatarMedia?->getAvailableUrl(['avatar_webp']);
 
             if (blank($chatImage)) {
