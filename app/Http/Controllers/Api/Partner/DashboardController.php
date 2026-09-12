@@ -4,22 +4,18 @@ namespace App\Http\Controllers\Api\Partner;
 
 use App\Enum\AppNotificationType;
 use App\Enum\CacheKey;
-use App\Enum\PartnerBillStatus;
 use App\Enum\PartnerBillDetailStatus;
+use App\Enum\PartnerBillStatus;
 use App\Enum\StatisticType;
-
 use App\Http\Controllers\Controller;
-
-use App\Models\User;
-use App\Models\Statistical;
 use App\Models\PartnerBill;
 use App\Models\PartnerBillDetail;
+use App\Models\Statistical;
+use App\Models\User;
 use App\Settings\AppNotificationSettings;
-
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
@@ -61,16 +57,17 @@ class DashboardController extends Controller
     /**
      * @return array{type: string, notification_image: ?string, title: ?string, content: ?string, image: ?string}|null
      */
-    private function formatPartnerNotificationSettings(AppNotificationSettings $settings): array|null
+    private function formatPartnerNotificationSettings(AppNotificationSettings $settings): ?array
     {
         if (! $settings->partner_enabled) {
             return null;
         }
 
         if ($settings->partner_type === AppNotificationType::ImageOnly->value) {
-            if (!$settings->partner_notification_image) {
+            if (! $settings->partner_notification_image) {
                 return null;
             }
+
             return [
                 'type' => $settings->partner_type,
                 'notification_image' => secure_asset($settings->partner_notification_image),
@@ -106,19 +103,19 @@ class DashboardController extends Controller
     /**
      * Get count of new bills and bills waiting for confirmation
      *
-     * @param User|null $user
+     * @param  User|null  $user
      * @return array{new: int, waitingConfirmation: int}
      */
     private function getShowData($user): array
     {
-        if (!$user) {
+        if (! $user) {
             return [
                 'new' => '0',
                 'waitingConfirmation' => '0',
             ];
         }
 
-        $partnerServices =  Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value . "_dashboard_user_{$user->id}", function () use ($user) {
+        $partnerServices = Cache::tags([CacheKey::PARTNER_SERVICES->value])->rememberForever(CacheKey::PARTNER_SERVICES->value."_dashboard_user_{$user->id}", function () use ($user) {
             return $user->partnerServices()
                 ->where('status', 'approved')
                 ->pluck('category_id')
@@ -137,6 +134,10 @@ class DashboardController extends Controller
 
         $newBillsQuery = PartnerBill::whereIn('category_id', $partnerServices)
             ->where('status', PartnerBillStatus::PENDING)
+            ->where(function ($query) use ($user) {
+                $query->whereNull('client_id')
+                    ->orWhere('client_id', '!=', $user->id);
+            })
             ->whereDoesntHave('details', function ($query) use ($user) {
                 $query->where('partner_id', $user->id);
             });
@@ -161,10 +162,10 @@ class DashboardController extends Controller
     private function resolvePartnerServiceAreaIds(User $user): array
     {
         return Cache::tags([CacheKey::PARTNER_SERVICE_AREAS->value])
-            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value . "_dashboard_user_{$user->id}", function () use ($user): array {
+            ->rememberForever(CacheKey::PARTNER_SERVICE_AREAS->value."_dashboard_user_{$user->id}", function () use ($user): array {
                 return $user->partnerServiceAreas()
                     ->pluck('location_id')
-                    ->map(fn($locationId): int => (int) $locationId)
+                    ->map(fn ($locationId): int => (int) $locationId)
                     ->unique()
                     ->values()
                     ->all();
@@ -197,7 +198,7 @@ class DashboardController extends Controller
         ];
 
         return array_map(
-            fn(array $months) => (float) collect($months)->sum(fn($m) => $revenueByMonth->get($m, 0)),
+            fn (array $months) => (float) collect($months)->sum(fn ($m) => $revenueByMonth->get($m, 0)),
             $quarters,
         );
     }
