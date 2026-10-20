@@ -1,27 +1,30 @@
 <?php
 
-use Tapp\FilamentMailLog\Models\MailLog;
-use Spatie\Activitylog\Models\Activity;
-
 use Illuminate\Foundation\Inspiring;
-
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schedule;
+use Spatie\Activitylog\Models\Activity;
+use Tapp\FilamentMailLog\Models\MailLog;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-//4h00 am daily
+// 4h00 am daily
 Schedule::command('app:clear-zip-temp')->dailyAt('04:00');
 
-//4h00 am weekly on Monday
+// 4h00 am weekly on Monday
 Schedule::command('app:clear-logs')->weeklyOn(1, '04:00');
 
-//3h00 am daily
+// 3h00 am daily
 Schedule::command('activitylog:clean --force')->dailyAt('03:00');
+
+Schedule::command('chat:prune-old --days=14')
+    ->timezone('Asia/Ho_Chi_Minh')
+    ->dailyAt('03:30')
+    ->withoutOverlapping();
 
 // Refresh Zalo Token daily at 2:00 AM
 Schedule::command('app:refresh-zalo-token')->dailyAt('02:00');
