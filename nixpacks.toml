@@ -165,8 +165,8 @@ pm.min_spare_servers = 3
 pm.max_spare_servers = 10
 pm.start_servers = 6
 clear_env = no
-php_admin_value[upload_max_filesize] = 50M
-php_admin_value[post_max_size] = 50M
+php_admin_value[upload_max_filesize] = 64M
+php_admin_value[post_max_size] = 128M
 php_admin_value[memory_limit] = 512M
 php_admin_value[max_input_time] = 300
 php_admin_value[max_execution_time] = 300
@@ -217,7 +217,7 @@ http {
 
         add_header X-Content-Type-Options "nosniff";
 
-        client_max_body_size 51M;
+        client_max_body_size 128M;
 
         index index.php;
 
