@@ -1,0 +1,39 @@
+meta {
+  name: send file
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{url}}chat/threads/{{thread_id}}/messages
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+vars:pre-request {
+  thread_id: 27
+  upload_path: C:/path/to/sample.zip
+}
+
+body:multipart-form {
+  type: file
+  file: @file({{upload_path}})
+  ~body: Nội dung đính kèm
+  ~client_message_id: d3883200-af92-4c4f-aa83-fd63662158ee
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Chọn thread_id và upload_path trước khi gửi. Mỗi tin nhận đúng một file.
+  Giới hạn 20 MB (20480 KB), kiểm tra đuôi và MIME từ nội dung.
+  Bật client_message_id và giữ nguyên UUID để kiểm tra retry không tạo trùng.
+  Kiểm tra thiếu tệp, sai MIME, vượt dung lượng và tài khoản ngoài phòng.
+}

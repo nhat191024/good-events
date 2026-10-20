@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Message;
+use App\Support\ChatAttachmentType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -32,6 +33,8 @@ class StoreChatMessageRequest extends FormRequest
             'type' => ['required', 'string', Rule::in([
                 Message::TYPE_TEXT,
                 Message::TYPE_IMAGE,
+                Message::TYPE_FILE,
+                Message::TYPE_VIDEO,
                 Message::TYPE_LOCATION,
                 Message::TYPE_PRICE_INCREASE_REQUEST,
             ])],
@@ -42,6 +45,7 @@ class StoreChatMessageRequest extends FormRequest
                 'max:20000',
             ],
             'images' => [
+                Rule::prohibitedIf(in_array($type, [Message::TYPE_FILE, Message::TYPE_VIDEO], true)),
                 Rule::requiredIf($type === Message::TYPE_IMAGE),
                 'array',
                 'max:5',
@@ -50,6 +54,22 @@ class StoreChatMessageRequest extends FormRequest
                 'required',
                 'image',
                 'max:20480',
+            ],
+            'file' => [
+                'bail',
+                Rule::requiredIf($type === Message::TYPE_FILE),
+                Rule::prohibitedIf($type !== Message::TYPE_FILE),
+                'file',
+                'max:20480',
+                ChatAttachmentType::rule(),
+            ],
+            'video' => [
+                'bail',
+                Rule::requiredIf($type === Message::TYPE_VIDEO),
+                Rule::prohibitedIf($type !== Message::TYPE_VIDEO),
+                'file',
+                'max:51200',
+                ChatAttachmentType::rule(video: true),
             ],
             'location.latitude' => [
                 Rule::requiredIf($type === Message::TYPE_LOCATION),
@@ -98,6 +118,17 @@ class StoreChatMessageRequest extends FormRequest
             'images.max' => 'Bạn chỉ có thể gửi tối đa 5 ảnh trong một tin nhắn.',
             'images.*.image' => 'File gửi lên phải là ảnh.',
             'images.*.max' => 'Mỗi ảnh không được vượt quá 20MB.',
+            'images.prohibited' => 'Không thể gửi kèm ảnh trong tin nhắn file hoặc video.',
+            'file.required' => 'Vui lòng chọn một file để gửi.',
+            'file.file' => 'Vui lòng gửi đúng một file hợp lệ.',
+            'file.max' => 'File không được vượt quá 20MB.',
+            'file.prohibited' => 'Chỉ được gửi file trong tin nhắn loại file.',
+            'file.uploaded' => 'Không thể tải file lên. Vui lòng kiểm tra dung lượng và thử lại.',
+            'video.required' => 'Vui lòng chọn một video để gửi.',
+            'video.file' => 'Vui lòng gửi đúng một video hợp lệ.',
+            'video.max' => 'Video không được vượt quá 50MB.',
+            'video.prohibited' => 'Chỉ được gửi video trong tin nhắn loại video.',
+            'video.uploaded' => 'Không thể tải video lên. Vui lòng kiểm tra dung lượng và thử lại.',
             'location.latitude.required' => 'Vui lòng gửi vĩ độ.',
             'location.latitude.between' => 'Vĩ độ không hợp lệ.',
             'location.longitude.required' => 'Vui lòng gửi kinh độ.',

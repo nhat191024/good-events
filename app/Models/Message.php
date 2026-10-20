@@ -73,6 +73,10 @@ class Message extends BaseMessage implements HasMedia
 
     public const string TYPE_IMAGE = 'image';
 
+    public const string TYPE_FILE = 'file';
+
+    public const string TYPE_VIDEO = 'video';
+
     public const string TYPE_LOCATION = 'location';
 
     public const string TYPE_CALL = 'call';
@@ -80,6 +84,10 @@ class Message extends BaseMessage implements HasMedia
     public const string TYPE_PRICE_INCREASE_REQUEST = 'price_increase_request';
 
     public const string MEDIA_COLLECTION_CHAT_IMAGES = 'chat_images';
+
+    public const string MEDIA_COLLECTION_CHAT_FILES = 'chat_files';
+
+    public const string MEDIA_COLLECTION_CHAT_VIDEOS = 'chat_videos';
 
     protected $fillable = [
         'thread_id',
@@ -115,9 +123,9 @@ class Message extends BaseMessage implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this
-            ->addMediaCollection(self::MEDIA_COLLECTION_CHAT_IMAGES)
-            ->useDisk('public');
+        foreach ([self::MEDIA_COLLECTION_CHAT_IMAGES, self::MEDIA_COLLECTION_CHAT_FILES, self::MEDIA_COLLECTION_CHAT_VIDEOS] as $collection) {
+            $this->addMediaCollection($collection)->useDisk('public');
+        }
     }
 
     public function call(): BelongsTo
@@ -150,12 +158,19 @@ class Message extends BaseMessage implements HasMedia
      */
     public function getAttachmentsAttribute(): array
     {
-        if ($this->type !== self::TYPE_IMAGE) {
+        $collection = match ($this->type) {
+            self::TYPE_IMAGE => self::MEDIA_COLLECTION_CHAT_IMAGES,
+            self::TYPE_FILE => self::MEDIA_COLLECTION_CHAT_FILES,
+            self::TYPE_VIDEO => self::MEDIA_COLLECTION_CHAT_VIDEOS,
+            default => null,
+        };
+
+        if ($collection === null) {
             return [];
         }
 
         return $this
-            ->getMedia(self::MEDIA_COLLECTION_CHAT_IMAGES)
+            ->getMedia($collection)
             ->map(fn (Media $media): array => [
                 'id' => $media->id,
                 'name' => $media->name,
@@ -189,6 +204,8 @@ class Message extends BaseMessage implements HasMedia
     {
         return match ($this->type) {
             self::TYPE_IMAGE => $this->body ?: '[Ảnh]',
+            self::TYPE_FILE => $this->body ?: trim('[Tệp] '.($this->attachments[0]['name'] ?? '')),
+            self::TYPE_VIDEO => $this->body ?: '[Video]',
             self::TYPE_LOCATION => $this->location_label ?: $this->location_address ?: '[Vị trí]',
             self::TYPE_CALL => '[Cuộc gọi]',
             self::TYPE_PRICE_INCREASE_REQUEST => $this->priceIncreaseRequest

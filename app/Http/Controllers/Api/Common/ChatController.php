@@ -18,12 +18,14 @@ use App\Models\PartnerProfile;
 use App\Models\Thread;
 use App\Support\ChatMessagePayload;
 use Cmgmyr\Messenger\Models\Participant;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Spatie\MediaLibrary\MediaCollections\Filesystem as MediaFilesystem;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Throwable;
 
 class ChatController extends Controller
 {
@@ -60,6 +62,7 @@ class ChatController extends Controller
                 $query->select('id', 'name', 'avatar');
             },
             'latestMessage.priceIncreaseRequest',
+            'latestMessage.media',
             'participants',
             'participants.user' => function ($query) {
                 $query->select('id', 'name');
@@ -227,10 +230,8 @@ class ChatController extends Controller
      *
      * Query: page
      * Response: { data, hasMore, thread }
-     *
-     * @return JsonResponse
      */
-    public function loadMessages(Request $request, int $threadId)
+    public function loadMessages(Request $request, int $threadId): JsonResponse
     {
         $page = (int) $request->input('page', 1);
         $userId = (int) Auth::id();
@@ -245,14 +246,18 @@ class ChatController extends Controller
             ])
             ->find($threadId);
 
-        $thread?->markAsRead(Auth::id());
-
         if (! $thread) {
             return response()->json([
                 'messages' => [],
                 'hasMore' => false,
             ]);
         }
+
+        if (! Participant::query()->where('thread_id', $threadId)->where('user_id', $userId)->exists()) {
+            return response()->json(['message' => 'You are not a participant of this thread.'], 403);
+        }
+
+        $thread->markAsRead($userId);
 
         $totalMessages = $thread->messages()->count();
         $offset = max(0, $totalMessages - ($page * self::MESSAGES_PER_PAGE));
@@ -325,91 +330,87 @@ class ChatController extends Controller
      * Response: { success: true, message } or { success: false, message }
      *
      * @param  Request  $request
-     * @return JsonResponse
      */
-    public function sendMessage(StoreChatMessageRequest $request, int $threadId)
+    public function sendMessage(StoreChatMessageRequest $request, int $threadId): JsonResponse
     {
-        $userId = Auth::id();
+        $userId = (int) Auth::id();
+        $storedMedia = [];
 
         try {
-            $participant = Participant::where([
-                'thread_id' => $threadId,
-                'user_id' => $userId,
-            ])->first();
+            $result = DB::transaction(function () use ($request, $threadId, $userId, &$storedMedia): Message|JsonResponse {
+                $thread = Thread::query()->lockForUpdate()->find($threadId);
+                $participant = Participant::query()
+                    ->where('thread_id', $threadId)
+                    ->where('user_id', $userId)
+                    ->lockForUpdate()
+                    ->first();
 
-            if (! $participant) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You are not a participant of this thread.',
-                ], 403);
-            }
-
-            $participant->last_read = now();
-            $participant->save();
-
-            $messageAttributes = $request->messageAttributes($threadId, $userId);
-            $clientMessageId = $messageAttributes['client_message_id'];
-
-            if ($request->input('type') === Message::TYPE_PRICE_INCREASE_REQUEST) {
-                $result = $this->createPriceIncreaseRequestMessage($request, $threadId, $userId);
-
-                if ($result instanceof JsonResponse) {
-                    return $result;
-                }
-
-                $message = $result;
-
-                if (! $message->wasRecentlyCreated) {
+                if (! $thread || ! $participant) {
                     return response()->json([
-                        'success' => true,
-                        'message' => ChatMessagePayload::response($message, Auth::user()),
-                    ]);
+                        'success' => false,
+                        'message' => 'You are not a participant of this thread.',
+                    ], 403);
                 }
 
-                $formattedMessage = ChatMessagePayload::forDispatch($message, Auth::user());
+                $participant->last_read = now();
+                $participant->save();
 
-                SendMessage::dispatch($formattedMessage);
+                if ($request->input('type') === Message::TYPE_PRICE_INCREASE_REQUEST) {
+                    return $this->createPriceIncreaseRequestMessage($request, $threadId, $userId);
+                }
 
-                return response()->json([
-                    'success' => true,
-                    'message' => ChatMessagePayload::response($message, Auth::user()),
-                ]);
+                $messageAttributes = $request->messageAttributes($threadId, $userId);
+                $clientMessageId = $messageAttributes['client_message_id'];
+                $message = $clientMessageId
+                    ? Message::firstOrCreate([
+                        'thread_id' => $threadId,
+                        'user_id' => $userId,
+                        'client_message_id' => $clientMessageId,
+                    ], $messageAttributes)
+                    : Message::create($messageAttributes);
+
+                if ($message->wasRecentlyCreated) {
+                    try {
+                        foreach ($request->file('images', []) as $image) {
+                            $storedMedia[] = $message->addMedia($image)
+                                ->toMediaCollection(Message::MEDIA_COLLECTION_CHAT_IMAGES);
+                        }
+
+                        $uploadField = match ($message->type) {
+                            Message::TYPE_FILE => 'file',
+                            Message::TYPE_VIDEO => 'video',
+                            default => null,
+                        };
+
+                        if ($uploadField !== null) {
+                            $upload = $request->file($uploadField);
+                            $collection = $message->type === Message::TYPE_FILE
+                                ? Message::MEDIA_COLLECTION_CHAT_FILES
+                                : Message::MEDIA_COLLECTION_CHAT_VIDEOS;
+
+                            $storedMedia[] = $message->addMedia($upload)
+                                ->usingName(Str::limit($upload->getClientOriginalName(), 255, ''))
+                                ->usingFileName(Str::uuid().'.'.strtolower($upload->getClientOriginalExtension()))
+                                ->toMediaCollection($collection);
+                        }
+                    } catch (Throwable $exception) {
+                        $message->unsetRelation('media')->deleteAllMedia();
+
+                        throw $exception;
+                    }
+                }
+
+                return $message->load('user', 'media', 'priceIncreaseRequest');
+            });
+        } catch (Throwable $exception) {
+            foreach ($storedMedia as $media) {
+                try {
+                    app(MediaFilesystem::class)->removeAllFiles($media);
+                } catch (Throwable $cleanupException) {
+                    report($cleanupException);
+                }
             }
 
-            $message = $clientMessageId
-                ? Message::firstOrCreate([
-                    'thread_id' => $threadId,
-                    'user_id' => $userId,
-                    'client_message_id' => $clientMessageId,
-                ], $messageAttributes)
-                : Message::create($messageAttributes);
-
-            if (! $message->wasRecentlyCreated) {
-                $message->load('user', 'media', 'priceIncreaseRequest');
-
-                return response()->json([
-                    'success' => true,
-                    'message' => ChatMessagePayload::response($message, Auth::user()),
-                ]);
-            }
-
-            foreach ($request->file('images', []) as $image) {
-                $message
-                    ->addMedia($image)
-                    ->toMediaCollection(Message::MEDIA_COLLECTION_CHAT_IMAGES);
-            }
-
-            $message->load('user', 'media', 'priceIncreaseRequest');
-
-            $formattedMessage = ChatMessagePayload::forDispatch($message, Auth::user());
-
-            SendMessage::dispatch($formattedMessage);
-
-            return response()->json([
-                'success' => true,
-                'message' => ChatMessagePayload::response($message, Auth::user()),
-            ]);
-        } catch (QueryException $exception) {
             report($exception);
 
             return response()->json([
@@ -417,6 +418,19 @@ class ChatController extends Controller
                 'message' => 'Failed to send message.',
             ], 500);
         }
+
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
+
+        if ($result->wasRecentlyCreated) {
+            SendMessage::dispatch(ChatMessagePayload::forDispatch($result, Auth::user()))->afterCommit();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => ChatMessagePayload::response($result, Auth::user()),
+        ]);
     }
 
     private function createPriceIncreaseRequestMessage(
