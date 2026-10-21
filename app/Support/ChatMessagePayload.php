@@ -4,10 +4,14 @@ namespace App\Support;
 
 use App\Enum\CacheKey;
 use App\Http\Resources\Api\PartnerBillPriceIncreaseRequestResource;
+use App\Models\Customer;
 use App\Models\Message;
+use App\Models\Partner;
+use App\Models\PartnerProfile;
 use App\Models\User;
 use Cmgmyr\Messenger\Models\Participant;
 use Illuminate\Support\Facades\Cache;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ChatMessagePayload
 {
@@ -48,7 +52,7 @@ class ChatMessagePayload
             'user' => [
                 'id' => $message->user_id,
                 'name' => $user?->name ?? $message->user?->name ?? 'Ghost',
-                'avatar' => null,
+                'avatar' => self::senderAvatar($user ?? $message->user),
             ],
             'other_participant_ids' => self::otherParticipantIds($message->thread_id, $message->user_id),
         ];
@@ -64,7 +68,7 @@ class ChatMessagePayload
             'user' => [
                 'id' => $message->user_id,
                 'name' => $user?->name ?? $message->user?->name ?? 'Ghost',
-                'avatar' => null,
+                'avatar' => self::senderAvatar($user ?? $message->user),
             ],
         ];
     }
@@ -103,6 +107,27 @@ class ChatMessagePayload
                 'avatar' => $message['user']['avatar'] ?? null,
             ],
         ];
+    }
+
+    private static function senderAvatar(?User $user): ?string
+    {
+        if ($user === null) {
+            return null;
+        }
+
+        $modelType = PartnerProfile::query()->where('user_id', $user->id)->exists()
+            ? Partner::class
+            : Customer::class;
+
+        $avatar = Media::query()
+            ->where('model_type', $modelType)
+            ->where('model_id', $user->id)
+            ->where('collection_name', 'avatar')
+            ->orderByDesc('order_column')
+            ->first()
+            ?->getAvailableUrl(['avatar_webp']);
+
+        return filled($avatar) ? $avatar : $user->avatar_url;
     }
 
     /**
