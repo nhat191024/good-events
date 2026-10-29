@@ -139,7 +139,7 @@ class PartnerCategory extends Model implements HasMedia
     }
 
     // Model Boot
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -147,10 +147,10 @@ class PartnerCategory extends Model implements HasMedia
             Cache::tags([CacheKey::PARTNER_CATEGORIES->value, CacheKey::PARTNER_CATEGORY_WITH_PARENT->value])->flush();
         });
 
-        static::deleted(function ($model) {
+        static::deleted(function (PartnerCategory $model): void {
             Cache::tags([CacheKey::PARTNER_CATEGORIES->value])->flush();
 
-            $model->partnerServices()->delete();
+            $model->softDeletePartnerServices();
         });
 
         static::restored(function ($model) {
@@ -185,9 +185,25 @@ class PartnerCategory extends Model implements HasMedia
         return $this->hasMany(PartnerCategory::class, 'parent_id');
     }
 
-    public function partnerServices()
+    public function partnerServices(): HasMany
     {
         return $this->hasMany(PartnerService::class, 'category_id');
+    }
+
+    public function softDeletePartnerServices(int $chunkSize = 500): int
+    {
+        $deletedServices = 0;
+
+        $this->partnerServices()
+            ->chunkById($chunkSize, function (Collection $services) use (&$deletedServices): void {
+                foreach ($services as $service) {
+                    if ($service->delete()) {
+                        $deletedServices++;
+                    }
+                }
+            });
+
+        return $deletedServices;
     }
 
     public function accessories(): HasMany
