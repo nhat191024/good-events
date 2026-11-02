@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enum\PartnerBillStatus;
 use App\Enum\Role;
 use App\Interfaces\MustVerifyPhone;
 use App\Models\Traits\MustVerifyPhoneTrait;
@@ -338,6 +339,10 @@ class User extends Authenticatable implements Confirmable, FilamentUser, HasAvat
             $user->partnerServices()->delete();
         });
 
+        static::softDeleted(function (User $user): void {
+            $user->cancelPartnerBillsAsClient();
+        });
+
         static::restoring(function ($user) {
             $user->partnerProfile()->restore();
             $user->partnerServices()->restore();
@@ -389,9 +394,30 @@ class User extends Authenticatable implements Confirmable, FilamentUser, HasAvat
         return $this->hasMany(PartnerServiceArea::class, 'user_id');
     }
 
-    public function partnerBillsAsClient()
+    public function partnerBillsAsClient(): HasMany
     {
         return $this->hasMany(PartnerBill::class, 'client_id');
+    }
+
+    public function cancelPartnerBillsAsClient(int $chunkSize = 500): int
+    {
+        if (! $this->trashed()) {
+            return 0;
+        }
+
+        $cancelledBills = 0;
+
+        $this->partnerBillsAsClient()
+            ->where('status', '!=', PartnerBillStatus::CANCELLED)
+            ->chunkById($chunkSize, function (Collection $bills) use (&$cancelledBills): void {
+                foreach ($bills as $bill) {
+                    if ($bill->update(['status' => PartnerBillStatus::CANCELLED])) {
+                        $cancelledBills++;
+                    }
+                }
+            });
+
+        return $cancelledBills;
     }
 
     public function partnerBillsAsPartner()
