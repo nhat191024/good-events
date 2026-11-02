@@ -22,7 +22,7 @@ class RealtimePartnerBillResource extends JsonResource
             'code' => $this->code,
             'final_total' => $this->final_total,
             'created_at' => optional($this->created_at)->diffForHumans(),
-            'client_name' => $this->client->name,
+            'client_name' => $this->client?->name ?? 'Ghost User',
             'category_name' => $this->category->name,
             'category_image' => $this->category->getFirstMediaUrl('images', 'thumb'),
             'event_name' => $this->event->name ?? $this->custom_event ?? 'N/A',
