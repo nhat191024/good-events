@@ -453,8 +453,7 @@ class BillController extends Controller
 
         $user = auth()->user();
         $balance = $user->balanceInt;
-        $feePercentage = app(PartnerSettings::class)->fee_percentage;
-        $withdrawAmount = floor($bill->total * ($feePercentage / 100));
+        $withdrawAmount = $bill->platformFeeBreakdown()['total'];
 
         if ($balance < $withdrawAmount) {
             return response()->json(['message' => 'Insufficient balance.'], 422);

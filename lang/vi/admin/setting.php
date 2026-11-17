@@ -10,6 +10,14 @@ return [
         'webhook_url_helper' => 'Khi URL thay đổi, hệ thống sẽ yêu cầu PayOS kiểm tra và cập nhật webhook trước khi lưu.',
         'confirmation_failed' => 'Không thể cập nhật webhook PayOS',
     ],
+    'vat' => [
+        'navigation_label' => 'Phí VAT',
+        'title' => 'Cài đặt phí VAT',
+        'section_title' => 'Phí VAT trên phí nền tảng',
+        'section_description' => 'VAT được tính trên phí nền tảng và cộng thêm vào khoản phí trừ từ ví đối tác khi đơn hoàn thành.',
+        'percentage' => 'Phần trăm VAT',
+        'percentage_helper' => 'Nhập 0 nếu không thu VAT. Chỉ Super Admin mới xem và chỉnh sửa được.',
+    ],
     'app' => 'Hệ thống',
     'app_settings' => 'Các cài đặt liên quan đến hệ thống',
 

@@ -10,6 +10,14 @@ return [
         'webhook_url_helper' => 'When the URL changes, PayOS will verify and update it before the setting is saved.',
         'confirmation_failed' => 'Could not update the PayOS webhook',
     ],
+    'vat' => [
+        'navigation_label' => 'VAT fee',
+        'title' => 'VAT fee settings',
+        'section_title' => 'VAT on the platform fee',
+        'section_description' => 'VAT is calculated on the platform fee and added to the amount deducted from the partner wallet when an order is completed.',
+        'percentage' => 'VAT percentage',
+        'percentage_helper' => 'Enter 0 to charge no VAT. Only Super Admins can view and edit this.',
+    ],
     'app' => 'System',
     'app_settings' => 'Settings related to the system',
 

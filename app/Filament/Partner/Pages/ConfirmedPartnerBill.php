@@ -6,7 +6,6 @@ use App\Enum\PartnerBillDetailStatus;
 use App\Enum\PartnerBillStatus;
 use App\Models\PartnerBill;
 use App\Services\PartnerBillWorkflowService;
-use App\Settings\PartnerSettings;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -294,8 +293,7 @@ class ConfirmedPartnerBill extends Page
 
         $user = auth()->user();
         $balance = $user->balanceInt;
-        $feePercentage = app(PartnerSettings::class)->fee_percentage;
-        $withdrawAmount = floor($bill->total * ($feePercentage / 100));
+        $withdrawAmount = $bill->platformFeeBreakdown()['total'];
 
         if ($balance < $withdrawAmount) {
             $formatWithdrawAmount = number_format($withdrawAmount).' VND';

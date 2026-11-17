@@ -12,6 +12,7 @@ use App\Services\PartnerBillJobScheduler;
 use App\Services\PartnerBillNotificationService;
 use App\Services\PartnerWidgetCacheService;
 use App\Settings\PartnerSettings;
+use App\Settings\VatSettings;
 use Carbon\CarbonImmutable;
 use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
@@ -358,15 +359,21 @@ class PartnerBill extends Model implements HasMedia
 
         // with draw to partner balance
         $user = Partner::find($partnerId);
-        $feePercentage = app(PartnerSettings::class)->fee_percentage;
-        $withdrawAmount = floor($partnerBill->total * ($feePercentage / 100));
+        $feeBreakdown = $partnerBill->platformFeeBreakdown();
+        $withdrawAmount = $feeBreakdown['total'];
+        $reason = $feeBreakdown['vat'] > 0
+            ? 'Thu phí nền tảng (đã gồm VAT '.$feeBreakdown['vat_percentage'].'%) show mã: '.$partnerBill->code
+            : 'Thu phí nền tảng show mã: '.$partnerBill->code;
 
         $id = date('YmdHis').rand(1000, 9999) + $partnerBill->id + rand(100, 999);
         $old_balance = $user->balanceInt;
-        $transaction = $user->forceWithdraw($withdrawAmount, ['transaction_codes' => $id, 'reason' => 'Thu phí nền tảng show mã: '.$partnerBill->code, 'old_balance' => $old_balance]);
+        $transaction = $user->forceWithdraw($withdrawAmount, ['transaction_codes' => $id, 'reason' => $reason, 'old_balance' => $old_balance]);
         $new_balance = $user->balanceInt;
         $transaction->meta = array_merge($transaction->meta ?? [], [
             'new_balance' => $new_balance,
+            'platform_fee' => $feeBreakdown['fee'],
+            'vat_percentage' => $feeBreakdown['vat_percentage'],
+            'vat_amount' => $feeBreakdown['vat'],
         ]);
         $transaction->save();
 
@@ -489,6 +496,27 @@ class PartnerBill extends Model implements HasMedia
     }
 
     // model helpers method
+    /**
+     * Platform fee charged to the partner on completion: the fee itself, the VAT on that fee, and their sum.
+     *
+     * @return array{fee: int, vat_percentage: int, vat: int, total: int}
+     */
+    public function platformFeeBreakdown(): array
+    {
+        $feePercentage = (int) app(PartnerSettings::class)->fee_percentage;
+        $vatPercentage = (int) app(VatSettings::class)->percentage;
+
+        $fee = (int) floor((float) $this->total * ($feePercentage / 100));
+        $vat = (int) floor($fee * ($vatPercentage / 100));
+
+        return [
+            'fee' => $fee,
+            'vat_percentage' => $vatPercentage,
+            'vat' => $vat,
+            'total' => $fee + $vat,
+        ];
+    }
+
     public function isPaid(): bool
     {
         return $this->status === PartnerBillStatus::COMPLETED;
