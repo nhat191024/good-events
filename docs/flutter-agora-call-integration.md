@@ -355,9 +355,25 @@ Khi nhận FCM:
 
 1. Không kết nối Agora ngay.
 2. Điều hướng/mở incoming-call UI theo convention hiện có.
-3. Có thể gọi active-call API để xác nhận call chưa ended/expired.
+3. Gọi active-call API để xác nhận call chưa ended/expired trước khi join.
 4. Accept: gọi `/join`, rồi join Agora bằng credentials.
 5. Decline: gọi `/decline`, dừng ringing.
+
+Khi initiator kết thúc cuộc gọi, thiết bị Android được mời nhận data-only FCM:
+
+```json
+{
+  "type": "call_ended",
+  "call_id": "01K...",
+  "callkit_uuid": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "thread_id": "123",
+  "reason": "remote_ended"
+}
+```
+
+Khi nhận `call_ended`, app phải đóng CallKit/full-screen incoming call có cùng `call_id`, dừng ringtone và xóa active call local. Handler phải chạy được ở foreground lẫn background isolate. Nếu `incoming_call` và `call_ended` đến sai thứ tự, kết quả của active-call API là nguồn sự thật cuối cùng.
+
+Accept vẫn phải xử lý race condition: nếu `/join` trả `403`, `404` hoặc `409` vì call vừa kết thúc, đóng CallKit và trở về trạng thái idle/ended, không hiển thị lỗi kết nối Agora cho người dùng.
 
 Phải xử lý cả foreground, background và notification tap. Không log Agora token hoặc Sanctum token.
 
@@ -432,7 +448,31 @@ Yêu cầu iOS:
 - Không dùng PushKit cho notification không liên quan cuộc gọi.
 - VoIP token không phải APNs token lấy từ Firebase Messaging; đây là token riêng từ PushKit.
 
-Android không gửi `voip_token`; backend gửi FCM high priority và Flutter dùng full-screen intent/CallStyle theo implementation Android hiện có.
+Android không gửi `voip_token`; backend gửi FCM data-only chuyên biệt cho incoming call và Flutter dùng full-screen intent/CallStyle theo implementation Android hiện có. Payload gửi tới FCM tương đương:
+
+```json
+{
+  "message": {
+    "token": "<fcm-token>",
+    "data": {
+      "type": "incoming_call",
+      "call_id": "01K...",
+      "callkit_uuid": "c0a8012e-7f58-4b77-90bb-30ffba271234",
+      "thread_id": "123",
+      "call_type": "audio",
+      "initiator_id": "7",
+      "initiator_name": "Nguyen Van A",
+      "expires_at": "2026-08-04T02:00:00+07:00"
+    },
+    "android": {
+      "priority": "high",
+      "ttl": "60s"
+    }
+  }
+}
+```
+
+Payload Android incoming call không có khối `notification`; background handler của Flutter chịu trách nhiệm hiển thị full-screen incoming-call UI. Các FCM notification không liên quan cuộc gọi vẫn giữ hành vi cũ.
 
 Backend chỉ gửi APNs VoIP thật khi server có đủ cấu hình:
 
