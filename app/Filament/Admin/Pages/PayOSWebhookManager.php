@@ -87,10 +87,15 @@ class PayOSWebhookManager extends SettingsPage
         try {
             $result = app(PaymentService::class)->confirmWebhook($webhookUrl);
 
-            Log::info('PayOS webhook URL confirmed', [
-                'webhook_url' => $webhookUrl,
-                'result' => $result,
-            ]);
+            if ($result) {
+                Log::info('PayOS webhook URL confirmed', [
+                    'webhook_url' => $webhookUrl,
+                    'result' => $result,
+                ]);
+            } else {
+                Log::info('Payos Return nothing');
+            }
+
         } catch (Throwable $exception) {
             report($exception);
 
