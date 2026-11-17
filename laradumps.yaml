@@ -14,7 +14,7 @@ observers:
   enabled_in_testing: false
   dump: false
   original_dump: true
-  queries: true
+  queries: false
   slow_queries: true
   mail: false
   logs: true
