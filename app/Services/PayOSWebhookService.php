@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enum\FileProductBillStatus;
+use App\Mail\AssetPurchaseInvoice;
 use App\Mail\WalletTopUpInvoice;
 use App\Models\FileProductBill;
 use App\Models\User;
@@ -10,6 +11,7 @@ use Bavix\Wallet\Models\Transaction;
 use DomainException;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -65,6 +67,8 @@ class PayOSWebhookService
             $data,
         );
 
+        $wasPaid = $bill->status === FileProductBillStatus::PAID;
+
         $payOSData = $bill->payos_data ?? [];
         $payOSData['webhook'] = $data;
 
@@ -74,6 +78,14 @@ class PayOSWebhookService
             'payos_payment_link_id' => $data['paymentLinkId'],
             'payos_data' => $payOSData,
         ])->save();
+
+        if (! $wasPaid) {
+            $this->queueInvoiceMail(
+                AssetPurchaseInvoice::recipientEmail($bill),
+                new AssetPurchaseInvoice($bill),
+                ['file_product_bill_id' => $bill->getKey()],
+            );
+        }
 
         return 'File product bill payment processed.';
     }
@@ -154,17 +166,31 @@ class PayOSWebhookService
      */
     private function queueTopUpInvoice(Transaction $transaction, User $user): void
     {
-        if (blank($user->email)) {
+        $this->queueInvoiceMail(
+            $user->email,
+            new WalletTopUpInvoice($transaction),
+            ['transaction_id' => $transaction->getKey(), 'user_id' => $user->getKey()],
+        );
+    }
+
+    /**
+     * Queue an invoice email after the surrounding database transaction commits, without ever failing the webhook.
+     *
+     * @param  array<string, mixed>  $logContext
+     */
+    private function queueInvoiceMail(?string $email, Mailable $mailable, array $logContext): void
+    {
+        if (blank($email)) {
             return;
         }
 
-        DB::afterCommit(function () use ($transaction, $user): void {
+        DB::afterCommit(function () use ($email, $mailable, $logContext): void {
             try {
-                Mail::to($user->email)->queue(new WalletTopUpInvoice($transaction));
+                Mail::to($email)->queue($mailable);
             } catch (Throwable $exception) {
-                Log::error('Failed to queue wallet top-up invoice email', [
-                    'transaction_id' => $transaction->getKey(),
-                    'user_id' => $user->getKey(),
+                Log::error('Failed to queue invoice email', [
+                    ...$logContext,
+                    'mailable' => $mailable::class,
                     'error' => $exception->getMessage(),
                 ]);
             }

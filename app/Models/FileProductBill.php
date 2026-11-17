@@ -112,6 +112,45 @@ class FileProductBill extends Model
     }
 
     /**
+     * Line items sent to PayOS, built from the amounts stored on the bill so repaying
+     * stays consistent even if the VAT setting changed after the bill was created.
+     *
+     * @return array<int, array{name: string, price: int, quantity: int}>
+     */
+    public function paymentItems(): array
+    {
+        $items = [
+            [
+                'name' => (string) $this->fileProduct?->name,
+                'price' => (int) round((float) $this->total),
+                'quantity' => 1,
+            ],
+        ];
+
+        $tax = (int) round((float) $this->tax);
+
+        if ($tax > 0) {
+            $items[] = [
+                'name' => 'VAT '.$this->vatPercentage().'%',
+                'price' => $tax,
+                'quantity' => 1,
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * VAT percentage derived from the amounts stored on the bill.
+     */
+    public function vatPercentage(): int
+    {
+        $total = (float) $this->total;
+
+        return $total > 0 ? (int) round((float) $this->tax / $total * 100) : 0;
+    }
+
+    /**
      * Summary of getActivitylogOptions
      */
     public function getActivitylogOptions(): LogOptions

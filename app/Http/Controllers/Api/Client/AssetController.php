@@ -17,6 +17,7 @@ use App\Models\FileProductBill;
 use App\Models\Taggable;
 use App\Services\PaymentService;
 use App\Settings\AppSettings;
+use App\Settings\VatSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -327,7 +328,7 @@ class AssetController extends Controller
             $user->save();
         }
 
-        $tax = 0.1 * $fileProduct->price;
+        $tax = app(VatSettings::class)->calculate((float) $fileProduct->price);
         $bill = FileProductBill::updateOrCreate(
             [
                 'file_product_id' => $fileProduct->getKey(),
@@ -346,6 +347,7 @@ class AssetController extends Controller
         );
 
         $billTotal = (int) round($bill->final_total ?? $fileProduct->price);
+        $bill->setRelation('fileProduct', $fileProduct);
         $paymentPayload = [
             'billId' => $bill->getKey().time(),
             'billCode' => 'FPB-'.$bill->getKey(),
@@ -353,18 +355,7 @@ class AssetController extends Controller
             'buyerName' => $validated['name'],
             'buyerEmail' => $validated['email'],
             'buyerPhone' => $validated['phone'],
-            'items' => [
-                [
-                    'name' => $fileProduct->name,
-                    'price' => (int) round($fileProduct->price),
-                    'quantity' => 1,
-                ],
-                [
-                    'name' => 'VAT 10%',
-                    'price' => (int) round($tax),
-                    'quantity' => 1,
-                ],
-            ],
+            'items' => $bill->paymentItems(),
             'expiryTime' => intval(now()->addMinutes(10)->timestamp),
         ];
 
@@ -435,7 +426,7 @@ class AssetController extends Controller
     {
         $subtotal = max($price, 0);
         $discount = 0.0;
-        $vat = round($subtotal * 0.1, 2);
+        $vat = app(VatSettings::class)->calculate($subtotal);
         $total = max($subtotal - $discount + $vat, 0);
 
         return [

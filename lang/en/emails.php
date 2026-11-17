@@ -235,4 +235,26 @@ return [
         'new_balance' => 'Balance after',
         'cta' => 'View my wallet',
     ],
+
+    // ===== ASSET PURCHASE INVOICE - Sales invoice for design asset purchases =====
+    'asset_purchase_invoice' => [
+        'title' => 'Sales Invoice',
+        'subject' => 'Design asset purchase invoice - :code',
+        'success_banner' => '🎉 Payment successful!',
+        'message' => 'Thank you for purchasing a design asset. Below is the sales invoice for your order; you can download the files from your orders page.',
+        'seller' => 'Seller',
+        'buyer' => 'Buyer',
+        'invoice_number' => 'Invoice No.',
+        'issued_at' => 'Issued at',
+        'order_code' => 'Order code',
+        'payment_method' => 'Payment method',
+        'payment_reference' => 'Payment reference',
+        'item' => 'Product',
+        'quantity' => 'Qty',
+        'unit_price' => 'Unit price',
+        'line_total' => 'Amount',
+        'vat' => 'VAT :percent%',
+        'grand_total' => 'Total paid',
+        'cta' => 'View order & download',
+    ],
 ];

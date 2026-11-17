@@ -14,6 +14,7 @@ use App\Models\FileProductBill;
 use App\Models\Taggable;
 use App\Models\User;
 use App\Services\PaymentService;
+use App\Settings\VatSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -286,7 +287,7 @@ class FileProductController extends Controller
 
     private function createPurchaseBill(User $user, FileProduct $fileProduct, array $validated): FileProductBill
     {
-        $tax = 0.1 * $fileProduct->price;
+        $tax = app(VatSettings::class)->calculate((float) $fileProduct->price);
 
         return FileProductBill::updateOrCreate(
             [
@@ -357,8 +358,8 @@ class FileProductController extends Controller
 
     private function buildPaymentPayload(FileProductBill $bill, FileProduct $fileProduct, array $validated): array
     {
-        $tax = 0.1 * $fileProduct->price;
         $billTotal = (int) round($bill->final_total ?? $fileProduct->price);
+        $bill->setRelation('fileProduct', $fileProduct);
 
         return [
             'billId' => $bill->getKey().time(),
@@ -367,18 +368,7 @@ class FileProductController extends Controller
             'buyerName' => $validated['name'],
             'buyerEmail' => $validated['email'],
             'buyerPhone' => $validated['phone'],
-            'items' => [
-                [
-                    'name' => $fileProduct->name,
-                    'price' => (int) round($fileProduct->price),
-                    'quantity' => 1,
-                ],
-                [
-                    'name' => 'VAT 10%',
-                    'price' => (int) round($tax),
-                    'quantity' => 1,
-                ],
-            ],
+            'items' => $bill->paymentItems(),
             'expiryTime' => intval(now()->addMinutes(10)->timestamp),
         ];
     }
@@ -632,7 +622,7 @@ class FileProductController extends Controller
     {
         $subtotal = max($price, 0);
         $discount = 0.0;
-        $vat = round($subtotal * 0.1, 2);
+        $vat = app(VatSettings::class)->calculate($subtotal);
         $total = max($subtotal - $discount + $vat, 0);
 
         return [

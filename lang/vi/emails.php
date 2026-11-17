@@ -235,4 +235,26 @@ return [
         'new_balance' => 'Số dư sau giao dịch',
         'cta' => 'Xem ví của tôi',
     ],
+
+    // ===== ASSET PURCHASE INVOICE - Hóa đơn bán hàng khi mua asset design =====
+    'asset_purchase_invoice' => [
+        'title' => 'Hóa đơn bán hàng',
+        'subject' => 'Hóa đơn mua tài liệu thiết kế - :code',
+        'success_banner' => '🎉 Thanh toán thành công!',
+        'message' => 'Cảm ơn bạn đã mua tài liệu thiết kế. Dưới đây là hóa đơn bán hàng cho đơn hàng của bạn, bạn có thể tải tài liệu trong mục đơn hàng.',
+        'seller' => 'Đơn vị bán hàng',
+        'buyer' => 'Người mua',
+        'invoice_number' => 'Số hóa đơn',
+        'issued_at' => 'Ngày lập',
+        'order_code' => 'Mã đơn hàng',
+        'payment_method' => 'Phương thức thanh toán',
+        'payment_reference' => 'Mã tham chiếu thanh toán',
+        'item' => 'Sản phẩm',
+        'quantity' => 'SL',
+        'unit_price' => 'Đơn giá',
+        'line_total' => 'Thành tiền',
+        'vat' => 'Thuế VAT :percent%',
+        'grand_total' => 'Tổng thanh toán',
+        'cta' => 'Xem đơn hàng & tải tài liệu',
+    ],
 ];

@@ -42,6 +42,35 @@
                 @endif
             </div>
 
+            <div class="mb-8 rounded-lg bg-white p-6 shadow-md">
+                <h2 class="mb-4 text-xl font-semibold text-gray-800">Hóa đơn bán hàng - Mua asset design</h2>
+
+                @if (empty($assetInvoices))
+                    <div class="rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700">
+                        <strong>Thông báo:</strong> Chưa có đơn mua asset nào để preview hóa đơn.
+                    </div>
+                @else
+                    <div class="grid gap-3">
+                        @foreach ($assetInvoices as $invoice)
+                            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-3 last:border-b-0 last:pb-0">
+                                <div class="text-sm text-gray-700">
+                                    <strong>{{ $invoice['invoice_number'] }}</strong>
+                                    <span class="ml-2 text-gray-500">{{ $invoice['product'] }} · {{ number_format($invoice['amount'], 0, ',', '.') }} VNĐ · {{ $invoice['status'] }}</span>
+                                </div>
+                                <div class="flex gap-1">
+                                    <a class="rounded border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700 transition-colors hover:bg-red-100" href="{{ $invoice['links']['vi'] }}" target="_blank">
+                                        🧾 Hóa đơn (VI)
+                                    </a>
+                                    <a class="rounded border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-700 transition-colors hover:bg-red-100" href="{{ $invoice['links']['en'] }}" target="_blank">
+                                        🧾 Invoice (EN)
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
             @if (empty($previews))
                 <div class="mb-4 rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700">
                     <strong>Thông báo:</strong> Không có đơn hàng nào để preview. Hãy tạo một số PartnerBill để xem preview email.

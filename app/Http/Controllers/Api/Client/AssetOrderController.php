@@ -94,7 +94,6 @@ class AssetOrderController extends Controller
 
         $amount = (int) round($bill->final_total ?? $bill->total);
         $orderCode = $bill->getKey().time();
-        $tax = 0.1 * $fileProduct->price;
 
         $payload = [
             'billId' => $orderCode,
@@ -103,18 +102,7 @@ class AssetOrderController extends Controller
             'buyerName' => $request->user()?->name,
             'buyerEmail' => $request->user()?->email,
             'buyerPhone' => $request->user()?->phone,
-            'items' => [
-                [
-                    'name' => $fileProduct->name,
-                    'price' => (int) round($fileProduct->price),
-                    'quantity' => 1,
-                ],
-                [
-                    'name' => 'VAT 10%',
-                    'price' => (int) round($tax),
-                    'quantity' => 1,
-                ],
-            ],
+            'items' => $bill->paymentItems(),
             'expiryTime' => intval(now()->addMinutes(10)->timestamp),
         ];
 

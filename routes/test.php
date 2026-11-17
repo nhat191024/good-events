@@ -11,10 +11,12 @@ Route::get('/test/broadcasting', function () {
     return Inertia::render('test/Broadcasting');
 })->name('test.broadcasting');
 
+use App\Mail\AssetPurchaseInvoice;
 use App\Mail\PartnerBillConfirmed;
 use App\Mail\PartnerBillReceived;
 use App\Mail\PartnerBillReminder;
 use App\Mail\WalletTopUpInvoice;
+use App\Models\FileProductBill;
 use Bavix\Wallet\Models\Transaction;
 
 // Mail Preview Routes (chỉ dành cho development)
@@ -73,6 +75,17 @@ if (app()->environment(['local', 'staging', 'testing'])) {
             return new WalletTopUpInvoice($transaction, $locale);
         })->name('mail.preview.wallet-top-up-invoice');
 
+        // Hóa đơn bán hàng khi mua asset design (id = id của FileProductBill)
+        Route::get('asset-purchase-invoice/{id}/{locale?}', function ($id, $locale = 'vi') {
+            $bill = FileProductBill::query()->with(['fileProduct', 'client'])->findOrFail($id);
+
+            if (! in_array($locale, ['vi', 'en'])) {
+                abort(400, 'Locale must be either "vi" or "en"');
+            }
+
+            return new AssetPurchaseInvoice($bill, $locale);
+        })->name('mail.preview.asset-purchase-invoice');
+
         // Route tổng hợp để list tất cả mail preview có sẵn
         Route::get('/', function () {
             $partnerBills = PartnerBill::with(['client', 'partner', 'category', 'event'])
@@ -120,7 +133,25 @@ if (app()->environment(['local', 'staging', 'testing'])) {
                 ])
                 ->all();
 
-            return view('mail.preview.index', compact('previews', 'invoices'));
+            $assetInvoices = FileProductBill::query()
+                ->with('fileProduct')
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(fn (FileProductBill $bill): array => [
+                    'bill_id' => $bill->getKey(),
+                    'invoice_number' => AssetPurchaseInvoice::invoiceNumber($bill),
+                    'product' => $bill->fileProduct?->name,
+                    'status' => $bill->status->value,
+                    'amount' => (int) round((float) ($bill->final_total ?? $bill->total)),
+                    'links' => [
+                        'vi' => route('mail.preview.asset-purchase-invoice', [$bill->getKey(), 'vi']),
+                        'en' => route('mail.preview.asset-purchase-invoice', [$bill->getKey(), 'en']),
+                    ],
+                ])
+                ->all();
+
+            return view('mail.preview.index', compact('previews', 'invoices', 'assetInvoices'));
         })->name('mail.preview.index');
     });
 }
