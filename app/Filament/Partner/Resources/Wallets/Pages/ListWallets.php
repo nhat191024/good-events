@@ -4,6 +4,7 @@ namespace App\Filament\Partner\Resources\Wallets\Pages;
 
 use App\Enum\PaymentMethod;
 use App\Filament\Partner\Resources\Wallets\WalletResource;
+use App\Models\RevenueRecord;
 use App\Services\PaymentService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -52,7 +53,7 @@ class ListWallets extends ListRecords
         $user = Auth::user();
         $id = date('YmdHis').rand(1000, 9999) + 1;
         $oldBalance = $user->balanceInt;
-        $transaction = $user->deposit($amount, ['reason' => 'Nạp tiền vào ví qua QR', 'transaction_codes' => $id, 'old_balance' => $oldBalance, 'new_balance' => $oldBalance + $amount], false);
+        $transaction = $user->deposit($amount, ['reason' => RevenueRecord::QR_TOP_UP_REASON, 'transaction_codes' => $id, 'old_balance' => $oldBalance, 'new_balance' => $oldBalance + $amount], false);
 
         $timestamp = time();
         $billId = intval($transaction->id.'1010'.substr((string) $timestamp, -3));

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Partner;
 use App\Enum\PaymentMethod;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\Partner\WalletTransactionCollection;
+use App\Models\RevenueRecord;
 use App\Services\PaymentService;
 use Bavix\Wallet\Models\Transaction;
 use Illuminate\Http\JsonResponse;
@@ -52,7 +53,7 @@ class WalletController extends Controller
 
         $id = date('YmdHis').rand(1000, 9999) + 1;
         $oldBalance = $user->balanceInt;
-        $transaction = $user->deposit($amount, ['reason' => 'Nạp tiền vào ví qua QR', 'transaction_codes' => $id, 'old_balance' => $oldBalance, 'new_balance' => $oldBalance + $amount], false);
+        $transaction = $user->deposit($amount, ['reason' => RevenueRecord::QR_TOP_UP_REASON, 'transaction_codes' => $id, 'old_balance' => $oldBalance, 'new_balance' => $oldBalance + $amount], false);
 
         $timestamp = time();
         $billId = intval($transaction->id.'1010'.substr((string) $timestamp, -3));

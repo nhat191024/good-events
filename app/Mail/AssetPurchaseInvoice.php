@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\FileProductBill;
+use DateTimeInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -31,7 +32,15 @@ class AssetPurchaseInvoice extends Mailable implements ShouldQueue
      */
     public static function invoiceNumber(FileProductBill $bill): string
     {
-        return 'HDA'.$bill->created_at?->format('Ymd').'-'.str_pad((string) $bill->getKey(), 6, '0', STR_PAD_LEFT);
+        return self::formatInvoiceNumber($bill->getKey(), $bill->created_at);
+    }
+
+    /**
+     * Format an invoice number from a file product bill id and its creation date.
+     */
+    public static function formatInvoiceNumber(int|string $billId, ?DateTimeInterface $createdAt): string
+    {
+        return 'HDA'.$createdAt?->format('Ymd').'-'.str_pad((string) $billId, 6, '0', STR_PAD_LEFT);
     }
 
     /**

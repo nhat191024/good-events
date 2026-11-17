@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Enum\PaymentMethod;
 use App\Models\User;
 use Bavix\Wallet\Models\Transaction;
+use DateTimeInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -33,7 +34,15 @@ class WalletTopUpInvoice extends Mailable implements ShouldQueue
      */
     public static function invoiceNumber(Transaction $transaction): string
     {
-        return 'HD'.$transaction->created_at?->format('Ymd').'-'.str_pad((string) $transaction->getKey(), 6, '0', STR_PAD_LEFT);
+        return self::formatInvoiceNumber($transaction->getKey(), $transaction->created_at);
+    }
+
+    /**
+     * Format an invoice number from a wallet transaction id and its creation date.
+     */
+    public static function formatInvoiceNumber(int|string $transactionId, ?DateTimeInterface $createdAt): string
+    {
+        return 'HD'.$createdAt?->format('Ymd').'-'.str_pad((string) $transactionId, 6, '0', STR_PAD_LEFT);
     }
 
     /**
