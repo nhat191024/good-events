@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Exceptions\Halt;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class PayOSWebhookManager extends SettingsPage
@@ -84,9 +85,19 @@ class PayOSWebhookManager extends SettingsPage
         }
 
         try {
-            app(PaymentService::class)->confirmWebhook($webhookUrl);
+            $result = app(PaymentService::class)->confirmWebhook($webhookUrl);
+
+            Log::info('PayOS webhook URL confirmed', [
+                'webhook_url' => $webhookUrl,
+                'result' => $result,
+            ]);
         } catch (Throwable $exception) {
             report($exception);
+
+            Log::error('PayOS webhook URL confirmation failed', [
+                'webhook_url' => $webhookUrl,
+                'error' => $exception->getMessage(),
+            ]);
 
             Notification::make()
                 ->danger()
