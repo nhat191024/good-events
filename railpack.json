@@ -1,0 +1,25 @@
+{
+    "$schema": "https://schema.railpack.com",
+    "provider": "php",
+    "packages": {
+        "php": "8.4",
+        "node": "22"
+    },
+    "deploy": {
+        "aptPackages": ["...", "supervisor", "openssh-client"]
+    },
+    "steps": {
+        "extensions": {
+            "commands": [
+                "...",
+                "install-php-extensions zip pdo_mysql gd bcmath intl pcntl exif opcache imagick redis"
+            ]
+        },
+        "build": {
+            "commands": [
+                "php -r 'if (PHP_MAJOR_VERSION !== 8 || PHP_MINOR_VERSION !== 4 || version_compare(PHP_VERSION, \"8.4.27\", \"<\")) { fwrite(STDERR, \"PHP 8.4.27 or newer in the 8.4 branch is required.\\n\"); exit(1); } echo \"PHP security version check passed: \" . PHP_VERSION . PHP_EOL;'",
+                "npm run build:ssr"
+            ]
+        }
+    }
+}
