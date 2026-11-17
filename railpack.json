@@ -8,7 +8,8 @@
         "aptPackages": [
             "...",
             "supervisor",
-            "openssh-client"
+            "openssh-client",
+            "wget"
         ]
     },
     "steps": {

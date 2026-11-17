@@ -12,7 +12,7 @@ php artisan storage:link
 
 echo "Clearing and caching configurations..."
 php artisan optimize:clear
-php artisan optimize
+php artisan optimize -vvv
 
 cat > /usr/local/etc/php/conf.d/zz-goodevent.ini <<'EOF'
 upload_max_filesize = 64M
