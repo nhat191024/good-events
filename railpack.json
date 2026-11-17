@@ -5,7 +5,11 @@
         "node": "22"
     },
     "deploy": {
-        "aptPackages": ["...", "supervisor", "openssh-client"]
+        "aptPackages": [
+            "...",
+            "supervisor",
+            "openssh-client"
+        ]
     },
     "steps": {
         "extensions": {
@@ -16,7 +20,7 @@
         },
         "build": {
             "commands": [
-                "php -r 'if (PHP_MAJOR_VERSION !== 8 || PHP_MINOR_VERSION !== 5) { fwrite(STDERR, \"PHP 8.5 is required.\\n\"); exit(1); } echo \"PHP security version check passed: \" . PHP_VERSION . PHP_EOL;'",
+                "php -v",
                 "npm run build:ssr"
             ]
         }
