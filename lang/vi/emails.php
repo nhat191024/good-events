@@ -211,4 +211,28 @@ return [
         'cta_new_order' => 'Đặt đơn hàng mới',
         'cta_contact_support' => 'Liên hệ hỗ trợ',
     ],
+
+    // ===== WALLET TOP UP INVOICE - Hóa đơn bán hàng khi nạp tiền vào ví =====
+    'wallet_top_up_invoice' => [
+        'title' => 'Hóa đơn bán hàng',
+        'subject' => 'Hóa đơn nạp tiền vào ví - :code',
+        'success_banner' => '🎉 Nạp tiền vào ví thành công!',
+        'message' => 'Cảm ơn bạn đã nạp tiền. Dưới đây là hóa đơn bán hàng cho giao dịch nạp tiền vào ví của bạn.',
+        'seller' => 'Đơn vị bán hàng',
+        'buyer' => 'Người mua',
+        'invoice_number' => 'Số hóa đơn',
+        'issued_at' => 'Ngày lập',
+        'transaction_id' => 'Mã giao dịch',
+        'payment_method' => 'Phương thức thanh toán',
+        'payment_reference' => 'Mã tham chiếu thanh toán',
+        'item' => 'Nội dung',
+        'item_name' => 'Nạp tiền vào ví',
+        'quantity' => 'SL',
+        'unit_price' => 'Đơn giá',
+        'line_total' => 'Thành tiền',
+        'grand_total' => 'Tổng thanh toán',
+        'old_balance' => 'Số dư trước giao dịch',
+        'new_balance' => 'Số dư sau giao dịch',
+        'cta' => 'Xem ví của tôi',
+    ],
 ];

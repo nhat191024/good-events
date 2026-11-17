@@ -211,4 +211,28 @@ return [
         'cta_new_order' => 'Place New Order',
         'cta_contact_support' => 'Contact Support',
     ],
+
+    // ===== WALLET TOP UP INVOICE - Sales invoice for wallet top-ups =====
+    'wallet_top_up_invoice' => [
+        'title' => 'Sales Invoice',
+        'subject' => 'Wallet top-up invoice - :code',
+        'success_banner' => '🎉 Your wallet top-up was successful!',
+        'message' => 'Thank you for topping up. Below is the sales invoice for your wallet top-up transaction.',
+        'seller' => 'Seller',
+        'buyer' => 'Buyer',
+        'invoice_number' => 'Invoice No.',
+        'issued_at' => 'Issued at',
+        'transaction_id' => 'Transaction ID',
+        'payment_method' => 'Payment method',
+        'payment_reference' => 'Payment reference',
+        'item' => 'Description',
+        'item_name' => 'Wallet top-up',
+        'quantity' => 'Qty',
+        'unit_price' => 'Unit price',
+        'line_total' => 'Amount',
+        'grand_total' => 'Total paid',
+        'old_balance' => 'Balance before',
+        'new_balance' => 'Balance after',
+        'cta' => 'View my wallet',
+    ],
 ];

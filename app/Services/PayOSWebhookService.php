@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enum\FileProductBillStatus;
+use App\Mail\WalletTopUpInvoice;
 use App\Models\FileProductBill;
 use App\Models\User;
 use Bavix\Wallet\Models\Transaction;
@@ -10,6 +11,9 @@ use DomainException;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class PayOSWebhookService
 {
@@ -18,6 +22,12 @@ class PayOSWebhookService
      */
     public function handle(bool $success, string $code, array $data): string
     {
+        Log::info('PayOS webhook received', [
+            'success' => $success,
+            'code' => $code,
+            'data' => $data,
+        ]);
+
         if (! $success || $code !== '00' || ($data['code'] ?? null) !== '00') {
             return 'Webhook acknowledged without a successful payment.';
         }
@@ -130,11 +140,35 @@ class PayOSWebhookService
                         ->url(route('filament.partner.resources.wallets.index')),
                 ])
                 ->sendToDatabase($user);
+
+            $this->queueTopUpInvoice($transaction, $user);
         }
 
         return $wasConfirmed
             ? 'Wallet payment was already processed.'
             : 'Wallet payment processed.';
+    }
+
+    /**
+     * Queue the sales invoice email once the top-up has been committed as confirmed.
+     */
+    private function queueTopUpInvoice(Transaction $transaction, User $user): void
+    {
+        if (blank($user->email)) {
+            return;
+        }
+
+        DB::afterCommit(function () use ($transaction, $user): void {
+            try {
+                Mail::to($user->email)->queue(new WalletTopUpInvoice($transaction));
+            } catch (Throwable $exception) {
+                Log::error('Failed to queue wallet top-up invoice email', [
+                    'transaction_id' => $transaction->getKey(),
+                    'user_id' => $user->getKey(),
+                    'error' => $exception->getMessage(),
+                ]);
+            }
+        });
     }
 
     /**
